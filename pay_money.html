@@ -6,95 +6,280 @@
   <title>จ่ายเงินซื้อของ — Summer's World</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Mali:wght@500;700&family=Noto+Sans+Thai:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;700;800;900&family=Prompt:wght@700;800;900&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
   <style>
-    :root { --pink: #FF6B9D; --blue: #4ECDC4; --yellow: #FFD93D; --dark: #2D3047; --cream: #FFF8E8; --green: #95E06C; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Fredoka', 'Mali', 'Noto Sans Thai', sans-serif; min-height: 100vh; overflow-x: hidden; background: radial-gradient(circle at 15% 25%, #FFD93D 0%, transparent 45%), radial-gradient(circle at 85% 75%, #FF6B9D 0%, transparent 45%), radial-gradient(circle at 50% 50%, #4ECDC4 0%, transparent 60%), linear-gradient(135deg, #FFE066 0%, #FF9F1C 50%, #4ECDC4 100%); }
+    body {
+      font-family: 'Noto Sans Thai', 'Nunito', system-ui, sans-serif;
+      min-height: 100vh; background: #fff9f0; overflow-x: hidden;
+    }
+    body::before {
+      content: ""; position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 70% 50% at 0% 0%,   #ccfbf1 0%, transparent 55%),
+        radial-gradient(ellipse 60% 40% at 100% 0%,  #dbeafe 0%, transparent 55%),
+        radial-gradient(ellipse 55% 45% at 50% 100%, #fffbd0 0%, transparent 55%),
+        radial-gradient(ellipse 40% 35% at 0% 100%,  #d4f7ff 0%, transparent 50%);
+      pointer-events: none;
+    }
 
-    .stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
-    .star { position: absolute; animation: twinkle 3s ease-in-out infinite; }
-    @keyframes twinkle { 0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.5; } 50% { transform: scale(1.4) rotate(180deg); opacity: 1; } }
+    .blobs { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+    .blob  { position: absolute; border-radius: 50%; animation: floatBlob linear infinite; opacity: .3; }
+    @keyframes floatBlob {
+      0%   { transform: translateY(0) rotate(0deg) scale(1); }
+      33%  { transform: translateY(-16px) rotate(120deg) scale(1.06); }
+      66%  { transform: translateY(10px) rotate(240deg) scale(.95); }
+      100% { transform: translateY(0) rotate(360deg) scale(1); }
+    }
 
     .page { position: relative; z-index: 1; max-width: 560px; margin: 0 auto; padding: 28px 16px 80px; }
 
-    .site-nav { position: sticky; top: 0; z-index: 100; background: var(--cream); border-bottom: 4px solid var(--dark); box-shadow: 0 4px 0 var(--dark); padding: 10px 16px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-    .nav-brand { font-family: 'Bungee', cursive; font-size: 15px; color: var(--dark); text-shadow: 2px 2px 0 var(--pink); white-space: nowrap; flex-shrink: 0; text-decoration: none; }
+    /* ── NAV ── */
+    .site-nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,249,240,.92);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border-bottom: 2px solid #f0e8fb;
+      padding: 10px 16px;
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    }
+    .nav-home {
+      display: inline-flex; align-items: center; gap: 6px;
+      text-decoration: none;
+      font-family: 'Prompt','Noto Sans Thai',sans-serif;
+      font-size: 14px; font-weight: 900;
+      padding: 9px 20px; border-radius: 999px;
+      background: linear-gradient(135deg,#ff6b9d,#ff8a5b);
+      color: #fff; white-space: nowrap; flex-shrink: 0;
+      box-shadow: 0 3px 10px rgba(255,107,157,.3);
+      transition: transform .15s, box-shadow .15s;
+    }
+    .nav-home:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(255,107,157,.4); }
     .nav-links { display: flex; gap: 6px; flex-wrap: wrap; }
-    .nav-link { text-decoration: none; font-family: 'Fredoka', 'Noto Sans Thai', sans-serif; font-size: 13px; font-weight: 600; padding: 5px 13px; border-radius: 12px; border: 2.5px solid var(--dark); color: var(--dark); background: white; transition: all .12s; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; box-shadow: 2px 2px 0 var(--dark); }
-    .nav-link:hover { background: var(--yellow); transform: translate(-1px,-1px); box-shadow: 3px 3px 0 var(--dark); }
-    .nav-link:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 var(--dark); }
-    .nav-link.active { background: var(--pink); color: white; }
-    @media (max-width: 420px) { .nav-brand { font-size: 13px; } .nav-link { font-size: 11px; padding: 4px 10px; } }
+    .nav-link {
+      text-decoration: none;
+      font-family: 'Prompt','Noto Sans Thai',sans-serif;
+      font-size: 12px; font-weight: 800;
+      padding: 7px 13px; border-radius: 999px;
+      border: 2px solid #e8dff0; color: #7c6d88;
+      background: #fff; transition: all .18s;
+      display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;
+    }
+    .nav-link:hover { border-color: #c084fc; color: #7c3aed; transform: translateY(-1px); }
+    .nav-link.active {
+      background: linear-gradient(135deg,#a855f7,#3b82f6);
+      color: #fff; border-color: transparent;
+      box-shadow: 0 3px 10px rgba(168,85,247,.35);
+    }
+    @media (max-width: 420px) {
+      .nav-home { font-size: 13px; padding: 8px 14px; }
+      .nav-link { font-size: 11px; padding: 6px 10px; }
+    }
 
+    /* Hero */
     .hero { text-align: center; margin-bottom: 28px; }
-    .hero-emoji { font-size: 76px; display: block; margin-bottom: 6px; animation: heroBounce 2.5s ease-in-out infinite; filter: drop-shadow(0 6px 16px rgba(13,148,136,.25)); }
-    @keyframes heroBounce { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-12px) scale(1.06)} }
-    .hero-title { font-family: 'Prompt','Noto Sans Thai',sans-serif; font-size: clamp(30px,8vw,48px); font-weight: 900; line-height: 1.1; background: linear-gradient(135deg,#0d9488,#0891b2,#0ea5e9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .hero-emoji {
+      font-size: 76px; display: block; margin-bottom: 6px;
+      animation: heroBounce 2.5s ease-in-out infinite;
+      filter: drop-shadow(0 6px 16px rgba(13,148,136,.25));
+    }
+    @keyframes heroBounce {
+      0%,100% { transform: translateY(0) scale(1); }
+      50%      { transform: translateY(-12px) scale(1.06); }
+    }
+    .hero-title {
+      font-family: 'Prompt', 'Noto Sans Thai', sans-serif;
+      font-size: clamp(30px, 8vw, 48px); font-weight: 900; line-height: 1.1;
+      background: linear-gradient(135deg, #0d9488, #0891b2, #0ea5e9);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
     .hero-sub { font-size: 15px; color: #78716c; margin-top: 6px; font-weight: 600; }
 
-    .progress-row { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+    /* Progress */
+    .progress-row {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 20px;
+    }
     .progress-label { font-size: 13px; font-weight: 700; color: #0d9488; white-space: nowrap; }
     .progress-bar { flex: 1; height: 10px; background: #ccfbf1; border-radius: 999px; overflow: hidden; }
-    .progress-fill { height: 100%; background: linear-gradient(90deg,#0d9488,#14b8a6); border-radius: 999px; transition: width .5s ease; }
-    .score-badge { background: #0d9488; color: #fff; border-radius: 999px; padding: 4px 14px; font-size: 13px; font-weight: 900; white-space: nowrap; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, #0d9488, #14b8a6); border-radius: 999px; transition: width .5s ease; }
+    .score-badge {
+      background: #0d9488; color: #fff;
+      border-radius: 999px; padding: 4px 14px;
+      font-size: 13px; font-weight: 900; white-space: nowrap;
+    }
 
-    .shop-card { background: #fff; border-radius: 28px; padding: 28px 20px 24px; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,.1); margin-bottom: 16px; }
-    .shop-label { font-size: 12px; font-weight: 800; color: #0d9488; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px; }
-    .item-emoji { font-size: 80px; display: block; margin-bottom: 8px; animation: itemBounce .5s cubic-bezier(.34,1.56,.64,1); }
-    @keyframes itemBounce { from{transform:scale(0.5);opacity:0} to{transform:scale(1);opacity:1} }
-    .item-name { font-family: 'Prompt','Noto Sans Thai',sans-serif; font-size: 26px; font-weight: 900; color: #1c1917; margin-bottom: 10px; }
-    .price-tag { display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg,#0d9488,#14b8a6); color: #fff; border-radius: 999px; padding: 8px 24px; font-size: 22px; font-weight: 900; font-family: 'Prompt',sans-serif; box-shadow: 0 4px 14px rgba(13,148,136,.35); }
+    /* Shop card */
+    .shop-card {
+      background: #fff; border-radius: 28px;
+      padding: 28px 20px 24px; text-align: center;
+      box-shadow: 0 8px 32px rgba(0,0,0,.1);
+      margin-bottom: 16px;
+    }
+    .shop-label {
+      font-size: 12px; font-weight: 800; color: #0d9488;
+      letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px;
+    }
+    .item-emoji {
+      font-size: 80px; display: block; margin-bottom: 8px;
+      animation: itemBounce .5s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes itemBounce {
+      from { transform: scale(0.5); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+    .item-name {
+      font-family: 'Prompt', 'Noto Sans Thai', sans-serif;
+      font-size: 26px; font-weight: 900; color: #1c1917; margin-bottom: 10px;
+    }
+    .price-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: linear-gradient(135deg, #0d9488, #14b8a6);
+      color: #fff; border-radius: 999px;
+      padding: 8px 24px; font-size: 22px; font-weight: 900;
+      font-family: 'Prompt', sans-serif;
+      box-shadow: 0 4px 14px rgba(13,148,136,.35);
+    }
 
-    .wallet-box { background: #fff; border-radius: 22px; padding: 18px 18px 16px; box-shadow: 0 4px 20px rgba(0,0,0,.08); margin-bottom: 16px; }
-    .wallet-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-    .wallet-title { font-family: 'Prompt','Noto Sans Thai',sans-serif; font-size: 16px; font-weight: 900; color: #1c1917; }
-    .wallet-total { font-family: 'Nunito',sans-serif; font-size: 22px; font-weight: 900; color: #0d9488; }
-    .wallet-coins { min-height: 48px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-    .wallet-empty { font-size: 13px; color: #a8a29e; font-weight: 600; font-style: italic; }
+    /* Wallet */
+    .wallet-box {
+      background: #fff; border-radius: 22px;
+      padding: 18px 18px 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,.08);
+      margin-bottom: 16px;
+    }
+    .wallet-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .wallet-title {
+      font-family: 'Prompt', 'Noto Sans Thai', sans-serif;
+      font-size: 16px; font-weight: 900; color: #1c1917;
+    }
+    .wallet-total {
+      font-family: 'Nunito', sans-serif;
+      font-size: 22px; font-weight: 900; color: #0d9488;
+    }
+    .wallet-coins {
+      min-height: 48px; display: flex; flex-wrap: wrap; gap: 6px;
+      align-items: center;
+    }
+    .wallet-empty {
+      font-size: 13px; color: #a8a29e; font-weight: 600;
+      font-style: italic;
+    }
 
-    .mini-coin { width: 40px; height: 40px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; animation: coinPop .3s cubic-bezier(.34,1.56,.64,1); cursor: pointer; transition: transform .15s; font-family: 'Prompt',sans-serif; }
+    /* Mini coins in wallet */
+    .mini-coin {
+      width: 40px; height: 40px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 900;
+      animation: coinPop .3s cubic-bezier(.34,1.56,.64,1);
+      cursor: pointer; transition: transform .15s;
+      font-family: 'Prompt', sans-serif;
+    }
     .mini-coin:hover { transform: scale(1.1); }
-    @keyframes coinPop { from{transform:scale(0) rotate(-180deg);opacity:0} to{transform:scale(1) rotate(0deg);opacity:1} }
-    .mc1  { background: radial-gradient(circle at 35% 30%,#f4f4f4,#aaa); color: #555; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
-    .mc2  { background: radial-gradient(circle at 35% 30%,#e8e8e8,#999); color: #444; border: 2px solid #ccc; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
-    .mc5  { background: radial-gradient(circle at 35% 30%,#f0f0f0,#b5b5b5); color: #4a3500; border: 3px solid #d4a017; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
-    .mc10 { background: radial-gradient(circle at 35% 30%,#fef08a,#d97706); color: #7c2d12; border: 3px solid #c0c0c0; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
+    @keyframes coinPop {
+      from { transform: scale(0) rotate(-180deg); opacity: 0; }
+      to   { transform: scale(1) rotate(0deg);   opacity: 1; }
+    }
+    .mc1  { background: radial-gradient(circle at 35% 30%, #f4f4f4, #aaa); color: #555; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
+    .mc2  { background: radial-gradient(circle at 35% 30%, #e8e8e8, #999); color: #444; border: 2px solid #ccc; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
+    .mc5  { background: radial-gradient(circle at 35% 30%, #f0f0f0, #b5b5b5); color: #4a3500; border: 3px solid #d4a017; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
+    .mc10 { background: radial-gradient(circle at 35% 30%, #fef08a, #d97706); color: #7c2d12; border: 3px solid #c0c0c0; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
 
-    .coin-section-label { font-size: 14px; font-weight: 800; color: #78716c; margin-bottom: 10px; }
-    .coin-btns { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 16px; }
-    .coin-btn { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 6px 12px; border: none; border-radius: 18px; background: #fff; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,.1); transition: transform .15s, box-shadow .15s; }
-    .coin-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 22px rgba(0,0,0,.15); }
+    /* Coin selector */
+    .coin-section-label {
+      font-size: 14px; font-weight: 800; color: #78716c;
+      margin-bottom: 10px;
+    }
+    .coin-btns {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+      margin-bottom: 16px;
+    }
+    .coin-btn {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      padding: 14px 6px 12px; border: none; border-radius: 18px;
+      background: #fff; cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0,0,0,.1);
+      transition: transform .15s, box-shadow .15s;
+    }
+    .coin-btn:hover  { transform: translateY(-3px); box-shadow: 0 8px 22px rgba(0,0,0,.15); }
     .coin-btn:active { transform: scale(.93); }
-    .coin-btn-visual { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Prompt',sans-serif; font-size: 17px; font-weight: 900; }
-    .cbv1  { background: radial-gradient(circle at 35% 30%,#f4f4f4,#aaa); color: #555; box-shadow: 0 3px 10px rgba(0,0,0,.2),inset 0 1px 3px rgba(255,255,255,.7); }
-    .cbv2  { background: radial-gradient(circle at 35% 30%,#e8e8e8,#999); color: #444; border: 3px solid #ccc; box-shadow: 0 3px 10px rgba(0,0,0,.2),inset 0 1px 3px rgba(255,255,255,.7); }
-    .cbv5  { background: radial-gradient(circle at 35% 30%,#f0f0f0,#b5b5b5); color: #4a3500; border: 4px solid #d4a017; box-shadow: 0 3px 10px rgba(0,0,0,.2),inset 0 1px 3px rgba(255,255,255,.7); }
-    .cbv10 { background: radial-gradient(circle at 35% 30%,#fef08a,#d97706); color: #7c2d12; border: 4px solid #c0c0c0; box-shadow: 0 3px 10px rgba(0,0,0,.2),inset 0 1px 3px rgba(255,255,255,.5); }
+    .coin-btn-visual {
+      width: 56px; height: 56px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Prompt', sans-serif; font-size: 17px; font-weight: 900;
+    }
+    .cbv1  { background: radial-gradient(circle at 35% 30%, #f4f4f4, #aaa); color: #555; box-shadow: 0 3px 10px rgba(0,0,0,.2), inset 0 1px 3px rgba(255,255,255,.7); }
+    .cbv2  { background: radial-gradient(circle at 35% 30%, #e8e8e8, #999); color: #444; border: 3px solid #ccc; box-shadow: 0 3px 10px rgba(0,0,0,.2), inset 0 1px 3px rgba(255,255,255,.7); }
+    .cbv5  { background: radial-gradient(circle at 35% 30%, #f0f0f0, #b5b5b5); color: #4a3500; border: 4px solid #d4a017; box-shadow: 0 3px 10px rgba(0,0,0,.2), inset 0 1px 3px rgba(255,255,255,.7); }
+    .cbv10 { background: radial-gradient(circle at 35% 30%, #fef08a, #d97706); color: #7c2d12; border: 4px solid #c0c0c0; box-shadow: 0 3px 10px rgba(0,0,0,.2), inset 0 1px 3px rgba(255,255,255,.5); }
     .coin-btn-label { font-size: 13px; font-weight: 900; color: #44403c; }
 
+    /* Action buttons */
     .action-row { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; margin-bottom: 14px; }
-    .clear-btn { padding: 16px; border: 2px solid #d4d4d4; border-radius: 16px; background: #fafaf9; font-family: 'Prompt','Noto Sans Thai',sans-serif; font-size: 16px; font-weight: 800; color: #78716c; cursor: pointer; transition: all .15s; }
+    .clear-btn {
+      padding: 16px; border: 2px solid #d4d4d4; border-radius: 16px;
+      background: #fafaf9; font-family: 'Prompt', 'Noto Sans Thai', sans-serif;
+      font-size: 16px; font-weight: 800; color: #78716c;
+      cursor: pointer; transition: all .15s;
+    }
     .clear-btn:hover { background: #f5f5f4; border-color: #a8a29e; }
-    .pay-btn { padding: 16px; border: none; border-radius: 16px; background: linear-gradient(135deg,#0d9488,#14b8a6); font-family: 'Prompt','Noto Sans Thai',sans-serif; font-size: 20px; font-weight: 900; color: #fff; cursor: pointer; transition: transform .15s, box-shadow .15s; box-shadow: 0 4px 16px rgba(13,148,136,.4); }
-    .pay-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(13,148,136,.45); }
+    .clear-btn:active { transform: scale(.96); }
+    .pay-btn {
+      padding: 16px; border: none; border-radius: 16px;
+      background: linear-gradient(135deg, #0d9488, #14b8a6);
+      font-family: 'Prompt', 'Noto Sans Thai', sans-serif;
+      font-size: 20px; font-weight: 900; color: #fff;
+      cursor: pointer; transition: transform .15s, box-shadow .15s;
+      box-shadow: 0 4px 16px rgba(13,148,136,.4);
+    }
+    .pay-btn:hover  { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(13,148,136,.45); }
+    .pay-btn:active { transform: scale(.96); }
 
-    .feedback-box { border-radius: 18px; padding: 16px 20px; text-align: center; font-size: 18px; font-weight: 900; min-height: 60px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all .3s; }
-    .fb-hidden { opacity: 0; }
-    .fb-exact { background: #fef9c3; border: 2px solid #fde047; color: #713f12; }
-    .fb-over  { background: #dcfce7; border: 2px solid #86efac; color: #14532d; }
-    .fb-under { background: #fff7ed; border: 2px solid #fed7aa; color: #7c2d12; }
-    .fb-empty { background: #f1f5f9; border: 2px solid #e2e8f0; color: #64748b; }
+    /* Feedback */
+    .feedback-box {
+      border-radius: 18px; padding: 16px 20px; text-align: center;
+      font-size: 18px; font-weight: 900; min-height: 60px;
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px; transition: all .3s;
+    }
+    .fb-hidden  { opacity: 0; }
+    .fb-exact   { background: #fef9c3; border: 2px solid #fde047; color: #713f12; }
+    .fb-over    { background: #dcfce7; border: 2px solid #86efac; color: #14532d; }
+    .fb-under   { background: #fff7ed; border: 2px solid #fed7aa; color: #7c2d12; }
+    .fb-empty   { background: #f1f5f9; border: 2px solid #e2e8f0; color: #64748b; }
 
-    .next-btn { display: block; width: 100%; margin-top: 12px; padding: 16px; border: none; border-radius: 16px; background: linear-gradient(135deg,#0d9488,#14b8a6); font-family: 'Prompt','Noto Sans Thai',sans-serif; font-size: 20px; font-weight: 900; color: #fff; cursor: pointer; box-shadow: 0 4px 16px rgba(13,148,136,.4); transition: transform .15s; }
+    /* Next button */
+    .next-btn {
+      display: block; width: 100%; margin-top: 12px;
+      padding: 16px; border: none; border-radius: 16px;
+      background: linear-gradient(135deg, #0d9488, #14b8a6);
+      font-family: 'Prompt', 'Noto Sans Thai', sans-serif;
+      font-size: 20px; font-weight: 900; color: #fff;
+      cursor: pointer; box-shadow: 0 4px 16px rgba(13,148,136,.4);
+      transition: transform .15s;
+    }
     .next-btn:hover { transform: scale(1.02); }
 
+    /* Result screen */
     .result-screen { text-align: center; padding: 20px 0 10px; }
-    .result-emoji { font-size: 80px; display: block; margin-bottom: 10px; animation: heroBounce 2s ease-in-out infinite; }
-    .result-title { font-family: 'Prompt',sans-serif; font-size: 28px; font-weight: 900; color: #1c1917; margin-bottom: 8px; }
-    .result-score { font-size: 54px; font-weight: 900; color: #0d9488; font-family: 'Nunito',sans-serif; margin-bottom: 6px; }
-    .result-sub { font-size: 16px; color: #78716c; margin-bottom: 28px; line-height: 1.6; }
-    .restart-btn { padding: 16px 44px; border: none; border-radius: 999px; background: linear-gradient(135deg,#0d9488,#14b8a6); font-family: 'Prompt','Noto Sans Thai',sans-serif; font-size: 20px; font-weight: 900; color: #fff; cursor: pointer; box-shadow: 0 4px 18px rgba(13,148,136,.4); transition: transform .2s; }
+    .result-emoji  { font-size: 80px; display: block; margin-bottom: 10px; animation: heroBounce 2s ease-in-out infinite; }
+    .result-title  {
+      font-family: 'Prompt', sans-serif;
+      font-size: 28px; font-weight: 900; color: #1c1917; margin-bottom: 8px;
+    }
+    .result-score  { font-size: 54px; font-weight: 900; color: #0d9488; font-family: 'Nunito', sans-serif; margin-bottom: 6px; }
+    .result-sub    { font-size: 16px; color: #78716c; margin-bottom: 28px; line-height: 1.6; }
+    .restart-btn {
+      padding: 16px 44px; border: none; border-radius: 999px;
+      background: linear-gradient(135deg, #0d9488, #14b8a6);
+      font-family: 'Prompt', 'Noto Sans Thai', sans-serif;
+      font-size: 20px; font-weight: 900; color: #fff;
+      cursor: pointer; box-shadow: 0 4px 18px rgba(13,148,136,.4);
+      transition: transform .2s;
+    }
     .restart-btn:hover { transform: scale(1.06); }
 
     @media (max-width: 520px) {
@@ -107,13 +292,12 @@
 </head>
 <body>
 
-<div class="stars" id="stars"></div>
+<div class="blobs" id="blobs"></div>
 
 <nav class="site-nav">
-  <a class="nav-brand" href="index.html">☀️ SUMMER</a>
+  <a class="nav-home" href="home.html">🏠 หน้าหลัก</a>
   <div class="nav-links">
     <a class="nav-link" href="24_question.html">🎲 24 คำถาม</a>
-    <a class="nav-link" href="robot_game.html">🤖 หุ่นยนต์</a>
     <a class="nav-link" href="knowledge.html">📚 เรียนรู้</a>
     <a class="nav-link" href="thai_money.html">🪙 เหรียญ</a>
     <a class="nav-link active" href="pay_money.html">🛒 จ่ายเงิน</a>
@@ -129,13 +313,17 @@
     <p class="hero-sub">Pay at the Shop · ฝึกจ่ายเงินกับแม่</p>
   </div>
 
+  <!-- Progress -->
   <div class="progress-row">
     <span class="progress-label" id="roundLabel">ข้อ 1/5</span>
     <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
     <span class="score-badge" id="scoreBadge">⭐ 0</span>
   </div>
 
+  <!-- Game area -->
   <div id="gameArea">
+
+    <!-- Shop card -->
     <div class="shop-card">
       <div class="shop-label">🏪 ร้านค้า</div>
       <span class="item-emoji" id="itemEmoji">🍭</span>
@@ -143,6 +331,7 @@
       <div class="price-tag">💰 <span id="itemPrice">3</span> บาท</div>
     </div>
 
+    <!-- Wallet -->
     <div class="wallet-box">
       <div class="wallet-header">
         <div class="wallet-title">👛 กระเป๋าตังค์</div>
@@ -153,21 +342,22 @@
       </div>
     </div>
 
+    <!-- Coin selector -->
     <div class="coin-section-label">เลือกเหรียญที่จะจ่าย 👇</div>
     <div class="coin-btns">
-      <button class="coin-btn" onclick="addCoin(1)">
+      <button class="coin-btn" onclick="addCoin(1)"  title="1 บาท">
         <div class="coin-btn-visual cbv1">๑</div>
         <div class="coin-btn-label">1 บาท</div>
       </button>
-      <button class="coin-btn" onclick="addCoin(2)">
+      <button class="coin-btn" onclick="addCoin(2)"  title="2 บาท">
         <div class="coin-btn-visual cbv2">๒</div>
         <div class="coin-btn-label">2 บาท</div>
       </button>
-      <button class="coin-btn" onclick="addCoin(5)">
+      <button class="coin-btn" onclick="addCoin(5)"  title="5 บาท">
         <div class="coin-btn-visual cbv5">๕</div>
         <div class="coin-btn-label">5 บาท</div>
       </button>
-      <button class="coin-btn" onclick="addCoin(10)">
+      <button class="coin-btn" onclick="addCoin(10)" title="10 บาท">
         <div class="coin-btn-visual cbv10">๑๐</div>
         <div class="coin-btn-label">10 บาท</div>
       </button>
@@ -175,98 +365,179 @@
 
     <div class="action-row">
       <button class="clear-btn" onclick="clearWallet()">🗑️ ล้าง</button>
-      <button class="pay-btn" onclick="pay()">💳 จ่ายเงิน!</button>
+      <button class="pay-btn"   onclick="pay()">💳 จ่ายเงิน!</button>
     </div>
 
     <div class="feedback-box fb-hidden" id="feedback"></div>
+
   </div>
 
 </div>
 
 <script>
+  // Blobs
   (function() {
-    const emojis = ['⭐','✨','🌟','💫','⚡','🌈'];
-    const container = document.getElementById("stars");
-    for (let i = 0; i < 18; i++) {
-      const s = document.createElement('div');
-      s.className = 'star';
-      s.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-      s.style.left = Math.random() * 100 + '%';
-      s.style.top = Math.random() * 100 + '%';
-      s.style.animationDelay = Math.random() * 3 + 's';
-      s.style.fontSize = (14 + Math.random() * 16) + 'px';
-      container.appendChild(s);
+    const cols = ["#99f6e4","#bfdbfe","#a5f3c6","#fde68a","#fbcfe8","#ddd6fe","#ccfbf1","#fed7aa"];
+    const wrap = document.getElementById("blobs");
+    for (let i = 0; i < 22; i++) {
+      const b = document.createElement("div");
+      b.className = "blob";
+      const s = 40 + Math.random() * 110;
+      b.style.cssText = `width:${s}px;height:${s}px;background:${cols[i%cols.length]};left:${Math.random()*100}%;top:${Math.random()*100}%;animation-duration:${8+Math.random()*14}s;animation-delay:-${Math.random()*10}s;`;
+      wrap.appendChild(b);
     }
   })();
 
   const ITEMS = [
-    {emoji:'🍭',name:'ลูกอม',price:3},{emoji:'🍪',name:'คุกกี้',price:5},{emoji:'🧃',name:'น้ำผลไม้',price:7},
-    {emoji:'🍡',name:'ทับทิมกรอบ',price:2},{emoji:'🌭',name:'ไส้กรอก',price:10},{emoji:'🍿',name:'ป๊อปคอร์น',price:8},
-    {emoji:'🥤',name:'น้ำเย็น',price:6},{emoji:'🍬',name:'ลูกกวาด',price:4},{emoji:'🍦',name:'ไอศกรีม',price:9},{emoji:'🧁',name:'คัพเค้ก',price:6}
+    { emoji:'🍭', name:'ลูกอม',      price:3  },
+    { emoji:'🍪', name:'คุกกี้',     price:5  },
+    { emoji:'🧃', name:'น้ำผลไม้',  price:7  },
+    { emoji:'🍡', name:'ทับทิมกรอบ', price:2  },
+    { emoji:'🌭', name:'ไส้กรอก',   price:10 },
+    { emoji:'🍿', name:'ป๊อปคอร์น', price:8  },
+    { emoji:'🥤', name:'น้ำเย็น',   price:6  },
+    { emoji:'🍬', name:'ลูกกวาด',   price:4  },
+    { emoji:'🍦', name:'ไอศกรีม',   price:9  },
+    { emoji:'🧁', name:'คัพเค้ก',   price:6  },
   ];
-  const COIN_CLASS = {1:'mc1',2:'mc2',5:'mc5',10:'mc10'};
-  const COIN_THAI  = {1:'๑',2:'๒',5:'๕',10:'๑๐'};
+
+  const COIN_CLASS = { 1:'mc1', 2:'mc2', 5:'mc5', 10:'mc10' };
+  const COIN_THAI  = { 1:'๑',   2:'๒',   5:'๕',   10:'๑๐' };
   const TOTAL_ROUNDS = 5;
-  let wallet=[], currentItem=null, round=0, score=0, paid=false, itemPool=[];
 
-  function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+  let wallet = [], currentItem = null, round = 0, score = 0;
+  let paid = false, itemPool = [];
 
-  function startGame(){round=0;score=0;paid=false;itemPool=shuffle([...ITEMS]);nextRound();}
-
-  function nextRound(){
-    if(round>=TOTAL_ROUNDS){showResult();return;}
-    paid=false; wallet=[]; currentItem=itemPool[round%itemPool.length]; round++;
-    document.getElementById('roundLabel').textContent=`ข้อ ${round}/${TOTAL_ROUNDS}`;
-    document.getElementById('progressFill').style.width=`${((round-1)/TOTAL_ROUNDS)*100}%`;
-    document.getElementById('scoreBadge').textContent=`⭐ ${score}`;
-    document.getElementById('itemEmoji').textContent=currentItem.emoji;
-    document.getElementById('itemName').textContent=currentItem.name;
-    document.getElementById('itemPrice').textContent=currentItem.price;
-    const el=document.getElementById('itemEmoji');
-    el.style.animation='none'; requestAnimationFrame(()=>{el.style.animation='';});
-    renderWallet(); hideFeedback();
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length-1; i > 0; i--) {
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
   }
 
-  function addCoin(val){if(paid||wallet.length>=12)return;wallet.push(val);renderWallet();hideFeedback();}
-  function clearWallet(){if(paid)return;wallet=[];renderWallet();hideFeedback();}
-
-  function renderWallet(){
-    const total=wallet.reduce((s,v)=>s+v,0);
-    document.getElementById('walletTotal').textContent=total;
-    const container=document.getElementById('walletCoins');
-    if(wallet.length===0){container.innerHTML='<span class="wallet-empty">แตะเหรียญด้านล่างเพื่อใส่กระเป๋า</span>';}
-    else{container.innerHTML=wallet.map((v,i)=>`<div class="mini-coin ${COIN_CLASS[v]}" onclick="removeCoin(${i})">${COIN_THAI[v]}</div>`).join('');}
+  function startGame() {
+    round = 0; score = 0; paid = false;
+    itemPool = shuffle([...ITEMS]);
+    nextRound();
   }
 
-  function removeCoin(idx){if(paid)return;wallet.splice(idx,1);renderWallet();hideFeedback();}
+  function nextRound() {
+    if (round >= TOTAL_ROUNDS) { showResult(); return; }
+    paid = false;
+    wallet = [];
+    currentItem = itemPool[round % itemPool.length];
+    round++;
 
-  function pay(){
-    if(paid)return;
-    const total=wallet.reduce((s,v)=>s+v,0);
-    const price=currentItem.price;
-    const fb=document.getElementById('feedback');
-    if(wallet.length===0){showFeedback('fb-empty','😊 เลือกเหรียญก่อนนะ แตะเหรียญด้านบน!');return;}
-    if(total<price){showFeedback('fb-under',`😊 ยังไม่พอ — ขาดอีก ${price-total} บาท เพิ่มเหรียญอีกนะ!`);return;}
-    paid=true; score++;
-    if(total===price){showFeedback('fb-exact','🎯 จ่ายพอดีเลย! เก่งมากๆ! 🌟');}
-    else{showFeedback('fb-over',`✅ จ่ายได้! ได้รับเงินทอน ${total-price} บาท 😊`);}
-    const btn=document.createElement('button');
-    btn.className='next-btn';
-    btn.textContent=round<TOTAL_ROUNDS?'ซื้อของถัดไป →':'ดูผลลัพธ์ 🏆';
-    btn.onclick=()=>{btn.remove();nextRound();};
-    fb.insertAdjacentElement('afterend',btn);
+    // Update UI
+    document.getElementById('roundLabel').textContent = `ข้อ ${round}/${TOTAL_ROUNDS}`;
+    document.getElementById('progressFill').style.width = `${((round-1)/TOTAL_ROUNDS)*100}%`;
+    document.getElementById('scoreBadge').textContent = `⭐ ${score}`;
+
+    document.getElementById('itemEmoji').textContent = currentItem.emoji;
+    document.getElementById('itemName').textContent  = currentItem.name;
+    document.getElementById('itemPrice').textContent = currentItem.price;
+
+    // Re-trigger item animation
+    const el = document.getElementById('itemEmoji');
+    el.style.animation = 'none';
+    requestAnimationFrame(() => { el.style.animation = ''; });
+
+    renderWallet();
+    hideFeedback();
   }
 
-  function showFeedback(cls,msg){const fb=document.getElementById('feedback');fb.className=`feedback-box ${cls}`;fb.textContent=msg;}
-  function hideFeedback(){const fb=document.getElementById('feedback');fb.className='feedback-box fb-hidden';fb.textContent='';}
+  function addCoin(val) {
+    if (paid) return;
+    if (wallet.length >= 12) return; // cap wallet size
+    wallet.push(val);
+    renderWallet();
+    hideFeedback();
+  }
 
-  function showResult(){
-    document.getElementById('progressFill').style.width='100%';
-    document.getElementById('scoreBadge').textContent=`⭐ ${score}`;
-    let emoji='🥇',title='เก่งมากที่สุดเลย!',sub='ซัมเมอร์เป็นนักช้อปเก่งมาก!';
-    if(score<=2){emoji='😊';title='ฝึกอีกนิดนะ!';sub='ลองอีกครั้ง แล้วซัมเมอร์จะเก่งขึ้นเอง!';}
-    else if(score<=3){emoji='⭐';title='ดีมากเลย!';sub='ซัมเมอร์จ่ายเงินเก่งขึ้นมากเลย!';}
-    document.getElementById('gameArea').innerHTML=`
+  function clearWallet() {
+    if (paid) return;
+    wallet = [];
+    renderWallet();
+    hideFeedback();
+  }
+
+  function renderWallet() {
+    const total = wallet.reduce((s,v) => s+v, 0);
+    document.getElementById('walletTotal').textContent = total;
+
+    const container = document.getElementById('walletCoins');
+    if (wallet.length === 0) {
+      container.innerHTML = '<span class="wallet-empty">แตะเหรียญด้านล่างเพื่อใส่กระเป๋า</span>';
+    } else {
+      container.innerHTML = wallet.map((v, i) =>
+        `<div class="mini-coin ${COIN_CLASS[v]}" onclick="removeCoin(${i})" title="แตะเพื่อเอาออก">${COIN_THAI[v]}</div>`
+      ).join('');
+    }
+  }
+
+  function removeCoin(idx) {
+    if (paid) return;
+    wallet.splice(idx, 1);
+    renderWallet();
+    hideFeedback();
+  }
+
+  function pay() {
+    if (paid) return;
+    const total = wallet.reduce((s,v) => s+v, 0);
+    const price = currentItem.price;
+    const fb = document.getElementById('feedback');
+
+    if (wallet.length === 0) {
+      showFeedback('fb-empty', '😊 เลือกเหรียญก่อนนะ แตะเหรียญด้านบน!');
+      return;
+    }
+    if (total < price) {
+      const need = price - total;
+      showFeedback('fb-under', `😊 ยังไม่พอ — ขาดอีก ${need} บาท เพิ่มเหรียญอีกนะ!`);
+      return;
+    }
+
+    paid = true;
+    score++;
+
+    if (total === price) {
+      showFeedback('fb-exact', `🎯 จ่ายพอดีเลย! เก่งมากๆ! 🌟`);
+    } else {
+      const change = total - price;
+      showFeedback('fb-over', `✅ จ่ายได้! ได้รับเงินทอน ${change} บาท 😊`);
+    }
+
+    // Show next button
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'next-btn';
+    nextBtn.textContent = round < TOTAL_ROUNDS ? 'ซื้อของถัดไป →' : 'ดูผลลัพธ์ 🏆';
+    nextBtn.onclick = () => { nextBtn.remove(); nextRound(); };
+    fb.insertAdjacentElement('afterend', nextBtn);
+  }
+
+  function showFeedback(cls, msg) {
+    const fb = document.getElementById('feedback');
+    fb.className = `feedback-box ${cls}`;
+    fb.textContent = msg;
+  }
+
+  function hideFeedback() {
+    document.getElementById('feedback').className = 'feedback-box fb-hidden';
+    document.getElementById('feedback').textContent = '';
+  }
+
+  function showResult() {
+    document.getElementById('progressFill').style.width = '100%';
+    document.getElementById('scoreBadge').textContent = `⭐ ${score}`;
+
+    let emoji = '🥇', title = 'เก่งมากที่สุดเลย!', sub = 'ซัมเมอร์เป็นนักช้อปเก่งมาก!';
+    if (score <= 2) { emoji = '😊'; title = 'ฝึกอีกนิดนะ!'; sub = 'ลองอีกครั้ง แล้วซัมเมอร์จะเก่งขึ้นเอง!'; }
+    else if (score <= 3) { emoji = '⭐'; title = 'ดีมากเลย!'; sub = 'ซัมเมอร์จ่ายเงินเก่งขึ้นมากเลย!'; }
+
+    document.getElementById('gameArea').innerHTML = `
       <div style="background:#fff;border-radius:28px;padding:32px 20px;box-shadow:0 8px 32px rgba(0,0,0,.1);">
         <div class="result-screen">
           <span class="result-emoji">${emoji}</span>
@@ -275,11 +546,11 @@
           <div class="result-sub">ซัมเมอร์ซื้อของสำเร็จ ${score} ร้าน จาก ${TOTAL_ROUNDS} ร้าน 🛒<br>ฝึกบ่อยๆ จะเก่งเหมือนแม่เลย!</div>
           <button class="restart-btn" onclick="startGame()">🔄 เล่นอีกครั้ง</button>
         </div>
-      </div>`;
+      </div>
+    `;
   }
 
   startGame();
 </script>
-
 </body>
 </html>
