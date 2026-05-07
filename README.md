@@ -1,17 +1,21 @@
-# 🌟 Summer Project
+# Summer Project
 
-แหล่งเรียนรู้และเกมสนุกสำหรับ Summer — A fun learning game collection.
+A personal web platform built for our family — tools and educational resources created for our son Summer (age 5) and managed by mom and dad.
 
-## 🎮 เกม / Games
+## Purpose
 
-| เกม | คำอธิบาย | สถานะ |
-|-----|----------|-------|
-| [🤖 ประกอบหุ่นยนต์](game-robot.html) | ลากชิ้นส่วนประกอบหุ่นยนต์ เรียนรู้วิทยาศาสตร์ | ✅ พร้อมเล่น |
-| 🔢 เลขสนุก | เกมคณิตศาสตร์ บวก ลบ คูณ หาร | 🔒 เร็วๆ นี้ |
-| 🌱 โลกของพืช | ปลูกต้นไม้และเรียนรู้ธรรมชาติ | 🔒 เร็วๆ นี้ |
+- Build interactive educational activities and games for Summer
+- Provide a family-managed web space for tracking progress and sharing resources
+- A place for parents to create, customize, and maintain learning tools together
 
-## 🚀 วิธีเล่น / How to Play
+## Who It's For
 
-เปิดไฟล์ `index.html` ในเบราว์เซอร์ แล้วเลือกเกมที่ต้องการเล่นได้เลย!
+| Role | Description |
+|------|-------------|
+| Summer | 5-year-old learner — the main user of educational content |
+| Dad | Developer and content creator |
+| Mom | Co-creator and content curator |
 
-Open `index.html` in a browser and pick a game to play!
+## Status
+
+Early development — stack and features to be decided.
