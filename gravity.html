@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🚀 แรงโน้มถ่วง — Summer's World</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root { --cream:#FFF8E8; --dark:#2D3047; --pink:#FF6B9D; --yellow:#FFD93D; }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  body { min-height:100vh; font-family:'Fredoka','Noto Sans Thai',sans-serif; background:#fff9f0; overflow-x:hidden; }
+
+  /* BACKGROUND */
+  .blobs { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+  .blob { position:absolute; border-radius:50%; animation:blob-float ease-in-out infinite; opacity:.18; }
+  @keyframes blob-float { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(20px,-28px) scale(1.05)} }
+
+  /* NAV */
+  .site-nav { position:sticky; top:0; z-index:100; background:var(--cream); border-bottom:4px solid var(--dark); box-shadow:0 4px 0 var(--dark); padding:10px 16px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .nav-brand { font-family:'Bungee',cursive; font-size:15px; color:var(--dark); text-shadow:2px 2px 0 var(--pink); white-space:nowrap; flex-shrink:0; text-decoration:none; }
+  .nav-links { display:flex; gap:6px; flex-wrap:wrap; }
+  .nav-link { text-decoration:none; font-family:'Fredoka','Noto Sans Thai',sans-serif; font-size:13px; font-weight:600; padding:5px 13px; border-radius:12px; border:2.5px solid var(--dark); color:var(--dark); background:white; transition:all .12s; display:inline-flex; align-items:center; gap:4px; white-space:nowrap; box-shadow:2px 2px 0 var(--dark); }
+  .nav-link:hover { background:var(--yellow); transform:translate(-1px,-1px); box-shadow:3px 3px 0 var(--dark); }
+  .nav-link:active { transform:translate(1px,1px); box-shadow:1px 1px 0 var(--dark); }
+  .nav-link.active { background:var(--pink); color:white; }
+  @media(max-width:420px){ .nav-brand{font-size:13px} .nav-link{font-size:11px;padding:4px 10px} }
+
+  /* PAGE */
+  .page { position:relative; z-index:1; max-width:520px; margin:0 auto; padding:24px 16px 60px; }
+
+  /* HERO */
+  .hero { text-align:center; margin-bottom:28px; }
+  .hero-emoji { font-size:72px; display:block; animation:hero-float 3s ease-in-out infinite; }
+  @keyframes hero-float { 0%,100%{transform:translateY(0) rotate(-3deg)} 50%{transform:translateY(-14px) rotate(3deg)} }
+  .hero-title { font-family:'Bungee',cursive; font-size:clamp(26px,8vw,40px); color:var(--dark); margin:10px 0 6px; }
+  .hero-sub { color:#6b5e78; font-size:16px; font-weight:500; line-height:1.55; }
+
+  /* CARDS */
+  .card { background:white; border-radius:24px; padding:22px 18px; margin-bottom:20px; border:3px solid var(--dark); box-shadow:4px 4px 0 var(--dark); }
+  .card-title { font-family:'Bungee',cursive; font-size:17px; color:var(--dark); margin-bottom:6px; display:flex; align-items:center; gap:8px; }
+  .card-sub { color:#7c6d88; font-size:14px; font-weight:500; margin-bottom:16px; line-height:1.5; }
+
+  /* ── SECTION 1: DROP TEST ── */
+  .drop-stage { background:linear-gradient(to bottom, #e0f0ff 0%, #c8e0ff 100%); border-radius:16px; padding:18px 12px 52px; position:relative; overflow:hidden; margin-bottom:12px; min-height:160px; }
+  .drop-objects { display:flex; gap:16px; justify-content:center; flex-wrap:wrap; }
+  .drop-obj { display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; user-select:none; transition:transform .12s; }
+  .drop-obj:hover { transform:scale(1.12) translateY(-4px); }
+  .drop-obj:active { transform:scale(.9); }
+  .drop-obj .obj-em { font-size:46px; line-height:1; }
+  .drop-obj .obj-lbl { font-size:11px; font-weight:700; color:#3a5a8a; }
+  .drop-obj.falling { animation:obj-fall 1.3s ease-in forwards; pointer-events:none; }
+  @keyframes obj-fall {
+    0%   { transform:translateY(0) rotate(0deg); opacity:1; }
+    70%  { transform:translateY(85px) rotate(15deg); opacity:1; }
+    85%  { transform:translateY(82px) rotate(0deg) scaleY(.6) scaleX(1.3); }
+    100% { transform:translateY(85px) scaleY(0); opacity:0; }
+  }
+  .drop-ground { position:absolute; bottom:0; left:0; right:0; height:44px; background:linear-gradient(135deg,#6b4c1e,#9a7040); display:flex; align-items:center; justify-content:center; gap:6px; }
+  .drop-ground span { font-size:13px; font-weight:800; color:#ffe8a0; letter-spacing:.5px; }
+  .drop-feedback { text-align:center; font-size:15px; font-weight:700; color:#3a2d6a; min-height:26px; padding-top:4px; }
+
+  /* ── SECTION 2: ROCKET LAUNCH ── */
+  .space-scene { background:linear-gradient(to bottom,#030310 0%,#080830 45%,#1a0a3a 75%,#2d1b69 100%); border-radius:20px; position:relative; height:380px; overflow:hidden; margin-bottom:16px; }
+
+  .ss-stars { position:absolute; inset:0; }
+  .ss-star { position:absolute; background:#fff; border-radius:50%; animation:star-twinkle ease-in-out infinite; }
+  @keyframes star-twinkle { 0%,100%{opacity:.2} 50%{opacity:1} }
+
+  .moon-zone { position:absolute; top:18px; left:50%; transform:translateX(-50%); text-align:center; z-index:2; }
+  .moon-zone .mz-em { font-size:54px; display:block; }
+  .moon-zone .mz-lbl { color:rgba(255,255,255,.65); font-size:11px; font-weight:700; letter-spacing:1px; margin-top:2px; }
+  .moon-zone .mz-tag { display:inline-block; background:rgba(255,217,61,.2); border:1px solid rgba(255,217,61,.5); color:#ffd93d; border-radius:999px; padding:2px 10px; font-size:10px; font-weight:700; margin-top:4px; }
+
+  .earth-zone { position:absolute; bottom:0; left:0; right:0; height:72px; background:linear-gradient(to top,#1a6b3a,#2d9a55 60%,transparent); display:flex; align-items:flex-end; justify-content:center; gap:6px; padding-bottom:8px; z-index:2; }
+  .earth-zone .ez-em { font-size:36px; }
+  .earth-zone .ez-lbl { font-size:11px; font-weight:700; color:rgba(255,255,255,.75); align-self:center; }
+
+  .rocket-wrap { position:absolute; bottom:62px; left:50%; transform:translateX(-50%); z-index:3; text-align:center; transition:none; }
+  .rocket-em { font-size:50px; display:block; filter:drop-shadow(0 0 14px rgba(255,140,40,.6)); }
+  .rocket-flame { font-size:22px; margin-top:-6px; display:none; animation:flame .14s ease-in-out infinite alternate; }
+  @keyframes flame { from{transform:scaleY(1)} to{transform:scaleY(1.35)} }
+
+  .rocket-wrap.launching .rocket-em { animation:r-fly 3.2s cubic-bezier(.2,0,.5,1) forwards; }
+  .rocket-wrap.launching .rocket-flame { display:block; }
+  @keyframes r-fly {
+    0%   { transform:translateY(0); }
+    4%   { transform:translateY(8px); }
+    100% { transform:translateY(-295px); }
+  }
+
+  .gravity-msg { position:absolute; left:14px; right:14px; top:48%; transform:translateY(-50%); text-align:center; color:rgba(255,255,255,.0); font-size:13px; font-weight:700; line-height:1.6; transition:color .3s; pointer-events:none; }
+  .gravity-msg.show { animation:msg-fade 3s ease forwards; }
+  @keyframes msg-fade { 0%{color:rgba(255,255,255,0)} 15%{color:rgba(255,255,255,.8)} 80%{color:rgba(255,255,255,.8)} 100%{color:rgba(255,255,255,0)} }
+
+  .arrived-banner { position:absolute; top:92px; left:50%; transform:translateX(-50%) scale(0); background:#ffd93d; color:#2D3047; border-radius:16px; padding:8px 22px; font-weight:800; font-size:14px; white-space:nowrap; z-index:5; box-shadow:0 4px 16px rgba(0,0,0,.35); transition:transform .4s cubic-bezier(.34,1.56,.64,1); }
+  .arrived-banner.show { transform:translateX(-50%) scale(1); }
+
+  /* fuel */
+  .fuel-row { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+  .fuel-row .fr-icon { font-size:26px; }
+  .fuel-row .fr-lbl { font-size:13px; font-weight:700; color:#6b5e78; white-space:nowrap; }
+  .fuel-bar { flex:1; height:18px; background:#e8e0f0; border-radius:999px; overflow:hidden; border:2px solid var(--dark); }
+  .fuel-fill { height:100%; background:linear-gradient(90deg,#ff6b2b,#ffd93d); width:0%; transition:width .45s cubic-bezier(.34,1.2,.64,1); border-radius:999px; }
+  .fuel-pct { font-size:13px; font-weight:800; color:var(--dark); width:34px; text-align:right; }
+
+  /* launch buttons */
+  .launch-btns { display:flex; gap:10px; }
+  .btn-fuel { flex:1; background:linear-gradient(135deg,#ff6b2b,#ffd93d); color:white; border:3px solid var(--dark); border-radius:16px; padding:14px 10px; font-size:16px; font-weight:800; cursor:pointer; font-family:inherit; box-shadow:4px 4px 0 var(--dark); transition:all .12s; display:flex; align-items:center; justify-content:center; gap:6px; }
+  .btn-fuel:hover:not(:disabled) { transform:translate(-2px,-2px); box-shadow:6px 6px 0 var(--dark); }
+  .btn-fuel:active:not(:disabled) { transform:translate(1px,1px); box-shadow:2px 2px 0 var(--dark); }
+  .btn-fuel:disabled { opacity:.35; cursor:not-allowed; }
+
+  .btn-launch { flex:1; background:linear-gradient(135deg,#312e81,#7c3aed); color:white; border:3px solid var(--dark); border-radius:16px; padding:14px 10px; font-size:16px; font-weight:800; cursor:pointer; font-family:inherit; box-shadow:4px 4px 0 var(--dark); transition:all .12s; align-items:center; justify-content:center; gap:6px; display:none; }
+  .btn-launch.show { display:flex; animation:pop-btn .4s cubic-bezier(.34,1.56,.64,1) both; }
+  @keyframes pop-btn { from{transform:scale(0)} to{transform:scale(1)} }
+  .btn-launch:hover:not(:disabled) { transform:translate(-2px,-2px); box-shadow:6px 6px 0 var(--dark); }
+  .btn-launch:active:not(:disabled) { transform:translate(1px,1px); box-shadow:2px 2px 0 var(--dark); }
+  .btn-launch:disabled { opacity:.5; cursor:not-allowed; }
+
+  .btn-retry { display:none; margin-top:10px; background:white; color:#7c6d88; border:2px solid #e8e0f0; border-radius:12px; padding:9px 18px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; transition:all .15s; }
+  .btn-retry.show { display:block; }
+  .btn-retry:hover { border-color:#c084fc; color:#7c3aed; }
+
+  /* ── SECTION 3: MOON FACTS ── */
+  .fact-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; }
+  .fact-box { background:linear-gradient(135deg,#312e81,#4c1d95); border-radius:16px; padding:16px 12px; text-align:center; color:white; }
+  .fact-box .fb-num { font-family:'Bungee',cursive; font-size:28px; color:#ffd93d; line-height:1; }
+  .fact-box .fb-lbl { font-size:12px; font-weight:600; opacity:.85; margin-top:5px; line-height:1.45; }
+
+  /* bounce compare */
+  .bounce-row { display:flex; gap:12px; }
+  .bounce-col { flex:1; border-radius:16px; padding:16px 10px; text-align:center; border:2.5px solid #e0d4f8; background:#f8f4ff; }
+  .bounce-col.is-moon { background:#070720; border-color:#4c1d95; }
+  .bc-planet { font-size:30px; }
+  .bc-plabel { font-size:11px; font-weight:700; color:#6b5e78; margin:4px 0 14px; }
+  .is-moon .bc-plabel { color:rgba(255,255,255,.6); }
+  .bc-figure { font-size:34px; display:inline-block; }
+  .bc-figure.jump-earth { animation:j-earth 1.6s ease-in-out infinite; }
+  .bc-figure.jump-moon  { animation:j-moon  1.6s ease-in-out infinite; }
+  @keyframes j-earth { 0%,100%{transform:translateY(0)} 38%{transform:translateY(-18px)} }
+  @keyframes j-moon  { 0%,100%{transform:translateY(0)} 38%{transform:translateY(-72px)} }
+  .bc-note { font-size:12px; font-weight:700; color:#5a56e0; margin-top:10px; }
+  .is-moon .bc-note { color:#ffd93d; }
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <a class="nav-brand" href="index.html">☀️ SUMMER</a>
+  <div class="nav-links">
+    <a class="nav-link" href="24_question.html">🎲 Questions</a>
+    <a class="nav-link" href="robot_game.html">🤖 Robot</a>
+    <a class="nav-link" href="knowledge.html">📚 Learn</a>
+    <a class="nav-link" href="thai_money.html">🪙 Coins</a>
+    <a class="nav-link" href="pay_money.html">🛒 Pay</a>
+    <a class="nav-link" href="color_mix.html">🎨 Colors</a>
+    <a class="nav-link active" href="gravity.html">🚀 Gravity</a>
+    <a class="nav-link" href="school_dashboard.html">🏫 Schools</a>
+  </div>
+</nav>
+
+<div class="blobs" id="blobs"></div>
+
+<div class="page">
+
+  <!-- Hero -->
+  <div class="hero">
+    <span class="hero-emoji">🚀</span>
+    <h1 class="hero-title">แรงโน้มถ่วง</h1>
+    <p class="hero-sub">ทำไมแอปเปิ้ลถึงตกลงมา?<br>แล้วจรวด Artemis ไปดวงจันทร์ได้ยังไง? 🌕</p>
+  </div>
+
+  <!-- Card 1: What is Gravity -->
+  <div class="card">
+    <div class="card-title">🌍 แรงโน้มถ่วงคืออะไร?</div>
+    <div class="card-sub">โลกดึงทุกอย่างลงมาหาตัวเอง เหมือนมีมือยักษ์ที่มองไม่เห็นจับอยู่!<br>แตะของแต่ละอย่างแล้วดูสิ 👇</div>
+
+    <div class="drop-stage">
+      <div class="drop-objects" id="dropObjs">
+        <div class="drop-obj" data-note="แอปเปิ้ลตกเร็ว! แรงโน้มถ่วงดึงลงมา 🍎" onclick="dropIt(this)">
+          <span class="obj-em">🍎</span><span class="obj-lbl">แอปเปิ้ล</span>
+        </div>
+        <div class="drop-obj" data-note="ขนนกตกช้ากว่า แต่ก็ตกนะ! อากาศต้านไว้ 🪶" onclick="dropIt(this)">
+          <span class="obj-em">🪶</span><span class="obj-lbl">ขนนก</span>
+        </div>
+        <div class="drop-obj" data-note="ลูกบอลตกเร็วมาก! ⚽" onclick="dropIt(this)">
+          <span class="obj-em">⚽</span><span class="obj-lbl">ลูกบอล</span>
+        </div>
+        <div class="drop-obj" data-note="ลูกโป่งก็มีแรงโน้มถ่วงดึง แต่แก๊สทำให้ลอยขึ้น! 🎈" onclick="dropIt(this)">
+          <span class="obj-em">🎈</span><span class="obj-lbl">ลูกโป่ง</span>
+        </div>
+      </div>
+      <div class="drop-ground"><span>🟫 พื้นโลก · GROUND</span></div>
+    </div>
+    <div class="drop-feedback" id="dropFb">👆 แตะของเพื่อทดลองทิ้ง!</div>
+  </div>
+
+  <!-- Card 2: Rocket Launch -->
+  <div class="card">
+    <div class="card-title">🚀 ปล่อยจรวด Artemis!</div>
+    <div class="card-sub">เติมเชื้อเพลิงให้เต็ม แล้วปล่อยจรวดหนีแรงโน้มถ่วงไปดวงจันทร์!</div>
+
+    <div class="space-scene" id="spaceScene">
+      <div class="ss-stars" id="ssStars"></div>
+
+      <div class="moon-zone">
+        <span class="mz-em">🌕</span>
+        <div class="mz-lbl">ดวงจันทร์ · MOON</div>
+        <div class="mz-tag">แรงโน้มถ่วง = 1/6 ของโลก</div>
+      </div>
+
+      <div class="gravity-msg" id="gravMsg">
+        ⬇️ แรงโน้มถ่วงพยายามดึงจรวดกลับลงมา...<br>แต่จรวดเร็วเกินไป! 💪🔥
+      </div>
+
+      <div class="arrived-banner" id="arrivedBanner">🌕 ถึงดวงจันทร์แล้ว! 🎉</div>
+
+      <div class="rocket-wrap" id="rocketWrap">
+        <span class="rocket-em">🚀</span>
+        <span class="rocket-flame">🔥</span>
+      </div>
+
+      <div class="earth-zone">
+        <span class="ez-em">🌍</span>
+        <span class="ez-lbl">โลก · EARTH</span>
+      </div>
+    </div>
+
+    <div class="fuel-row">
+      <span class="fr-icon">⛽</span>
+      <span class="fr-lbl">เชื้อเพลิง</span>
+      <div class="fuel-bar"><div class="fuel-fill" id="fuelFill"></div></div>
+      <span class="fuel-pct" id="fuelPct">0%</span>
+    </div>
+
+    <div class="launch-btns">
+      <button class="btn-fuel" id="btnFuel" onclick="addFuel()">⛽ เติมเชื้อเพลิง!</button>
+      <button class="btn-launch" id="btnLaunch" onclick="launchRocket()">🚀 ปล่อยจรวด!</button>
+    </div>
+    <button class="btn-retry" id="btnRetry" onclick="resetLaunch()">🔄 ลองใหม่อีกครั้ง</button>
+  </div>
+
+  <!-- Card 3: Moon Facts -->
+  <div class="card">
+    <div class="card-title">🌕 บนดวงจันทร์เป็นยังไง?</div>
+    <div class="card-sub">แรงโน้มถ่วงบนดวงจันทร์น้อยกว่าโลกมาก — กระโดดได้สูงกว่า 6 เท่า!</div>
+
+    <div class="fact-grid">
+      <div class="fact-box">
+        <div class="fb-num">1/6</div>
+        <div class="fb-lbl">แรงโน้มถ่วงน้อยกว่า<br>โลก 6 เท่า</div>
+      </div>
+      <div class="fact-box">
+        <div class="fb-num">3 วัน</div>
+        <div class="fb-lbl">เวลาเดินทางจากโลก<br>ถึงดวงจันทร์</div>
+      </div>
+      <div class="fact-box">
+        <div class="fb-num">384,000</div>
+        <div class="fb-lbl">กิโลเมตร<br>จากโลกถึงดวงจันทร์</div>
+      </div>
+      <div class="fact-box">
+        <div class="fb-num">11 กม/วิ</div>
+        <div class="fb-lbl">ความเร็วที่ต้องใช้<br>หนีแรงโน้มถ่วงโลก</div>
+      </div>
+    </div>
+
+    <div style="font-size:14px;font-weight:700;color:#6b5e78;text-align:center;margin-bottom:12px;">
+      🦘 กระโดดบนโลก vs บนดวงจันทร์
+    </div>
+    <div class="bounce-row">
+      <div class="bounce-col">
+        <div class="bc-planet">🌍</div>
+        <div class="bc-plabel">โลก · Earth</div>
+        <div class="bc-figure jump-earth">🧒</div>
+        <div class="bc-note">สูงประมาณ 50 ซม.</div>
+      </div>
+      <div class="bounce-col is-moon">
+        <div class="bc-planet">🌕</div>
+        <div class="bc-plabel">ดวงจันทร์ · Moon</div>
+        <div class="bc-figure jump-moon">🧒</div>
+        <div class="bc-note">สูงถึง 3 เมตร! 🤩</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  /* BLOBS */
+  (function(){
+    const cols = ["#c7d2fe","#ddd6fe","#bfdbfe","#fde8d8","#fce7f3","#d1fae5"];
+    const wrap = document.getElementById("blobs");
+    for(let i=0;i<16;i++){
+      const b=document.createElement("div"); b.className="blob";
+      const s=50+Math.random()*110;
+      b.style.cssText=`width:${s}px;height:${s}px;background:${cols[i%cols.length]};left:${Math.random()*100}%;top:${Math.random()*100}%;animation-duration:${9+Math.random()*12}s;animation-delay:${-Math.random()*8}s;`;
+      wrap.appendChild(b);
+    }
+  })();
+
+  /* SPACE STARS */
+  (function(){
+    const wrap = document.getElementById("ssStars");
+    for(let i=0;i<45;i++){
+      const s=document.createElement("div"); s.className="ss-star";
+      const sz=0.8+Math.random()*2.4;
+      s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${8+Math.random()*68}%;animation-duration:${2+Math.random()*4}s;animation-delay:${-Math.random()*4}s;`;
+      wrap.appendChild(s);
+    }
+  })();
+
+  /* DROP TEST */
+  function dropIt(el) {
+    if (el.classList.contains('falling')) return;
+    el.classList.add('falling');
+    document.getElementById('dropFb').textContent = '💡 ' + el.dataset.note;
+    el.addEventListener('animationend', () => {
+      el.classList.remove('falling');
+    }, { once: true });
+  }
+
+  /* ROCKET LAUNCH */
+  let fuel = 0;
+  const FUEL_MAX = 5;
+  let launched = false;
+
+  function addFuel() {
+    if (launched || fuel >= FUEL_MAX) return;
+    fuel++;
+    const pct = (fuel / FUEL_MAX) * 100;
+    document.getElementById('fuelFill').style.width = pct + '%';
+    document.getElementById('fuelPct').textContent = Math.round(pct) + '%';
+    if (fuel >= FUEL_MAX) {
+      document.getElementById('btnFuel').disabled = true;
+      document.getElementById('btnLaunch').classList.add('show');
+    }
+  }
+
+  function launchRocket() {
+    if (launched) return;
+    launched = true;
+    document.getElementById('btnLaunch').disabled = true;
+    document.getElementById('rocketWrap').classList.add('launching');
+    const msg = document.getElementById('gravMsg');
+    msg.classList.add('show');
+    setTimeout(() => {
+      document.getElementById('arrivedBanner').classList.add('show');
+      document.getElementById('btnRetry').classList.add('show');
+    }, 3400);
+  }
+
+  function resetLaunch() {
+    fuel = 0;
+    launched = false;
+    document.getElementById('fuelFill').style.width = '0%';
+    document.getElementById('fuelPct').textContent = '0%';
+    document.getElementById('btnFuel').disabled = false;
+    const btnL = document.getElementById('btnLaunch');
+    btnL.classList.remove('show');
+    btnL.disabled = false;
+    const rw = document.getElementById('rocketWrap');
+    rw.classList.remove('launching');
+    void rw.offsetWidth;
+    document.getElementById('gravMsg').classList.remove('show');
+    document.getElementById('arrivedBanner').classList.remove('show');
+    document.getElementById('btnRetry').classList.remove('show');
+  }
+</script>
+
+</body>
+</html>

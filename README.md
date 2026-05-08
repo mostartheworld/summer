@@ -13,6 +13,7 @@
 | [📚 Learn](knowledge.html) | Thai-English vocabulary across 6 topics + number fun | ✅ Ready |
 | [🪙 Coins](thai_money.html) | Learn Thai coins 1-2-5-10 baht, then try the quiz! | ✅ Ready |
 | [🎨 Colors](color_mix.html) | Mix red, blue, yellow — see what color you get! | ✅ Ready |
+| [🚀 Gravity](gravity.html) | Why does Artemis need so much fuel? Drop test + rocket launch + Moon facts | ✅ Ready |
 | [🛒 Pay](pay_money.html) | Pick coins to pay, get correct change back | ✅ Ready |
 
 ## 👨‍👩‍👧 สำหรับพ่อแม่ / For Parents
