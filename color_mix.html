@@ -8,7 +8,18 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
+  :root { --cream:#FFF8E8; --dark:#2D3047; --pink:#FF6B9D; --yellow:#FFD93D; }
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  /* ── TOP NAV ── */
+  .site-nav { position: sticky; top: 0; z-index: 100; background: var(--cream); border-bottom: 4px solid var(--dark); box-shadow: 0 4px 0 var(--dark); padding: 10px 16px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .nav-brand { font-family: 'Bungee', cursive; font-size: 15px; color: var(--dark); text-shadow: 2px 2px 0 var(--pink); white-space: nowrap; flex-shrink: 0; text-decoration: none; }
+  .nav-links { display: flex; gap: 6px; flex-wrap: wrap; }
+  .nav-link { text-decoration: none; font-family: 'Fredoka', 'Noto Sans Thai', sans-serif; font-size: 13px; font-weight: 600; padding: 5px 13px; border-radius: 12px; border: 2.5px solid var(--dark); color: var(--dark); background: white; transition: all .12s; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; box-shadow: 2px 2px 0 var(--dark); }
+  .nav-link:hover { background: var(--yellow); transform: translate(-1px,-1px); box-shadow: 3px 3px 0 var(--dark); }
+  .nav-link:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 var(--dark); }
+  .nav-link.active { background: var(--pink); color: white; }
+  @media (max-width: 420px) { .nav-brand { font-size: 13px; } .nav-link { font-size: 11px; padding: 4px 10px; } }
 
   body {
     min-height: 100vh;
@@ -301,11 +312,22 @@
 </head>
 <body>
 
+<nav class="site-nav">
+  <a class="nav-brand" href="index.html">☀️ SUMMER</a>
+  <div class="nav-links">
+    <a class="nav-link" href="24_question.html">🎲 24 คำถาม</a>
+    <a class="nav-link" href="robot_game.html">🤖 หุ่นยนต์</a>
+    <a class="nav-link" href="knowledge.html">📚 เรียนรู้</a>
+    <a class="nav-link" href="thai_money.html">🪙 เหรียญ</a>
+    <a class="nav-link" href="pay_money.html">🛒 จ่ายเงิน</a>
+    <a class="nav-link active" href="color_mix.html">🎨 ผสมสี</a>
+    <a class="nav-link" href="school_dashboard.html">🏫 โรงเรียน</a>
+  </div>
+</nav>
+
 <div class="blobs" id="blobs"></div>
 
 <div class="page">
-
-  <a href="index.html" class="back-btn">← กลับหน้าหลัก</a>
 
   <!-- Hero -->
   <div class="hero">
