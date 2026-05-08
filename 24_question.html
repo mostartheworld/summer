@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>24 คำถามคุยเล่นกับลูก</title>
+<title>24 Conversation Questions</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Mali:wght@500;700&family=Noto+Sans+Thai:wght@400;600;700&display=swap" rel="stylesheet">
@@ -157,13 +157,13 @@
 <nav class="site-nav">
   <a class="nav-brand" href="index.html">☀️ SUMMER</a>
   <div class="nav-links">
-    <a class="nav-link active" href="24_question.html">🎲 24 คำถาม</a>
-    <a class="nav-link" href="robot_game.html">🤖 หุ่นยนต์</a>
-    <a class="nav-link" href="knowledge.html">📚 เรียนรู้</a>
-    <a class="nav-link" href="thai_money.html">🪙 เหรียญ</a>
-    <a class="nav-link" href="pay_money.html">🛒 จ่ายเงิน</a>
-    <a class="nav-link" href="color_mix.html">🎨 ผสมสี</a>
-    <a class="nav-link" href="school_dashboard.html">🏫 โรงเรียน</a>
+    <a class="nav-link active" href="24_question.html">🎲 Questions</a>
+    <a class="nav-link" href="robot_game.html">🤖 Robot</a>
+    <a class="nav-link" href="knowledge.html">📚 Learn</a>
+    <a class="nav-link" href="thai_money.html">🪙 Coins</a>
+    <a class="nav-link" href="pay_money.html">🛒 Pay</a>
+    <a class="nav-link" href="color_mix.html">🎨 Colors</a>
+    <a class="nav-link" href="school_dashboard.html">🏫 Schools</a>
   </div>
 </nav>
 
@@ -173,38 +173,38 @@
 
   <header>
     <span class="logo-emoji">🌟</span>
-    <h1>24 คำถามคุยเล่นกับลูก</h1>
-    <p class="sub">แทรกตอนกินข้าว เดินห้าง เล่นของเล่น — ไม่มีถูกผิด เน้นให้ลูกได้คิด ได้พูด ได้หัวเราะ</p>
+    <h1>24 Conversation Questions</h1>
+    <p class="sub">Use during meals, shopping, or playtime. No right or wrong answers - just thinking, talking, and laughing.</p>
     <div class="deco-row">⭐ 🌈 🎉 🦄 🎈 🌸 ⭐</div>
   </header>
 
   <section class="picker">
-    <div class="picker-label">🎲 สุ่มคำถาม</div>
+    <div class="picker-label">🎲 Random Question</div>
     <div class="picker-display" id="display">
-      <div class="picker-placeholder">กดปุ่มด้านล่างเพื่อรับคำถามคุยกับลูก ✨</div>
+      <div class="picker-placeholder">Tap a button below to get a question ✨</div>
     </div>
     <div class="picker-actions">
-      <button class="btn btn-white" id="btn-random">🎲 สุ่มคำถาม!</button>
-      <button class="btn btn-outline" id="btn-unused">✨ สุ่มเฉพาะที่ยังไม่เล่น</button>
+      <button class="btn btn-white" id="btn-random">🎲 Random Question!</button>
+      <button class="btn btn-outline" id="btn-unused">✨ Unused Only</button>
     </div>
   </section>
 
   <div class="prog-wrap">
-    <div class="prog-label">เล่นไปแล้ว <span id="done-count">0</span> / 24</div>
+    <div class="prog-label">Completed <span id="done-count">0</span> / 24</div>
     <div class="prog-bar"><div class="prog-fill" id="bar"></div></div>
-    <button class="btn-reset" id="btn-reset">🔄 รีเซ็ต</button>
+    <button class="btn-reset" id="btn-reset">🔄 Reset</button>
   </div>
 
   <div class="tabs" id="tabs"></div>
   <div id="categories"></div>
 
   <section class="tips">
-    <h3>💡 วิธีใช้ให้สนุก</h3>
+    <h3>💡 Tips for Fun Talks</h3>
     <ul>
-      <li><span class="ico">🍽️</span> แทรกตอนใช้ชีวิตจริง เช่น กินข้าว เดินห้าง เล่นของเล่น</li>
-      <li><span class="ico">🤔</span> ให้ลูก <strong>"คิดก่อน"</strong> ไม่ต้องรีบเฉลย รอฟังจังหวะลูก</li>
-      <li><span class="ico">🎯</span> ไม่มีถูกผิด เน้น <strong>เหตุผล</strong> และ <strong>กล้าพูด</strong></li>
-      <li><span class="ico">☑️</span> กดที่คำถามเพื่อมาร์กว่า <strong>"เล่นแล้ว"</strong> ระบบจะจำให้อัตโนมัติ</li>
+      <li><span class="ico">🍽️</span> Use in real moments: meals, walks, shopping, or toy time.</li>
+      <li><span class="ico">🤔</span> Let your child <strong>"think first"</strong> before you help.</li>
+      <li><span class="ico">🎯</span> Focus on <strong>reasoning</strong> and <strong>confidence to speak</strong>.</li>
+      <li><span class="ico">☑️</span> Tap a question to mark it as <strong>"done"</strong>; progress saves automatically.</li>
     </ul>
   </section>
 
@@ -227,16 +227,16 @@
   })();
 
   const DATA = [
-    { id:1, icon:"🔍", color:"cat-1", title:"สังเกต & เชื่อมโยง", sub:"ฝึกการมอง เปรียบเทียบ จัดกลุ่ม",
-      questions:["ทายสิ่งของจากคำใบ้ (สี / รูปทรง / ใช้ทำอะไร)","หา \"อะไรหายไป\" จากของรอบตัว","จับคู่ของที่เข้าพวกเดียวกัน","อะไร \"ไม่เข้าพวก\" เพราะอะไร","ของชิ้นนี้เอาไปใช้ทำอะไรได้บ้าง (คิดหลายคำตอบ)"] },
-    { id:2, icon:"🔢", color:"cat-2", title:"ตัวเลข & เงินในชีวิตจริง", sub:"นับ เปรียบเทียบ คำนวณเบื้องต้น",
-      questions:["นับของรอบตัวแบบสนุกๆ","เทียบ มากกว่า – น้อยกว่า – เท่ากัน","ถ้ามีเงินเท่านี้ ซื้อได้ไหม","ซื้อ 2 ชิ้น ต้องจ่ายเท่าไหร่","จ่ายไปแล้ว จะเหลือเงินเท่าไหร่"] },
-    { id:3, icon:"🧠", color:"cat-3", title:"ตรรกะ & การคิด", sub:"ฝึกเหตุผล มองทางเลือก คาดการณ์",
-      questions:["ทำไมถึงคิดแบบนั้น","ถ้าเป็นแบบนี้... จะเกิดอะไรต่อ","มีวิธีอื่นไหมในการแก้ปัญหา","เลือกอันไหนดีกว่า เพราะอะไร","ถ้าเปลี่ยนเงื่อนไข ผลจะเปลี่ยนยังไง"] },
-    { id:4, icon:"💰", color:"cat-4", title:"เงิน & การตัดสินใจ", sub:"ฝึก trade-off จำเป็น vs อยากได้",
-      questions:["อันไหน \"คุ้มกว่า\" เพราะอะไร","ถ้ามีเงินจำกัด จะเลือกอะไร","ซื้อเลย หรือรอก่อน แบบไหนดีกว่า","ของนี้ \"จำเป็น\" หรือ \"อยากได้\"","ถ้าอยากได้ของนี้ ต้องเก็บเงินกี่วัน"] },
-    { id:5, icon:"💬", color:"cat-5", title:"ภาษา & โลกจริง", sub:"เล่าเรื่อง จินตนาการ มุมมองคนอื่น",
-      questions:["เล่าเรื่องจากสิ่งที่เห็นวันนี้","แต่งเรื่องต่อจากที่พ่อแม่เริ่ม","ถ้าเป็นคนอื่น เขาจะรู้สึกยังไง","ถ้าไม่มีสิ่งนี้ จะเกิดอะไรขึ้น"] }
+    { id:1, icon:"🔍", color:"cat-1", title:"Observe & Connect", sub:"Spot details, compare, and group ideas",
+      questions:["Guess an object from clues (color / shape / use).","Find what is missing from nearby objects.","Match things that belong together.","Which one does not belong, and why?","How many ways can you use this object?"] },
+    { id:2, icon:"🔢", color:"cat-2", title:"Numbers & Real-Life Money", sub:"Count, compare, and calculate",
+      questions:["Count nearby objects in a fun way.","Which is more, less, or equal?","If you have this much money, can you buy it?","If you buy 2 items, how much do you pay?","After paying, how much money is left?"] },
+    { id:3, icon:"🧠", color:"cat-3", title:"Logic & Thinking", sub:"Reasoning, choices, and prediction",
+      questions:["Why do you think that?","If this happens, what comes next?","Can we solve this another way?","Which choice is better, and why?","If we change one condition, what changes?"] },
+    { id:4, icon:"💰", color:"cat-4", title:"Money & Decision Making", sub:"Needs vs wants and trade-offs",
+      questions:["Which one gives better value, and why?","If your money is limited, what would you choose?","Buy now or wait later - which is better?","Is this a need or a want?","How many days should you save for this?"] },
+    { id:5, icon:"💬", color:"cat-5", title:"Language & Real World", sub:"Storytelling, imagination, and empathy",
+      questions:["Tell a story from something you saw today.","Continue the story that a parent starts.","How would another person feel in this situation?","What might happen if this thing did not exist?"] }
   ];
 
   const FLAT = [];
@@ -259,7 +259,7 @@
 
   function renderTabs() {
     const wrap = document.getElementById("tabs");
-    let html = `<button class="tab active" data-cat="all">ทั้งหมด <span class="cnt">${FLAT.length}</span></button>`;
+    let html = `<button class="tab active" data-cat="all">All <span class="cnt">${FLAT.length}</span></button>`;
     DATA.forEach(cat => { html += `<button class="tab" data-cat="${cat.id}">${cat.icon} ${cat.title} <span class="cnt">0/${cat.questions.length}</span></button>`; });
     wrap.innerHTML = html;
     wrap.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => {
@@ -301,7 +301,7 @@
   function showRandom(unusedOnly) {
     const pool = unusedOnly ? FLAT.filter(q => !done.has(q.id)) : FLAT;
     const display = document.getElementById("display");
-    if (!pool.length) { display.innerHTML = `<div class="picker-placeholder">🎉 เล่นครบทุกคำถามแล้ว!</div>`; return; }
+    if (!pool.length) { display.innerHTML = `<div class="picker-placeholder">🎉 You have completed every question!</div>`; return; }
     const pick = pool[Math.floor(Math.random() * pool.length)];
     display.classList.remove("animate"); void display.offsetWidth; display.classList.add("animate");
     display.innerHTML = `<div><div class="picker-live">${pick.text}</div><span class="picker-cat-tag">${pick.catIcon} ${pick.catTitle}</span></div>`;
@@ -310,7 +310,7 @@
   document.getElementById("btn-random").addEventListener("click", () => showRandom(false));
   document.getElementById("btn-unused").addEventListener("click", () => showRandom(true));
   document.getElementById("btn-reset").addEventListener("click", () => {
-    if (confirm("ต้องการล้างประวัติคำถามที่เล่นแล้วทั้งหมด?")) { done.clear(); save(); updateProgress(); renderCategories(document.querySelector(".tab.active")?.dataset.cat || "all"); }
+    if (confirm("Clear all completed-question history?")) { done.clear(); save(); updateProgress(); renderCategories(document.querySelector(".tab.active")?.dataset.cat || "all"); }
   });
 
   renderTabs(); renderCategories("all"); updateProgress();

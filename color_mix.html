@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎨 ผสมสีกัน! — Summer's World</title>
+<title>🎨 Color Mixing! — Summer's World</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;600;700;900&display=swap" rel="stylesheet">
@@ -104,6 +104,7 @@
     font-style: normal;
     background: linear-gradient(135deg, #FF6B9D, #FF9F1C);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
     font-family: 'Bungee', cursive; font-size: 20px;
   }
 
@@ -179,6 +180,7 @@
   .color-picker {
     display: flex; gap: 12px; justify-content: center;
     margin-bottom: 28px;
+    flex-wrap: wrap;
   }
   .color-btn {
     width: 98px; height: 98px; border-radius: 24px;
@@ -202,6 +204,37 @@
   .cb-emoji { font-size: 34px; line-height: 1; }
   .cb-name  { font-size: 14px; font-weight: 700; color: white; text-shadow: 0 1px 5px rgba(0,0,0,.3); }
   .cb-en    { font-size: 9px;  font-weight: 700; color: rgba(255,255,255,.75); letter-spacing: .8px; }
+
+  .extra-wrap {
+    background: rgba(255,255,255,.65);
+    border: 2px solid rgba(255,255,255,.9);
+    border-radius: 20px;
+    padding: 14px 12px 10px;
+    margin-top: -10px;
+    margin-bottom: 24px;
+  }
+  .extra-label {
+    text-align: center;
+    font-family: 'Bungee', cursive;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: #9ca3af;
+    margin-bottom: 10px;
+  }
+  .extra-picker {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .extra-btn {
+    width: 100%;
+    height: 80px;
+    border-radius: 16px;
+    border-width: 3px;
+  }
+  .extra-btn .cb-emoji { font-size: 26px; }
+  .extra-btn .cb-name { font-size: 12px; }
+  .extra-btn .cb-en { font-size: 8px; }
 
   /* ── RESULT CARD ── */
   .result-card {
@@ -296,6 +329,14 @@
     font-size: 14px; font-weight: 700; color: #374151;
     animation: slot-pop .4s cubic-bezier(.34,1.56,.64,1);
   }
+  .shelf-btn {
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .shelf-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0,0,0,.1);
+  }
   .shelf-badge-emoji { font-size: 20px; }
 
   @media (max-width: 400px) {
@@ -305,6 +346,7 @@
     .cb-emoji { font-size: 28px; }
     .mix-op { font-size: 24px; padding-bottom: 22px; }
     .color-picker { gap: 8px; }
+    .extra-picker { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .result-big { font-size: 72px; }
     .result-name-th { font-size: 32px; }
   }
@@ -315,13 +357,13 @@
 <nav class="site-nav">
   <a class="nav-brand" href="index.html">☀️ SUMMER</a>
   <div class="nav-links">
-    <a class="nav-link" href="24_question.html">🎲 24 คำถาม</a>
-    <a class="nav-link" href="robot_game.html">🤖 หุ่นยนต์</a>
-    <a class="nav-link" href="knowledge.html">📚 เรียนรู้</a>
-    <a class="nav-link" href="thai_money.html">🪙 เหรียญ</a>
-    <a class="nav-link" href="pay_money.html">🛒 จ่ายเงิน</a>
-    <a class="nav-link active" href="color_mix.html">🎨 ผสมสี</a>
-    <a class="nav-link" href="school_dashboard.html">🏫 โรงเรียน</a>
+    <a class="nav-link" href="24_question.html">🎲 Questions</a>
+    <a class="nav-link" href="robot_game.html">🤖 Robot</a>
+    <a class="nav-link" href="knowledge.html">📚 Learn</a>
+    <a class="nav-link" href="thai_money.html">🪙 Coins</a>
+    <a class="nav-link" href="pay_money.html">🛒 Pay</a>
+    <a class="nav-link active" href="color_mix.html">🎨 Colors</a>
+    <a class="nav-link" href="school_dashboard.html">🏫 Schools</a>
   </div>
 </nav>
 
@@ -332,13 +374,13 @@
   <!-- Hero -->
   <div class="hero">
     <span class="big-emoji">🎨</span>
-    <h1>ผสมสีกัน!</h1>
+    <h1>Color Mixing!</h1>
     <div class="hero-sub">COLOR MIXING</div>
-    <div class="hero-desc">เลือกสีสองสี แล้วดูว่าได้สีอะไร! 🌈</div>
+    <div class="hero-desc">Pick two colors and discover the result! 🌈</div>
   </div>
 
   <!-- Step hint -->
-  <div class="step-hint" id="stepHint"><em>แตะสีที่ 1</em> เลย!</div>
+  <div class="step-hint" id="stepHint"><em>Tap color #1</em> to start!</div>
 
   <!-- Mixing stage -->
   <div class="mix-stage">
@@ -347,7 +389,7 @@
       <div class="slot-circle" id="slot1">
         <span id="s1icon">?</span>
       </div>
-      <div class="slot-label" id="s1label">สีที่ 1</div>
+      <div class="slot-label" id="s1label">Color 1</div>
     </div>
 
     <div class="mix-op" id="opPlus">+</div>
@@ -356,7 +398,7 @@
       <div class="slot-circle" id="slot2">
         <span id="s2icon">?</span>
       </div>
-      <div class="slot-label" id="s2label">สีที่ 2</div>
+      <div class="slot-label" id="s2label">Color 2</div>
     </div>
 
     <div class="mix-op" id="opEq">=</div>
@@ -365,35 +407,83 @@
       <div class="slot-circle" id="slotResult">
         <span id="srIcon">?</span>
       </div>
-      <div class="slot-label" id="srLabel">ผลลัพธ์</div>
+      <div class="slot-label" id="srLabel">Result</div>
     </div>
 
   </div>
 
   <!-- Color picker -->
-  <div class="picker-label">เลือกสี — PICK A COLOR</div>
+  <div class="picker-label">PICK A COLOR</div>
   <div class="color-picker">
     <button class="color-btn" id="btnRed"
       style="background:linear-gradient(145deg,#FF2A2A,#FF6B6B)"
       onclick="pickColor('red')">
       <span class="cb-emoji">🔴</span>
-      <span class="cb-name">แดง</span>
+      <span class="cb-name">Red</span>
       <span class="cb-en">Red</span>
     </button>
     <button class="color-btn" id="btnBlue"
       style="background:linear-gradient(145deg,#1A40FF,#5B7FFF)"
       onclick="pickColor('blue')">
       <span class="cb-emoji">🔵</span>
-      <span class="cb-name">น้ำเงิน</span>
+      <span class="cb-name">Blue</span>
       <span class="cb-en">Blue</span>
     </button>
     <button class="color-btn" id="btnYellow"
       style="background:linear-gradient(145deg,#E8B800,#FFD93D)"
       onclick="pickColor('yellow')">
       <span class="cb-emoji">🟡</span>
-      <span class="cb-name">เหลือง</span>
+      <span class="cb-name">Yellow</span>
       <span class="cb-en">Yellow</span>
     </button>
+  </div>
+
+  <div class="extra-wrap">
+    <div class="extra-label">EXTRA COLORS</div>
+    <div class="extra-picker">
+      <button class="color-btn extra-btn"
+        style="background:linear-gradient(145deg,#FF7A00,#FFB347)"
+        onclick="pickColor('orange')">
+        <span class="cb-emoji">🟠</span>
+        <span class="cb-name">Orange</span>
+        <span class="cb-en">Orange</span>
+      </button>
+      <button class="color-btn extra-btn"
+        style="background:linear-gradient(145deg,#18A84B,#66DD8D)"
+        onclick="pickColor('green')">
+        <span class="cb-emoji">🟢</span>
+        <span class="cb-name">Green</span>
+        <span class="cb-en">Green</span>
+      </button>
+      <button class="color-btn extra-btn"
+        style="background:linear-gradient(145deg,#7C3AED,#B47CFF)"
+        onclick="pickColor('purple')">
+        <span class="cb-emoji">🟣</span>
+        <span class="cb-name">Purple</span>
+        <span class="cb-en">Purple</span>
+      </button>
+      <button class="color-btn extra-btn"
+        style="background:linear-gradient(145deg,#FF4FA0,#FF93C8)"
+        onclick="pickColor('pink')">
+        <span class="cb-emoji">🩷</span>
+        <span class="cb-name">Pink</span>
+        <span class="cb-en">Pink</span>
+      </button>
+      <button class="color-btn extra-btn"
+        style="background:linear-gradient(145deg,#0097B2,#65D0E4)"
+        onclick="pickColor('teal')">
+        <span class="cb-emoji">🩵</span>
+        <span class="cb-name">Teal</span>
+        <span class="cb-en">Teal</span>
+      </button>
+      <button class="color-btn extra-btn"
+        style="background:linear-gradient(145deg,#6B4A2A,#9E7B50)"
+        onclick="pickColor('brown')">
+        <span class="cb-emoji">🟤</span>
+        <span class="cb-name">Brown</span>
+        <span class="cb-en">Brown</span>
+      </button>
+    </div>
   </div>
 
   <!-- Result area -->
@@ -401,7 +491,7 @@
 
   <!-- Discovery shelf -->
   <div id="shelfWrap" style="display:none" class="shelf-wrap">
-    <div class="shelf-title">สีที่ค้นพบแล้ว 🔍 DISCOVERED</div>
+    <div class="shelf-title">DISCOVERED COLORS 🔍 (Tap to reuse)</div>
     <div class="shelf-row" id="shelfRow"></div>
   </div>
 
@@ -410,31 +500,24 @@
 <script>
   /* ─── Data ─────────────────────────────────────────────────────────── */
   const C = {
-    red:    { name:'แดง',     en:'Red',    hex:'#FF2A2A', light:'#ff8080', emoji:'🔴' },
-    blue:   { name:'น้ำเงิน', en:'Blue',   hex:'#1A40FF', light:'#7b9aff', emoji:'🔵' },
-    yellow: { name:'เหลือง',  en:'Yellow', hex:'#E8B800', light:'#ffe566', emoji:'🟡' },
+    red:    { name:'Red',    en:'Red',    hex:'#FF2A2A', light:'#ff8080', emoji:'🔴' },
+    blue:   { name:'Blue',   en:'Blue',   hex:'#1A40FF', light:'#7b9aff', emoji:'🔵' },
+    yellow: { name:'Yellow', en:'Yellow', hex:'#E8B800', light:'#ffe566', emoji:'🟡' },
+    orange: { name:'Orange', en:'Orange', hex:'#FF8000', light:'#ffb366', emoji:'🟠' },
+    green:  { name:'Green',  en:'Green',  hex:'#1AB84F', light:'#7de3a0', emoji:'🟢' },
+    purple: { name:'Purple', en:'Purple', hex:'#8B2FCC', light:'#c18fff', emoji:'🟣' },
+    pink:   { name:'Pink',   en:'Pink',   hex:'#FF5BA8', light:'#ff9ccd', emoji:'🩷' },
+    teal:   { name:'Teal',   en:'Teal',   hex:'#0FA7B5', light:'#73d8e1', emoji:'🩵' },
+    brown:  { name:'Brown',  en:'Brown',  hex:'#8B5A2B', light:'#b98b61', emoji:'🟤' },
   };
 
-  // mix results — key order: "color1+color2"
   const MIXES = {
-    'red+blue':      { name:'ม่วง',   en:'Purple', hex:'#8B2FCC', emoji:'🟣', new:true,
-                       msg:'แดง + น้ำเงิน = ม่วง เก่งมากเลย! 🎉' },
-    'blue+red':      { name:'ม่วง',   en:'Purple', hex:'#8B2FCC', emoji:'🟣', new:true,
-                       msg:'น้ำเงิน + แดง = ม่วง เก่งมากเลย! 🎉' },
-    'red+yellow':    { name:'ส้ม',    en:'Orange', hex:'#FF8000', emoji:'🟠', new:true,
-                       msg:'แดง + เหลือง = ส้ม เยี่ยมมาก! 🎉' },
-    'yellow+red':    { name:'ส้ม',    en:'Orange', hex:'#FF8000', emoji:'🟠', new:true,
-                       msg:'เหลือง + แดง = ส้ม เยี่ยมมาก! 🎉' },
-    'blue+yellow':   { name:'เขียว',  en:'Green',  hex:'#1AB84F', emoji:'🟢', new:true,
-                       msg:'น้ำเงิน + เหลือง = เขียว สุดยอด! 🎉' },
-    'yellow+blue':   { name:'เขียว',  en:'Green',  hex:'#1AB84F', emoji:'🟢', new:true,
-                       msg:'เหลือง + น้ำเงิน = เขียว สุดยอด! 🎉' },
-    'red+red':       { name:'แดง',    en:'Red',    hex:'#CC0000', emoji:'🔴', new:false,
-                       msg:'ผสมสีเดิมได้แดงเข้มขึ้น! ลองเปลี่ยนสีดูนะ 😊' },
-    'blue+blue':     { name:'น้ำเงิน',en:'Blue',   hex:'#0A28CC', emoji:'🔵', new:false,
-                       msg:'ผสมสีเดิมได้น้ำเงินเข้มขึ้น! ลองเปลี่ยนสีดูนะ 😊' },
-    'yellow+yellow': { name:'เหลือง', en:'Yellow', hex:'#B88C00', emoji:'🟡', new:false,
-                       msg:'ผสมสีเดิมได้เหลืองเข้มขึ้น! ลองเปลี่ยนสีดูนะ 😊' },
+    'blue+red':    { id:'purple', name:'Purple', en:'Purple', hex:'#8B2FCC', emoji:'🟣', new:true, msg:'Red + Blue = Purple! Great mixing! 🎉' },
+    'red+yellow':  { id:'orange', name:'Orange', en:'Orange', hex:'#FF8000', emoji:'🟠', new:true, msg:'Red + Yellow = Orange! Awesome! 🎉' },
+    'blue+yellow': { id:'green',  name:'Green',  en:'Green',  hex:'#1AB84F', emoji:'🟢', new:true, msg:'Blue + Yellow = Green! Excellent! 🎉' },
+    'red+red':     { id:'red',    name:'Red',    en:'Red',    hex:'#CC0000', emoji:'🔴', new:false, msg:'Same-color mix makes a deeper red. Try another pair 😊' },
+    'blue+blue':   { id:'blue',   name:'Blue',   en:'Blue',   hex:'#0A28CC', emoji:'🔵', new:false, msg:'Same-color mix makes a deeper blue. Try another pair 😊' },
+    'yellow+yellow': { id:'yellow',name:'Yellow',en:'Yellow',hex:'#B88C00',emoji:'🟡', new:false, msg:'Same-color mix makes a deeper yellow. Try another pair 😊' },
   };
 
   const SECONDARY_IDS = new Set(); // tracks which secondary colors discovered
@@ -479,9 +562,55 @@
   }
 
   function setButtonsDisabled(val) {
-    ['btnRed','btnBlue','btnYellow'].forEach(id => {
-      document.getElementById(id).disabled = val;
-    });
+    document.querySelectorAll('.color-btn').forEach(btn => { btn.disabled = val; });
+  }
+
+  function toRgb(hex) {
+    return {
+      r: parseInt(hex.slice(1, 3), 16),
+      g: parseInt(hex.slice(3, 5), 16),
+      b: parseInt(hex.slice(5, 7), 16),
+    };
+  }
+
+  function toHex(r, g, b) {
+    const clamp = (n) => Math.max(0, Math.min(255, Math.round(n)));
+    return '#' + [clamp(r), clamp(g), clamp(b)].map(n => n.toString(16).padStart(2, '0')).join('').toUpperCase();
+  }
+
+  function darken(hex, amount) {
+    const { r, g, b } = toRgb(hex);
+    return toHex(r - amount, g - amount, b - amount);
+  }
+
+  function canonicalKey(a, b) {
+    return [a, b].sort().join('+');
+  }
+
+  function buildAutoMix(aKey, bKey) {
+    const a = C[aKey], b = C[bKey];
+    if (aKey === bKey) {
+      return {
+        id: aKey,
+        name: a.name,
+        en: a.en,
+        hex: darken(a.hex, 40),
+        emoji: a.emoji,
+        new: false,
+        msg: `Mixing ${a.name} with itself gives a deeper tone. Try another pair 😊`,
+      };
+    }
+    const ar = toRgb(a.hex), br = toRgb(b.hex);
+    const mixedHex = toHex((ar.r + br.r) / 2, (ar.g + br.g) / 2, (ar.b + br.b) / 2);
+    return {
+      id: `${aKey}-${bKey}`,
+      name: 'Custom Mix',
+      en: 'Custom Mix',
+      hex: mixedHex,
+      emoji: '🎨',
+      new: false,
+      msg: `${a.name} + ${b.name} made a new shade! Keep mixing ✨`,
+    };
   }
 
   /* ─── Pick ──────────────────────────────────────────────────────────── */
@@ -490,13 +619,13 @@
     if (!picked1) {
       picked1 = key;
       fillSlot('slot1','s1icon','s1label', key);
-      setHint('ดี! ตอนนี้ <em>แตะสีที่ 2</em>!');
+      setHint('Nice! Now <em>tap color #2</em>.');
       document.getElementById('opPlus').classList.add('lit');
     } else if (!picked2) {
       picked2 = key;
       fillSlot('slot2','s2icon','s2label', key);
       document.getElementById('opEq').classList.add('lit');
-      setHint('✨ <em>กำลังผสม...</em>');
+      setHint('✨ <em>Mixing...</em>');
       setButtonsDisabled(true);
       busy = true;
       startMix();
@@ -516,9 +645,8 @@
     srIcon.className   = 'spin-mix';
 
     setTimeout(() => {
-      const key = picked1 + '+' + picked2;
-      const res = MIXES[key];
-      if (!res) return;
+      const key = canonicalKey(picked1, picked2);
+      const res = MIXES[key] || buildAutoMix(picked1, picked2);
 
       // Fill result circle
       sr.style.background = `radial-gradient(circle at 36% 32%, ${lighten(res.hex)}, ${res.hex})`;
@@ -530,10 +658,8 @@
       document.getElementById('srLabel').classList.add('named');
 
       showResult(res, c1, c2);
-      if (res.new) {
-        celebrate();
-        addToShelf(res);
-      }
+      addToShelf(res);
+      if (res.new) celebrate();
       setHint('');
     }, 900);
   }
@@ -554,7 +680,7 @@
           ${res.emoji} ${res.name}
         </div>
         <div class="result-msg">${res.msg}</div>
-        <button class="try-again-btn" onclick="resetAll()">🔄 ลองผสมสีใหม่!</button>
+        <button class="try-again-btn" onclick="resetAll()">🔄 Mix Again!</button>
       </div>`;
     setTimeout(() => area.scrollIntoView({ behavior:'smooth', block:'nearest' }), 100);
   }
@@ -562,41 +688,35 @@
   /* ─── Reset ─────────────────────────────────────────────────────────── */
   function resetAll() {
     picked1 = null; picked2 = null; busy = false;
-    clearSlot('slot1',      's1icon', 's1label',  'สีที่ 1');
-    clearSlot('slot2',      's2icon', 's2label',  'สีที่ 2');
-    clearSlot('slotResult', 'srIcon', 'srLabel',  'ผลลัพธ์');
+    clearSlot('slot1',      's1icon', 's1label',  'Color 1');
+    clearSlot('slot2',      's2icon', 's2label',  'Color 2');
+    clearSlot('slotResult', 'srIcon', 'srLabel',  'Result');
     document.getElementById('opPlus').classList.remove('lit');
     document.getElementById('opEq').classList.remove('lit');
     document.getElementById('resultArea').innerHTML = '';
     setButtonsDisabled(false);
-    setHint('<em>แตะสีที่ 1</em> เลย!');
+    setHint('<em>Tap color #1</em> to start!');
     window.scrollTo({ top:0, behavior:'smooth' });
   }
 
   /* ─── Discovery shelf ───────────────────────────────────────────────── */
   function addToShelf(res) {
-    const key = res.en; // unique per color
+    const key = res.id;
     if (SECONDARY_IDS.has(key)) return;
     SECONDARY_IDS.add(key);
+    if (!C[res.id]) {
+      C[res.id] = { name: res.name, en: res.en, hex: res.hex, light: lighten(res.hex), emoji: res.emoji };
+    }
 
     const wrap = document.getElementById('shelfWrap');
     wrap.style.display = 'block';
 
     const badge = document.createElement('div');
-    badge.className = 'shelf-badge';
-    badge.innerHTML = `<span class="shelf-badge-emoji">${res.emoji}</span>${res.name} · ${res.en}`;
+    badge.className = 'shelf-badge shelf-btn';
+    badge.innerHTML = `<span class="shelf-badge-emoji">${res.emoji}</span>${res.name}`;
+    badge.title = `Use ${res.en} in mixing`;
+    badge.addEventListener('click', () => pickColor(res.id));
     document.getElementById('shelfRow').appendChild(badge);
-
-    if (SECONDARY_IDS.size === 3) {
-      // all 3 discovered!
-      setTimeout(() => {
-        document.getElementById('shelfWrap').insertAdjacentHTML('beforeend',
-          `<div style="margin-top:12px;font-size:15px;font-weight:700;color:#059669;text-align:center">
-            🏆 เก่งมาก! ค้นพบสีครบ 3 สีแล้ว! 🌈
-          </div>`);
-        celebrate(); celebrate();
-      }, 400);
-    }
   }
 
   /* ─── Celebrate ─────────────────────────────────────────────────────── */

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>เหรียญไทย — Summer's World</title>
+  <title>Thai Coins — Summer's World</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Mali:wght@500;700&family=Noto+Sans+Thai:wght@400;600;700&display=swap" rel="stylesheet">
@@ -104,13 +104,13 @@
 <nav class="site-nav">
   <a class="nav-brand" href="index.html">☀️ SUMMER</a>
   <div class="nav-links">
-    <a class="nav-link" href="24_question.html">🎲 24 คำถาม</a>
-    <a class="nav-link" href="robot_game.html">🤖 หุ่นยนต์</a>
-    <a class="nav-link" href="knowledge.html">📚 เรียนรู้</a>
-    <a class="nav-link active" href="thai_money.html">🪙 เหรียญ</a>
-    <a class="nav-link" href="pay_money.html">🛒 จ่ายเงิน</a>
-    <a class="nav-link" href="color_mix.html">🎨 ผสมสี</a>
-    <a class="nav-link" href="school_dashboard.html">🏫 โรงเรียน</a>
+    <a class="nav-link" href="24_question.html">🎲 Questions</a>
+    <a class="nav-link" href="robot_game.html">🤖 Robot</a>
+    <a class="nav-link" href="knowledge.html">📚 Learn</a>
+    <a class="nav-link active" href="thai_money.html">🪙 Coins</a>
+    <a class="nav-link" href="pay_money.html">🛒 Pay</a>
+    <a class="nav-link" href="color_mix.html">🎨 Colors</a>
+    <a class="nav-link" href="school_dashboard.html">🏫 Schools</a>
   </div>
 </nav>
 
@@ -118,39 +118,39 @@
 
   <div class="hero">
     <span class="hero-emoji">🪙</span>
-    <h1 class="hero-title">เหรียญไทย</h1>
-    <p class="hero-sub">Thai Coins · เรียนรู้เหรียญบาท 🇹🇭</p>
+    <h1 class="hero-title">Thai Coins</h1>
+    <p class="hero-sub">Learn Thai baht coins 🇹🇭</p>
   </div>
 
-  <div class="section-title">🔍 รู้จักเหรียญ</div>
+  <div class="section-title">🔍 Meet the Coins</div>
   <div class="coins-grid">
     <div class="coin-card">
       <div class="coin coin-1">๑</div>
-      <div class="coin-value">1 บาท</div>
+      <div class="coin-value">1 Baht</div>
       <div class="coin-label">One Baht</div>
-      <span class="coin-hint hint-silver">⚪ สีเงิน</span>
+      <span class="coin-hint hint-silver">⚪ Silver</span>
     </div>
     <div class="coin-card">
       <div class="coin coin-2">๒</div>
-      <div class="coin-value">2 บาท</div>
+      <div class="coin-value">2 Baht</div>
       <div class="coin-label">Two Baht</div>
-      <span class="coin-hint hint-silver">⚪ สีเงิน ขอบ</span>
+      <span class="coin-hint hint-silver">⚪ Silver Rim</span>
     </div>
     <div class="coin-card">
       <div class="coin coin-5">๕</div>
-      <div class="coin-value">5 บาท</div>
+      <div class="coin-value">5 Baht</div>
       <div class="coin-label">Five Baht</div>
-      <span class="coin-hint hint-gold">🟡 ขอบทอง</span>
+      <span class="coin-hint hint-gold">🟡 Gold Rim</span>
     </div>
     <div class="coin-card">
       <div class="coin coin-10">๑๐</div>
-      <div class="coin-value">10 บาท</div>
+      <div class="coin-value">10 Baht</div>
       <div class="coin-label">Ten Baht</div>
-      <span class="coin-hint hint-two">🟡⚪ สองสี</span>
+      <span class="coin-hint hint-two">🟡⚪ Two-Tone</span>
     </div>
   </div>
 
-  <div class="section-title">🎮 เกมทาย!</div>
+  <div class="section-title">🎮 Quiz Time!</div>
   <div class="quiz-box">
     <div id="quizContent"></div>
   </div>
@@ -174,10 +174,10 @@
   })();
 
   const COINS = [
-    { value:1,  thai:'๑',  label:'1 บาท',  cls:'coin-1' },
-    { value:2,  thai:'๒',  label:'2 บาท',  cls:'coin-2' },
-    { value:5,  thai:'๕',  label:'5 บาท',  cls:'coin-5' },
-    { value:10, thai:'๑๐', label:'10 บาท', cls:'coin-10' },
+    { value:1,  thai:'๑',  label:'1 Baht',  cls:'coin-1' },
+    { value:2,  thai:'๒',  label:'2 Baht',  cls:'coin-2' },
+    { value:5,  thai:'๕',  label:'5 Baht',  cls:'coin-5' },
+    { value:10, thai:'๑๐', label:'10 Baht', cls:'coin-10' },
   ];
   const TOTAL = 8;
   let questions = [], current = 0, score = 0;
@@ -193,12 +193,12 @@
     const pct = Math.round((current/TOTAL)*100);
     document.getElementById('quizContent').innerHTML = `
       <div class="quiz-progress-wrap">
-        <div class="quiz-progress-text">ข้อ ${current+1} จาก ${TOTAL}</div>
+        <div class="quiz-progress-text">Question ${current+1} of ${TOTAL}</div>
         <div class="quiz-progress-bar"><div class="quiz-progress-fill" style="width:${pct}%"></div></div>
       </div>
       <div class="quiz-coin-area">
         <div class="quiz-coin-big ${coin.cls}" id="quizCoin">${coin.thai}</div>
-        <div class="quiz-question">นี่คือเหรียญกี่บาท? 🤔</div>
+        <div class="quiz-question">How many baht is this coin? 🤔</div>
       </div>
       <div class="quiz-options">
         ${opts.map(o=>`<button class="quiz-btn" onclick="answer(${o.value},${coin.value})" data-val="${o.value}">${o.label}</button>`).join('')}
@@ -212,30 +212,30 @@
     if (chosen === correct) {
       score++;
       document.querySelector(`[data-val="${correct}"]`).classList.add('correct');
-      fb.className='quiz-feedback correct'; fb.textContent='🎉 เก่งมากเลย!';
+      fb.className='quiz-feedback correct'; fb.textContent='🎉 Great job!';
     } else {
       document.querySelector(`[data-val="${chosen}"]`).classList.add('wrong');
       document.querySelector(`[data-val="${correct}"]`).classList.add('correct');
-      fb.className='quiz-feedback wrong'; fb.textContent='💪 ลองใหม่ครั้งหน้านะ!';
+      fb.className='quiz-feedback wrong'; fb.textContent='💪 Nice try! Keep going!';
       const c=document.getElementById('quizCoin'); if(c){c.classList.add('shake');setTimeout(()=>c.classList.remove('shake'),450);}
     }
     const btn=document.createElement('button'); btn.className='quiz-next-btn';
-    btn.textContent=current+1<TOTAL?'ข้อต่อไป →':'ดูผลลัพธ์ 🏆';
+    btn.textContent=current+1<TOTAL?'Next Question →':'See Result 🏆';
     btn.onclick=()=>{current++;current<TOTAL?renderQuestion():renderResult();};
     fb.insertAdjacentElement('afterend',btn);
   }
 
   function renderResult() {
-    let emoji='🥇', msg='เก่งมากที่สุดเลย!';
-    if(score<=4){emoji='😊';msg='ฝึกอีกนิดนะ!';}
-    else if(score<=6){emoji='⭐';msg='ดีมากเลย!';}
+    let emoji='🥇', msg='Amazing work!';
+    if(score<=4){emoji='😊';msg='Keep practicing!';}
+    else if(score<=6){emoji='⭐';msg='Great job!';}
     document.getElementById('quizContent').innerHTML=`
       <div class="result-box">
         <span class="result-emoji">${emoji}</span>
         <div class="result-title">${msg}</div>
         <div class="result-score">${score} / ${TOTAL}</div>
-        <div class="result-sub">ซัมเมอร์ตอบถูก ${score} ข้อ จาก ${TOTAL} ข้อ 🌟</div>
-        <button class="restart-btn" onclick="startQuiz()">🔄 เล่นอีกครั้ง</button>
+        <div class="result-sub">Summer got ${score} out of ${TOTAL} correct 🌟</div>
+        <button class="restart-btn" onclick="startQuiz()">🔄 Play Again</button>
       </div>`;
   }
 

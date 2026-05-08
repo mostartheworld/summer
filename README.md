@@ -2,16 +2,18 @@
 
 แหล่งเรียนรู้และเกมสนุกสำหรับ Summer — A fun learning game collection for kids age 5+.
 
+> **v2** — UI updated to English navigation; Color Mixing game redesigned.
+
 ## 🎮 เกม & กิจกรรม / Games & Activities
 
-| หน้า | คำอธิบาย | สถานะ |
-|------|----------|-------|
-| [🎲 คุยเล่นกับลูก](24_question.html) | 24 คำถามสุ่ม คุยกันตอนกินข้าวหรือก่อนนอน | ✅ พร้อมเล่น |
-| [🤖 ประกอบหุ่นยนต์](robot_game.html) | ลากชิ้นส่วนสร้างหุ่นยนต์ สร้างได้ 243 แบบ! | ✅ พร้อมเล่น |
-| [📚 รู้อะไรบ้างนะ?](knowledge.html) | คำศัพท์ไทย-อังกฤษ 6 หมวด + เลขสนุก | ✅ พร้อมเล่น |
-| [🪙 เหรียญไทย](thai_money.html) | เรียนรู้เหรียญ 1-2-5-10 บาท แล้วลองทาย! | ✅ พร้อมเล่น |
-| [🎨 ผสมสีกัน!](color_mix.html) | ผสมสีแดง น้ำเงิน เหลือง แล้วดูสีใหม่! | ✅ พร้อมเล่น |
-| [🛒 จ่ายเงินซื้อของ](pay_money.html) | เลือกเหรียญจ่ายเงิน รับเงินทอนเหมือนจริง | ✅ พร้อมเล่น |
+| Page | Description | Status |
+|------|-------------|--------|
+| [🎲 Questions](24_question.html) | 24 random conversation starters — great for dinner or bedtime | ✅ Ready |
+| [🤖 Robot](robot_game.html) | Drag parts to build a robot — 243 combinations! | ✅ Ready |
+| [📚 Learn](knowledge.html) | Thai-English vocabulary across 6 topics + number fun | ✅ Ready |
+| [🪙 Coins](thai_money.html) | Learn Thai coins 1-2-5-10 baht, then try the quiz! | ✅ Ready |
+| [🎨 Colors](color_mix.html) | Mix red, blue, yellow — see what color you get! | ✅ Ready |
+| [🛒 Pay](pay_money.html) | Pick coins to pay, get correct change back | ✅ Ready |
 
 ## 👨‍👩‍👧 สำหรับพ่อแม่ / For Parents
 

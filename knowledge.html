@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>รู้อะไรบ้างนะ · Learn with Summer</title>
+<title>Knowledge Playground · Learn with Summer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Mali:wght@500;700&family=Noto+Sans+Thai:wght@400;600;700&display=swap" rel="stylesheet">
@@ -183,44 +183,44 @@
 <nav class="site-nav">
   <a class="nav-brand" href="index.html">☀️ SUMMER</a>
   <div class="nav-links">
-    <a class="nav-link" href="24_question.html">🎲 24 คำถาม</a>
-    <a class="nav-link" href="robot_game.html">🤖 หุ่นยนต์</a>
-    <a class="nav-link active" href="knowledge.html">📚 เรียนรู้</a>
-    <a class="nav-link" href="thai_money.html">🪙 เหรียญ</a>
-    <a class="nav-link" href="pay_money.html">🛒 จ่ายเงิน</a>
-    <a class="nav-link" href="color_mix.html">🎨 ผสมสี</a>
-    <a class="nav-link" href="school_dashboard.html">🏫 โรงเรียน</a>
+    <a class="nav-link" href="24_question.html">🎲 Questions</a>
+    <a class="nav-link" href="robot_game.html">🤖 Robot</a>
+    <a class="nav-link active" href="knowledge.html">📚 Learn</a>
+    <a class="nav-link" href="thai_money.html">🪙 Coins</a>
+    <a class="nav-link" href="pay_money.html">🛒 Pay</a>
+    <a class="nav-link" href="color_mix.html">🎨 Colors</a>
+    <a class="nav-link" href="school_dashboard.html">🏫 Schools</a>
   </div>
 </nav>
 
 <div class="page">
   <header>
     <span class="logo-emoji">🧠</span>
-    <h1>รู้อะไรบ้างนะ?</h1>
-    <p class="h1-en">Level Up — What Do You Know?</p>
-    <p class="sub">คำศัพท์ระดับท้าทายขึ้น · Harder words in Thai &amp; English · แตะการ์ดเพื่อมาร์กว่ารู้แล้ว</p>
+    <h1>Knowledge Playground</h1>
+    <p class="h1-en">What Do You Know?</p>
+    <p class="sub">Harder Thai-English words. Tap a card to mark it as learned.</p>
     <div class="deco-row">🌍 🚗 👔 🔷 💭 😊</div>
   </header>
 
-  <div id="done-banner" class="done-banner">🎉 เก่งมากๆ เลย! You learned them all! 🌟</div>
+  <div id="done-banner" class="done-banner">🎉 Amazing work! You learned them all! 🌟</div>
 
   <div class="prog-wrap">
-    <div class="prog-label">รู้แล้ว <span id="done-count">0</span> / <span id="total-count">0</span> คำ</div>
+    <div class="prog-label">Learned <span id="done-count">0</span> / <span id="total-count">0</span> words</div>
     <div class="prog-bar"><div class="prog-fill" id="bar"></div></div>
-    <button class="btn-reset" id="btn-reset">🔄 เริ่มใหม่</button>
+    <button class="btn-reset" id="btn-reset">🔄 Reset</button>
   </div>
 
   <div class="tabs" id="tabs"></div>
   <div id="categories"></div>
 
-  <div class="section-divider"><span>⭐ เลขสนุก · MATH TIME ⭐</span></div>
+  <div class="section-divider"><span>⭐ MATH TIME ⭐</span></div>
 
   <section class="math-section">
     <div class="math-head">
       <div class="math-head-icon">🔢</div>
       <div class="math-head-text">
-        <div class="math-head-title">เลขสนุก!</div>
-        <div class="math-head-en">Math Fun · + and −</div>
+        <div class="math-head-title">Math Fun!</div>
+        <div class="math-head-en">+ and −</div>
       </div>
       <div class="math-score-box">
         <div class="math-score-label">Score</div>
@@ -229,9 +229,9 @@
     </div>
     <div class="math-body">
       <div class="op-toggle">
-        <button class="op-btn active" data-mode="add">➕ บวก</button>
-        <button class="op-btn" data-mode="sub">➖ ลบ</button>
-        <button class="op-btn op-btn-both" data-mode="both">🎲 สุ่มทั้งคู่</button>
+        <button class="op-btn active" data-mode="add">➕ Add</button>
+        <button class="op-btn" data-mode="sub">➖ Subtract</button>
+        <button class="op-btn op-btn-both" data-mode="both">🎲 Mix Both</button>
       </div>
       <div class="equation-wrap">
         <div class="eq-num" id="num-a">5</div>
@@ -242,8 +242,8 @@
       </div>
       <div class="math-feedback" id="math-feedback"></div>
       <div class="math-actions">
-        <button class="btn-check" id="btn-check">✓ ตรวจคำตอบ</button>
-        <button class="btn-new" id="btn-new">🎲 โจทย์ใหม่</button>
+        <button class="btn-check" id="btn-check">✓ Check Answer</button>
+        <button class="btn-new" id="btn-new">🎲 New Problem</button>
       </div>
     </div>
   </section>
@@ -315,8 +315,8 @@
 
   function renderTabs() {
     const wrap = document.getElementById("tabs");
-    let html = `<button class="tab active" data-cat="all">ทั้งหมด · All <span class="cnt">${TOTAL}</span></button>`;
-    DATA.forEach(cat => { html += `<button class="tab" data-cat="${cat.id}">${cat.icon} ${cat.th} <span class="cnt">0/${cat.cards.length}</span></button>`; });
+    let html = `<button class="tab active" data-cat="all">All <span class="cnt">${TOTAL}</span></button>`;
+    DATA.forEach(cat => { html += `<button class="tab" data-cat="${cat.id}">${cat.icon} ${cat.en} <span class="cnt">0/${cat.cards.length}</span></button>`; });
     wrap.innerHTML = html;
     wrap.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => {
       wrap.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
@@ -338,7 +338,7 @@
     const show = filter === "all" ? DATA : DATA.filter(c => c.id == filter);
     root.innerHTML = show.map(cat => `
       <div class="category ${cat.color}">
-        <div class="sec-head"><div class="sec-icon">${cat.icon}</div><div><div class="sec-title">${cat.th}</div><div class="sec-title-en">${cat.en}</div></div></div>
+        <div class="sec-head"><div class="sec-icon">${cat.icon}</div><div><div class="sec-title">${cat.en}</div><div class="sec-title-en">${cat.th}</div></div></div>
         <div class="cards">${cat.cards.map((card,i) => cardHTML(cat,card,i)).join("")}</div>
       </div>`).join("");
     root.querySelectorAll(".card").forEach(el => el.addEventListener("click", () => {
@@ -350,7 +350,7 @@
   }
 
   document.getElementById("btn-reset").addEventListener("click", () => {
-    if (confirm("ต้องการล้างทั้งหมดและเริ่มใหม่?")) { learned.clear(); save(); updateProgress(); render(document.querySelector(".tab.active")?.dataset.cat || "all"); }
+    if (confirm("Clear all progress and start again?")) { learned.clear(); save(); updateProgress(); render(document.querySelector(".tab.active")?.dataset.cat || "all"); }
   });
 
   renderTabs(); render("all"); updateProgress();
@@ -390,12 +390,12 @@
     if (userAns === currentAnswer) {
       mathCorrect++; document.getElementById("score-c").textContent = mathCorrect;
       input.classList.add("correct");
-      feedback.textContent = ["🎉 ถูกต้อง!","✨ เก่งมาก!","🌟 ใช่เลย!","👏 ยอดเยี่ยม!"][Math.floor(Math.random()*4)];
+      feedback.textContent = ["🎉 Correct!","✨ Great job!","🌟 Exactly right!","👏 Awesome!"][Math.floor(Math.random()*4)];
       feedback.className = "math-feedback correct-msg";
       spawnConfetti(); answered = true; setTimeout(newQuestion, 1400);
     } else {
       input.classList.add("wrong"); input.classList.remove("shake"); void input.offsetWidth; input.classList.add("shake");
-      feedback.textContent = `❌ คำตอบที่ถูกต้องคือ ${currentAnswer}`;
+      feedback.textContent = `❌ The correct answer is ${currentAnswer}`;
       feedback.className = "math-feedback wrong-msg";
       answered = true; setTimeout(newQuestion, 2200);
     }
