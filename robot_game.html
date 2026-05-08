@@ -504,6 +504,7 @@ const SLOT_LABELS = {
 let currentVariants = { head: 0, body: 0, 'arm-l': 0, 'arm-r': 0, legs: 0 };
 const placedParts = new Set();
 const partsArea = document.getElementById('partsArea');
+let isAutoPlacing = false;
 
 function buildParts(showLessonsOnPlace = true) {
   partsArea.innerHTML = '';
@@ -531,7 +532,7 @@ function buildParts(showLessonsOnPlace = true) {
 function setupDrag(el, partId) {
   let startX, startY, dragging = false, origParent, placeholder;
   function start(e) {
-    if (placedParts.has(partId)) return;
+    if (placedParts.has(partId) || isAutoPlacing) return;
     e.preventDefault();
     const touch = e.touches ? e.touches[0] : e;
     const rect = el.getBoundingClientRect();
@@ -669,6 +670,7 @@ document.getElementById('randomBtn').addEventListener('click', () => {
   setTimeout(() => btn.classList.remove('spinning'), 600);
   document.getElementById('modal').classList.remove('show');
   playRandomSound();
+  isAutoPlacing = true;
   buildParts(false);
   document.getElementById('speech').textContent = '🎲 กำลังประกอบ...';
   setTimeout(() => {
@@ -679,7 +681,10 @@ document.getElementById('randomBtn').addEventListener('click', () => {
         if (part && slot && !placedParts.has(id)) placeIntoSlot(part, id, slot, false);
       }, i * 220);
     });
-    setTimeout(() => { document.getElementById('speech').textContent = '🎉 หุ่นใหม่!'; }, 5 * 220 + 300);
+    setTimeout(() => {
+      isAutoPlacing = false;
+      document.getElementById('speech').textContent = '🎉 หุ่นใหม่!';
+    }, 5 * 220 + 300);
   }, 400);
 });
 
