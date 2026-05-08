@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>เปรียบเทียบโรงเรียน ป.1 · Summer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;700;800;900&family=Prompt:wght@700;800;900&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Noto Sans Thai', system-ui, sans-serif;
+    min-height: 100vh; background: #fff9f0; overflow-x: hidden;
+    color: #2a2434;
+  }
+  body::before {
+    content: ""; position: fixed; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 65% 45% at 2% 8%,  #ffe0f7 0%, transparent 55%),
+      radial-gradient(ellipse 55% 40% at 98% 5%,  #d4fce8 0%, transparent 55%),
+      radial-gradient(ellipse 50% 50% at 50% 100%, #fffbd0 0%, transparent 55%);
+    pointer-events: none;
+  }
+
+/* ── BLOBS ── */
+.blobs { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+.blob { position: absolute; border-radius: 50%; animation: floatBlob linear infinite; opacity: .4; }
+@keyframes floatBlob {
+0%   { transform: translateY(0) rotate(0deg); }
+50%  { transform: translateY(-14px) rotate(180deg); }
+100% { transform: translateY(0) rotate(360deg); }
+}
+
+/* ── NAV ── */
+.site-nav {
+position: sticky; top: 0; z-index: 100;
+background: rgba(255,249,240,.92);
+backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+border-bottom: 2px solid #f0e8fb;
+padding: 10px 16px;
+display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.nav-home {
+display: inline-flex; align-items: center; gap: 6px;
+text-decoration: none;
+font-family: 'Prompt','Noto Sans Thai',sans-serif;
+font-size: 14px; font-weight: 900;
+padding: 9px 20px; border-radius: 999px;
+background: linear-gradient(135deg,#ff6b9d,#ff8a5b);
+color: #fff; white-space: nowrap; flex-shrink: 0;
+box-shadow: 0 3px 10px rgba(255,107,157,.3);
+transition: transform .15s, box-shadow .15s;
+}
+.nav-home:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(255,107,157,.4); }
+.nav-links { display: flex; gap: 6px; flex-wrap: wrap; }
+.nav-link {
+text-decoration: none;
+font-family: 'Prompt','Noto Sans Thai',sans-serif;
+font-size: 12px; font-weight: 800;
+padding: 7px 13px; border-radius: 999px;
+border: 2px solid #e8dff0; color: #7c6d88;
+background: #fff; transition: all .18s;
+display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;
+}
+.nav-link:hover { border-color: #c084fc; color: #7c3aed; transform: translateY(-1px); }
+.nav-link.active {
+background: linear-gradient(135deg,#a855f7,#3b82f6);
+color: #fff; border-color: transparent;
+box-shadow: 0 3px 10px rgba(168,85,247,.35);
+}
+@media (max-width: 420px) {
+.nav-home { font-size: 13px; padding: 8px 14px; }
+.nav-link { font-size: 11px; padding: 6px 10px; }
+}
+
+.page { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 24px 16px 80px; }
+
+/* ── HEADER ── */
+header { text-align: center; padding: 10px 0 30px; }
+.logo-emoji { font-size: 62px; display: block; animation: bounce 2.2s ease-in-out infinite; }
+@keyframes bounce { 0%,100%{transform:translateY(0) rotate(-3deg)} 50%{transform:translateY(-12px) rotate(3deg)} }
+h1 {
+font-family: 'Prompt','Noto Sans Thai',sans-serif;
+font-size: clamp(24px,5.5vw,42px); font-weight: 900;
+background: linear-gradient(135deg,#059669,#22c55e,#ffd020,#f59e0b);
+-webkit-background-clip: text; -webkit-text-fill-color: transparent;
+background-clip: text; line-height: 1.2; margin: 10px 0 6px;
+}
+.sub { font-size: 15px; color: #7c6d88; font-weight: 500; max-width: 600px; margin: 0 auto; line-height: 1.5; }
+.deco-row { display: flex; justify-content: center; gap: 10px; margin: 12px 0 0; font-size: 20px; animation: shimmer 3s ease-in-out infinite; }
+@keyframes shimmer { 0%,100%{opacity:1} 50%{opacity:.5} }
+
+/* ── WARNING BANNER ── */
+.warning-banner {
+background: linear-gradient(135deg,#fff7ed,#fef3c7);
+border: 2px solid #fed7aa; border-radius: 18px;
+padding: 14px 18px; margin: 0 0 28px;
+display: flex; align-items: flex-start; gap: 10px;
+font-size: 14px; font-weight: 500; color: #92400e; line-height: 1.55;
+}
+.warning-banner .warn-icon { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+
+/* ── SECTION HEADER ── */
+.sec-head {
+display: flex; align-items: center; gap: 14px;
+padding: 16px 20px; border-radius: 18px; color: #fff;
+box-shadow: 0 4px 18px rgba(0,0,0,.1); margin-bottom: 18px;
+position: relative; overflow: hidden;
+}
+.sec-head::before {
+content: ""; position: absolute; inset: 0;
+background: radial-gradient(circle at 15% 30%, rgba(255,255,255,.2), transparent 50%);
+pointer-events: none;
+}
+.sec-head > * { position: relative; }
+.sec-icon { font-size: 32px; }
+.sec-title { font-family: 'Prompt','Noto Sans Thai',sans-serif; font-size: 18px; font-weight: 900; line-height: 1.1; }
+.sec-sub { font-size: 13px; opacity: .82; margin-top: 2px; font-weight: 500; }
+
+.sh-green  { background: linear-gradient(135deg,#059669,#34d399); }
+.sh-blue   { background: linear-gradient(135deg,#2563eb,#60a5fa); }
+.sh-purple { background: linear-gradient(135deg,#9333ea,#c084fc); }
+.sh-orange { background: linear-gradient(135deg,#d97706,#fbbf24); }
+.sh-pink   { background: linear-gradient(135deg,#db2777,#f43f8e); }
+.sh-teal   { background: linear-gradient(135deg,#0d9488,#2dd4bf); }
+
+/* ── SECTION WRAPPER ── */
+.section {
+background: #fff; border-radius: 24px; padding: 22px 20px 20px;
+margin-bottom: 22px;
+box-shadow: 0 4px 18px rgba(120,80,160,.07), 0 1px 4px rgba(0,0,0,.04);
+border: 2px solid #f0e8fb;
+}
+
+/* ── SCHOOL OVERVIEW GRID ── */
+.school-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+gap: 14px;
+margin-bottom: 24px;
+}
+.school-card {
+background: #fff; border-radius: 22px; overflow: hidden;
+box-shadow: 0 4px 16px rgba(0,0,0,.07);
+border: 2px solid #f0e8fb;
+transition: transform .22s cubic-bezier(.34,1.56,.64,1), box-shadow .2s;
+}
+.school-card:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 10px 28px rgba(0,0,0,.12); }
+
+.sc-banner {
+padding: 14px 16px 12px; color: #fff; position: relative; overflow: hidden;
+}
+.sc-banner::before {
+content: ""; position: absolute; inset: 0;
+background: radial-gradient(circle at 20% 30%, rgba(255,255,255,.18), transparent 55%);
+pointer-events: none;
+}
+.sc-banner > * { position: relative; }
+.sc-badge {
+display: inline-block; background: rgba(255,255,255,.28); color: #fff;
+border-radius: 999px; padding: 3px 12px; font-size: 11px; font-weight: 800;
+margin-bottom: 6px; letter-spacing: .3px;
+}
+.sc-name { font-family: 'Prompt','Noto Sans Thai',sans-serif; font-size: 15px; font-weight: 900; line-height: 1.2; }
+.sc-loc { font-size: 12px; opacity: .85; margin-top: 3px; font-weight: 500; }
+
+.sc-sfx  .sc-banner { background: linear-gradient(135deg,#059669,#34d399); }
+.sc-sat  .sc-banner { background: linear-gradient(135deg,#9333ea,#c084fc); }
+.sc-sg   .sc-banner { background: linear-gradient(135deg,#2563eb,#60a5fa); }
+.sc-ass  .sc-banner { background: linear-gradient(135deg,#d97706,#fbbf24); }
+
+.sc-body { padding: 14px 16px; }
+.sc-stat {
+display: flex; justify-content: space-between; align-items: center;
+padding: 7px 0; font-size: 13px; border-bottom: 1px dashed #f0e8fb;
+gap: 8px;
+}
+.sc-stat:last-child { border-bottom: none; }
+.sc-stat .lbl { color: #9b8aab; font-weight: 600; flex-shrink: 0; }
+.sc-stat .val { font-weight: 700; color: #2a2434; text-align: right; }
+
+/* difficulty tags */
+.dtag {
+display: inline-block; border-radius: 999px; padding: 3px 10px;
+font-size: 11px; font-weight: 800; white-space: nowrap;
+}
+.dtag-easy   { background: #dcfce7; color: #166534; }
+.dtag-mid    { background: #fef3c7; color: #92400e; }
+.dtag-hard   { background: #fee2e2; color: #991b1b; }
+.dtag-vhard  { background: #fce7f3; color: #9d174d; }
+
+/* ── CHART GRID ── */
+.chart-grid {
+display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 22px;
+}
+@media (max-width: 700px) { .chart-grid { grid-template-columns: 1fr; } }
+.chart-wrap { height: 300px; position: relative; }
+.chart-wrap-tall { height: 380px; position: relative; }
+
+/* ── TABLE ── */
+.table-scroll { overflow-x: auto; border-radius: 14px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 600px; }
+th {
+background: #f5f0ff; color: #7c3aed;
+font-family: 'Prompt','Noto Sans Thai',sans-serif;
+font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px;
+padding: 11px 14px; text-align: left; white-space: nowrap;
+}
+td { padding: 10px 14px; border-bottom: 1px solid #f0e8fb; font-weight: 500; vertical-align: top; line-height: 1.5; }
+tr:last-child td { border-bottom: none; }
+td.row-head { font-weight: 700; color: #4a3d5a; background: #fdf8ff; white-space: nowrap; }
+tr:hover td { background: #fdf8ff; }
+.hi-green { color: #059669; font-weight: 800; }
+.hi-red   { color: #dc2626; font-weight: 800; }
+.hi-blue  { color: #2563eb; font-weight: 800; }
+.table-note { font-size: 11px; color: #9b8aab; margin-top: 10px; }
+
+/* ── PROS / CONS ── */
+.school-block { margin-bottom: 24px; }
+.school-block:last-child { margin-bottom: 0; }
+.school-block-name {
+font-family: 'Prompt','Noto Sans Thai',sans-serif;
+font-size: 15px; font-weight: 900; color: #2a2434; margin-bottom: 12px;
+display: flex; align-items: center; gap: 8px;
+}
+.school-block-name .num {
+width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+color: #fff; font-size: 13px; font-weight: 900; flex-shrink: 0;
+}
+.pc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 520px) { .pc-grid { grid-template-columns: 1fr; } }
+.pros-box, .cons-box {
+border-radius: 16px; padding: 14px 16px;
+}
+.pros-box { background: #f0fdf4; border: 2px solid #bbf7d0; }
+.cons-box { background: #fff1f2; border: 2px solid #fecdd3; }
+.pc-head {
+font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
+margin-bottom: 8px; display: flex; align-items: center; gap: 5px;
+}
+.pros-box .pc-head { color: #166534; }
+.cons-box .pc-head { color: #991b1b; }
+.pc-list { list-style: none; display: grid; gap: 5px; }
+.pc-list li {
+font-size: 13px; font-weight: 500; color: #374151; line-height: 1.5;
+display: flex; align-items: flex-start; gap: 6px;
+}
+.pc-list li::before { flex-shrink: 0; margin-top: 1px; }
+.pros-box .pc-list li::before { content: "✓"; color: #16a34a; font-weight: 800; }
+.cons-box .pc-list li::before { content: "✗"; color: #dc2626; font-weight: 800; }
+
+/* ── RECOMMENDATION ── */
+.rec-banner {
+background: linear-gradient(135deg,#fff7ed,#fef9c3,#fff0fb);
+border: 2px solid #fed7aa; border-radius: 24px; padding: 24px 22px 20px;
+margin-bottom: 22px;
+}
+.rec-banner .rec-title {
+font-family: 'Prompt','Noto Sans Thai',sans-serif;
+font-size: 18px; font-weight: 900; color: #2a2434; margin-bottom: 6px;
+display: flex; align-items: center; gap: 8px;
+}
+.rec-banner .rec-sub { font-size: 14px; color: #6b5e78; font-weight: 500; margin-bottom: 16px; line-height: 1.55; }
+.rec-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.rec-card {
+background: #fff; border-radius: 16px; padding: 14px 16px;
+font-size: 13px; font-weight: 500; line-height: 1.55;
+border-left: 5px solid #e8dff0;
+box-shadow: 0 2px 8px rgba(0,0,0,.05);
+}
+.rec-card strong { display: block; font-weight: 800; font-size: 14px; color: #2a2434; margin-bottom: 4px; }
+.rec-1 { border-left-color: #22c55e; }
+.rec-2 { border-left-color: #a855f7; }
+.rec-3 { border-left-color: #3b82f6; }
+.rec-4 { border-left-color: #f59e0b; }
+
+.strategy-box {
+background: #fff; border: 2px solid #e8dff0; border-radius: 16px;
+padding: 14px 16px; margin-top: 14px; font-size: 13px; font-weight: 500;
+line-height: 1.6; color: #4a3d5a;
+}
+.strategy-box strong { color: #2a2434; }
+
+/* ── ACTION ITEMS ── */
+.action-list { list-style: none; display: grid; gap: 10px; }
+.action-item {
+display: flex; align-items: flex-start; gap: 12px;
+background: #fdf8ff; border-radius: 14px; padding: 12px 14px;
+border: 2px solid #f0e8fb; font-size: 14px; font-weight: 500; line-height: 1.55;
+}
+.action-badge {
+flex-shrink: 0; background: linear-gradient(135deg,#6366f1,#a855f7);
+color: #fff; border-radius: 10px; padding: 3px 10px;
+font-size: 11px; font-weight: 800; white-space: nowrap; margin-top: 1px;
+}
+.action-item ul { margin: 6px 0 0 16px; display: grid; gap: 3px; font-size: 13px; color: #6b5e78; }
+
+@media (max-width: 600px) {
+.page { padding: 16px 12px 60px; }
+.section { padding: 16px 14px; border-radius: 20px; }
+.logo-emoji { font-size: 50px; }
+}
+</style>
+
+</head>
+<body>
+
+<div class="blobs" id="blobs"></div>
+
+<nav class="site-nav">
+  <a class="nav-home" href="home.html">🏠 หน้าหลัก</a>
+  <div class="nav-links">
+    <a class="nav-link" href="24_question.html">🎲 24 คำถาม</a>
+    <a class="nav-link" href="robot_game.html">🤖 หุ่นยนต์</a>
+    <a class="nav-link" href="knowledge.html">📚 เรียนรู้</a>
+    <a class="nav-link" href="thai_money.html">🪙 เหรียญ</a>
+    <a class="nav-link" href="pay_money.html">🛒 จ่ายเงิน</a>
+    <a class="nav-link active" href="school_dashboard.html">🏫 โรงเรียน</a>
+  </div>
+</nav>
+
+<div class="page">
+
+  <header>
+    <span class="logo-emoji">🏫</span>
+    <h1>เปรียบเทียบโรงเรียน ป.1</h1>
+    <p class="sub">Dashboard สำหรับตัดสินใจ · บ้านอยู่บางบัวทอง / นนทบุรี</p>
+    <div class="deco-row">🎓 📊 💰 🚗 ✅</div>
+  </header>
+
+  <div class="warning-banner">
+    <span class="warn-icon">⚠️</span>
+    <div><strong>สำคัญ:</strong> เซนต์คาเบรียลและอัสสัมชัญสาทร <strong>รับเฉพาะเด็กชาย</strong> · เซนต์ฟรังซีสและสาธิตเกษตรรับสหศึกษา</div>
+  </div>
+
+  <!-- SCHOOL OVERVIEW -->
+
+  <div class="section">
+    <div class="sec-head sh-green">
+      <div class="sec-icon">📋</div>
+      <div>
+        <div class="sec-title">ภาพรวม 4 โรงเรียน</div>
+        <div class="sec-sub">ข้อมูลสำคัญแบบ quick look</div>
+      </div>
+    </div>
+    <div class="school-grid">
+
+      <div class="school-card sc-sfx">
+        <div class="sc-banner">
+          <span class="sc-badge">สหศึกษา</span>
+          <div class="sc-name">เซนต์ฟรังซีสเซเวียร์</div>
+          <div class="sc-loc">📍 ปากเกร็ด นนทบุรี · เมืองทองธานี</div>
+        </div>
+        <div class="sc-body">
+          <div class="sc-stat"><span class="lbl">ระยะทาง</span><span class="val">~18 กม. ⭐ ใกล้สุด</span></div>
+          <div class="sc-stat"><span class="lbl">ค่าเทอม สามัญ</span><span class="val">~50,000 ฿/ปี</span></div>
+          <div class="sc-stat"><span class="lbl">ค่าเทอม EP</span><span class="val">~137,700 ฿/ปี</span></div>
+          <div class="sc-stat"><span class="lbl">โอกาสสอบ</span><span class="val"><span class="dtag dtag-mid">ปานกลาง</span></span></div>
+          <div class="sc-stat"><span class="lbl">ประเภท</span><span class="val">คาทอลิก, สหศึกษา</span></div>
+        </div>
+      </div>
+
+      <div class="school-card sc-sat">
+        <div class="sc-banner">
+          <span class="sc-badge">สาธิต</span>
+          <div class="sc-name">สาธิตเกษตร บางเขน</div>
+          <div class="sc-loc">📍 จตุจักร กทม. · งามวงศ์วาน</div>
+        </div>
+        <div class="sc-body">
+          <div class="sc-stat"><span class="lbl">ระยะทาง</span><span class="val">~22 กม.</span></div>
+          <div class="sc-stat"><span class="lbl">ค่าเทอม สามัญ</span><span class="val">~28,500 ฿/ปี ⭐ ถูกสุด</span></div>
+          <div class="sc-stat"><span class="lbl">ค่าเทอม IPP</span><span class="val">~400,000 ฿/ปี</span></div>
+          <div class="sc-stat"><span class="lbl">โอกาสสอบ</span><span class="val"><span class="dtag dtag-vhard">ยากมาก</span></span></div>
+          <div class="sc-stat"><span class="lbl">ประเภท</span><span class="val">รัฐบาล, สหศึกษา</span></div>
+        </div>
+      </div>
+
+      <div class="school-card sc-sg">
+        <div class="sc-banner">
+          <span class="sc-badge">ชายล้วน</span>
+          <div class="sc-name">เซนต์คาเบรียล</div>
+          <div class="sc-loc">📍 ดุสิต กทม. · สามเสน</div>
+        </div>
+        <div class="sc-body">
+          <div class="sc-stat"><span class="lbl">ระยะทาง</span><span class="val">~32 กม.</span></div>
+          <div class="sc-stat"><span class="lbl">ค่าเทอม สามัญ</span><span class="val">~95,000 ฿/ปี</span></div>
+          <div class="sc-stat"><span class="lbl">ค่าเทอม MLP</span><span class="val">~115,000 ฿/ปี</span></div>
+          <div class="sc-stat"><span class="lbl">โอกาสสอบ</span><span class="val"><span class="dtag dtag-hard">ยาก</span></span></div>
+          <div class="sc-stat"><span class="lbl">ประเภท</span><span class="val">คาทอลิก, ชายล้วน</span></div>
+        </div>
+      </div>
+
+      <div class="school-card sc-ass">
+        <div class="sc-banner">
+          <span class="sc-badge">ชายล้วน</span>
+          <div class="sc-name">อัสสัมชัญ ประถม</div>
+          <div class="sc-loc">📍 สาทร กทม.</div>
+        </div>
+        <div class="sc-body">
+          <div class="sc-stat"><span class="lbl">ระยะทาง</span><span class="val">~40 กม. ⚠️ ไกลสุด</span></div>
+          <div class="sc-stat"><span class="lbl">ค่าเทอม Regular</span><span class="val">~80,000 ฿/ปี</span></div>
+          <div class="sc-stat"><span class="lbl">ค่าเทอม EP/CEP</span><span class="val">~150,000+ ฿/ปี</span></div>
+          <div class="sc-stat"><span class="lbl">โอกาสสอบ</span><span class="val"><span class="dtag dtag-hard">ยาก</span></span></div>
+          <div class="sc-stat"><span class="lbl">ประเภท</span><span class="val">คาทอลิก, ชายล้วน</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CHARTS -->
+
+  <div class="chart-grid">
+    <div class="section">
+      <div class="sec-head sh-orange">
+        <div class="sec-icon">💰</div>
+        <div>
+          <div class="sec-title">ค่าเทอมเปรียบเทียบ</div>
+          <div class="sec-sub">บาท / ปี</div>
+        </div>
+      </div>
+      <div class="chart-wrap"><canvas id="costChart"></canvas></div>
+    </div>
+    <div class="section">
+      <div class="sec-head sh-blue">
+        <div class="sec-icon">🚗</div>
+        <div>
+          <div class="sec-title">ระยะทางจากบางบัวทอง</div>
+          <div class="sec-sub">กิโลเมตร</div>
+        </div>
+      </div>
+      <div class="chart-wrap"><canvas id="distChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-head sh-purple">
+      <div class="sec-icon">📊</div>
+      <div>
+        <div class="sec-title">คะแนนรวม Radar Chart</div>
+        <div class="sec-sub">ความใกล้บ้าน · ความคุ้มค่า · ภาษาอังกฤษ · สิ่งอำนวยความสะดวก · โอกาสสอบติด (10 = ดีสุด)</div>
+      </div>
+    </div>
+    <div class="chart-wrap-tall"><canvas id="radarChart"></canvas></div>
+  </div>
+
+  <!-- DETAILED TABLE -->
+
+  <div class="section">
+    <div class="sec-head sh-teal">
+      <div class="sec-icon">📑</div>
+      <div>
+        <div class="sec-title">ตารางเปรียบเทียบละเอียด</div>
+        <div class="sec-sub">ข้อมูลครบทุกมิติ</div>
+      </div>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>หัวข้อ</th>
+            <th>เซนต์ฟรังซีส</th>
+            <th>สาธิตเกษตร</th>
+            <th>เซนต์คาเบรียล</th>
+            <th>อัสสัมชัญสาทร</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="row-head">เพศที่รับ</td><td>ชาย-หญิง</td><td>ชาย-หญิง</td><td><strong class="hi-blue">ชายเท่านั้น</strong></td><td><strong class="hi-blue">ชายเท่านั้น</strong></td></tr>
+          <tr><td class="row-head">ที่ตั้ง</td><td>ปากเกร็ด นนทบุรี</td><td>จตุจักร กทม.</td><td>ดุสิต กทม.</td><td>สาทร กทม.</td></tr>
+          <tr><td class="row-head">ระยะทาง*</td><td><strong class="hi-green">~18 กม.</strong></td><td>~22 กม.</td><td>~32 กม.</td><td><strong class="hi-red">~40 กม.</strong></td></tr>
+          <tr><td class="row-head">เวลาเดินทางเช้า</td><td>~30-40 นาที</td><td>~45-60 นาที</td><td>~60-80 นาที</td><td><strong class="hi-red">~75-100 นาที</strong></td></tr>
+          <tr><td class="row-head">หลักสูตร</td><td>สามัญ + EP</td><td>สามัญ + EPB + IPP</td><td>สามัญ + IEP + MLP</td><td>Regular + EP + CEP</td></tr>
+          <tr><td class="row-head">ค่าเทอม สามัญ/ปี</td><td>~50,000</td><td><strong class="hi-green">~28,500</strong></td><td>~95,000</td><td>~80,000</td></tr>
+          <tr><td class="row-head">ค่าเทอม EP/ปี</td><td>~137,700</td><td>~400,000 (IPP)</td><td>~115,000</td><td>~150,000+</td></tr>
+          <tr><td class="row-head">วิธีสอบเข้า</td><td>ข้อสอบ + สัมภาษณ์<br>(ไทย/คณิต/อังกฤษ)</td><td>ข้อสอบ + สัมภาษณ์<br>(คณิต/ไทย/เชาวน์)</td><td>ข้อสอบ + สัมภาษณ์</td><td>ข้อสอบ + สัมภาษณ์</td></tr>
+          <tr><td class="row-head">เวลาสอบ</td><td>ก.พ.-มี.ค.</td><td>มี.ค. (รับ 2 วัน!)</td><td>มิ.ย. (ปี 2569)</td><td>ก.ย.-ต.ค.</td></tr>
+          <tr><td class="row-head">โอกาสสอบติด</td><td><span class="dtag dtag-mid">ปานกลาง</span></td><td><span class="dtag dtag-vhard">ยากมาก ⚠️</span></td><td><span class="dtag dtag-hard">ยาก</span></td><td><span class="dtag dtag-hard">ยาก</span></td></tr>
+          <tr><td class="row-head">โควต้าพิเศษ</td><td>พี่น้อง (ลด 1,100฿)</td><td><strong>บุตรอาจารย์/พนง. ม.เกษตร, นร.อนุบาล KU</strong></td><td>โควต้าพันธมิตร</td><td>โควต้าพี่น้อง/ศิษย์เก่า</td></tr>
+          <tr><td class="row-head">จุดเด่น</td><td>EP เข้มข้น · ใกล้บ้าน · ครูต่างชาติ</td><td>วิจัยการศึกษา · กิจกรรมเยอะ · พัฒนารอบด้าน</td><td>วินัย ระเบียบ · เก่าแก่ 100+ ปี · ศิษย์เก่ามีอิทธิพล</td><td>ที่หนึ่งของไทย · ภาษาดีมาก · เครือข่ายแข็ง</td></tr>
+          <tr><td class="row-head">สิ่งอำนวยความสะดวก</td><td>สระว่ายน้ำ, สนามกีฬา, ห้องคอม</td><td>ห้องวิจัย, ห้องแล็ป, สนามกีฬาเยอะ</td><td>หอประชุมใหญ่, สระว่ายน้ำ, สนามฟุตบอล</td><td>ครบทุกอย่าง · ใจกลางเมือง</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="table-note">*ระยะทางและเวลาประมาณการจากบางบัวทอง · ค่าเทอมเป็นข้อมูลประมาณการ โปรดตรวจสอบกับโรงเรียนอีกครั้ง</p>
+  </div>
+
+  <!-- PROS & CONS -->
+
+  <div class="section">
+    <div class="sec-head sh-pink">
+      <div class="sec-icon">✅</div>
+      <div>
+        <div class="sec-title">จุดเด่น vs จุดด้อย</div>
+        <div class="sec-sub">แต่ละโรงเรียนมีข้อดี-ข้อเสียต่างกัน</div>
+      </div>
+    </div>
+
+    <div class="school-block">
+      <div class="school-block-name">
+        <span class="num" style="background:#059669;">1</span>
+        เซนต์ฟรังซีสเซเวียร์ เมืองทองธานี
+      </div>
+      <div class="pc-grid">
+        <div class="pros-box">
+          <div class="pc-head">✓ จุดเด่น</div>
+          <ul class="pc-list">
+            <li>ใกล้บ้านที่สุด (~18 กม.)</li>
+            <li>EP คุณภาพ ครูต่างชาติเจ้าของภาษา</li>
+            <li>เรียนยาวถึง ม.6 ไม่ต้องสอบใหม่</li>
+            <li>สหศึกษา เปิดกว้าง</li>
+            <li>โอกาสสอบติดสูงกว่า 3 รร.อื่น</li>
+          </ul>
+        </div>
+        <div class="cons-box">
+          <div class="pc-head">✗ จุดด้อย</div>
+          <ul class="pc-list">
+            <li>EP ค่าเทอมแพงพอควร</li>
+            <li>ไม่ได้อยู่ระดับ top-tier ของประเทศ</li>
+            <li>ชื่อเสียงสู้รุ่นพี่ในเครือไม่ได้</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="school-block">
+      <div class="school-block-name">
+        <span class="num" style="background:#9333ea;">2</span>
+        สาธิตเกษตร บางเขน
+      </div>
+      <div class="pc-grid">
+        <div class="pros-box">
+          <div class="pc-head">✓ จุดเด่น</div>
+          <ul class="pc-list">
+            <li>ค่าเทอมถูกสุด (รัฐบาล)</li>
+            <li>ครูคุณภาพสูง สัดส่วน 1:17</li>
+            <li>เน้นพัฒนาเด็กรอบด้าน ไม่เน้นแต่วิชาการ</li>
+            <li>เรียนยาวถึง ม.6 อาจได้โควต้า ม.เกษตร</li>
+            <li>สังคมดี เพื่อนคุณภาพ</li>
+          </ul>
+        </div>
+        <div class="cons-box">
+          <div class="pc-head">✗ จุดด้อย</div>
+          <ul class="pc-list">
+            <li><strong>เด็กเส้นเยอะ</strong> — บุตรอาจารย์/เด็ก KU ได้โควต้าก่อน</li>
+            <li>ที่นั่งเหลือสอบทั่วไปน้อยมาก</li>
+            <li>ติวหนักมาก บางคนติวตั้งแต่ อ.2</li>
+            <li>ขึ้นค่าเทอมบ่อย</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="school-block">
+      <div class="school-block-name">
+        <span class="num" style="background:#2563eb;">3</span>
+        เซนต์คาเบรียล สามเสน
+      </div>
+      <div class="pc-grid">
+        <div class="pros-box">
+          <div class="pc-head">✓ จุดเด่น</div>
+          <ul class="pc-list">
+            <li>ชื่อเสียง 100+ ปี ระดับท็อปของประเทศ</li>
+            <li>ศิษย์เก่ามีอิทธิพล (อดีตนายก, ดารา)</li>
+            <li>วินัยดี ระเบียบเรียบร้อย</li>
+            <li>ภาษาอังกฤษดี (MLP)</li>
+            <li>เครือข่ายศิษย์เก่าแข็ง</li>
+          </ul>
+        </div>
+        <div class="cons-box">
+          <div class="pc-head">✗ จุดด้อย</div>
+          <ul class="pc-list">
+            <li><strong>ชายล้วน</strong> — ถ้าลูกผู้หญิง ตัดออก</li>
+            <li>ระยะทางไกล ~32 กม.</li>
+            <li>ค่าเทอมแพง</li>
+            <li>โควต้าพันธมิตร/ศิษย์เก่าเยอะ</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="school-block">
+      <div class="school-block-name">
+        <span class="num" style="background:#d97706;">4</span>
+        อัสสัมชัญ แผนกประถม สาทร
+      </div>
+      <div class="pc-grid">
+        <div class="pros-box">
+          <div class="pc-head">✓ จุดเด่น</div>
+          <ul class="pc-list">
+            <li>โรงเรียนคาทอลิกที่เก่าแก่ที่สุดในไทย (1885)</li>
+            <li>ชื่อเสียงระดับประเทศ</li>
+            <li>ภาษาอังกฤษและจีนดี (CEP)</li>
+            <li>เครือข่ายแข็งระดับนานาชาติ</li>
+          </ul>
+        </div>
+        <div class="cons-box">
+          <div class="pc-head">✗ จุดด้อย</div>
+          <ul class="pc-list">
+            <li><strong>ไกลที่สุด ~40 กม.</strong> — ลูกอาจตื่นตี 5</li>
+            <li><strong>ชายล้วน</strong> — ถ้าลูกผู้หญิง ตัดออก</li>
+            <li>การจราจรสาทรหนัก (1.5-2 ชม.เช้า)</li>
+            <li>ค่าเทอมแพง, แข่งขันสูง</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RECOMMENDATION -->
+
+  <div class="rec-banner">
+    <div class="rec-title">💡 คำแนะนำส่วนตัว</div>
+    <p class="rec-sub">จากบ้านบางบัวทอง + ลูกขึ้น ป.1 · ปัจจัยสำคัญสุดคือ <strong>"ระยะทาง"</strong> — เด็ก ป.1 ตื่นตี 5 ทุกวันยาก 12 ปี</p>
+    <div class="rec-grid">
+      <div class="rec-card rec-1"><strong>🥇 เซนต์ฟรังซีสฯ เมืองทอง</strong>ใกล้บ้านสุด, โอกาสติดสูง, EP คุณภาพ, สหศึกษา → <em>ตัวเลือกที่สมเหตุสมผลที่สุด</em></div>
+      <div class="rec-card rec-2"><strong>🥈 สาธิตเกษตร</strong>ถ้าติด = คุ้มมาก แต่ <strong>ยากเพราะเด็กเส้น</strong> → <em>ลองสอบ อย่าคาดหวังสูง</em></div>
+      <div class="rec-card rec-3"><strong>🥉 เซนต์คาเบรียล</strong>(เฉพาะลูกชาย) ถ้าเน้นเครือข่ายและชื่อเสียง → <em>คุ้มค่าระยะยาว แต่เหนื่อยช่วง ป.ต้น</em></div>
+      <div class="rec-card rec-4"><strong>🏅 อัสสัมชัญ สาทร</strong>ไกลเกินไปสำหรับเด็ก ป.1 → <em>พิจารณาก็ต่อเมื่อย้ายบ้านเข้าเมืองได้</em></div>
+    </div>
+    <div class="strategy-box">
+      📌 <strong>กลยุทธ์แนะนำ:</strong> สมัคร <strong>เซนต์ฟรังซีส (สนามแรก)</strong> → ถ้าติดเก็บไว้เป็น backup → แล้วลองสาธิตเกษตร, เซนต์คาเบรียล, อัสสัมชัญ ตามลำดับ ถ้าติดที่ดีกว่าค่อยตัดสินใจ
+    </div>
+  </div>
+
+  <!-- ACTION ITEMS -->
+
+  <div class="section">
+    <div class="sec-head sh-green">
+      <div class="sec-icon">📅</div>
+      <div>
+        <div class="sec-title">Action Items ที่ต้องทำ</div>
+        <div class="sec-sub">เรียงตามลำดับเวลา</div>
+      </div>
+    </div>
+    <ol class="action-list">
+      <li class="action-item"><span class="action-badge">ตอนนี้</span><div>ติดตามเพจ Facebook ทั้ง 4 โรงเรียน เพื่อรับข่าวสมัครเร็วสุด</div></li>
+      <li class="action-item"><span class="action-badge">มิ.ย. 2569</span><div>เตรียมสอบเซนต์คาเบรียล (ถ้าลูกชาย)</div></li>
+      <li class="action-item"><span class="action-badge">ก.ค.-ส.ค.</span><div>เริ่มติวเตรียมสอบ เน้น <em>คณิต · ไทย · เชาวน์ · อังกฤษพื้นฐาน</em></div></li>
+      <li class="action-item"><span class="action-badge">ก.ย.-ต.ค.</span><div>สอบอัสสัมชัญ สาทร (ถ้าลูกชาย)</div></li>
+      <li class="action-item"><span class="action-badge">ม.ค.-ก.พ. 2570</span><div>รับใบสมัครสาธิตเกษตร (online ม.ค. · ที่โรงเรียน ก.พ.)</div></li>
+      <li class="action-item"><span class="action-badge">ก.พ.-มี.ค.</span><div>สอบเซนต์ฟรังซีส + สาธิตเกษตร</div></li>
+      <li class="action-item"><span class="action-badge">เก็บข้อมูล</span><div>
+        <ul>
+          <li>เยี่ยมชมโรงเรียน (Open House)</li>
+          <li>ขอเข้าฟัง parent briefing</li>
+          <li>คุยกับผู้ปกครองที่มีลูกเรียนอยู่</li>
+          <li>ตรวจสอบค่าเทอม + ค่าใช้จ่ายแฝงล่าสุด</li>
+        </ul>
+      </div></li>
+    </ol>
+  </div>
+
+</div>
+
+<script>
+  /* blobs */
+  (function(){
+    const cols=["#bbf7d0","#fde68a","#ddd6fe","#bfdbfe","#fca5a5","#99f6e4"];
+    const wrap=document.getElementById("blobs");
+    for(let i=0;i<16;i++){
+      const b=document.createElement("div");b.className="blob";
+      const sz=10+Math.random()*20;
+      b.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;background:${cols[Math.floor(Math.random()*cols.length)]};animation-duration:${5+Math.random()*7}s;animation-delay:-${Math.random()*10}s;`;
+      wrap.appendChild(b);
+    }
+  })();
+
+  const font = "'Noto Sans Thai', system-ui, sans-serif";
+
+  /* Cost Chart */
+  new Chart(document.getElementById('costChart'), {
+    type: 'bar',
+    data: {
+      labels: ['เซนต์ฟรังซีส','สาธิตเกษตร','เซนต์คาเบรียล','อัสสัมชัญ'],
+      datasets: [
+        { label:'หลักสูตรสามัญ', data:[50000,28500,95000,80000], backgroundColor:'#34d399', borderRadius:8 },
+        { label:'หลักสูตร EP/Inter', data:[137700,400000,115000,150000], backgroundColor:'#f59e0b', borderRadius:8 }
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{position:'top',labels:{font:{family:font,size:12}}},
+        tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.parsed.y.toLocaleString()+' ฿/ปี'}}
+      },
+      scales:{
+        y:{beginAtZero:true,ticks:{callback:v=>(v/1000)+'K',font:{family:font}},grid:{color:'#f0e8fb'}},
+        x:{ticks:{font:{family:font,size:11}},grid:{display:false}}
+      }
+    }
+  });
+
+  /* Distance Chart */
+  new Chart(document.getElementById('distChart'), {
+    type: 'bar',
+    data: {
+      labels: ['เซนต์ฟรังซีส','สาธิตเกษตร','เซนต์คาเบรียล','อัสสัมชัญ'],
+      datasets: [{
+        label:'ระยะทาง (กม.)', data:[18,22,32,40],
+        backgroundColor:['#34d399','#c084fc','#60a5fa','#fbbf24'], borderRadius:8
+      }]
+    },
+    options: {
+      indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:c=>c.parsed.x+' กม.'}}
+      },
+      scales:{
+        x:{beginAtZero:true,ticks:{callback:v=>v+' กม.',font:{family:font}},grid:{color:'#f0e8fb'}},
+        y:{ticks:{font:{family:font,size:11}},grid:{display:false}}
+      }
+    }
+  });
+
+  /* Radar Chart */
+  new Chart(document.getElementById('radarChart'), {
+    type: 'radar',
+    data: {
+      labels: ['ใกล้บ้าน','ความคุ้มค่า','ภาษาอังกฤษ','สิ่งอำนวยความสะดวก','โอกาสสอบติด'],
+      datasets: [
+        { label:'เซนต์ฟรังซีส', data:[9,7,8,7,7], backgroundColor:'rgba(52,211,153,.2)', borderColor:'#34d399', borderWidth:2.5, pointBackgroundColor:'#34d399' },
+        { label:'สาธิตเกษตร',    data:[8,10,6,8,2], backgroundColor:'rgba(192,132,252,.2)', borderColor:'#c084fc', borderWidth:2.5, pointBackgroundColor:'#c084fc' },
+        { label:'เซนต์คาเบรียล', data:[5,5,9,9,4], backgroundColor:'rgba(96,165,250,.2)',  borderColor:'#60a5fa', borderWidth:2.5, pointBackgroundColor:'#60a5fa' },
+        { label:'อัสสัมชัญ',    data:[3,5,9,9,4], backgroundColor:'rgba(251,191,36,.2)',  borderColor:'#fbbf24', borderWidth:2.5, pointBackgroundColor:'#fbbf24' }
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:'top',labels:{font:{family:font,size:12}}}},
+      scales:{
+        r:{
+          beginAtZero:true, max:10,
+          ticks:{stepSize:2,font:{family:font}},
+          pointLabels:{font:{family:font,size:13}},
+          grid:{color:'#f0e8fb'},
+          angleLines:{color:'#f0e8fb'}
+        }
+      }
+    }
+  });
+</script>
+
+</body>
+</html>
