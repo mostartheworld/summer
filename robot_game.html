@@ -13,13 +13,13 @@
     --purple: #A06CD5; --dark: #2D3047; --cream: #FFF8E8; --green: #95E06C;
   }
 
-  html, body {
+  html { height: 100%; overflow: hidden; }
+
+  body {
     height: 100%; overflow: hidden;
     font-family: 'Fredoka', 'Mali', sans-serif;
     user-select: none; -webkit-user-select: none; touch-action: none;
-  }
-
-  body {
+    display: flex; flex-direction: column;
     background:
       radial-gradient(circle at 20% 30%, #FFD93D 0%, transparent 50%),
       radial-gradient(circle at 80% 70%, #FF6B9D 0%, transparent 50%),
@@ -34,19 +34,36 @@
     50% { transform: scale(1.3) rotate(180deg); opacity: 1; }
   }
 
-  .game { height: 100vh; display: flex; flex-direction: column; position: relative; z-index: 1; }
+  .game { flex: 1; min-height: 0; display: flex; flex-direction: column; position: relative; z-index: 1; }
 
-  .back-home {
-    position: fixed; top: 8px; left: 8px; z-index: 50;
-    background: var(--cream); border: 3px solid var(--dark);
-    border-radius: 999px; padding: 6px 14px;
-    font-family: 'Bungee', cursive; font-size: 11px;
-    color: var(--dark); text-decoration: none;
-    box-shadow: 3px 3px 0 var(--dark);
-    display: inline-flex; align-items: center; gap: 4px;
-    transition: all 0.1s;
+  .site-nav {
+    flex-shrink: 0; z-index: 100;
+    background: var(--cream);
+    border-bottom: 4px solid var(--dark);
+    box-shadow: 0 4px 0 var(--dark);
+    padding: 8px 14px;
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
   }
-  .back-home:active { transform: translate(3px, 3px); box-shadow: 0 0 0 var(--dark); }
+  .nav-brand {
+    font-family: 'Bungee', cursive;
+    font-size: 14px; color: var(--dark);
+    text-shadow: 2px 2px 0 var(--pink);
+    white-space: nowrap; flex-shrink: 0; text-decoration: none;
+  }
+  .nav-links { display: flex; gap: 5px; flex-wrap: wrap; }
+  .nav-link {
+    text-decoration: none;
+    font-family: 'Fredoka', 'Mali', sans-serif;
+    font-size: 12px; font-weight: 600;
+    padding: 4px 11px; border-radius: 10px;
+    border: 2.5px solid var(--dark); color: var(--dark);
+    background: white; transition: all .12s;
+    display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;
+    box-shadow: 2px 2px 0 var(--dark);
+  }
+  .nav-link:hover  { background: var(--yellow); transform: translate(-1px,-1px); box-shadow: 3px 3px 0 var(--dark); }
+  .nav-link:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 var(--dark); }
+  .nav-link.active { background: var(--pink); color: white; }
 
   header {
     padding: 10px 12px 8px; text-align: center;
@@ -61,7 +78,7 @@
     font-size: clamp(18px, 4.5vw, 26px);
     color: var(--dark); letter-spacing: 1px;
     text-shadow: 3px 3px 0 var(--pink);
-    margin-top: 28px;
+    margin-top: 4px;
   }
 
   .subtitle { font-size: 12px; color: var(--dark); margin-top: 2px; font-weight: 500; }
@@ -291,7 +308,17 @@
 </head>
 <body>
 
-<a class="back-home" href="home.html">🏠 หน้าหลัก</a>
+<nav class="site-nav">
+  <a class="nav-brand" href="index.html">☀️ SUMMER</a>
+  <div class="nav-links">
+    <a class="nav-link" href="24_question.html">🎲 24 คำถาม</a>
+    <a class="nav-link active" href="robot_game.html">🤖 หุ่นยนต์</a>
+    <a class="nav-link" href="knowledge.html">📚 เรียนรู้</a>
+    <a class="nav-link" href="thai_money.html">🪙 เหรียญ</a>
+    <a class="nav-link" href="pay_money.html">🛒 จ่ายเงิน</a>
+    <a class="nav-link" href="school_dashboard.html">🏫 โรงเรียน</a>
+  </div>
+</nav>
 
 <div class="stars" id="stars"></div>
 
@@ -504,7 +531,6 @@ const SLOT_LABELS = {
 let currentVariants = { head: 0, body: 0, 'arm-l': 0, 'arm-r': 0, legs: 0 };
 const placedParts = new Set();
 const partsArea = document.getElementById('partsArea');
-let isAutoPlacing = false;
 
 function buildParts(showLessonsOnPlace = true) {
   partsArea.innerHTML = '';
@@ -532,7 +558,7 @@ function buildParts(showLessonsOnPlace = true) {
 function setupDrag(el, partId) {
   let startX, startY, dragging = false, origParent, placeholder;
   function start(e) {
-    if (placedParts.has(partId) || isAutoPlacing) return;
+    if (placedParts.has(partId)) return;
     e.preventDefault();
     const touch = e.touches ? e.touches[0] : e;
     const rect = el.getBoundingClientRect();
@@ -670,22 +696,8 @@ document.getElementById('randomBtn').addEventListener('click', () => {
   setTimeout(() => btn.classList.remove('spinning'), 600);
   document.getElementById('modal').classList.remove('show');
   playRandomSound();
-  isAutoPlacing = true;
-  buildParts(false);
-  document.getElementById('speech').textContent = '🎲 กำลังประกอบ...';
-  setTimeout(() => {
-    ['head', 'body', 'arm-l', 'arm-r', 'legs'].forEach((id, i) => {
-      setTimeout(() => {
-        const part = partsArea.querySelector(`[data-id="${id}"]`);
-        const slot = document.querySelector(`[data-slot="${id}"]`);
-        if (part && slot && !placedParts.has(id)) placeIntoSlot(part, id, slot, false);
-      }, i * 220);
-    });
-    setTimeout(() => {
-      isAutoPlacing = false;
-      document.getElementById('speech').textContent = '🎉 หุ่นใหม่!';
-    }, 5 * 220 + 300);
-  }, 400);
+  buildParts(true);
+  document.getElementById('speech').textContent = '🎲 ชิ้นส่วนใหม่! ลากมาประกอบ! 👉';
 });
 
 let audioCtx;
