@@ -6,26 +6,26 @@
   <title>เหรียญไทย — Summer's World</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;700;800;900&family=Prompt:wght@700;800;900&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Mali:wght@500;700&family=Noto+Sans+Thai:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
+    :root { --pink: #FF6B9D; --blue: #4ECDC4; --yellow: #FFD93D; --dark: #2D3047; --cream: #FFF8E8; --green: #95E06C; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Noto Sans Thai','Nunito',system-ui,sans-serif; min-height: 100vh; background: #fff9f0; overflow-x: hidden; }
-    body::before { content: ""; position: fixed; inset: 0; z-index: 0; background: radial-gradient(ellipse 70% 50% at 0% 0%, #ffe0f7 0%, transparent 55%), radial-gradient(ellipse 60% 40% at 100% 0%, #fff3cd 0%, transparent 55%), radial-gradient(ellipse 55% 45% at 50% 100%, #fffbd0 0%, transparent 55%), radial-gradient(ellipse 40% 35% at 0% 100%, #d4f7ff 0%, transparent 50%); pointer-events: none; }
+    body { font-family: 'Fredoka', 'Mali', 'Noto Sans Thai', sans-serif; min-height: 100vh; overflow-x: hidden; background: radial-gradient(circle at 15% 25%, #FFD93D 0%, transparent 45%), radial-gradient(circle at 85% 75%, #FF6B9D 0%, transparent 45%), radial-gradient(circle at 50% 50%, #4ECDC4 0%, transparent 60%), linear-gradient(135deg, #FFE066 0%, #FF9F1C 50%, #4ECDC4 100%); }
 
-    .blobs { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
-    .blob { position: absolute; border-radius: 50%; animation: floatBlob linear infinite; opacity: .35; }
-    @keyframes floatBlob { 0%{transform:translateY(0) rotate(0deg) scale(1)} 33%{transform:translateY(-16px) rotate(120deg) scale(1.06)} 66%{transform:translateY(10px) rotate(240deg) scale(.95)} 100%{transform:translateY(0) rotate(360deg) scale(1)} }
+    .stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+    .star { position: absolute; animation: twinkle 3s ease-in-out infinite; }
+    @keyframes twinkle { 0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.5; } 50% { transform: scale(1.4) rotate(180deg); opacity: 1; } }
 
     .page { position: relative; z-index: 1; max-width: 680px; margin: 0 auto; padding: 32px 16px 80px; }
 
-    .site-nav { position: sticky; top: 0; z-index: 100; background: rgba(255,249,240,.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 2px solid #f0e8fb; padding: 10px 16px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-    .nav-home { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; font-family: 'Prompt','Noto Sans Thai',sans-serif; font-size: 14px; font-weight: 900; padding: 9px 20px; border-radius: 999px; background: linear-gradient(135deg,#ff6b9d,#ff8a5b); color: #fff; white-space: nowrap; flex-shrink: 0; box-shadow: 0 3px 10px rgba(255,107,157,.3); transition: transform .15s, box-shadow .15s; }
-    .nav-home:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(255,107,157,.4); }
+    .site-nav { position: sticky; top: 0; z-index: 100; background: var(--cream); border-bottom: 4px solid var(--dark); box-shadow: 0 4px 0 var(--dark); padding: 10px 16px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .nav-brand { font-family: 'Bungee', cursive; font-size: 15px; color: var(--dark); text-shadow: 2px 2px 0 var(--pink); white-space: nowrap; flex-shrink: 0; text-decoration: none; }
     .nav-links { display: flex; gap: 6px; flex-wrap: wrap; }
-    .nav-link { text-decoration: none; font-family: 'Prompt','Noto Sans Thai',sans-serif; font-size: 12px; font-weight: 800; padding: 7px 13px; border-radius: 999px; border: 2px solid #e8dff0; color: #7c6d88; background: #fff; transition: all .18s; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
-    .nav-link:hover { border-color: #c084fc; color: #7c3aed; transform: translateY(-1px); }
-    .nav-link.active { background: linear-gradient(135deg,#a855f7,#3b82f6); color: #fff; border-color: transparent; box-shadow: 0 3px 10px rgba(168,85,247,.35); }
-    @media (max-width: 420px) { .nav-home { font-size: 13px; padding: 8px 14px; } .nav-link { font-size: 11px; padding: 6px 10px; } }
+    .nav-link { text-decoration: none; font-family: 'Fredoka', 'Noto Sans Thai', sans-serif; font-size: 13px; font-weight: 600; padding: 5px 13px; border-radius: 12px; border: 2.5px solid var(--dark); color: var(--dark); background: white; transition: all .12s; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; box-shadow: 2px 2px 0 var(--dark); }
+    .nav-link:hover { background: var(--yellow); transform: translate(-1px,-1px); box-shadow: 3px 3px 0 var(--dark); }
+    .nav-link:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 var(--dark); }
+    .nav-link.active { background: var(--pink); color: white; }
+    @media (max-width: 420px) { .nav-brand { font-size: 13px; } .nav-link { font-size: 11px; padding: 4px 10px; } }
 
     .hero { text-align: center; margin-bottom: 36px; }
     .hero-emoji { font-size: 88px; display: block; margin-bottom: 8px; animation: heroBounce 2.5s ease-in-out infinite; filter: drop-shadow(0 6px 18px rgba(245,158,11,.3)); }
@@ -99,10 +99,10 @@
 </head>
 <body>
 
-<div class="blobs" id="blobs"></div>
+<div class="stars" id="stars"></div>
 
 <nav class="site-nav">
-  <a class="nav-home" href="home.html">🏠 หน้าหลัก</a>
+  <a class="nav-brand" href="index.html">☀️ SUMMER</a>
   <div class="nav-links">
     <a class="nav-link" href="24_question.html">🎲 24 คำถาม</a>
     <a class="nav-link" href="robot_game.html">🤖 หุ่นยนต์</a>
@@ -158,13 +158,17 @@
 
 <script>
   (function() {
-    const cols = ["#fde68a","#fca5a5","#fbcfe8","#a5f3c6","#bfdbfe","#fef08a","#fed7aa","#ddd6fe"];
-    const wrap = document.getElementById("blobs");
-    for (let i = 0; i < 22; i++) {
-      const b = document.createElement("div"); b.className = "blob";
-      const s = 40 + Math.random() * 110;
-      b.style.cssText = `width:${s}px;height:${s}px;background:${cols[i%cols.length]};left:${Math.random()*100}%;top:${Math.random()*100}%;animation-duration:${8+Math.random()*14}s;animation-delay:-${Math.random()*10}s;`;
-      wrap.appendChild(b);
+    const emojis = ['⭐','✨','🌟','💫','⚡','🌈'];
+    const container = document.getElementById("stars");
+    for (let i = 0; i < 18; i++) {
+      const s = document.createElement('div');
+      s.className = 'star';
+      s.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      s.style.left = Math.random() * 100 + '%';
+      s.style.top = Math.random() * 100 + '%';
+      s.style.animationDelay = Math.random() * 3 + 's';
+      s.style.fontSize = (14 + Math.random() * 16) + 'px';
+      container.appendChild(s);
     }
   })();
 
