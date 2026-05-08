@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>จ่ายเงินซื้อของ — Summer's World</title>
+  <title>Pay & Shop — Summer's World</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Mali:wght@500;700&family=Noto+Sans+Thai:wght@400;600;700&display=swap" rel="stylesheet">
@@ -112,13 +112,13 @@
 <nav class="site-nav">
   <a class="nav-brand" href="index.html">☀️ SUMMER</a>
   <div class="nav-links">
-    <a class="nav-link" href="24_question.html">🎲 24 คำถาม</a>
-    <a class="nav-link" href="robot_game.html">🤖 หุ่นยนต์</a>
-    <a class="nav-link" href="knowledge.html">📚 เรียนรู้</a>
-    <a class="nav-link" href="thai_money.html">🪙 เหรียญ</a>
-    <a class="nav-link active" href="pay_money.html">🛒 จ่ายเงิน</a>
-    <a class="nav-link" href="color_mix.html">🎨 ผสมสี</a>
-    <a class="nav-link" href="school_dashboard.html">🏫 โรงเรียน</a>
+    <a class="nav-link" href="24_question.html">🎲 Questions</a>
+    <a class="nav-link" href="robot_game.html">🤖 Robot</a>
+    <a class="nav-link" href="knowledge.html">📚 Learn</a>
+    <a class="nav-link" href="thai_money.html">🪙 Coins</a>
+    <a class="nav-link active" href="pay_money.html">🛒 Pay</a>
+    <a class="nav-link" href="color_mix.html">🎨 Colors</a>
+    <a class="nav-link" href="school_dashboard.html">🏫 Schools</a>
   </div>
 </nav>
 
@@ -126,57 +126,57 @@
 
   <div class="hero">
     <span class="hero-emoji">🛒</span>
-    <h1 class="hero-title">จ่ายเงินซื้อของ</h1>
-    <p class="hero-sub">Pay at the Shop · ฝึกจ่ายเงินกับแม่</p>
+    <h1 class="hero-title">Pay & Shop</h1>
+    <p class="hero-sub">Pay at the shop</p>
   </div>
 
   <div class="progress-row">
-    <span class="progress-label" id="roundLabel">ข้อ 1/5</span>
+    <span class="progress-label" id="roundLabel">Round 1/5</span>
     <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
     <span class="score-badge" id="scoreBadge">⭐ 0</span>
   </div>
 
   <div id="gameArea">
     <div class="shop-card">
-      <div class="shop-label">🏪 ร้านค้า</div>
+      <div class="shop-label">🏪 Shop</div>
       <span class="item-emoji" id="itemEmoji">🍭</span>
-      <div class="item-name" id="itemName">ลูกอม</div>
-      <div class="price-tag">💰 <span id="itemPrice">3</span> บาท</div>
+      <div class="item-name" id="itemName">Candy</div>
+      <div class="price-tag">💰 <span id="itemPrice">3</span> Baht</div>
     </div>
 
     <div class="wallet-box">
       <div class="wallet-header">
-        <div class="wallet-title">👛 กระเป๋าตังค์</div>
-        <div class="wallet-total">รวม <span id="walletTotal">0</span> บาท</div>
+        <div class="wallet-title">👛 Wallet</div>
+        <div class="wallet-total">Total <span id="walletTotal">0</span> Baht</div>
       </div>
       <div class="wallet-coins" id="walletCoins">
-        <span class="wallet-empty">แตะเหรียญด้านล่างเพื่อใส่กระเป๋า</span>
+        <span class="wallet-empty">Tap coins below to add them</span>
       </div>
     </div>
 
-    <div class="coin-section-label">เลือกเหรียญที่จะจ่าย 👇</div>
+    <div class="coin-section-label">Choose coins to pay 👇</div>
     <div class="coin-btns">
       <button class="coin-btn" onclick="addCoin(1)">
         <div class="coin-btn-visual cbv1">๑</div>
-        <div class="coin-btn-label">1 บาท</div>
+        <div class="coin-btn-label">1 Baht</div>
       </button>
       <button class="coin-btn" onclick="addCoin(2)">
         <div class="coin-btn-visual cbv2">๒</div>
-        <div class="coin-btn-label">2 บาท</div>
+        <div class="coin-btn-label">2 Baht</div>
       </button>
       <button class="coin-btn" onclick="addCoin(5)">
         <div class="coin-btn-visual cbv5">๕</div>
-        <div class="coin-btn-label">5 บาท</div>
+        <div class="coin-btn-label">5 Baht</div>
       </button>
       <button class="coin-btn" onclick="addCoin(10)">
         <div class="coin-btn-visual cbv10">๑๐</div>
-        <div class="coin-btn-label">10 บาท</div>
+        <div class="coin-btn-label">10 Baht</div>
       </button>
     </div>
 
     <div class="action-row">
-      <button class="clear-btn" onclick="clearWallet()">🗑️ ล้าง</button>
-      <button class="pay-btn" onclick="pay()">💳 จ่ายเงิน!</button>
+      <button class="clear-btn" onclick="clearWallet()">🗑️ Clear</button>
+      <button class="pay-btn" onclick="pay()">💳 Pay Now!</button>
     </div>
 
     <div class="feedback-box fb-hidden" id="feedback"></div>
@@ -201,9 +201,9 @@
   })();
 
   const ITEMS = [
-    {emoji:'🍭',name:'ลูกอม',price:3},{emoji:'🍪',name:'คุกกี้',price:5},{emoji:'🧃',name:'น้ำผลไม้',price:7},
-    {emoji:'🍡',name:'ทับทิมกรอบ',price:2},{emoji:'🌭',name:'ไส้กรอก',price:10},{emoji:'🍿',name:'ป๊อปคอร์น',price:8},
-    {emoji:'🥤',name:'น้ำเย็น',price:6},{emoji:'🍬',name:'ลูกกวาด',price:4},{emoji:'🍦',name:'ไอศกรีม',price:9},{emoji:'🧁',name:'คัพเค้ก',price:6}
+    {emoji:'🍭',name:'Candy',price:3},{emoji:'🍪',name:'Cookie',price:5},{emoji:'🧃',name:'Juice',price:7},
+    {emoji:'🍡',name:'Sweet Dumpling',price:2},{emoji:'🌭',name:'Sausage',price:10},{emoji:'🍿',name:'Popcorn',price:8},
+    {emoji:'🥤',name:'Cold Drink',price:6},{emoji:'🍬',name:'Sweet',price:4},{emoji:'🍦',name:'Ice Cream',price:9},{emoji:'🧁',name:'Cupcake',price:6}
   ];
   const COIN_CLASS = {1:'mc1',2:'mc2',5:'mc5',10:'mc10'};
   const COIN_THAI  = {1:'๑',2:'๒',5:'๕',10:'๑๐'};
@@ -217,7 +217,7 @@
   function nextRound(){
     if(round>=TOTAL_ROUNDS){showResult();return;}
     paid=false; wallet=[]; currentItem=itemPool[round%itemPool.length]; round++;
-    document.getElementById('roundLabel').textContent=`ข้อ ${round}/${TOTAL_ROUNDS}`;
+    document.getElementById('roundLabel').textContent=`Round ${round}/${TOTAL_ROUNDS}`;
     document.getElementById('progressFill').style.width=`${((round-1)/TOTAL_ROUNDS)*100}%`;
     document.getElementById('scoreBadge').textContent=`⭐ ${score}`;
     document.getElementById('itemEmoji').textContent=currentItem.emoji;
@@ -235,7 +235,7 @@
     const total=wallet.reduce((s,v)=>s+v,0);
     document.getElementById('walletTotal').textContent=total;
     const container=document.getElementById('walletCoins');
-    if(wallet.length===0){container.innerHTML='<span class="wallet-empty">แตะเหรียญด้านล่างเพื่อใส่กระเป๋า</span>';}
+    if(wallet.length===0){container.innerHTML='<span class="wallet-empty">Tap coins below to add them</span>';}
     else{container.innerHTML=wallet.map((v,i)=>`<div class="mini-coin ${COIN_CLASS[v]}" onclick="removeCoin(${i})">${COIN_THAI[v]}</div>`).join('');}
   }
 
@@ -246,14 +246,14 @@
     const total=wallet.reduce((s,v)=>s+v,0);
     const price=currentItem.price;
     const fb=document.getElementById('feedback');
-    if(wallet.length===0){showFeedback('fb-empty','😊 เลือกเหรียญก่อนนะ แตะเหรียญด้านบน!');return;}
-    if(total<price){showFeedback('fb-under',`😊 ยังไม่พอ — ขาดอีก ${price-total} บาท เพิ่มเหรียญอีกนะ!`);return;}
+    if(wallet.length===0){showFeedback('fb-empty','😊 Choose some coins first!');return;}
+    if(total<price){showFeedback('fb-under',`😊 Not enough yet - add ${price-total} more baht.`);return;}
     paid=true; score++;
-    if(total===price){showFeedback('fb-exact','🎯 จ่ายพอดีเลย! เก่งมากๆ! 🌟');}
-    else{showFeedback('fb-over',`✅ จ่ายได้! ได้รับเงินทอน ${total-price} บาท 😊`);}
+    if(total===price){showFeedback('fb-exact','🎯 Exact payment! Great job! 🌟');}
+    else{showFeedback('fb-over',`✅ Payment accepted! Change: ${total-price} baht 😊`);}
     const btn=document.createElement('button');
     btn.className='next-btn';
-    btn.textContent=round<TOTAL_ROUNDS?'ซื้อของถัดไป →':'ดูผลลัพธ์ 🏆';
+    btn.textContent=round<TOTAL_ROUNDS?'Next Item →':'See Result 🏆';
     btn.onclick=()=>{btn.remove();nextRound();};
     fb.insertAdjacentElement('afterend',btn);
   }
@@ -264,17 +264,17 @@
   function showResult(){
     document.getElementById('progressFill').style.width='100%';
     document.getElementById('scoreBadge').textContent=`⭐ ${score}`;
-    let emoji='🥇',title='เก่งมากที่สุดเลย!',sub='ซัมเมอร์เป็นนักช้อปเก่งมาก!';
-    if(score<=2){emoji='😊';title='ฝึกอีกนิดนะ!';sub='ลองอีกครั้ง แล้วซัมเมอร์จะเก่งขึ้นเอง!';}
-    else if(score<=3){emoji='⭐';title='ดีมากเลย!';sub='ซัมเมอร์จ่ายเงินเก่งขึ้นมากเลย!';}
+    let emoji='🥇',title='Amazing shopper!',sub='Summer is doing great with money!';
+    if(score<=2){emoji='😊';title='Keep practicing!';sub='Try again and get even better!';}
+    else if(score<=3){emoji='⭐';title='Great progress!';sub='Summer is improving a lot!';}
     document.getElementById('gameArea').innerHTML=`
       <div style="background:#fff;border-radius:28px;padding:32px 20px;box-shadow:0 8px 32px rgba(0,0,0,.1);">
         <div class="result-screen">
           <span class="result-emoji">${emoji}</span>
           <div class="result-title">${title}</div>
           <div class="result-score">${score} / ${TOTAL_ROUNDS}</div>
-          <div class="result-sub">ซัมเมอร์ซื้อของสำเร็จ ${score} ร้าน จาก ${TOTAL_ROUNDS} ร้าน 🛒<br>ฝึกบ่อยๆ จะเก่งเหมือนแม่เลย!</div>
-          <button class="restart-btn" onclick="startGame()">🔄 เล่นอีกครั้ง</button>
+          <div class="result-sub">Summer completed ${score} out of ${TOTAL_ROUNDS} shopping rounds 🛒<br>Practice often to become a money pro!</div>
+          <button class="restart-btn" onclick="startGame()">🔄 Play Again</button>
         </div>
       </div>`;
   }

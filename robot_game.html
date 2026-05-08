@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🤖 ประกอบหุ่นยนต์ | Robot Builder</title>
+<title>🤖 Robot Builder</title>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Mali:wght@500;700&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -191,7 +191,7 @@
     gap: 12px; align-items: center;
   }
   .parts-area::before {
-    content: '🔧 ชิ้นส่วน · PARTS';
+    content: '🔧 PARTS';
     position: absolute; top: 8px; left: 50%;
     transform: translateX(-50%);
     font-family: 'Bungee', cursive;
@@ -311,13 +311,13 @@
 <nav class="site-nav">
   <a class="nav-brand" href="index.html">☀️ SUMMER</a>
   <div class="nav-links">
-    <a class="nav-link" href="24_question.html">🎲 24 คำถาม</a>
-    <a class="nav-link active" href="robot_game.html">🤖 หุ่นยนต์</a>
-    <a class="nav-link" href="knowledge.html">📚 เรียนรู้</a>
-    <a class="nav-link" href="thai_money.html">🪙 เหรียญ</a>
-    <a class="nav-link" href="pay_money.html">🛒 จ่ายเงิน</a>
-    <a class="nav-link" href="color_mix.html">🎨 ผสมสี</a>
-    <a class="nav-link" href="school_dashboard.html">🏫 โรงเรียน</a>
+    <a class="nav-link" href="24_question.html">🎲 Questions</a>
+    <a class="nav-link active" href="robot_game.html">🤖 Robot</a>
+    <a class="nav-link" href="knowledge.html">📚 Learn</a>
+    <a class="nav-link" href="thai_money.html">🪙 Coins</a>
+    <a class="nav-link" href="pay_money.html">🛒 Pay</a>
+    <a class="nav-link" href="color_mix.html">🎨 Colors</a>
+    <a class="nav-link" href="school_dashboard.html">🏫 Schools</a>
   </div>
 </nav>
 
@@ -325,25 +325,25 @@
 
 <div class="game">
   <header>
-    <h1>🤖 ประกอบหุ่นยนต์</h1>
-    <div class="subtitle">Build a Robot · ลากชิ้นส่วน หรือ กด 🎲</div>
+    <h1>🤖 Robot Builder</h1>
+    <div class="subtitle">Build a Robot · Drag parts or press 🎲</div>
     <div class="progress">
       <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
     </div>
-    <button class="random-btn" id="randomBtn" title="สุ่มหุ่น">🎲</button>
+    <button class="random-btn" id="randomBtn" title="Random robot">🎲</button>
     <div class="random-label">RANDOM</div>
   </header>
 
   <div class="stage">
     <div class="robot-area">
       <div class="robot" id="robot">
-        <div class="slot slot-head" data-slot="head">หัว<br>HEAD</div>
-        <div class="slot slot-arm-l" data-slot="arm-l">แขน<br>ARM</div>
-        <div class="slot slot-body" data-slot="body">ลำตัว<br>BODY</div>
-        <div class="slot slot-arm-r" data-slot="arm-r">แขน<br>ARM</div>
-        <div class="slot slot-legs" data-slot="legs">ขา<br>LEGS</div>
+        <div class="slot slot-head" data-slot="head">Head<br>HEAD</div>
+        <div class="slot slot-arm-l" data-slot="arm-l">Arm<br>ARM</div>
+        <div class="slot slot-body" data-slot="body">Body<br>BODY</div>
+        <div class="slot slot-arm-r" data-slot="arm-r">Arm<br>ARM</div>
+        <div class="slot slot-legs" data-slot="legs">Legs<br>LEGS</div>
       </div>
-      <div class="speech" id="speech">ลากมาประกอบ! Drag parts! 👉</div>
+      <div class="speech" id="speech">Drag parts to build! 👉</div>
     </div>
     <div class="parts-area" id="partsArea"></div>
   </div>
@@ -352,11 +352,11 @@
 <div class="modal-bg" id="modal">
   <div class="modal" id="modalContent">
     <div class="modal-emoji" id="mEmoji">🔋</div>
-    <h2 id="mTitle">ดีมาก!</h2>
+    <h2 id="mTitle">Great!</h2>
     <div class="en" id="mTitleEn">GREAT!</div>
     <p id="mDesc"></p>
     <div class="fact" id="mFact"></div>
-    <button class="btn" id="mBtn">ต่อเลย! NEXT ▶</button>
+    <button class="btn" id="mBtn">NEXT ▶</button>
   </div>
 </div>
 
@@ -517,16 +517,16 @@ const VARIANTS = {
 };
 
 const LESSONS = {
-  head: { emoji: '🔋', titleTh: 'พลังงานไฟฟ้า!', titleEn: 'ELECTRICITY!', desc: 'หัวหุ่นยนต์มีสมองที่ใช้ "ไฟฟ้า" ทำงาน เหมือนหลอดไฟที่บ้านเรา!', fact: '⚡ A robot brain uses electricity!' },
-  body: { emoji: '⚙️', titleTh: 'เฟืองและล้อ!', titleEn: 'GEARS!', desc: 'ลำตัวมี "เฟือง" หมุนไปหมุนมา ทำให้หุ่นยนต์เคลื่อนไหวได้!', fact: '⚙️ Gears help machines move!' },
-  'arm-l': { emoji: '💪', titleTh: 'คานและแรง!', titleEn: 'LEVERS!', desc: 'แขนใช้ "คาน" ในการยกของ! เหมือนแขนของเราที่ยกของหนักได้!', fact: '💪 Arms are levers - simple machines!' },
-  'arm-r': { emoji: '🦾', titleTh: 'มอเตอร์ทำงาน!', titleEn: 'MOTORS!', desc: '"มอเตอร์" ในแขนขวาจะหมุน ทำให้หุ่นยนต์โบกมือได้!', fact: '🔄 Motors spin to make things move!' },
-  legs: { emoji: '🦿', titleTh: 'การเคลื่อนที่!', titleEn: 'MOVEMENT!', desc: '"ล้อ" หรือ "ขา" ทำให้หุ่นยนต์ไปไหนมาไหนได้!', fact: '🛞 Wheels reduce friction!' }
+  head: { emoji: '🔋', titleTh: 'Electricity!', titleEn: 'ELECTRICITY!', desc: 'The robot head has a brain that uses electricity to work!', fact: '⚡ A robot brain uses electricity!' },
+  body: { emoji: '⚙️', titleTh: 'Gears!', titleEn: 'GEARS!', desc: 'The body uses gears spinning together to create movement!', fact: '⚙️ Gears help machines move!' },
+  'arm-l': { emoji: '💪', titleTh: 'Levers!', titleEn: 'LEVERS!', desc: 'Robot arms use lever ideas, like our arms lifting things!', fact: '💪 Arms are levers - simple machines!' },
+  'arm-r': { emoji: '🦾', titleTh: 'Motors!', titleEn: 'MOTORS!', desc: 'A motor can spin and help the robot arm move and wave!', fact: '🔄 Motors spin to make things move!' },
+  legs: { emoji: '🦿', titleTh: 'Movement!', titleEn: 'MOVEMENT!', desc: 'Legs or wheels help robots move from place to place!', fact: '🛞 Wheels reduce friction!' }
 };
 
 const SLOT_LABELS = {
-  head: ['หัว', 'HEAD'], body: ['ลำตัว', 'BODY'],
-  'arm-l': ['แขน', 'ARM'], 'arm-r': ['แขน', 'ARM'], legs: ['ขา', 'LEGS']
+  head: ['Head', 'HEAD'], body: ['Body', 'BODY'],
+  'arm-l': ['Arm', 'ARM'], 'arm-r': ['Arm', 'ARM'], legs: ['Legs', 'LEGS']
 };
 
 let currentVariants = { head: 0, body: 0, 'arm-l': 0, 'arm-r': 0, legs: 0 };
@@ -553,7 +553,7 @@ function buildParts(showLessonsOnPlace = true) {
     setupDrag(div, id);
   });
   document.querySelectorAll('.dot').forEach(d => d.classList.remove('done'));
-  document.getElementById('speech').textContent = 'ลากมาประกอบ! Drag parts! 👉';
+  document.getElementById('speech').textContent = 'Drag parts to build! 👉';
 }
 
 function setupDrag(el, partId) {
@@ -643,7 +643,7 @@ function updateProgress() {
   const dots = document.querySelectorAll('.dot');
   for (let i = 0; i < placedParts.size; i++) dots[i].classList.add('done');
   const remaining = 5 - placedParts.size;
-  if (remaining > 0) document.getElementById('speech').textContent = `เหลืออีก ${remaining}! Almost there! 🎯`;
+  if (remaining > 0) document.getElementById('speech').textContent = `${remaining} left! Almost there! 🎯`;
   if (placedParts.size === 5) setTimeout(showWin, 1200);
 }
 
@@ -655,7 +655,7 @@ function showLessonModal(partId) {
     document.getElementById('mTitleEn').textContent = lesson.titleEn;
     document.getElementById('mDesc').textContent = lesson.desc;
     document.getElementById('mFact').textContent = lesson.fact;
-    document.getElementById('mBtn').textContent = 'ต่อเลย! NEXT ▶';
+    document.getElementById('mBtn').textContent = 'NEXT ▶';
     document.getElementById('modal').classList.remove('win');
     document.getElementById('modal').classList.add('show');
     document.getElementById('mBtn').onclick = () => document.getElementById('modal').classList.remove('show');
@@ -664,11 +664,11 @@ function showLessonModal(partId) {
 
 function showWin() {
   document.getElementById('mEmoji').textContent = '🎉';
-  document.getElementById('mTitle').textContent = 'เก่งมาก Summer!';
+  document.getElementById('mTitle').textContent = 'Amazing, Summer!';
   document.getElementById('mTitleEn').textContent = 'AMAZING!';
-  document.getElementById('mDesc').textContent = 'หนูสร้างหุ่นยนต์สำเร็จแล้ว! ลองกด 🎲 สุ่มหุ่นใหม่ได้!';
+  document.getElementById('mDesc').textContent = 'You built the robot! Press 🎲 to try a new random robot!';
   document.getElementById('mFact').textContent = '✨ You are a little scientist! ✨';
-  document.getElementById('mBtn').textContent = 'หุ่นใหม่! 🎲';
+  document.getElementById('mBtn').textContent = 'New Robot! 🎲';
   document.getElementById('mBtn').onclick = () => {
     document.getElementById('modal').classList.remove('show');
     setTimeout(() => buildParts(true), 300);
@@ -698,7 +698,7 @@ document.getElementById('randomBtn').addEventListener('click', () => {
   document.getElementById('modal').classList.remove('show');
   playRandomSound();
   buildParts(true);
-  document.getElementById('speech').textContent = '🎲 ชิ้นส่วนใหม่! ลากมาประกอบ! 👉';
+  document.getElementById('speech').textContent = '🎲 New parts! Drag to build! 👉';
 });
 
 let audioCtx;
