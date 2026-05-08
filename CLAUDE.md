@@ -19,7 +19,7 @@
 
 | Skill | Trigger | ทำอะไร |
 |-------|---------|---------|
-| `add-activity` | "เพิ่ม activity", "สร้างหน้าใหม่", "เพิ่มเกม [topic]" | คิด content → สร้าง HTML → update home.html → ทดสอบ → deploy |
+| `add-activity` | "เพิ่ม activity", "สร้างหน้าใหม่", "เพิ่มเกม [topic]" | คิด content → สร้าง HTML → update index.html → ทดสอบ → deploy |
 
 ---
 
@@ -35,16 +35,20 @@
 
 | ไฟล์ | หน้า | ผู้ใช้ |
 |------|------|--------|
-| `home.html` | หน้าหลัก | ทุกคน |
+| `index.html` | หน้าหลัก | ทุกคน |
 | `knowledge.html` | รู้อะไรบ้างนะ? (คำศัพท์) | Summer |
 | `24_question.html` | 24 คำถามคุยเล่นกับลูก | Summer + พ่อแม่ |
 | `school_dashboard.html` | เปรียบเทียบโรงเรียน ป.1 | พ่อแม่ |
+| `thai_money.html` | เหรียญไทย | Summer |
+| `pay_money.html` | จ่ายเงินซื้อของ | Summer + แม่ |
+| `robot_game.html` | ประกอบหุ่นยนต์ | Summer |
+| `color_mix.html` | ผสมสีกัน! | Summer |
 
 ---
 
 ## Notes
 
-- ทุก page ต้องมี back button → `home.html`
+- ทุก page ต้องมี back button → `index.html`
 - Target end-user หลักคือเด็ก 5 ขวบ — UI ต้องง่ายและให้อภัย (forgiving)
 - ภาษาไทยเป็นหลัก มีอังกฤษกำกับ
 - Keep code readable — ทั้งสองคนจะมาแก้

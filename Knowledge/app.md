@@ -7,7 +7,7 @@
 ## Stack
 
 - **Pure HTML / CSS / JavaScript** — ไม่มี framework, ไม่มี build step
-- **Fonts (Google Fonts):** `Noto Sans Thai` (ภาษาไทย), `Prompt` (หัวข้อ bold), `Nunito` (อังกฤษ)
+- **Fonts (Google Fonts):** `Noto Sans Thai` (ภาษาไทย), `Bungee` (หัวข้อ/labels), `Fredoka` (เนื้อหาทั่วไป)
 - **ไม่ใช้** npm, node_modules, หรือ CDN อื่นนอกจาก Google Fonts
 - ทุกไฟล์เป็น self-contained HTML ไฟล์เดียว (CSS + JS อยู่ใน `<style>` และ `<script>` tag)
 
@@ -17,12 +17,14 @@
 
 | ไฟล์ | ชื่อหน้า | สำหรับใคร | Card class |
 |------|---------|-----------|------------|
-| `home.html` | Summer's World (หน้าหลัก) | ทุกคน | — |
-| `knowledge.html` | รู้อะไรบ้างนะ? | Summer | `card-k` (gradient: indigo→purple→pink) |
-| `24_question.html` | 24 คำถาม คุยเล่นกับลูก | Summer + พ่อแม่ | `card-q` (gradient: pink→orange→yellow) |
-| `school_dashboard.html` | เปรียบเทียบโรงเรียน ป.1 | พ่อแม่ | `card-s` (gradient: emerald→green) |
-| `thai_money.html` | เหรียญไทย | Summer | `card-c` (gradient: amber→yellow) |
-| `pay_money.html` | จ่ายเงินซื้อของ | Summer + แม่ | `card-p` (gradient: teal→cyan) |
+| `index.html` | Summer's World (หน้าหลัก) | ทุกคน | — |
+| `knowledge.html` | รู้อะไรบ้างนะ? | Summer | `c-purple` |
+| `24_question.html` | 24 คำถาม คุยเล่นกับลูก | Summer + พ่อแม่ | `c-pink` |
+| `school_dashboard.html` | เปรียบเทียบโรงเรียน ป.1 | พ่อแม่ | `c-green card-wide` |
+| `thai_money.html` | เหรียญไทย | Summer | `c-coin` |
+| `pay_money.html` | จ่ายเงินซื้อของ | Summer + แม่ | `c-teal` |
+| `robot_game.html` | ประกอบหุ่นยนต์ | Summer | `c-gold` |
+| `color_mix.html` | ผสมสีกัน! | Summer | `c-rainbow` |
 
 ---
 
@@ -34,15 +36,16 @@ background: #fff9f0;
 /* + radial gradients: ชมพู top-left, ฟ้า top-right, เหลือง bottom-center, เขียว bottom-left */
 ```
 
-### Card Gradient Themes — เพิ่มใหม่ทีละ class
+### Card Color Themes
 ```css
-.card-q  { background: linear-gradient(135deg, #ff6b9d, #ff8a5b, #ffd020); }  /* ชมพู-ส้ม-เหลือง */
-.card-k  { background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899); }  /* น้ำเงิน-ม่วง-ชมพู */
-.card-s  { background: linear-gradient(135deg, #059669, #22c55e, #86efac); }  /* เขียวเข้ม-เขียวสด */
-.card-c  { background: linear-gradient(135deg, #f59e0b, #fcd34d, #fef08a); }  /* ทอง-เหลือง (thai_money) */
-.card-p  { background: linear-gradient(135deg, #0d9488, #14b8a6, #5eead4); }  /* teal-cyan (pay_money) */
-/* สร้าง class ใหม่ตามตัวอักษรถัดไป: card-m, card-t, card-n ... */
-/* ตัวอย่างสีที่ยังไม่ใช้: ฟ้า (#0ea5e9, #38bdf8), แดง (#ef4444, #f87171) */
+.c-pink    { background: linear-gradient(145deg, #e84d8a 0%, #ff9f4d 100%); }   /* ชมพู-ส้ม */
+.c-gold    { background: linear-gradient(145deg, #e6a117 0%, #ffd93d 100%); }   /* ทอง-เหลือง */
+.c-purple  { background: linear-gradient(145deg, #5a56e0 0%, #c855f7 100%); }   /* น้ำเงิน-ม่วง */
+.c-teal    { background: linear-gradient(145deg, #0a8a7e 0%, #2dd4bf 100%); }   /* teal-cyan */
+.c-coin    { background: linear-gradient(145deg, #c97c0a 0%, #fbbf24 100%); }   /* เหรียญทอง */
+.c-green   { background: linear-gradient(145deg, #15803d 0%, #4ade80 100%); }   /* เขียวเข้ม-เขียวสด */
+.c-rainbow { background: linear-gradient(145deg, #FF2A2A 0%, #FF9F1C 45%, #1A40FF 100%); } /* สีรุ้ง */
+/* เพิ่ม class ใหม่ตามรูปแบบ: .c-XXX { background: linear-gradient(145deg, ...) } */
 ```
 
 ### Tag Colors
@@ -56,16 +59,11 @@ background: #fff9f0;
 
 ### Font Usage
 ```css
-/* หัวข้อใหญ่ / ชื่อการ์ด */
-font-family: 'Prompt', 'Noto Sans Thai', sans-serif;
-font-weight: 900;
+/* หัวข้อใหญ่ / labels / ชื่อ EN caps */
+font-family: 'Bungee', cursive;
 
-/* เนื้อหาทั่วไป / คำอธิบาย */
-font-family: 'Noto Sans Thai', 'Nunito', system-ui, sans-serif;
-
-/* ชื่อภาษาอังกฤษ */
-font-family: 'Nunito', sans-serif;
-font-weight: 700;
+/* เนื้อหาทั่วไป / ภาษาไทย */
+font-family: 'Fredoka', 'Noto Sans Thai', sans-serif;
 ```
 
 ---
@@ -76,24 +74,30 @@ font-weight: 700;
 ```html
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;700;800;900&family=Prompt:wght@700;800;900&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;600;700;900&display=swap" rel="stylesheet">
 ```
 
-### Card ใน home.html (template สำหรับเพิ่มหน้าใหม่)
+### Card ใน index.html (template สำหรับเพิ่มหน้าใหม่)
 ```html
-<a class="page-card card-X" href="FILENAME.html">
-  <div class="card-banner">
-    <span class="card-big-emoji">EMOJI</span>
-    <div class="card-title">ชื่อภาษาไทย</div>
-    <div class="card-title-en">English Subtitle</div>
+<a href="FILENAME.html" class="card c-COLOR">
+  <div class="card-icon">EMOJI</div>
+  <div class="card-name-th">ชื่อภาษาไทย</div>
+  <div class="card-name-en">ENGLISH NAME</div>
+  <div class="card-desc">คำอธิบายสั้นๆ ว่าหน้านี้ทำอะไร</div>
+  <div class="card-arrow">→</div>
+</a>
+```
+
+Wide card (spanning 2 columns — ใช้กับหน้า parent เช่น school_dashboard):
+```html
+<a href="FILENAME.html" class="card c-COLOR card-wide">
+  <div class="card-icon">EMOJI</div>
+  <div class="card-info">
+    <div class="card-name-th">ชื่อภาษาไทย</div>
+    <div class="card-name-en">ENGLISH NAME</div>
+    <div class="card-desc">คำอธิบาย</div>
   </div>
-  <div class="card-body">
-    <p class="card-desc">คำอธิบายสั้นๆ ว่าหน้านี้ทำอะไร เหมาะกับใคร</p>
-    <div class="card-tags">
-      <span class="tag tag-COLOR">EMOJI หัวข้อ</span>
-    </div>
-    <div class="card-arrow">→</div>
-  </div>
+  <div class="card-arrow">→</div>
 </a>
 ```
 
@@ -126,12 +130,12 @@ font-weight: 700;
 3. **คำอธิบายสั้น** — ประโยคเดียว ใช้คำง่าย ไม่เกิน 10 คำ
 4. **Emoji แทนภาพ** — ใช้ emoji ขนาดใหญ่ (48–80px) เป็น visual cue
 5. **ไม่มี timer กดดัน** — ยกเว้นถ้าเป็นเกมที่ผู้ใหญ่เล่นด้วย
-6. **Back button ชัดเจน** — ทุกหน้าต้องมีปุ่มกลับ home.html
+6. **Back button ชัดเจน** — ทุกหน้าต้องมีปุ่มกลับ index.html
 7. **อ่านออกเสียงได้** — ใช้ `title` attribute หรือ aria-label สำหรับปุ่มสำคัญ
 
 ---
 
-## Deploy Process
+## Deploy Process UAT
 
 โปรเจกต์นี้เป็น static HTML ไม่มี build step  
 **Hosting:** Synology NAS — `smb://192.168.1.49/web`
@@ -149,3 +153,9 @@ font-weight: 700;
 # ตัวอย่าง copy ผ่าน Terminal (ถ้า mount แล้วที่ /Volumes/web)
 cp /Users/imo/Workspace/Summer-Project/*.html /Volumes/web/
 ```
+## Deploy to PRODUCTION
+0. before process this step , please confirm with me to commit to PRODUCTION .
+event confirm go to next step, event reject nothing.
+1. update new content to README.md file as well
+2. maindatory file to push to github [README.md, all .html] 
+3. commit to github : https://github.com/mostartheworld/summer
