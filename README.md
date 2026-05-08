@@ -1,21 +1,26 @@
-# Summer Project
+# 🌟 Summer's World
 
-A personal web platform built for our family — tools and educational resources created for our son Summer (age 5) and managed by mom and dad.
+แหล่งเรียนรู้และเกมสนุกสำหรับ Summer — A fun learning game collection for kids age 5+.
 
-## Purpose
+## 🎮 เกม & กิจกรรม / Games & Activities
 
-- Build interactive educational activities and games for Summer
-- Provide a family-managed web space for tracking progress and sharing resources
-- A place for parents to create, customize, and maintain learning tools together
+| หน้า | คำอธิบาย | สถานะ |
+|------|----------|-------|
+| [🎲 คุยเล่นกับลูก](24_question.html) | 24 คำถามสุ่ม คุยกันตอนกินข้าวหรือก่อนนอน | ✅ พร้อมเล่น |
+| [🤖 ประกอบหุ่นยนต์](robot_game.html) | ลากชิ้นส่วนสร้างหุ่นยนต์ สร้างได้ 243 แบบ! | ✅ พร้อมเล่น |
+| [📚 รู้อะไรบ้างนะ?](knowledge.html) | คำศัพท์ไทย-อังกฤษ 6 หมวด + เลขสนุก | ✅ พร้อมเล่น |
+| [🪙 เหรียญไทย](thai_money.html) | เรียนรู้เหรียญ 1-2-5-10 บาท แล้วลองทาย! | ✅ พร้อมเล่น |
+| [🎨 ผสมสีกัน!](color_mix.html) | ผสมสีแดง น้ำเงิน เหลือง แล้วดูสีใหม่! | ✅ พร้อมเล่น |
+| [🛒 จ่ายเงินซื้อของ](pay_money.html) | เลือกเหรียญจ่ายเงิน รับเงินทอนเหมือนจริง | ✅ พร้อมเล่น |
 
-## Who It's For
+## 👨‍👩‍👧 สำหรับพ่อแม่ / For Parents
 
-| Role | Description |
-|------|-------------|
-| Summer | 5-year-old learner — the main user of educational content |
-| Dad | Developer and content creator |
-| Mom | Co-creator and content curator |
+| หน้า | คำอธิบาย | สถานะ |
+|------|----------|-------|
+| [🏫 เปรียบเทียบโรงเรียน ป.1](school_dashboard.html) | กราฟ · ค่าเทอม · เปรียบเทียบ 4 โรงเรียน | ✅ พร้อมใช้ |
 
-## Status
+## 🚀 วิธีเปิดใช้ / How to Play
 
-Early development — stack and features to be decided.
+เปิดไฟล์ `index.html` ในเบราว์เซอร์ แล้วเลือกกิจกรรมที่ต้องการ
+
+Open `index.html` in a browser and pick an activity!
