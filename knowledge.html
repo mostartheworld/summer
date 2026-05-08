@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>รู้อะไรบ้างนะ · Learn with Summer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;700;800;900&family=Prompt:wght@700;800;900&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --c1: #f43f8e; --c2: #f59e0b; --c3: #22c55e;
+    --c4: #3b82f6; --c5: #a855f7; --c6: #e11d48;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Noto Sans Thai','Nunito',system-ui,sans-serif; min-height: 100vh; background: #fff9f0; overflow-x: hidden; }
+  body::before { content: ""; position: fixed; inset: 0; z-index: 0; background: radial-gradient(ellipse 65% 45% at 2% 8%, #ffe0f7 0%, transparent 55%), radial-gradient(ellipse 55% 40% at 98% 5%, #dbeafe 0%, transparent 55%), radial-gradient(ellipse 50% 50% at 50% 100%, #fffbd0 0%, transparent 55%); pointer-events: none; }
+
+  .blobs { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+  .blob { position: absolute; border-radius: 50%; animation: floatBlob linear infinite; opacity: .45; }
+  @keyframes floatBlob { 0%{transform:translateY(0) rotate(0deg) scale(1)} 33%{transform:translateY(-14px) rotate(120deg) scale(1.05)} 66%{transform:translateY(8px) rotate(240deg) scale(.96)} 100%{transform:translateY(0) rotate(360deg) scale(1)} }
+
+  .page { position: relative; z-index: 1; max-width: 960px; margin: 0 auto; padding: 24px 16px 80px; }
+
+  .site-nav { position: sticky; top: 0; z-index: 100; background: rgba(255,249,240,.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 2px solid #f0e8fb; padding: 10px 16px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .nav-home { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; font-family: 'Prompt','Noto Sans Thai',sans-serif; font-size: 14px; font-weight: 900; padding: 9px 20px; border-radius: 999px; background: linear-gradient(135deg,#ff6b9d,#ff8a5b); color: #fff; white-space: nowrap; flex-shrink: 0; box-shadow: 0 3px 10px rgba(255,107,157,.3); transition: transform .15s, box-shadow .15s; }
+  .nav-home:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(255,107,157,.4); }
+  .nav-links { display: flex; gap: 6px; flex-wrap: wrap; }
+  .nav-link { text-decoration: none; font-family: 'Prompt','Noto Sans Thai',sans-serif; font-size: 12px; font-weight: 800; padding: 7px 13px; border-radius: 999px; border: 2px solid #e8dff0; color: #7c6d88; background: #fff; transition: all .18s; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+  .nav-link:hover { border-color: #c084fc; color: #7c3aed; transform: translateY(-1px); }
+  .nav-link.active { background: linear-gradient(135deg,#a855f7,#3b82f6); color: #fff; border-color: transparent; box-shadow: 0 3px 10px rgba(168,85,247,.35); }
+  @media (max-width: 420px) { .nav-home { font-size: 13px; padding: 8px 14px; } .nav-link { font-size: 11px; padding: 6px 10px; } }
+
+  header { text-align: center; padding: 8px 0 28px; }
+  .logo-emoji { font-size: 64px; display: block; animation: bounce 2.2s ease-in-out infinite; }
+  @keyframes bounce { 0%,100%{transform:translateY(0) rotate(-3deg)} 50%{transform:translateY(-12px) rotate(3deg)} }
+  h1 { font-family: 'Prompt','Noto Sans Thai',sans-serif; font-size: clamp(26px,6vw,48px); font-weight: 900; background: linear-gradient(135deg,#f43f8e,#f59e0b,#22c55e,#3b82f6,#a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1.2; margin: 10px 0 4px; }
+  .h1-en { font-family: 'Nunito',sans-serif; font-size: clamp(13px,2.5vw,17px); font-weight: 800; color: #9b8aab; letter-spacing: .5px; margin-bottom: 8px; }
+  .sub { font-size: clamp(13px,2.5vw,15px); color: #7c6d88; font-weight: 500; max-width: 560px; margin: 0 auto; line-height: 1.5; }
+  .deco-row { display: flex; justify-content: center; gap: 10px; margin: 12px 0 0; font-size: 20px; animation: shimmer 3s ease-in-out infinite; }
+  @keyframes shimmer { 0%,100%{opacity:1} 50%{opacity:.5} }
+
+  .prog-wrap { display: flex; align-items: center; gap: 12px; margin: 0 2px 22px; flex-wrap: wrap; }
+  .prog-label { font-size: 14px; font-weight: 700; color: #6b5e78; white-space: nowrap; }
+  .prog-label span { color: #2a2434; font-size: 18px; }
+  .prog-bar { flex: 1; height: 12px; background: #e8dff0; border-radius: 999px; overflow: hidden; min-width: 120px; }
+  .prog-fill { height: 100%; background: linear-gradient(90deg,#f43f8e,#f59e0b,#22c55e,#3b82f6,#a855f7,#e11d48); background-size: 200% 100%; width: 0%; transition: width .5s cubic-bezier(.34,1.2,.64,1); border-radius: 999px; animation: rainbowMove 4s linear infinite; }
+  @keyframes rainbowMove { 0%{background-position:0%} 100%{background-position:200%} }
+  .btn-reset { background: #fff; border: 2px solid #e8dff0; color: #9b8aab; border-radius: 999px; padding: 7px 16px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all .15s; }
+  .btn-reset:hover { border-color: #c084fc; color: #7c3aed; background: #f5eeff; }
+
+  .tabs { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 12px; margin-bottom: 20px; scrollbar-width: thin; }
+  .tabs::-webkit-scrollbar { height: 4px; }
+  .tabs::-webkit-scrollbar-thumb { background: #d8cce8; border-radius: 4px; }
+  .tab { flex-shrink: 0; border: 2px solid #e8dff0; background: #fff; color: #7c6d88; padding: 10px 18px; border-radius: 999px; font-family: inherit; font-size: 14px; font-weight: 800; cursor: pointer; transition: all .18s; display: inline-flex; align-items: center; gap: 6px; }
+  .tab .cnt { background: #f0e8fb; color: #9b8aab; border-radius: 999px; padding: 1px 9px; font-size: 11px; font-weight: 800; }
+  .tab:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(160,120,220,.18); }
+  .tab.active { background: #2a2434; color: #fff; border-color: #2a2434; }
+  .tab.active .cnt { background: rgba(255,255,255,.2); color: #fff; }
+
+  .sec-head { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; padding: 16px 18px; border-radius: 18px; color: #fff; box-shadow: 0 4px 18px rgba(0,0,0,.12); position: relative; overflow: hidden; }
+  .sec-head::before { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 15% 30%, rgba(255,255,255,.2), transparent 50%); pointer-events: none; }
+  .sec-head > * { position: relative; }
+  .sec-icon { font-size: 34px; }
+  .sec-title { font-family: 'Prompt','Noto Sans Thai',sans-serif; font-size: 19px; font-weight: 900; line-height: 1.1; }
+  .sec-title-en { font-family: 'Nunito',sans-serif; font-size: 13px; font-weight: 700; opacity: .85; margin-top: 2px; }
+
+  .cat-1 .sec-head { background: linear-gradient(135deg,#f43f8e,#fb7bb8); }
+  .cat-2 .sec-head { background: linear-gradient(135deg,#f59e0b,#fbbf24); }
+  .cat-3 .sec-head { background: linear-gradient(135deg,#16a34a,#4ade80); }
+  .cat-4 .sec-head { background: linear-gradient(135deg,#2563eb,#60a5fa); }
+  .cat-5 .sec-head { background: linear-gradient(135deg,#9333ea,#c084fc); }
+  .cat-6 .sec-head { background: linear-gradient(135deg,#e11d48,#fb7185); }
+
+  .category { margin-bottom: 30px; }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px,1fr)); gap: 12px; }
+  .card { background: #fff; border-radius: 20px; padding: 18px 12px 14px; text-align: center; border: 2.5px solid #f0e8fb; cursor: pointer; user-select: none; transition: transform .22s cubic-bezier(.34,1.56,.64,1), box-shadow .18s, border-color .18s, opacity .18s; position: relative; overflow: hidden; }
+  .card::before { content: ""; position: absolute; inset: 0; opacity: 0; background: radial-gradient(circle at 50% 30%, rgba(255,255,255,.5), transparent 65%); transition: opacity .2s; pointer-events: none; }
+  .card:hover { transform: translateY(-5px) scale(1.04); box-shadow: 0 10px 28px rgba(120,80,180,.18); }
+  .card:hover::before { opacity: 1; }
+  .card:active { transform: scale(.96); }
+
+  .cat-1 .card { border-top: 4px solid var(--c1); }
+  .cat-2 .card { border-top: 4px solid var(--c2); }
+  .cat-3 .card { border-top: 4px solid var(--c3); }
+  .cat-4 .card { border-top: 4px solid var(--c4); }
+  .cat-5 .card { border-top: 4px solid var(--c5); }
+  .cat-6 .card { border-top: 4px solid var(--c6); }
+
+  .card-emoji { font-size: 40px; display: block; margin-bottom: 8px; line-height: 1; }
+  .card-th { font-family: 'Noto Sans Thai',sans-serif; font-size: 15px; font-weight: 800; color: #2a2434; line-height: 1.3; margin-bottom: 4px; }
+  .card-en { font-family: 'Nunito',sans-serif; font-size: 12px; font-weight: 700; letter-spacing: .3px; line-height: 1.2; }
+  .cat-1 .card-en { color: var(--c1); } .cat-2 .card-en { color: #d97706; } .cat-3 .card-en { color: #16a34a; }
+  .cat-4 .card-en { color: var(--c4); } .cat-5 .card-en { color: var(--c5); } .cat-6 .card-en { color: var(--c6); }
+
+  .card-th-sub { font-family: 'Noto Sans Thai',sans-serif; font-size: 13px; font-weight: 700; color: #a855f7; }
+  .card-en-sub { font-family: 'Nunito',sans-serif; font-size: 11px; font-weight: 700; color: #c084fc; }
+  .card-divider { font-size: 14px; margin: 2px 0; color: #c4b5fd; }
+
+  .card.learned { opacity: .55; background: #f5f0ff; }
+  .card.learned .card-emoji { filter: grayscale(.35); }
+  .learned-badge { display: none; position: absolute; top: 7px; right: 8px; background: #7c3aed; color: #fff; border-radius: 9px; padding: 1px 7px; font-size: 11px; font-weight: 800; }
+  .card.learned .learned-badge { display: block; }
+
+  @keyframes cardPop { 0%{transform:scale(1)} 40%{transform:scale(1.18) rotate(4deg)} 70%{transform:scale(.95) rotate(-2deg)} 100%{transform:scale(1) rotate(0deg)} }
+  .card.pop { animation: cardPop .45s cubic-bezier(.34,1.56,.64,1); }
+
+  .done-banner { display: none; background: linear-gradient(135deg,#ffd020,#ff8a5b,#f43f8e); color: #fff; text-align: center; border-radius: 22px; padding: 20px; margin-bottom: 22px; font-family: 'Prompt','Noto Sans Thai',sans-serif; font-size: clamp(17px,4vw,24px); font-weight: 900; box-shadow: 0 6px 24px rgba(255,107,157,.35); }
+  .done-banner.show { display: block; }
+
+  .section-divider { display: flex; align-items: center; gap: 14px; margin: 36px 0 28px; }
+  .section-divider::before, .section-divider::after { content: ""; flex: 1; height: 2px; background: linear-gradient(90deg, transparent, #e8dff0, transparent); border-radius: 999px; }
+  .section-divider span { font-family: 'Prompt','Noto Sans Thai',sans-serif; font-size: 13px; font-weight: 800; color: #b0a0c4; white-space: nowrap; letter-spacing: 1px; }
+
+  .math-section { background: #fff; border-radius: 28px; border: 2.5px solid #e8dff0; overflow: hidden; box-shadow: 0 6px 28px rgba(120,80,180,.1); margin-bottom: 24px; }
+  .math-head { background: linear-gradient(135deg,#6366f1 0%,#a855f7 50%,#ec4899 100%); padding: 18px 22px; display: flex; align-items: center; gap: 14px; position: relative; overflow: hidden; }
+  .math-head::before { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 15% 30%, rgba(255,255,255,.2), transparent 50%); pointer-events: none; }
+  .math-head > * { position: relative; }
+  .math-head-icon { font-size: 36px; }
+  .math-head-title { font-family: 'Prompt','Noto Sans Thai',sans-serif; font-size: 20px; font-weight: 900; color: #fff; line-height: 1.1; }
+  .math-head-en { font-family: 'Nunito',sans-serif; font-size: 13px; font-weight: 700; color: rgba(255,255,255,.8); margin-top: 2px; }
+  .math-score-box { background: rgba(255,255,255,.2); border-radius: 14px; padding: 8px 16px; text-align: center; color: #fff; backdrop-filter: blur(6px); }
+  .math-score-label { font-size: 10px; font-weight: 800; letter-spacing: 1.5px; opacity: .85; text-transform: uppercase; }
+  .math-score-num { font-family: 'Nunito',sans-serif; font-size: 22px; font-weight: 900; line-height: 1; }
+  .math-score-num span { opacity: .7; font-size: 16px; }
+
+  .math-body { padding: 28px 20px 24px; }
+  .op-toggle { display: flex; gap: 8px; justify-content: center; margin-bottom: 24px; flex-wrap: wrap; }
+  .op-btn { font-family: 'Nunito',sans-serif; font-size: 15px; font-weight: 900; padding: 8px 22px; border-radius: 999px; border: 2.5px solid #e8dff0; background: #fff; color: #7c6d88; cursor: pointer; transition: all .18s; display: inline-flex; align-items: center; gap: 6px; }
+  .op-btn:hover { border-color: #c084fc; color: #7c3aed; }
+  .op-btn.active { background: linear-gradient(135deg,#6366f1,#a855f7); color: #fff; border-color: transparent; box-shadow: 0 4px 14px rgba(99,102,241,.35); }
+  .op-btn-both.active { background: linear-gradient(135deg,#f43f8e,#f59e0b); box-shadow: 0 4px 14px rgba(244,63,142,.3); }
+
+  .equation-wrap { display: flex; align-items: center; justify-content: center; gap: clamp(10px,3vw,24px); margin: 0 auto 22px; flex-wrap: wrap; }
+  .eq-num { font-family: 'Nunito',sans-serif; font-weight: 900; font-size: clamp(44px,12vw,80px); line-height: 1; background: linear-gradient(135deg,#6366f1,#a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; min-width: 64px; text-align: center; transition: transform .25s cubic-bezier(.34,1.56,.64,1); }
+  .eq-num.pop-anim { animation: numPop .4s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes numPop { 0%{transform:scale(.5);opacity:0} 100%{transform:scale(1);opacity:1} }
+  .eq-op { font-family: 'Nunito',sans-serif; font-weight: 900; font-size: clamp(36px,9vw,64px); line-height: 1; color: #f43f8e; min-width: 40px; text-align: center; transition: all .2s; }
+  .eq-equals { font-family: 'Nunito',sans-serif; font-weight: 900; font-size: clamp(36px,9vw,64px); line-height: 1; color: #94a3b8; }
+
+  .answer-input { font-family: 'Nunito',sans-serif; font-size: clamp(40px,10vw,72px); font-weight: 900; width: clamp(90px,20vw,130px); text-align: center; border: 3px solid #e8dff0; border-radius: 18px; padding: 6px 10px; color: #2a2434; background: #fdf8ff; outline: none; transition: border-color .18s, box-shadow .18s; -moz-appearance: textfield; }
+  .answer-input::-webkit-outer-spin-button, .answer-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .answer-input:focus { border-color: #a855f7; box-shadow: 0 0 0 4px rgba(168,85,247,.15); }
+  .answer-input.correct { border-color: #22c55e; box-shadow: 0 0 0 4px rgba(34,197,94,.18); background: #f0fdf4; }
+  .answer-input.wrong { border-color: #f43f8e; box-shadow: 0 0 0 4px rgba(244,63,142,.15); background: #fff1f8; }
+  .answer-input.shake { animation: shake .4s ease; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-6px)} 80%{transform:translateX(6px)} }
+
+  .math-feedback { text-align: center; font-family: 'Prompt','Noto Sans Thai',sans-serif; font-size: 18px; font-weight: 800; min-height: 32px; margin-bottom: 18px; transition: all .2s; }
+  .math-feedback.correct-msg { color: #16a34a; animation: popIn .4s cubic-bezier(.34,1.56,.64,1); }
+  .math-feedback.wrong-msg { color: #e11d48; }
+  @keyframes popIn { 0%{transform:scale(.7);opacity:0} 100%{transform:scale(1);opacity:1} }
+
+  .math-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .btn-check { font-family: 'Prompt','Noto Sans Thai',sans-serif; font-size: 16px; font-weight: 900; padding: 13px 32px; border-radius: 999px; border: none; cursor: pointer; transition: all .18s; background: linear-gradient(135deg,#6366f1,#a855f7); color: #fff; box-shadow: 0 4px 16px rgba(99,102,241,.35); }
+  .btn-check:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(99,102,241,.45); }
+  .btn-check:active { transform: scale(.96); }
+  .btn-new { font-family: 'Prompt','Noto Sans Thai',sans-serif; font-size: 15px; font-weight: 800; padding: 13px 24px; border-radius: 999px; border: 2.5px solid #e8dff0; background: #fff; color: #7c6d88; cursor: pointer; transition: all .18s; }
+  .btn-new:hover { border-color: #c084fc; color: #7c3aed; transform: translateY(-1px); }
+
+  .confetti-wrap { position: fixed; inset: 0; pointer-events: none; z-index: 9999; }
+  .confetti-piece { position: absolute; width: 10px; height: 10px; border-radius: 2px; animation: confettiFall linear forwards; }
+  @keyframes confettiFall { 0%{transform:translateY(-10px) rotate(0deg) scale(1);opacity:1} 100%{transform:translateY(90vh) rotate(720deg) scale(.5);opacity:0} }
+
+  @media (max-width: 500px) {
+    .cards { grid-template-columns: repeat(auto-fill, minmax(100px,1fr)); gap: 9px; }
+    .card { padding: 14px 8px 11px; border-radius: 16px; }
+    .card-emoji { font-size: 34px; }
+    .card-th { font-size: 14px; }
+    .logo-emoji { font-size: 52px; }
+    .math-body { padding: 20px 14px 18px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="blobs" id="blobs"></div>
+<div class="confetti-wrap" id="confetti"></div>
+
+<nav class="site-nav">
+  <a class="nav-home" href="home.html">🏠 หน้าหลัก</a>
+  <div class="nav-links">
+    <a class="nav-link" href="24_question.html">🎲 24 คำถาม</a>
+    <a class="nav-link" href="robot_game.html">🤖 หุ่นยนต์</a>
+    <a class="nav-link active" href="knowledge.html">📚 เรียนรู้</a>
+    <a class="nav-link" href="thai_money.html">🪙 เหรียญ</a>
+    <a class="nav-link" href="pay_money.html">🛒 จ่ายเงิน</a>
+    <a class="nav-link" href="school_dashboard.html">🏫 โรงเรียน</a>
+  </div>
+</nav>
+
+<div class="page">
+  <header>
+    <span class="logo-emoji">🧠</span>
+    <h1>รู้อะไรบ้างนะ?</h1>
+    <p class="h1-en">Level Up — What Do You Know?</p>
+    <p class="sub">คำศัพท์ระดับท้าทายขึ้น · Harder words in Thai &amp; English · แตะการ์ดเพื่อมาร์กว่ารู้แล้ว</p>
+    <div class="deco-row">🌍 🚗 👔 🔷 💭 😊</div>
+  </header>
+
+  <div id="done-banner" class="done-banner">🎉 เก่งมากๆ เลย! You learned them all! 🌟</div>
+
+  <div class="prog-wrap">
+    <div class="prog-label">รู้แล้ว <span id="done-count">0</span> / <span id="total-count">0</span> คำ</div>
+    <div class="prog-bar"><div class="prog-fill" id="bar"></div></div>
+    <button class="btn-reset" id="btn-reset">🔄 เริ่มใหม่</button>
+  </div>
+
+  <div class="tabs" id="tabs"></div>
+  <div id="categories"></div>
+
+  <div class="section-divider"><span>⭐ เลขสนุก · MATH TIME ⭐</span></div>
+
+  <section class="math-section">
+    <div class="math-head">
+      <div class="math-head-icon">🔢</div>
+      <div class="math-head-text">
+        <div class="math-head-title">เลขสนุก!</div>
+        <div class="math-head-en">Math Fun · + and −</div>
+      </div>
+      <div class="math-score-box">
+        <div class="math-score-label">Score</div>
+        <div class="math-score-num"><span id="score-c">0</span> <span>/ <span id="score-t">0</span></span></div>
+      </div>
+    </div>
+    <div class="math-body">
+      <div class="op-toggle">
+        <button class="op-btn active" data-mode="add">➕ บวก</button>
+        <button class="op-btn" data-mode="sub">➖ ลบ</button>
+        <button class="op-btn op-btn-both" data-mode="both">🎲 สุ่มทั้งคู่</button>
+      </div>
+      <div class="equation-wrap">
+        <div class="eq-num" id="num-a">5</div>
+        <div class="eq-op" id="eq-op">+</div>
+        <div class="eq-num" id="num-b">3</div>
+        <div class="eq-equals">=</div>
+        <input type="number" id="answer-input" class="answer-input" placeholder="?" min="0" max="99" inputmode="numeric">
+      </div>
+      <div class="math-feedback" id="math-feedback"></div>
+      <div class="math-actions">
+        <button class="btn-check" id="btn-check">✓ ตรวจคำตอบ</button>
+        <button class="btn-new" id="btn-new">🎲 โจทย์ใหม่</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+  (function() {
+    const cols = ["#ffb3d9","#ffe082","#a5f3c6","#bfdbfe","#ddd6fe","#99f6e4","#fca5a5"];
+    const wrap = document.getElementById("blobs");
+    for (let i = 0; i < 18; i++) {
+      const b = document.createElement("div"); b.className = "blob";
+      const sz = 10 + Math.random() * 20;
+      b.style.cssText = `width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;background:${cols[Math.floor(Math.random()*cols.length)]};animation-duration:${5+Math.random()*7}s;animation-delay:-${Math.random()*10}s;`;
+      wrap.appendChild(b);
+    }
+  })();
+
+  const DATA = [
+    { id:1, icon:"🌍", color:"cat-1", th:"ประเทศ", en:"Countries", cards:[
+      {emoji:"🇹🇭",th:"ไทย",en:"Thailand"},{emoji:"🇯🇵",th:"ญี่ปุ่น",en:"Japan"},{emoji:"🇺🇸",th:"อเมริกา",en:"USA"},
+      {emoji:"🇬🇧",th:"อังกฤษ",en:"England"},{emoji:"🇫🇷",th:"ฝรั่งเศส",en:"France"},{emoji:"🇨🇳",th:"จีน",en:"China"},
+      {emoji:"🇰🇷",th:"เกาหลี",en:"Korea"},{emoji:"🇦🇺",th:"ออสเตรเลีย",en:"Australia"},{emoji:"🇧🇷",th:"บราซิล",en:"Brazil"},{emoji:"🇮🇳",th:"อินเดีย",en:"India"}]},
+    { id:2, icon:"🚗", color:"cat-2", th:"ยานพาหนะ", en:"Transport", cards:[
+      {emoji:"🚗",th:"รถยนต์",en:"Car"},{emoji:"🚌",th:"รถบัส",en:"Bus"},{emoji:"🚂",th:"รถไฟ",en:"Train"},
+      {emoji:"✈️",th:"เครื่องบิน",en:"Airplane"},{emoji:"🚢",th:"เรือ",en:"Ship"},{emoji:"🚲",th:"จักรยาน",en:"Bicycle"},
+      {emoji:"🏍️",th:"มอเตอร์ไซค์",en:"Motorcycle"},{emoji:"🚁",th:"เฮลิคอปเตอร์",en:"Helicopter"},{emoji:"🚀",th:"จรวด",en:"Rocket"},{emoji:"🚕",th:"แท็กซี่",en:"Taxi"}]},
+    { id:3, icon:"👔", color:"cat-3", th:"อาชีพ", en:"Jobs", cards:[
+      {emoji:"👨‍⚕️",th:"หมอ",en:"Doctor"},{emoji:"👩‍🏫",th:"ครู",en:"Teacher"},{emoji:"👮",th:"ตำรวจ",en:"Police"},
+      {emoji:"👨‍🍳",th:"พ่อครัว",en:"Chef"},{emoji:"👨‍🌾",th:"ชาวนา",en:"Farmer"},{emoji:"👨‍✈️",th:"นักบิน",en:"Pilot"},
+      {emoji:"👷",th:"วิศวกร",en:"Engineer"},{emoji:"🧑‍🎨",th:"ศิลปิน",en:"Artist"},{emoji:"🧑‍🚒",th:"นักดับเพลิง",en:"Firefighter"},{emoji:"🎤",th:"นักร้อง",en:"Singer"}]},
+    { id:4, icon:"🔷", color:"cat-4", th:"รูปทรง", en:"Shapes", cards:[
+      {emoji:"⭕",th:"วงกลม",en:"Circle"},{emoji:"🟥",th:"สี่เหลี่ยม",en:"Square"},{emoji:"🔺",th:"สามเหลี่ยม",en:"Triangle"},
+      {emoji:"▬",th:"สี่เหลี่ยมผืนผ้า",en:"Rectangle"},{emoji:"⭐",th:"ดาว",en:"Star"},{emoji:"❤️",th:"หัวใจ",en:"Heart"},
+      {emoji:"💎",th:"เพชร",en:"Diamond"},{emoji:"🥚",th:"วงรี",en:"Oval"},{emoji:"⬠",th:"ห้าเหลี่ยม",en:"Pentagon"},{emoji:"⬡",th:"หกเหลี่ยม",en:"Hexagon"}]},
+    { id:5, icon:"💭", color:"cat-5", th:"คำตรงข้าม", en:"Opposites", type:"opposite", cards:[
+      {emoji:"↔️",th:"ใหญ่",th2:"เล็ก",en:"Big",en2:"Small"},{emoji:"🌡️",th:"ร้อน",th2:"เย็น",en:"Hot",en2:"Cold"},
+      {emoji:"⚡",th:"เร็ว",th2:"ช้า",en:"Fast",en2:"Slow"},{emoji:"😊",th:"มีความสุข",th2:"เศร้า",en:"Happy",en2:"Sad"},
+      {emoji:"✨",th:"ใหม่",th2:"เก่า",en:"New",en2:"Old"},{emoji:"💡",th:"สว่าง",th2:"มืด",en:"Light",en2:"Dark"},
+      {emoji:"📏",th:"ยาว",th2:"สั้น",en:"Long",en2:"Short"},{emoji:"🔊",th:"ดัง",th2:"เบา",en:"Loud",en2:"Quiet"},
+      {emoji:"🧹",th:"สะอาด",th2:"สกปรก",en:"Clean",en2:"Dirty"},{emoji:"📖",th:"เปิด",th2:"ปิด",en:"Open",en2:"Closed"}]},
+    { id:6, icon:"😊", color:"cat-6", th:"อารมณ์ความรู้สึก", en:"Feelings", cards:[
+      {emoji:"😄",th:"มีความสุข",en:"Happy"},{emoji:"😢",th:"เศร้า",en:"Sad"},{emoji:"😠",th:"โกรธ",en:"Angry"},
+      {emoji:"😨",th:"กลัว",en:"Scared"},{emoji:"😲",th:"ประหลาดใจ",en:"Surprised"},{emoji:"🤩",th:"ตื่นเต้น",en:"Excited"},
+      {emoji:"😴",th:"ง่วงนอน",en:"Sleepy"},{emoji:"🤢",th:"คลื่นไส้",en:"Sick"},{emoji:"😑",th:"เบื่อ",en:"Bored"},{emoji:"🥹",th:"ภาคภูมิใจ",en:"Proud"}]}
+  ];
+
+  const TOTAL = DATA.reduce((s,c) => s+c.cards.length, 0);
+  document.getElementById("total-count").textContent = TOTAL;
+
+  const KEY = "summer_knowledge_v2";
+  let learned = new Set();
+  try { learned = new Set(JSON.parse(localStorage.getItem(KEY) || "[]")); } catch(e) {}
+  function save() { try { localStorage.setItem(KEY, JSON.stringify([...learned])); } catch(e) {} }
+
+  function updateProgress() {
+    document.getElementById("done-count").textContent = learned.size;
+    document.getElementById("bar").style.width = (learned.size / TOTAL * 100) + "%";
+    document.getElementById("done-banner").classList.toggle("show", learned.size === TOTAL);
+    DATA.forEach(cat => {
+      const n = cat.cards.filter((_,i) => learned.has(`${cat.id}-${i}`)).length;
+      const el = document.querySelector(`.tab[data-cat="${cat.id}"] .cnt`);
+      if (el) el.textContent = `${n}/${cat.cards.length}`;
+    });
+  }
+
+  function renderTabs() {
+    const wrap = document.getElementById("tabs");
+    let html = `<button class="tab active" data-cat="all">ทั้งหมด · All <span class="cnt">${TOTAL}</span></button>`;
+    DATA.forEach(cat => { html += `<button class="tab" data-cat="${cat.id}">${cat.icon} ${cat.th} <span class="cnt">0/${cat.cards.length}</span></button>`; });
+    wrap.innerHTML = html;
+    wrap.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => {
+      wrap.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+      t.classList.add("active"); render(t.dataset.cat);
+    }));
+  }
+
+  function cardHTML(cat, card, i) {
+    const id = `${cat.id}-${i}`;
+    const isOpp = cat.type === "opposite";
+    const inner = isOpp
+      ? `<span class="card-emoji">${card.emoji}</span><div class="card-th">${card.th}</div><div class="card-en">${card.en}</div><div class="card-divider">↕</div><div class="card-th-sub">${card.th2}</div><div class="card-en-sub">${card.en2}</div>`
+      : `<span class="card-emoji">${card.emoji}</span><div class="card-th">${card.th}</div><div class="card-en">${card.en}</div>`;
+    return `<div class="card${learned.has(id)?' learned':''}" data-id="${id}"><span class="learned-badge">✓</span>${inner}</div>`;
+  }
+
+  function render(filter = "all") {
+    const root = document.getElementById("categories");
+    const show = filter === "all" ? DATA : DATA.filter(c => c.id == filter);
+    root.innerHTML = show.map(cat => `
+      <div class="category ${cat.color}">
+        <div class="sec-head"><div class="sec-icon">${cat.icon}</div><div><div class="sec-title">${cat.th}</div><div class="sec-title-en">${cat.en}</div></div></div>
+        <div class="cards">${cat.cards.map((card,i) => cardHTML(cat,card,i)).join("")}</div>
+      </div>`).join("");
+    root.querySelectorAll(".card").forEach(el => el.addEventListener("click", () => {
+      const id = el.dataset.id;
+      if (learned.has(id)) { learned.delete(id); el.classList.remove("learned"); }
+      else { learned.add(id); el.classList.add("learned"); el.classList.remove("pop"); void el.offsetWidth; el.classList.add("pop"); el.addEventListener("animationend", () => el.classList.remove("pop"), {once:true}); }
+      save(); updateProgress();
+    }));
+  }
+
+  document.getElementById("btn-reset").addEventListener("click", () => {
+    if (confirm("ต้องการล้างทั้งหมดและเริ่มใหม่?")) { learned.clear(); save(); updateProgress(); render(document.querySelector(".tab.active")?.dataset.cat || "all"); }
+  });
+
+  renderTabs(); render("all"); updateProgress();
+
+  let mathMode = "add", mathCorrect = 0, mathTotal = 0, currentAnswer = 0, answered = false;
+
+  document.querySelectorAll(".op-btn").forEach(btn => btn.addEventListener("click", () => {
+    document.querySelectorAll(".op-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active"); mathMode = btn.dataset.mode; newQuestion();
+  }));
+
+  function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+  function newQuestion() {
+    answered = false;
+    const input = document.getElementById("answer-input");
+    const feedback = document.getElementById("math-feedback");
+    input.value = ""; input.className = "answer-input";
+    feedback.textContent = ""; feedback.className = "math-feedback";
+    let a, b, op;
+    const useAdd = mathMode === "add" || (mathMode === "both" && Math.random() < .5);
+    if (useAdd || mathMode === "add") { op = "+"; a = rand(1,12); b = rand(1,12); currentAnswer = a+b; }
+    else { op = "−"; a = rand(3,15); b = rand(1,a); currentAnswer = a-b; }
+    const elA = document.getElementById("num-a"), elB = document.getElementById("num-b"), elOp = document.getElementById("eq-op");
+    [elA, elB].forEach(el => { el.classList.remove("pop-anim"); void el.offsetWidth; el.classList.add("pop-anim"); });
+    elA.textContent = a; elB.textContent = b; elOp.textContent = op;
+    input.focus();
+  }
+
+  function checkAnswer() {
+    if (answered) { newQuestion(); return; }
+    const input = document.getElementById("answer-input"), feedback = document.getElementById("math-feedback");
+    const val = input.value.trim();
+    if (val === "") { input.focus(); return; }
+    const userAns = parseInt(val, 10);
+    mathTotal++; document.getElementById("score-t").textContent = mathTotal;
+    if (userAns === currentAnswer) {
+      mathCorrect++; document.getElementById("score-c").textContent = mathCorrect;
+      input.classList.add("correct");
+      feedback.textContent = ["🎉 ถูกต้อง!","✨ เก่งมาก!","🌟 ใช่เลย!","👏 ยอดเยี่ยม!"][Math.floor(Math.random()*4)];
+      feedback.className = "math-feedback correct-msg";
+      spawnConfetti(); answered = true; setTimeout(newQuestion, 1400);
+    } else {
+      input.classList.add("wrong"); input.classList.remove("shake"); void input.offsetWidth; input.classList.add("shake");
+      feedback.textContent = `❌ คำตอบที่ถูกต้องคือ ${currentAnswer}`;
+      feedback.className = "math-feedback wrong-msg";
+      answered = true; setTimeout(newQuestion, 2200);
+    }
+  }
+
+  document.getElementById("btn-check").addEventListener("click", checkAnswer);
+  document.getElementById("btn-new").addEventListener("click", newQuestion);
+  document.getElementById("answer-input").addEventListener("keydown", e => { if (e.key==="Enter") checkAnswer(); });
+
+  function spawnConfetti() {
+    const wrap = document.getElementById("confetti");
+    const colors = ["#f43f8e","#f59e0b","#22c55e","#6366f1","#a855f7","#ffd020","#00c9b1"];
+    for (let i = 0; i < 40; i++) {
+      const piece = document.createElement("div"); piece.className = "confetti-piece";
+      piece.style.cssText = `left:${rand(10,90)}%;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};width:${rand(7,13)}px;height:${rand(7,13)}px;border-radius:${Math.random()>.5?"50%":"2px"};animation-duration:${.8+Math.random()*.8}s;animation-delay:${Math.random()*.3}s;`;
+      wrap.appendChild(piece); piece.addEventListener("animationend", () => piece.remove());
+    }
+  }
+
+  newQuestion();
+</script>
+
+</body>
+</html>
