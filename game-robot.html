@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🤖 ประกอบหุ่นยนต์ | Robot Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Mali:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  :root {
+    --bg1: #FFE066; --bg2: #FF9F1C; --pink: #FF6B9D; --blue: #4ECDC4;
+    --purple: #A06CD5; --dark: #2D3047; --cream: #FFF8E8; --green: #95E06C;
+  }
+
+  html, body {
+    height: 100%; overflow: hidden;
+    font-family: 'Fredoka', 'Mali', sans-serif;
+    user-select: none; -webkit-user-select: none; touch-action: none;
+  }
+
+  body {
+    background:
+      radial-gradient(circle at 20% 30%, #FFD93D 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, #FF6B9D 0%, transparent 50%),
+      linear-gradient(135deg, #FFE066 0%, #4ECDC4 100%);
+    position: relative;
+  }
+
+  .stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+  .star { position: absolute; font-size: 18px; animation: twinkle 3s ease-in-out infinite; opacity: 0.7; }
+  @keyframes twinkle {
+    0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.4; }
+    50% { transform: scale(1.3) rotate(180deg); opacity: 1; }
+  }
+
+  .game { height: 100vh; display: flex; flex-direction: column; position: relative; z-index: 1; }
+
+  header {
+    padding: 10px 12px; text-align: center;
+    background: rgba(255, 248, 232, 0.85); backdrop-filter: blur(10px);
+    border-bottom: 4px dashed var(--dark);
+    box-shadow: 0 4px 0 rgba(45, 48, 71, 0.2);
+    position: relative;
+  }
+
+  h1 {
+    font-family: 'Bungee', cursive;
+    font-size: clamp(18px, 4.5vw, 26px);
+    color: var(--dark); letter-spacing: 1px;
+    text-shadow: 3px 3px 0 var(--pink);
+  }
+
+  .subtitle { font-size: 12px; color: var(--dark); margin-top: 2px; font-weight: 500; }
+
+  .random-btn {
+    position: absolute; top: 8px; right: 8px;
+    background: var(--pink); border: 3px solid var(--dark);
+    border-radius: 50%; width: 56px; height: 56px;
+    cursor: pointer; box-shadow: 3px 3px 0 var(--dark);
+    font-size: 26px; transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center;
+    animation: bouncy 2s ease-in-out infinite;
+  }
+
+  .random-btn:active {
+    transform: translate(3px, 3px);
+    box-shadow: 0 0 0 var(--dark);
+  }
+
+  .random-btn.spinning { animation: spin 0.6s ease-in-out; }
+
+  @keyframes bouncy {
+    0%, 100% { transform: translateY(0) rotate(0); }
+    50% { transform: translateY(-4px) rotate(10deg); }
+  }
+
+  @keyframes spin { from { transform: rotate(0); } to { transform: rotate(720deg); } }
+
+  .random-label {
+    position: absolute; top: 65px; right: 8px;
+    background: var(--dark); color: white;
+    padding: 2px 8px; border-radius: 8px;
+    font-family: 'Bungee', cursive;
+    font-size: 10px; letter-spacing: 1px;
+    width: 56px; text-align: center;
+    pointer-events: none;
+  }
+
+  .progress { display: flex; justify-content: center; gap: 6px; margin-top: 8px; }
+
+  .dot {
+    width: 28px; height: 8px;
+    border-radius: 4px;
+    background: rgba(45, 48, 71, 0.2);
+    transition: all 0.3s;
+  }
+
+  .dot.done { background: var(--green); box-shadow: 0 0 12px var(--green); }
+
+  .stage {
+    flex: 1;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 8px; padding: 8px; overflow: hidden;
+  }
+
+  .robot-area {
+    background: rgba(255, 248, 232, 0.7); backdrop-filter: blur(8px);
+    border: 4px solid var(--dark);
+    border-radius: 24px;
+    box-shadow: 6px 6px 0 var(--dark);
+    position: relative; overflow: hidden;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 8px;
+  }
+
+  .robot-area::before {
+    content: '⚡ POWER LAB ⚡';
+    position: absolute; top: 8px; left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Bungee', cursive;
+    font-size: 11px; color: var(--dark); letter-spacing: 2px;
+    background: var(--bg1); padding: 3px 10px;
+    border-radius: 12px; border: 2px solid var(--dark);
+    z-index: 2;
+  }
+
+  .robot { position: relative; width: 180px; height: 280px; margin-top: 20px; }
+
+  .slot {
+    position: absolute;
+    border: 4px dashed rgba(45, 48, 71, 0.4);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.4);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600;
+    color: rgba(45, 48, 71, 0.5);
+    text-align: center;
+    transition: all 0.2s;
+  }
+
+  .slot.highlight {
+    border-color: var(--pink);
+    background: rgba(255, 107, 157, 0.2);
+    transform: scale(1.05);
+    animation: pulse 0.6s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255, 107, 157, 0.5); }
+    50% { box-shadow: 0 0 0 12px rgba(255, 107, 157, 0); }
+  }
+
+  .slot.filled { border-style: solid; border-color: var(--green); background: transparent; }
+  .slot.placing { animation: pop 0.4s ease; }
+
+  @keyframes pop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+  }
+
+  .slot-head { top: 0; left: 50%; transform: translateX(-50%); width: 100px; height: 90px; }
+  .slot-body { top: 95px; left: 50%; transform: translateX(-50%); width: 130px; height: 100px; }
+  .slot-arm-l { top: 105px; left: -30px; width: 55px; height: 80px; }
+  .slot-arm-r { top: 105px; right: -30px; width: 55px; height: 80px; }
+  .slot-legs { top: 200px; left: 50%; transform: translateX(-50%); width: 110px; height: 80px; }
+
+  .parts-area {
+    background: rgba(255, 248, 232, 0.7); backdrop-filter: blur(8px);
+    border: 4px solid var(--dark);
+    border-radius: 24px;
+    box-shadow: 6px 6px 0 var(--dark);
+    padding: 30px 12px 12px;
+    position: relative; overflow-y: auto;
+    display: flex; flex-direction: column;
+    gap: 12px; align-items: center;
+  }
+
+  .parts-area::before {
+    content: '🔧 ชิ้นส่วน · PARTS';
+    position: absolute; top: 8px; left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Bungee', cursive;
+    font-size: 11px; color: var(--dark); letter-spacing: 1px;
+    background: var(--blue); padding: 3px 10px;
+    border-radius: 12px; border: 2px solid var(--dark);
+    white-space: nowrap;
+  }
+
+  .part {
+    position: relative;
+    cursor: grab;
+    transition: transform 0.2s;
+    animation: float 3s ease-in-out infinite;
+    touch-action: none;
+  }
+
+  .part:nth-child(2) { animation-delay: 0.5s; }
+  .part:nth-child(3) { animation-delay: 1s; }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  .part.dragging {
+    cursor: grabbing; z-index: 1000; animation: none;
+    transform: scale(1.1) rotate(5deg);
+    filter: drop-shadow(0 8px 16px rgba(0,0,0,0.3));
+  }
+
+  .part.placed { animation: none; cursor: default; pointer-events: none; }
+  .part svg { display: block; }
+
+  .modal-bg {
+    position: fixed; inset: 0;
+    background: rgba(45, 48, 71, 0.7);
+    backdrop-filter: blur(6px);
+    z-index: 100;
+    display: flex; align-items: center; justify-content: center;
+    padding: 16px; opacity: 0; pointer-events: none;
+    transition: opacity 0.3s;
+  }
+
+  .modal-bg.show { opacity: 1; pointer-events: auto; }
+
+  .modal {
+    background: var(--cream);
+    border: 5px solid var(--dark);
+    border-radius: 28px;
+    padding: 24px 20px;
+    max-width: 360px; width: 100%;
+    text-align: center;
+    box-shadow: 8px 8px 0 var(--dark);
+    transform: scale(0.5) rotate(-10deg);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .modal-bg.show .modal { transform: scale(1) rotate(0); }
+
+  .modal-emoji {
+    font-size: 56px; margin-bottom: 8px;
+    display: inline-block;
+    animation: wiggle 0.6s ease-in-out infinite;
+  }
+
+  @keyframes wiggle {
+    0%, 100% { transform: rotate(-10deg); }
+    50% { transform: rotate(10deg); }
+  }
+
+  .modal h2 {
+    font-family: 'Bungee', cursive;
+    font-size: 22px; color: var(--pink);
+    margin-bottom: 4px;
+  }
+
+  .modal .en {
+    font-family: 'Bungee', cursive;
+    font-size: 16px; color: var(--blue);
+    margin-bottom: 12px;
+  }
+
+  .modal p {
+    font-size: 16px; line-height: 1.5;
+    color: var(--dark); margin-bottom: 8px;
+    font-weight: 500;
+  }
+
+  .modal .fact {
+    background: var(--bg1); border: 3px solid var(--dark);
+    border-radius: 16px; padding: 12px;
+    margin: 12px 0; font-weight: 600;
+  }
+
+  .btn {
+    background: var(--green); border: 4px solid var(--dark);
+    border-radius: 16px; padding: 10px 24px;
+    font-family: 'Bungee', cursive;
+    font-size: 16px; color: var(--dark);
+    cursor: pointer;
+    box-shadow: 4px 4px 0 var(--dark);
+    transition: all 0.1s;
+    margin-top: 8px;
+  }
+
+  .btn:active { transform: translate(4px, 4px); box-shadow: 0 0 0 var(--dark); }
+
+  .win .modal { background: linear-gradient(135deg, #FFD93D, #FF6B9D); }
+  .win h2 { color: var(--dark); font-size: 28px; }
+
+  .confetti {
+    position: fixed;
+    width: 12px; height: 12px;
+    pointer-events: none; z-index: 200;
+    animation: fall 2s linear forwards;
+  }
+
+  @keyframes fall {
+    to { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  @media (max-height: 700px) {
+    .robot { width: 150px; height: 240px; }
+    .slot-head { width: 85px; height: 75px; }
+    .slot-body { top: 80px; width: 110px; height: 85px; }
+    .slot-arm-l, .slot-arm-r { top: 90px; width: 45px; height: 70px; }
+    .slot-arm-l { left: -25px; }
+    .slot-arm-r { right: -25px; }
+    .slot-legs { top: 170px; width: 95px; height: 70px; }
+  }
+
+  .speech {
+    position: absolute; bottom: 12px; left: 50%;
+    transform: translateX(-50%);
+    background: white; border: 3px solid var(--dark);
+    border-radius: 16px; padding: 8px 14px;
+    font-size: 13px; font-weight: 600; color: var(--dark);
+    white-space: nowrap;
+    box-shadow: 3px 3px 0 var(--dark);
+    animation: bounce-in 0.5s ease;
+    max-width: 90%;
+  }
+
+  @keyframes bounce-in {
+    0% { transform: translateX(-50%) scale(0); }
+    60% { transform: translateX(-50%) scale(1.1); }
+    100% { transform: translateX(-50%) scale(1); }
+  }
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<div class="game">
+  <header>
+    <h1>🤖 ประกอบหุ่นยนต์</h1>
+    <div class="subtitle">Build a Robot · ลากชิ้นส่วน หรือ กด 🎲</div>
+    <div class="progress">
+      <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    </div>
+    <button class="random-btn" id="randomBtn" title="สุ่มหุ่น">🎲</button>
+    <div class="random-label">RANDOM</div>
+  </header>
+
+  <div class="stage">
+    <div class="robot-area">
+      <div class="robot" id="robot">
+        <div class="slot slot-head" data-slot="head">หัว<br>HEAD</div>
+        <div class="slot slot-arm-l" data-slot="arm-l">แขน<br>ARM</div>
+        <div class="slot slot-body" data-slot="body">ลำตัว<br>BODY</div>
+        <div class="slot slot-arm-r" data-slot="arm-r">แขน<br>ARM</div>
+        <div class="slot slot-legs" data-slot="legs">ขา<br>LEGS</div>
+      </div>
+      <div class="speech" id="speech">ลากมาประกอบ! Drag parts! 👉</div>
+    </div>
+    <div class="parts-area" id="partsArea"></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modal">
+  <div class="modal" id="modalContent">
+    <div class="modal-emoji" id="mEmoji">🔋</div>
+    <h2 id="mTitle">ดีมาก!</h2>
+    <div class="en" id="mTitleEn">GREAT!</div>
+    <p id="mDesc"></p>
+    <div class="fact" id="mFact"></div>
+    <button class="btn" id="mBtn">ต่อเลย! NEXT ▶</button>
+  </div>
+</div>
+
+<script>
+// ====== ดาวกระพริบ ======
+const starsEl = document.getElementById('stars');
+for (let i = 0; i < 15; i++) {
+  const s = document.createElement('div');
+  s.className = 'star';
+  s.textContent = ['⭐', '✨', '🌟', '⚡'][Math.floor(Math.random() * 4)];
+  s.style.left = Math.random() * 100 + '%';
+  s.style.top = Math.random() * 100 + '%';
+  s.style.animationDelay = Math.random() * 3 + 's';
+  starsEl.appendChild(s);
+}
+
+// ====== คลังชิ้นส่วน 3 แบบต่อตำแหน่ง = 243 หุ่นต่างกัน ======
+const VARIANTS = {
+  head: [
+    `<svg width="90" height="80" viewBox="0 0 90 80">
+      <rect x="15" y="15" width="60" height="55" rx="12" fill="#FF6B9D" stroke="#2D3047" stroke-width="4"/>
+      <circle cx="32" cy="38" r="7" fill="white" stroke="#2D3047" stroke-width="3"/>
+      <circle cx="58" cy="38" r="7" fill="white" stroke="#2D3047" stroke-width="3"/>
+      <circle cx="32" cy="38" r="3" fill="#2D3047"/><circle cx="58" cy="38" r="3" fill="#2D3047"/>
+      <path d="M 35 55 Q 45 60 55 55" stroke="#2D3047" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <line x1="30" y1="8" x2="30" y2="18" stroke="#2D3047" stroke-width="3" stroke-linecap="round"/>
+      <line x1="60" y1="8" x2="60" y2="18" stroke="#2D3047" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="30" cy="6" r="4" fill="#FFD93D" stroke="#2D3047" stroke-width="2"/>
+      <circle cx="60" cy="6" r="4" fill="#FFD93D" stroke="#2D3047" stroke-width="2"/>
+    </svg>`,
+    `<svg width="90" height="80" viewBox="0 0 90 80">
+      <polygon points="20,20 70,20 80,40 70,68 20,68 10,40" fill="#95E06C" stroke="#2D3047" stroke-width="4"/>
+      <rect x="26" y="32" width="14" height="14" rx="2" fill="#2D3047"/>
+      <rect x="50" y="32" width="14" height="14" rx="2" fill="#2D3047"/>
+      <rect x="29" y="35" width="4" height="4" fill="#FFD93D"/>
+      <rect x="53" y="35" width="4" height="4" fill="#FFD93D"/>
+      <rect x="32" y="55" width="26" height="5" rx="2" fill="#2D3047"/>
+      <circle cx="45" cy="10" r="4" fill="#FF6B9D" stroke="#2D3047" stroke-width="2"/>
+      <line x1="45" y1="14" x2="45" y2="20" stroke="#2D3047" stroke-width="3"/>
+    </svg>`,
+    `<svg width="90" height="80" viewBox="0 0 90 80">
+      <circle cx="45" cy="42" r="30" fill="#FF9F1C" stroke="#2D3047" stroke-width="4"/>
+      <ellipse cx="35" cy="38" rx="6" ry="8" fill="white" stroke="#2D3047" stroke-width="3"/>
+      <ellipse cx="55" cy="38" rx="6" ry="8" fill="white" stroke="#2D3047" stroke-width="3"/>
+      <circle cx="35" cy="40" r="3" fill="#2D3047"/><circle cx="55" cy="40" r="3" fill="#2D3047"/>
+      <ellipse cx="45" cy="56" rx="8" ry="4" fill="#2D3047"/>
+      <path d="M 20 25 Q 25 15 35 18" stroke="#2D3047" stroke-width="3" fill="none"/>
+      <path d="M 70 25 Q 65 15 55 18" stroke="#2D3047" stroke-width="3" fill="none"/>
+    </svg>`
+  ],
+  body: [
+    `<svg width="120" height="95" viewBox="0 0 120 95">
+      <rect x="10" y="10" width="100" height="80" rx="10" fill="#4ECDC4" stroke="#2D3047" stroke-width="4"/>
+      <circle cx="40" cy="50" r="18" fill="#FFD93D" stroke="#2D3047" stroke-width="3"/>
+      <circle cx="40" cy="50" r="6" fill="#2D3047"/>
+      <g stroke="#2D3047" stroke-width="2.5">
+        <line x1="40" y1="32" x2="40" y2="28"/><line x1="40" y1="72" x2="40" y2="68"/>
+        <line x1="22" y1="50" x2="26" y2="50"/><line x1="58" y1="50" x2="54" y2="50"/>
+      </g>
+      <circle cx="80" cy="40" r="10" fill="#FF6B9D" stroke="#2D3047" stroke-width="3"/>
+      <circle cx="80" cy="65" r="8" fill="#A06CD5" stroke="#2D3047" stroke-width="3"/>
+    </svg>`,
+    `<svg width="120" height="95" viewBox="0 0 120 95">
+      <rect x="10" y="10" width="100" height="80" rx="10" fill="#A06CD5" stroke="#2D3047" stroke-width="4"/>
+      <rect x="25" y="22" width="70" height="40" rx="6" fill="#2D3047"/>
+      <rect x="30" y="27" width="60" height="30" rx="3" fill="#95E06C"/>
+      <text x="60" y="48" text-anchor="middle" font-family="monospace" font-size="14" font-weight="bold" fill="#2D3047">♥ ♥ ♥</text>
+      <circle cx="35" cy="78" r="5" fill="#FFD93D" stroke="#2D3047" stroke-width="2"/>
+      <circle cx="60" cy="78" r="5" fill="#FF6B9D" stroke="#2D3047" stroke-width="2"/>
+      <circle cx="85" cy="78" r="5" fill="#4ECDC4" stroke="#2D3047" stroke-width="2"/>
+    </svg>`,
+    `<svg width="120" height="95" viewBox="0 0 120 95">
+      <rect x="10" y="10" width="100" height="80" rx="10" fill="#FFD93D" stroke="#2D3047" stroke-width="4"/>
+      <rect x="20" y="22" width="80" height="20" rx="4" fill="#2D3047"/>
+      <circle cx="35" cy="32" r="3" fill="#FF6B9D"/>
+      <circle cx="50" cy="32" r="3" fill="#95E06C"/>
+      <circle cx="65" cy="32" r="3" fill="#4ECDC4"/>
+      <circle cx="80" cy="32" r="3" fill="#FF9F1C"/>
+      <circle cx="40" cy="65" r="14" fill="#FF6B9D" stroke="#2D3047" stroke-width="3"/>
+      <text x="40" y="71" text-anchor="middle" font-size="18" font-weight="bold" fill="white">★</text>
+      <rect x="65" y="55" width="30" height="20" rx="4" fill="#4ECDC4" stroke="#2D3047" stroke-width="3"/>
+    </svg>`
+  ],
+  'arm-l': [
+    `<svg width="50" height="75" viewBox="0 0 50 75">
+      <rect x="15" y="5" width="20" height="40" rx="8" fill="#A06CD5" stroke="#2D3047" stroke-width="4"/>
+      <rect x="13" y="40" width="24" height="25" rx="6" fill="#A06CD5" stroke="#2D3047" stroke-width="4"/>
+      <circle cx="25" cy="68" r="7" fill="#FFD93D" stroke="#2D3047" stroke-width="3"/>
+      <line x1="20" y1="20" x2="30" y2="20" stroke="#2D3047" stroke-width="2.5"/>
+      <line x1="20" y1="30" x2="30" y2="30" stroke="#2D3047" stroke-width="2.5"/>
+    </svg>`,
+    `<svg width="50" height="75" viewBox="0 0 50 75">
+      <path d="M 25 5 Q 15 12 25 19 Q 35 26 25 33 Q 15 40 25 47" stroke="#FF6B9D" stroke-width="6" fill="none" stroke-linecap="round"/>
+      <path d="M 25 5 Q 15 12 25 19 Q 35 26 25 33 Q 15 40 25 47" stroke="#2D3047" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <rect x="13" y="45" width="24" height="22" rx="6" fill="#FF6B9D" stroke="#2D3047" stroke-width="4"/>
+      <circle cx="25" cy="56" r="5" fill="#FFD93D" stroke="#2D3047" stroke-width="2"/>
+    </svg>`,
+    `<svg width="50" height="75" viewBox="0 0 50 75">
+      <rect x="15" y="5" width="20" height="35" rx="4" fill="#4ECDC4" stroke="#2D3047" stroke-width="4"/>
+      <rect x="10" y="38" width="30" height="20" rx="4" fill="#4ECDC4" stroke="#2D3047" stroke-width="4"/>
+      <rect x="20" y="56" width="10" height="14" fill="#2D3047"/>
+      <circle cx="25" cy="70" r="5" fill="#FF6B9D" stroke="#2D3047" stroke-width="2"/>
+      <line x1="18" y1="14" x2="32" y2="14" stroke="#2D3047" stroke-width="2"/>
+      <line x1="18" y1="22" x2="32" y2="22" stroke="#2D3047" stroke-width="2"/>
+      <line x1="18" y1="30" x2="32" y2="30" stroke="#2D3047" stroke-width="2"/>
+    </svg>`
+  ],
+  'arm-r': [
+    `<svg width="50" height="75" viewBox="0 0 50 75">
+      <rect x="15" y="5" width="20" height="40" rx="8" fill="#A06CD5" stroke="#2D3047" stroke-width="4"/>
+      <rect x="13" y="40" width="24" height="25" rx="6" fill="#A06CD5" stroke="#2D3047" stroke-width="4"/>
+      <circle cx="25" cy="68" r="7" fill="#FFD93D" stroke="#2D3047" stroke-width="3"/>
+      <circle cx="25" cy="25" r="6" fill="#FFD93D" stroke="#2D3047" stroke-width="2.5"/>
+    </svg>`,
+    `<svg width="50" height="75" viewBox="0 0 50 75">
+      <rect x="15" y="5" width="20" height="20" rx="4" fill="#FF9F1C" stroke="#2D3047" stroke-width="4"/>
+      <rect x="12" y="22" width="26" height="28" rx="6" fill="#FF9F1C" stroke="#2D3047" stroke-width="4"/>
+      <circle cx="25" cy="36" r="6" fill="white" stroke="#2D3047" stroke-width="2.5"/>
+      <line x1="25" y1="36" x2="25" y2="32" stroke="#2D3047" stroke-width="2"/>
+      <line x1="25" y1="36" x2="28" y2="38" stroke="#2D3047" stroke-width="2"/>
+      <rect x="14" y="48" width="22" height="22" rx="4" fill="#FF9F1C" stroke="#2D3047" stroke-width="4"/>
+      <circle cx="25" cy="59" r="5" fill="#2D3047"/>
+    </svg>`,
+    `<svg width="50" height="75" viewBox="0 0 50 75">
+      <rect x="15" y="5" width="20" height="40" rx="8" fill="#95E06C" stroke="#2D3047" stroke-width="4"/>
+      <rect x="10" y="42" width="30" height="28" rx="14" fill="#95E06C" stroke="#2D3047" stroke-width="4"/>
+      <line x1="22" y1="50" x2="22" y2="65" stroke="#2D3047" stroke-width="1.5"/>
+      <line x1="25" y1="50" x2="25" y2="65" stroke="#2D3047" stroke-width="1.5"/>
+      <line x1="28" y1="50" x2="28" y2="65" stroke="#2D3047" stroke-width="1.5"/>
+      <circle cx="25" cy="20" r="3" fill="#FFD93D"/>
+      <circle cx="25" cy="32" r="3" fill="#FF6B9D"/>
+    </svg>`
+  ],
+  legs: [
+    `<svg width="100" height="75" viewBox="0 0 100 75">
+      <rect x="15" y="5" width="22" height="45" rx="6" fill="#FF9F1C" stroke="#2D3047" stroke-width="4"/>
+      <rect x="63" y="5" width="22" height="45" rx="6" fill="#FF9F1C" stroke="#2D3047" stroke-width="4"/>
+      <circle cx="26" cy="60" r="12" fill="#2D3047"/>
+      <circle cx="26" cy="60" r="5" fill="#FFD93D"/>
+      <circle cx="74" cy="60" r="12" fill="#2D3047"/>
+      <circle cx="74" cy="60" r="5" fill="#FFD93D"/>
+    </svg>`,
+    `<svg width="100" height="75" viewBox="0 0 100 75">
+      <rect x="18" y="5" width="20" height="35" rx="4" fill="#4ECDC4" stroke="#2D3047" stroke-width="4"/>
+      <rect x="62" y="5" width="20" height="35" rx="4" fill="#4ECDC4" stroke="#2D3047" stroke-width="4"/>
+      <ellipse cx="28" cy="55" rx="18" ry="10" fill="#2D3047"/>
+      <ellipse cx="72" cy="55" rx="18" ry="10" fill="#2D3047"/>
+      <ellipse cx="28" cy="53" rx="14" ry="6" fill="#FF6B9D"/>
+      <ellipse cx="72" cy="53" rx="14" ry="6" fill="#FF6B9D"/>
+    </svg>`,
+    `<svg width="100" height="75" viewBox="0 0 100 75">
+      <rect x="18" y="5" width="20" height="40" rx="4" fill="#FF6B9D" stroke="#2D3047" stroke-width="4"/>
+      <rect x="62" y="5" width="20" height="40" rx="4" fill="#FF6B9D" stroke="#2D3047" stroke-width="4"/>
+      <polygon points="18,45 38,45 33,55 23,55" fill="#A06CD5" stroke="#2D3047" stroke-width="3"/>
+      <polygon points="62,45 82,45 77,55 67,55" fill="#A06CD5" stroke="#2D3047" stroke-width="3"/>
+      <polygon points="23,55 33,55 28,72" fill="#FFD93D" stroke="#2D3047" stroke-width="2"/>
+      <polygon points="67,55 77,55 72,72" fill="#FFD93D" stroke="#2D3047" stroke-width="2"/>
+    </svg>`
+  ]
+};
+
+const LESSONS = {
+  head: { emoji: '🔋', titleTh: 'พลังงานไฟฟ้า!', titleEn: 'ELECTRICITY!', desc: 'หัวหุ่นยนต์มีสมองที่ใช้ "ไฟฟ้า" ทำงาน เหมือนหลอดไฟที่บ้านเรา!', fact: '⚡ A robot brain uses electricity!' },
+  body: { emoji: '⚙️', titleTh: 'เฟืองและล้อ!', titleEn: 'GEARS!', desc: 'ลำตัวมี "เฟือง" หมุนไปหมุนมา ทำให้หุ่นยนต์เคลื่อนไหวได้!', fact: '⚙️ Gears help machines move!' },
+  'arm-l': { emoji: '💪', titleTh: 'คานและแรง!', titleEn: 'LEVERS!', desc: 'แขนใช้ "คาน" ในการยกของ! เหมือนแขนของเราที่ยกของหนักได้!', fact: '💪 Arms are levers - simple machines!' },
+  'arm-r': { emoji: '🦾', titleTh: 'มอเตอร์ทำงาน!', titleEn: 'MOTORS!', desc: '"มอเตอร์" ในแขนขวาจะหมุน ทำให้หุ่นยนต์โบกมือได้!', fact: '🔄 Motors spin to make things move!' },
+  legs: { emoji: '🦿', titleTh: 'การเคลื่อนที่!', titleEn: 'MOVEMENT!', desc: '"ล้อ" หรือ "ขา" ทำให้หุ่นยนต์ไปไหนมาไหนได้!', fact: '🛞 Wheels reduce friction!' }
+};
+
+const SLOT_LABELS = {
+  head: ['หัว', 'HEAD'], body: ['ลำตัว', 'BODY'],
+  'arm-l': ['แขน', 'ARM'], 'arm-r': ['แขน', 'ARM'],
+  legs: ['ขา', 'LEGS']
+};
+
+// ====== สถานะ ======
+let currentVariants = { head: 0, body: 0, 'arm-l': 0, 'arm-r': 0, legs: 0 };
+const placedParts = new Set();
+const partsArea = document.getElementById('partsArea');
+let isFirstBuild = true;
+
+// ====== สร้างชิ้นส่วน ======
+function buildParts(showLessonsOnPlace = true) {
+  partsArea.innerHTML = '';
+  placedParts.clear();
+
+  document.querySelectorAll('.slot').forEach(slot => {
+    const id = slot.dataset.slot;
+    slot.innerHTML = `${SLOT_LABELS[id][0]}<br>${SLOT_LABELS[id][1]}`;
+    slot.classList.remove('filled', 'placing');
+  });
+
+  Object.keys(currentVariants).forEach(k => {
+    currentVariants[k] = Math.floor(Math.random() * 3);
+  });
+
+  const ids = ['head', 'body', 'arm-l', 'arm-r', 'legs'];
+  const shuffled = [...ids].sort(() => Math.random() - 0.5);
+
+  shuffled.forEach(id => {
+    const div = document.createElement('div');
+    div.className = 'part';
+    div.dataset.id = id;
+    div.dataset.showLesson = showLessonsOnPlace ? '1' : '0';
+    div.innerHTML = VARIANTS[id][currentVariants[id]];
+    partsArea.appendChild(div);
+    setupDrag(div, id);
+  });
+
+  document.querySelectorAll('.dot').forEach(d => d.classList.remove('done'));
+  document.getElementById('speech').textContent = 'ลากมาประกอบ! Drag parts! 👉';
+}
+
+// ====== ลาก ======
+function setupDrag(el, partId) {
+  let startX, startY;
+  let dragging = false;
+  let origParent, placeholder;
+
+  function start(e) {
+    if (placedParts.has(partId)) return;
+    e.preventDefault();
+    const touch = e.touches ? e.touches[0] : e;
+    const rect = el.getBoundingClientRect();
+
+    startX = touch.clientX - rect.left;
+    startY = touch.clientY - rect.top;
+
+    placeholder = document.createElement('div');
+    placeholder.style.width = rect.width + 'px';
+    placeholder.style.height = rect.height + 'px';
+
+    origParent = el.parentNode;
+    origParent.insertBefore(placeholder, el);
+
+    el.style.position = 'fixed';
+    el.style.left = rect.left + 'px';
+    el.style.top = rect.top + 'px';
+    el.style.width = rect.width + 'px';
+    el.classList.add('dragging');
+    document.body.appendChild(el);
+    dragging = true;
+
+    const slot = document.querySelector(`[data-slot="${partId}"]`);
+    if (slot) slot.classList.add('highlight');
+
+    document.addEventListener('mousemove', move);
+    document.addEventListener('touchmove', move, { passive: false });
+    document.addEventListener('mouseup', end);
+    document.addEventListener('touchend', end);
+  }
+
+  function move(e) {
+    if (!dragging) return;
+    e.preventDefault();
+    const touch = e.touches ? e.touches[0] : e;
+    el.style.left = (touch.clientX - startX) + 'px';
+    el.style.top = (touch.clientY - startY) + 'px';
+  }
+
+  function end(e) {
+    if (!dragging) return;
+    dragging = false;
+
+    const touch = e.changedTouches ? e.changedTouches[0] : e;
+    const slot = document.querySelector(`[data-slot="${partId}"]`);
+    const slotRect = slot.getBoundingClientRect();
+
+    document.querySelectorAll('.slot.highlight').forEach(s => s.classList.remove('highlight'));
+
+    const inSlot = touch.clientX >= slotRect.left - 30 &&
+                   touch.clientX <= slotRect.right + 30 &&
+                   touch.clientY >= slotRect.top - 30 &&
+                   touch.clientY <= slotRect.bottom + 30;
+
+    if (inSlot) {
+      placeIntoSlot(el, partId, slot, el.dataset.showLesson === '1');
+    } else {
+      origParent.insertBefore(el, placeholder);
+      placeholder.remove();
+      el.classList.remove('dragging');
+      el.style.position = '';
+      el.style.left = '';
+      el.style.top = '';
+      el.style.width = '';
+    }
+
+    document.removeEventListener('mousemove', move);
+    document.removeEventListener('touchmove', move);
+    document.removeEventListener('mouseup', end);
+    document.removeEventListener('touchend', end);
+  }
+
+  el.addEventListener('mousedown', start);
+  el.addEventListener('touchstart', start, { passive: false });
+}
+
+function placeIntoSlot(el, partId, slot, showLesson) {
+  if (el.parentNode === document.body) {
+    const ph = partsArea.querySelector('div[style*="width"]');
+    if (ph) ph.remove();
+  }
+
+  slot.innerHTML = '';
+  slot.appendChild(el);
+  slot.classList.add('filled', 'placing');
+  el.classList.remove('dragging');
+  el.classList.add('placed');
+  el.style.position = 'absolute';
+  el.style.left = '50%';
+  el.style.top = '50%';
+  el.style.transform = 'translate(-50%, -50%)';
+  el.style.width = '';
+  placedParts.add(partId);
+  updateProgress();
+  playSuccess();
+  if (showLesson) showLessonModal(partId);
+  setTimeout(() => slot.classList.remove('placing'), 400);
+}
+
+// ====== Progress ======
+function updateProgress() {
+  const dots = document.querySelectorAll('.dot');
+  for (let i = 0; i < placedParts.size; i++) dots[i].classList.add('done');
+
+  const speech = document.getElementById('speech');
+  const remaining = 5 - placedParts.size;
+  if (remaining > 0) speech.textContent = `เหลืออีก ${remaining}! Almost there! 🎯`;
+
+  if (placedParts.size === 5) setTimeout(showWin, 1200);
+}
+
+// ====== Modal ======
+function showLessonModal(partId) {
+  const lesson = LESSONS[partId];
+  setTimeout(() => {
+    document.getElementById('mEmoji').textContent = lesson.emoji;
+    document.getElementById('mTitle').textContent = lesson.titleTh;
+    document.getElementById('mTitleEn').textContent = lesson.titleEn;
+    document.getElementById('mDesc').textContent = lesson.desc;
+    document.getElementById('mFact').textContent = lesson.fact;
+    document.getElementById('mBtn').textContent = 'ต่อเลย! NEXT ▶';
+    document.getElementById('modal').classList.remove('win');
+    document.getElementById('modal').classList.add('show');
+    document.getElementById('mBtn').onclick = () => {
+      document.getElementById('modal').classList.remove('show');
+    };
+  }, 400);
+}
+
+// ====== ชนะ ======
+function showWin() {
+  document.getElementById('mEmoji').textContent = '🎉';
+  document.getElementById('mTitle').textContent = 'เก่งมาก Summer!';
+  document.getElementById('mTitleEn').textContent = 'AMAZING!';
+  document.getElementById('mDesc').textContent = 'หนูสร้างหุ่นยนต์สำเร็จแล้ว! ลองกด 🎲 สุ่มหุ่นใหม่ได้!';
+  document.getElementById('mFact').textContent = '✨ You are a little scientist! ✨';
+  document.getElementById('mBtn').textContent = 'หุ่นใหม่! 🎲';
+  document.getElementById('mBtn').onclick = () => {
+    document.getElementById('modal').classList.remove('show');
+    setTimeout(() => buildParts(true), 300);
+  };
+  document.getElementById('modal').classList.add('show', 'win');
+
+  const colors = ['#FF6B9D', '#4ECDC4', '#FFD93D', '#A06CD5', '#95E06C'];
+  for (let i = 0; i < 60; i++) {
+    setTimeout(() => {
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      c.style.left = Math.random() * 100 + '%';
+      c.style.top = '-20px';
+      c.style.background = colors[Math.floor(Math.random() * colors.length)];
+      c.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+      c.style.animationDuration = (1.5 + Math.random()) + 's';
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 2500);
+    }, i * 30);
+  }
+  playFanfare();
+}
+
+// ====== ปุ่ม Random — auto-build หุ่นแบบสุ่ม ======
+document.getElementById('randomBtn').addEventListener('click', () => {
+  const btn = document.getElementById('randomBtn');
+  btn.classList.add('spinning');
+  setTimeout(() => btn.classList.remove('spinning'), 600);
+
+  document.getElementById('modal').classList.remove('show');
+
+  playRandomSound();
+
+  buildParts(false);
+
+  document.getElementById('speech').textContent = '🎲 กำลังประกอบ...';
+
+  setTimeout(() => {
+    const ids = ['head', 'body', 'arm-l', 'arm-r', 'legs'];
+    ids.forEach((id, i) => {
+      setTimeout(() => {
+        const part = partsArea.querySelector(`[data-id="${id}"]`);
+        const slot = document.querySelector(`[data-slot="${id}"]`);
+        if (part && slot && !placedParts.has(id)) {
+          placeIntoSlot(part, id, slot, false);
+        }
+      }, i * 220);
+    });
+
+    setTimeout(() => {
+      document.getElementById('speech').textContent = '🎉 หุ่นใหม่!';
+    }, ids.length * 220 + 300);
+  }, 400);
+});
+
+// ====== เสียง ======
+let audioCtx;
+function getAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function beep(freq, duration, type = 'sine', vol = 0.2) {
+  const ctx = getAudio();
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type;
+  osc.frequency.value = freq;
+  gain.gain.setValueAtTime(vol, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start();
+  osc.stop(ctx.currentTime + duration);
+}
+
+function playSuccess() {
+  beep(523, 0.12);
+  setTimeout(() => beep(659, 0.12), 80);
+  setTimeout(() => beep(784, 0.18), 160);
+}
+
+function playFanfare() {
+  [523, 659, 784, 1047].forEach((n, i) => setTimeout(() => beep(n, 0.3, 'square'), i * 130));
+}
+
+function playRandomSound() {
+  for (let i = 0; i < 8; i++) {
+    setTimeout(() => beep(400 + Math.random() * 600, 0.06, 'square', 0.15), i * 40);
+  }
+}
+
+// ====== เริ่มเกม ======
+buildParts(true);
+</script>
+
+</body>
+</html>
