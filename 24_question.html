@@ -150,6 +150,11 @@
   .nav-link:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 var(--dark); }
   .nav-link.active { background: var(--pink); color: white; }
   @media (max-width: 420px) { .nav-brand { font-size: 13px; } .nav-link { font-size: 11px; padding: 4px 10px; } }
+
+  .lang-toggle { display: flex; gap: 6px; justify-content: center; margin: 12px 0 0; }
+  .lang-btn { border: 2.5px solid #e8dff0; background: #fff; color: #7c6d88; border-radius: 999px; padding: 7px 20px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all .15s; }
+  .lang-btn.active { background: #2a2434; color: #fff; border-color: #2a2434; }
+  .lang-btn:hover:not(.active) { border-color: #c084fc; color: #7c3aed; }
 </style>
 </head>
 <body>
@@ -176,6 +181,10 @@
     <h1>24 Conversation Questions</h1>
     <p class="sub">Use during meals, shopping, or playtime. No right or wrong answers - just thinking, talking, and laughing.</p>
     <div class="deco-row">⭐ 🌈 🎉 🦄 🎈 🌸 ⭐</div>
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btn-lang-en">🇬🇧 English</button>
+      <button class="lang-btn" id="btn-lang-th">🇹🇭 ภาษาไทย</button>
+    </div>
   </header>
 
   <section class="picker">
@@ -190,7 +199,7 @@
   </section>
 
   <div class="prog-wrap">
-    <div class="prog-label">Completed <span id="done-count">0</span> / 24</div>
+    <div class="prog-label" id="prog-label">Completed <span id="done-count">0</span> / 24</div>
     <div class="prog-bar"><div class="prog-fill" id="bar"></div></div>
     <button class="btn-reset" id="btn-reset">🔄 Reset</button>
   </div>
@@ -213,7 +222,7 @@
 <script>
   (function() {
     const emojis = ['⭐','✨','🌟','💫','⚡','🌈'];
-    const container = document.getElementById("stars");
+    const wrap = document.getElementById("stars");
     for (let i = 0; i < 18; i++) {
       const s = document.createElement('div');
       s.className = 'star';
@@ -222,25 +231,92 @@
       s.style.top = Math.random() * 100 + '%';
       s.style.animationDelay = Math.random() * 3 + 's';
       s.style.fontSize = (14 + Math.random() * 16) + 'px';
-      container.appendChild(s);
+      wrap.appendChild(s);
     }
   })();
 
   const DATA = [
-    { id:1, icon:"🔍", color:"cat-1", title:"Observe & Connect", sub:"Spot details, compare, and group ideas",
-      questions:["Guess an object from clues (color / shape / use).","Find what is missing from nearby objects.","Match things that belong together.","Which one does not belong, and why?","How many ways can you use this object?"] },
-    { id:2, icon:"🔢", color:"cat-2", title:"Numbers & Real-Life Money", sub:"Count, compare, and calculate",
-      questions:["Count nearby objects in a fun way.","Which is more, less, or equal?","If you have this much money, can you buy it?","If you buy 2 items, how much do you pay?","After paying, how much money is left?"] },
-    { id:3, icon:"🧠", color:"cat-3", title:"Logic & Thinking", sub:"Reasoning, choices, and prediction",
-      questions:["Why do you think that?","If this happens, what comes next?","Can we solve this another way?","Which choice is better, and why?","If we change one condition, what changes?"] },
-    { id:4, icon:"💰", color:"cat-4", title:"Money & Decision Making", sub:"Needs vs wants and trade-offs",
-      questions:["Which one gives better value, and why?","If your money is limited, what would you choose?","Buy now or wait later - which is better?","Is this a need or a want?","How many days should you save for this?"] },
-    { id:5, icon:"💬", color:"cat-5", title:"Language & Real World", sub:"Storytelling, imagination, and empathy",
-      questions:["Tell a story from something you saw today.","Continue the story that a parent starts.","How would another person feel in this situation?","What might happen if this thing did not exist?"] }
+    { id:1, icon:"🔍", color:"cat-1",
+      title:"Observe & Connect",        sub:"Spot details, compare, and group ideas",
+      titleTh:"สังเกตและเชื่อมโยง",      subTh:"จับรายละเอียด เปรียบเทียบ และจัดกลุ่ม",
+      questions:  ["Guess an object from clues (color / shape / use).","Find what is missing from nearby objects.","Match things that belong together.","Which one does not belong, and why?","How many ways can you use this object?"],
+      questionsTh:["ทายของจากคำใบ้ (สี / รูปร่าง / การใช้งาน)","หาสิ่งที่ขาดหายไปจากสิ่งของใกล้ตัว","จับคู่สิ่งของที่ไปด้วยกัน","อันไหนไม่เข้าพวก และทำไม?","ของชิ้นนี้ใช้ทำอะไรได้กี่วิธี?"] },
+    { id:2, icon:"🔢", color:"cat-2",
+      title:"Numbers & Real-Life Money", sub:"Count, compare, and calculate",
+      titleTh:"ตัวเลขและเงิน",            subTh:"นับ เปรียบเทียบ และคำนวณ",
+      questions:  ["Count nearby objects in a fun way.","Which is more, less, or equal?","If you have this much money, can you buy it?","If you buy 2 items, how much do you pay?","After paying, how much money is left?"],
+      questionsTh:["นับของใกล้ตัวในแบบสนุกๆ","อันไหนมากกว่า น้อยกว่า หรือเท่ากัน?","ถ้ามีเงินเท่านี้ ซื้อได้ไหม?","ถ้าซื้อ 2 อย่าง ต้องจ่ายเท่าไหร่?","จ่ายแล้วเหลือเงินเท่าไหร่?"] },
+    { id:3, icon:"🧠", color:"cat-3",
+      title:"Logic & Thinking",          sub:"Reasoning, choices, and prediction",
+      titleTh:"เหตุผลและการคิด",          subTh:"วิเคราะห์ เลือก และคาดเดา",
+      questions:  ["Why do you think that?","If this happens, what comes next?","Can we solve this another way?","Which choice is better, and why?","If we change one condition, what changes?"],
+      questionsTh:["ทำไมถึงคิดแบบนั้น?","ถ้าเกิดเรื่องนี้ขึ้น อะไรจะเกิดขึ้นต่อไป?","มีวิธีแก้อีกแบบไหม?","เลือกอันไหนดีกว่า และทำไม?","ถ้าเปลี่ยนเงื่อนไขหนึ่งอย่าง อะไรจะเปลี่ยน?"] },
+    { id:4, icon:"💰", color:"cat-4",
+      title:"Money & Decision Making",   sub:"Needs vs wants and trade-offs",
+      titleTh:"เงินและการตัดสินใจ",       subTh:"ความจำเป็น vs ความอยากได้",
+      questions:  ["Which one gives better value, and why?","If your money is limited, what would you choose?","Buy now or wait later - which is better?","Is this a need or a want?","How many days should you save for this?"],
+      questionsTh:["อันไหนคุ้มค่ากว่า และทำไม?","ถ้าเงินมีจำกัด จะเลือกอะไร?","ซื้อเดี๋ยวนี้หรือรอไว้ก่อน อันไหนดีกว่า?","อันนี้เป็นความจำเป็นหรือความอยากได้?","ต้องออมเงินกี่วันถึงจะซื้อได้?"] },
+    { id:5, icon:"💬", color:"cat-5",
+      title:"Language & Real World",     sub:"Storytelling, imagination, and empathy",
+      titleTh:"ภาษาและโลกจริง",          subTh:"เล่าเรื่อง จินตนาการ และเอาใจเขามาใส่ใจเรา",
+      questions:  ["Tell a story from something you saw today.","Continue the story that a parent starts.","How would another person feel in this situation?","What might happen if this thing did not exist?"],
+      questionsTh:["เล่าเรื่องจากสิ่งที่เห็นวันนี้","ต่อเรื่องที่พ่อแม่เริ่มไว้","ถ้าเป็นคนอื่น จะรู้สึกยังไงในสถานการณ์นี้?","ถ้าของสิ่งนี้ไม่มีอยู่ จะเกิดอะไรขึ้น?"] }
   ];
 
-  const FLAT = [];
-  DATA.forEach(cat => cat.questions.forEach((q,i) => FLAT.push({id:`${cat.id}-${i+1}`, catId:cat.id, catTitle:cat.title, catIcon:cat.icon, text:q})));
+  const UI = {
+    en: {
+      h1: '24 Conversation Questions',
+      sub: 'Use during meals, shopping, or playtime. No right or wrong answers - just thinking, talking, and laughing.',
+      pickerLabel: '🎲 Random Question',
+      pickerPlaceholder: 'Tap a button below to get a question ✨',
+      btnRandom: '🎲 Random Question!',
+      btnUnused: '✨ Unused Only',
+      progLabel: n => `Completed <span id="done-count">${n}</span> / 24`,
+      btnReset: '🔄 Reset',
+      tabAll: 'All',
+      tipsTitle: '💡 Tips for Fun Talks',
+      tips: [
+        {ico:'🍽️', text:'Use in real moments: meals, walks, shopping, or toy time.'},
+        {ico:'🤔', text:'Let your child <strong>"think first"</strong> before you help.'},
+        {ico:'🎯', text:'Focus on <strong>reasoning</strong> and <strong>confidence to speak</strong>.'},
+        {ico:'☑️', text:'Tap a question to mark it as <strong>"done"</strong>; progress saves automatically.'}
+      ],
+      allDone: '🎉 You have completed every question!',
+      confirmReset: 'Clear all completed-question history?'
+    },
+    th: {
+      h1: '24 คำถามคุยเล่น',
+      sub: 'ใช้ระหว่างกินข้าว เดินซื้อของ หรือเล่น ไม่มีคำตอบถูกหรือผิด — แค่คิด คุย และหัวเราะ',
+      pickerLabel: '🎲 สุ่มคำถาม',
+      pickerPlaceholder: 'แตะปุ่มด้านล่างเพื่อรับคำถาม ✨',
+      btnRandom: '🎲 สุ่มคำถาม!',
+      btnUnused: '✨ เฉพาะที่ยังไม่ได้ถาม',
+      progLabel: n => `ถามไปแล้ว <span id="done-count">${n}</span> / 24`,
+      btnReset: '🔄 รีเซ็ต',
+      tabAll: 'ทั้งหมด',
+      tipsTitle: '💡 เคล็ดลับการคุยสนุก',
+      tips: [
+        {ico:'🍽️', text:'ใช้ในช่วงเวลาจริง เช่น กินข้าว เดิน ซื้อของ หรือเล่นด้วยกัน'},
+        {ico:'🤔', text:'ให้ลูก<strong>"คิดก่อน"</strong> แล้วค่อยช่วย'},
+        {ico:'🎯', text:'เน้น<strong>เหตุผล</strong>และ<strong>ความมั่นใจในการพูด</strong>'},
+        {ico:'☑️', text:'แตะคำถามเพื่อทำเครื่องหมาย<strong>"ถามแล้ว"</strong> ระบบจำให้อัตโนมัติ'}
+      ],
+      allDone: '🎉 ถามครบทุกข้อแล้ว!',
+      confirmReset: 'ล้างประวัติคำถามทั้งหมดใช่ไหม?'
+    }
+  };
+
+  let currentLang = localStorage.getItem('summer_24q_lang') || 'en';
+
+  function ui() { return UI[currentLang]; }
+  function qs(cat) { return currentLang === 'th' ? cat.questionsTh : cat.questions; }
+  function catTitle(cat) { return currentLang === 'th' ? cat.titleTh : cat.title; }
+  function catSub(cat) { return currentLang === 'th' ? cat.subTh : cat.sub; }
+  function buildFlat() {
+    const flat = [];
+    DATA.forEach(cat => qs(cat).forEach((q,i) => flat.push({id:`${cat.id}-${i+1}`, catTitle:catTitle(cat), catIcon:cat.icon, text:q})));
+    return flat;
+  }
 
   const KEY = "summer_24q_done_v1";
   let done = new Set();
@@ -248,19 +324,39 @@
   function save() { try { localStorage.setItem(KEY, JSON.stringify([...done])); } catch(e) {} }
 
   function updateProgress() {
-    document.getElementById("done-count").textContent = done.size;
-    document.getElementById("bar").style.width = (done.size / FLAT.length * 100) + "%";
+    document.getElementById("prog-label").innerHTML = ui().progLabel(done.size);
+    document.getElementById("bar").style.width = (done.size / buildFlat().length * 100) + "%";
     DATA.forEach(cat => {
-      const doneN = cat.questions.filter((_,i) => done.has(`${cat.id}-${i+1}`)).length;
+      const doneN = qs(cat).filter((_,i) => done.has(`${cat.id}-${i+1}`)).length;
       const el = document.querySelector(`.tab[data-cat="${cat.id}"] .cnt`);
-      if (el) el.textContent = `${doneN}/${cat.questions.length}`;
+      if (el) el.textContent = `${doneN}/${qs(cat).length}`;
     });
   }
 
+  function applyStaticLang() {
+    const u = ui();
+    document.querySelector('h1').textContent = u.h1;
+    document.querySelector('.sub').textContent = u.sub;
+    document.querySelector('.picker-label').textContent = u.pickerLabel;
+    document.getElementById('btn-random').textContent = u.btnRandom;
+    document.getElementById('btn-unused').textContent = u.btnUnused;
+    document.getElementById('btn-reset').textContent = u.btnReset;
+    document.querySelector('.tips h3').textContent = u.tipsTitle;
+    document.querySelector('.tips ul').innerHTML = u.tips.map(t => `<li><span class="ico">${t.ico}</span> ${t.text}</li>`).join('');
+    document.getElementById('btn-lang-en').classList.toggle('active', currentLang === 'en');
+    document.getElementById('btn-lang-th').classList.toggle('active', currentLang === 'th');
+    const display = document.getElementById('display');
+    if (display.querySelector('.picker-placeholder')) {
+      display.innerHTML = `<div class="picker-placeholder">${u.pickerPlaceholder}</div>`;
+    }
+  }
+
   function renderTabs() {
+    const u = ui();
     const wrap = document.getElementById("tabs");
-    let html = `<button class="tab active" data-cat="all">All <span class="cnt">${FLAT.length}</span></button>`;
-    DATA.forEach(cat => { html += `<button class="tab" data-cat="${cat.id}">${cat.icon} ${cat.title} <span class="cnt">0/${cat.questions.length}</span></button>`; });
+    const flat = buildFlat();
+    let html = `<button class="tab active" data-cat="all">${u.tabAll} <span class="cnt">${flat.length}</span></button>`;
+    DATA.forEach(cat => { html += `<button class="tab" data-cat="${cat.id}">${cat.icon} ${catTitle(cat)} <span class="cnt">0/${qs(cat).length}</span></button>`; });
     wrap.innerHTML = html;
     wrap.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => {
       wrap.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
@@ -277,10 +373,10 @@
       <section class="group ${cat.color}">
         <div class="group-head">
           <div class="group-icon">${cat.icon}</div>
-          <div><div class="group-title">${cat.title}</div><div class="group-sub">${cat.sub}</div></div>
+          <div><div class="group-title">${catTitle(cat)}</div><div class="group-sub">${catSub(cat)}</div></div>
         </div>
         <div class="questions">
-          ${cat.questions.map((q,i) => {
+          ${qs(cat).map((q,i) => {
             const id = `${cat.id}-${i+1}`; num++;
             return `<div class="q${done.has(id)?' done':''}" data-id="${id}">
               <div class="q-num">${num}</div>
@@ -299,21 +395,34 @@
   }
 
   function showRandom(unusedOnly) {
-    const pool = unusedOnly ? FLAT.filter(q => !done.has(q.id)) : FLAT;
+    const flat = buildFlat();
+    const pool = unusedOnly ? flat.filter(q => !done.has(q.id)) : flat;
     const display = document.getElementById("display");
-    if (!pool.length) { display.innerHTML = `<div class="picker-placeholder">🎉 You have completed every question!</div>`; return; }
+    if (!pool.length) { display.innerHTML = `<div class="picker-placeholder">${ui().allDone}</div>`; return; }
     const pick = pool[Math.floor(Math.random() * pool.length)];
     display.classList.remove("animate"); void display.offsetWidth; display.classList.add("animate");
     display.innerHTML = `<div><div class="picker-live">${pick.text}</div><span class="picker-cat-tag">${pick.catIcon} ${pick.catTitle}</span></div>`;
   }
 
+  function renderAll() {
+    applyStaticLang();
+    const activeTab = document.querySelector(".tab.active")?.dataset.cat || "all";
+    renderTabs();
+    const restored = document.querySelector(`.tab[data-cat="${activeTab}"]`);
+    if (restored) { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); restored.classList.add('active'); }
+    renderCategories(activeTab);
+    updateProgress();
+  }
+
   document.getElementById("btn-random").addEventListener("click", () => showRandom(false));
   document.getElementById("btn-unused").addEventListener("click", () => showRandom(true));
   document.getElementById("btn-reset").addEventListener("click", () => {
-    if (confirm("Clear all completed-question history?")) { done.clear(); save(); updateProgress(); renderCategories(document.querySelector(".tab.active")?.dataset.cat || "all"); }
+    if (confirm(ui().confirmReset)) { done.clear(); save(); renderAll(); }
   });
+  document.getElementById("btn-lang-en").addEventListener("click", () => { currentLang = 'en'; localStorage.setItem('summer_24q_lang', 'en'); renderAll(); });
+  document.getElementById("btn-lang-th").addEventListener("click", () => { currentLang = 'th'; localStorage.setItem('summer_24q_lang', 'th'); renderAll(); });
 
-  renderTabs(); renderCategories("all"); updateProgress();
+  renderAll();
 </script>
 
 </body>
