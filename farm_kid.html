@@ -18,11 +18,13 @@
   @keyframes blob-float { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(20px,-28px) scale(1.05)} }
 
   /* NAV */
-  .site-nav { position:sticky; top:0; z-index:100; background:var(--cream); border-bottom:4px solid var(--dark); box-shadow:0 4px 0 var(--dark); padding:10px 16px; display:flex; align-items:center; gap:10px; }
-  .nav-brand { font-family:'Bungee',cursive; font-size:15px; color:var(--dark); text-shadow:2px 2px 0 var(--pink); white-space:nowrap; text-decoration:none; }
-  .nav-link  { text-decoration:none; font-family:'Fredoka','Noto Sans Thai',sans-serif; font-size:13px; font-weight:600; padding:6px 14px; border-radius:12px; border:2.5px solid var(--dark); color:var(--dark); background:white; transition:all .12s; display:inline-flex; align-items:center; gap:4px; white-space:nowrap; box-shadow:2px 2px 0 var(--dark); }
+  .site-nav { position:sticky; top:0; z-index:100; background:var(--cream); border-bottom:4px solid var(--dark); box-shadow:0 4px 0 var(--dark); padding:10px 16px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .nav-brand { font-family:'Bungee',cursive; font-size:15px; color:var(--dark); text-shadow:2px 2px 0 var(--pink); white-space:nowrap; flex-shrink:0; text-decoration:none; }
+  .nav-links { display:flex; gap:6px; flex-wrap:wrap; }
+  .nav-link  { text-decoration:none; font-family:'Fredoka','Noto Sans Thai',sans-serif; font-size:13px; font-weight:600; padding:5px 13px; border-radius:12px; border:2.5px solid var(--dark); color:var(--dark); background:white; transition:all .12s; display:inline-flex; align-items:center; gap:4px; white-space:nowrap; box-shadow:2px 2px 0 var(--dark); }
   .nav-link:hover  { background:var(--yellow); transform:translate(-1px,-1px); box-shadow:3px 3px 0 var(--dark); }
   .nav-link.active { background:var(--farm); color:white; border-color:var(--farm); }
+  @media(max-width:420px){ .nav-brand{font-size:13px} .nav-link{font-size:11px;padding:4px 10px} }
 
   /* PAGE */
   .page { position:relative; z-index:1; max-width:520px; margin:0 auto; padding:24px 16px 60px; }
@@ -119,9 +121,17 @@
 
 <nav class="site-nav">
   <a class="nav-brand" href="index.html">☀️ SUMMER</a>
-  <div style="flex:1"></div>
-  <a class="nav-link" href="index.html">🏠 หน้าหลัก</a>
-  <a class="nav-link active" href="farm_kid.html">🌾 สาธิตเกษตร</a>
+  <div class="nav-links">
+    <a class="nav-link" href="24_question.html">🎲 Questions</a>
+    <a class="nav-link" href="robot_game.html">🤖 Robot</a>
+    <a class="nav-link" href="knowledge.html">📚 Learn</a>
+    <a class="nav-link" href="thai_money.html">🪙 Coins</a>
+    <a class="nav-link" href="pay_money.html">🛒 Pay</a>
+    <a class="nav-link" href="color_mix.html">🎨 Colors</a>
+    <a class="nav-link" href="gravity.html">🚀 Gravity</a>
+    <a class="nav-link active" href="farm_kid.html">🌾 สาธิต</a>
+    <a class="nav-link" href="school_dashboard.html">🏫 Schools</a>
+  </div>
 </nav>
 
 <div class="blobs" id="blobs"></div>
