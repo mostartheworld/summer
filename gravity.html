@@ -51,7 +51,7 @@
   .drop-obj:active { transform:scale(.9); }
   .drop-obj .obj-em { font-size:46px; line-height:1; }
   .drop-obj .obj-lbl { font-size:11px; font-weight:700; color:#3a5a8a; }
-  .drop-obj.falling { animation:obj-fall 1.3s ease-in forwards; pointer-events:none; }
+  .drop-obj.falling { animation:obj-fall forwards; pointer-events:none; }
   @keyframes obj-fall {
     0%   { transform:translateY(0) rotate(0deg); opacity:1; }
     70%  { transform:translateY(85px) rotate(15deg); opacity:1; }
@@ -181,16 +181,16 @@
 
     <div class="drop-stage">
       <div class="drop-objects" id="dropObjs">
-        <div class="drop-obj" data-note="แอปเปิ้ลตกเร็ว! แรงโน้มถ่วงดึงลงมา 🍎" onclick="dropIt(this)">
+        <div class="drop-obj" data-dur="0.85s" data-ease="ease-in" data-note="แอปเปิ้ลหนัก ตกเร็วมาก! แรงโน้มถ่วงดึงลงมาเลย 🍎" onclick="dropIt(this)">
           <span class="obj-em">🍎</span><span class="obj-lbl">แอปเปิ้ล</span>
         </div>
-        <div class="drop-obj" data-note="ขนนกตกช้ากว่า แต่ก็ตกนะ! อากาศต้านไว้ 🪶" onclick="dropIt(this)">
+        <div class="drop-obj" data-dur="2.8s" data-ease="ease" data-note="ขนนกเบามาก อากาศต้านไว้ เลยตกช้ากว่าเยอะเลย 🪶" onclick="dropIt(this)">
           <span class="obj-em">🪶</span><span class="obj-lbl">ขนนก</span>
         </div>
-        <div class="drop-obj" data-note="ลูกบอลตกเร็วมาก! ⚽" onclick="dropIt(this)">
+        <div class="drop-obj" data-dur="0.7s" data-ease="ease-in" data-note="ลูกบอลแน่นหนัก ตกเร็วที่สุด! ⚽" onclick="dropIt(this)">
           <span class="obj-em">⚽</span><span class="obj-lbl">ลูกบอล</span>
         </div>
-        <div class="drop-obj" data-note="ลูกโป่งก็มีแรงโน้มถ่วงดึง แต่แก๊สทำให้ลอยขึ้น! 🎈" onclick="dropIt(this)">
+        <div class="drop-obj" data-dur="3.8s" data-ease="ease-out" data-note="ลูกโป่งมีแก๊สเบา พยายามต้านแรงโน้มถ่วง ตกช้ามากเลย! 🎈" onclick="dropIt(this)">
           <span class="obj-em">🎈</span><span class="obj-lbl">ลูกโป่ง</span>
         </div>
       </div>
@@ -316,6 +316,8 @@
   /* DROP TEST */
   function dropIt(el) {
     if (el.classList.contains('falling')) return;
+    el.style.animationDuration = el.dataset.dur || '1.3s';
+    el.style.animationTimingFunction = el.dataset.ease || 'ease-in';
     el.classList.add('falling');
     document.getElementById('dropFb').textContent = '💡 ' + el.dataset.note;
     el.addEventListener('animationend', () => {
