@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌾 ฝึกสอบสาธิตเกษตร — Summer's World</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root { --cream:#FFF8E8; --dark:#2D3047; --pink:#FF6B9D; --yellow:#FFD93D; --farm:#22c55e; }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { min-height:100vh; font-family:'Fredoka','Noto Sans Thai',sans-serif; background:#fff9f0; overflow-x:hidden; }
+
+  /* BACKGROUND */
+  .blobs { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+  .blob  { position:absolute; border-radius:50%; animation:blob-float ease-in-out infinite; opacity:.18; }
+  @keyframes blob-float { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(20px,-28px) scale(1.05)} }
+
+  /* NAV */
+  .site-nav { position:sticky; top:0; z-index:100; background:var(--cream); border-bottom:4px solid var(--dark); box-shadow:0 4px 0 var(--dark); padding:10px 16px; display:flex; align-items:center; gap:10px; }
+  .nav-brand { font-family:'Bungee',cursive; font-size:15px; color:var(--dark); text-shadow:2px 2px 0 var(--pink); white-space:nowrap; text-decoration:none; }
+  .nav-link  { text-decoration:none; font-family:'Fredoka','Noto Sans Thai',sans-serif; font-size:13px; font-weight:600; padding:6px 14px; border-radius:12px; border:2.5px solid var(--dark); color:var(--dark); background:white; transition:all .12s; display:inline-flex; align-items:center; gap:4px; white-space:nowrap; box-shadow:2px 2px 0 var(--dark); }
+  .nav-link:hover  { background:var(--yellow); transform:translate(-1px,-1px); box-shadow:3px 3px 0 var(--dark); }
+  .nav-link.active { background:var(--farm); color:white; border-color:var(--farm); }
+
+  /* PAGE */
+  .page { position:relative; z-index:1; max-width:520px; margin:0 auto; padding:24px 16px 60px; }
+
+  /* HERO */
+  .hero { text-align:center; margin-bottom:32px; }
+  .hero-emoji { font-size:88px; display:block; animation:hero-float 3s ease-in-out infinite; }
+  @keyframes hero-float { 0%,100%{transform:translateY(0) rotate(-3deg)} 50%{transform:translateY(-16px) rotate(3deg)} }
+  .hero-title { font-family:'Bungee',cursive; font-size:clamp(24px,8vw,40px); color:var(--dark); margin:12px 0 8px; line-height:1.1; }
+  .hero-sub   { color:#6b5e78; font-size:17px; font-weight:600; line-height:1.6; }
+  .hero-badge { display:inline-block; background:linear-gradient(135deg,#15803d,var(--farm)); color:white; font-family:'Bungee',cursive; font-size:10px; letter-spacing:1.5px; padding:5px 14px; border-radius:20px; border:2.5px solid var(--dark); margin-top:10px; box-shadow:2px 2px 0 var(--dark); }
+
+  /* CATEGORY GRID */
+  .cat-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:24px; }
+  .cat-btn  { border:3px solid var(--dark); border-radius:22px; padding:22px 14px; text-align:center; cursor:pointer; box-shadow:4px 4px 0 var(--dark); transition:all .12s; font-family:'Fredoka','Noto Sans Thai',sans-serif; background:white; }
+  .cat-btn:hover  { transform:translate(-2px,-2px); box-shadow:6px 6px 0 var(--dark); }
+  .cat-btn:active { transform:translate(1px,1px);   box-shadow:2px 2px 0 var(--dark); }
+  .cat-btn .cat-em    { font-size:52px; display:block; margin-bottom:10px; }
+  .cat-btn .cat-name  { font-size:16px; font-weight:700; color:var(--dark); line-height:1.4; }
+  .cat-btn .cat-en    { font-size:11px; font-weight:600; color:#888; margin-top:3px; }
+  .cat-btn .cat-score { font-size:13px; font-weight:700; margin-top:9px; color:#666; }
+  .cat-btn.done       { outline:4px solid var(--farm); outline-offset:2px; }
+  .cat-btn.done .cat-score { color:var(--farm); }
+
+  .cat-btn.cc1 { background:linear-gradient(145deg,#ecfdf5,#bbf7d0); }
+  .cat-btn.cc2 { background:linear-gradient(145deg,#fef9c3,#fde68a); }
+  .cat-btn.cc3 { background:linear-gradient(145deg,#eff6ff,#bfdbfe); }
+  .cat-btn.cc4 { background:linear-gradient(145deg,#fdf4ff,#e9d5ff); }
+  .cat-btn.cc5 { background:linear-gradient(145deg,#fff7ed,#fed7aa); grid-column:1/-1; }
+
+  /* QUIZ PANEL */
+  .quiz-panel { display:none; }
+  .quiz-panel.show { display:block; }
+
+  .quiz-header { display:flex; align-items:center; gap:10px; margin-bottom:18px; }
+  .quiz-back   { background:white; border:2.5px solid var(--dark); border-radius:999px; padding:10px 18px; font-size:15px; font-weight:700; color:var(--dark); cursor:pointer; font-family:inherit; box-shadow:2px 2px 0 var(--dark); transition:all .12s; }
+  .quiz-back:hover { background:var(--yellow); }
+  .quiz-cat-label { font-size:18px; font-weight:700; color:var(--dark); }
+
+  .progress-row  { display:flex; align-items:center; gap:10px; margin-bottom:20px; }
+  .progress-bar  { flex:1; height:16px; background:#e8e0f0; border-radius:999px; border:2px solid var(--dark); overflow:hidden; }
+  .progress-fill { height:100%; background:linear-gradient(90deg,#22c55e,#86efac); border-radius:999px; transition:width .4s cubic-bezier(.34,1.2,.64,1); }
+  .progress-text { font-size:15px; font-weight:800; color:var(--dark); white-space:nowrap; }
+
+  .question-card { background:white; border:3px solid var(--dark); border-radius:24px; padding:28px 20px; box-shadow:4px 4px 0 var(--dark); margin-bottom:16px; text-align:center; }
+  .q-image   { display:none; }
+  .q-text    { font-size:22px; font-weight:700; color:var(--dark); line-height:1.5; margin-bottom:4px; }
+  .q-text-en { font-size:13px; color:#aaa; font-weight:600; }
+
+  /* CHOICES — 1 column, full-width, big touch target */
+  .choices    { display:grid; grid-template-columns:1fr; gap:12px; margin-bottom:12px; }
+  .choice-btn { border:3px solid var(--dark); border-radius:20px; padding:16px 20px; display:flex; align-items:center; gap:16px; cursor:pointer; font-family:'Fredoka','Noto Sans Thai',sans-serif; background:white; box-shadow:3px 3px 0 var(--dark); transition:all .12s; text-align:left; min-height:76px; }
+  .choice-btn:hover:not(:disabled) { background:#fffde7; transform:translate(-1px,-1px); box-shadow:4px 4px 0 var(--dark); }
+  .choice-btn:active:not(:disabled){ transform:translate(1px,1px); box-shadow:1px 1px 0 var(--dark); }
+  .choice-btn:disabled { cursor:default; }
+  .ch-em  { font-size:44px; flex-shrink:0; line-height:1; }
+  .ch-lbl { font-size:20px; font-weight:700; color:var(--dark); line-height:1.3; }
+  .choice-btn.correct { background:#dcfce7; border-color:#22c55e; box-shadow:3px 3px 0 #22c55e; animation:pop-correct .3s ease; }
+  .choice-btn.wrong   { background:#fee2e2; border-color:#ef4444; box-shadow:3px 3px 0 #ef4444; }
+  @keyframes pop-correct { 0%{transform:scale(1)} 40%{transform:scale(1.04)} 100%{transform:scale(1)} }
+
+  .feedback-box { border-radius:16px; padding:16px 20px; text-align:center; font-size:20px; font-weight:700; margin-bottom:14px; min-height:64px; display:flex; align-items:center; justify-content:center; }
+  .feedback-box.correct { background:#dcfce7; color:#15803d; }
+  .feedback-box.wrong   { background:#fef9c3; color:#92400e; }
+  .feedback-box.idle    { background:transparent; visibility:hidden; }
+
+  .btn-next { width:100%; padding:18px; font-family:'Fredoka','Noto Sans Thai',sans-serif; font-size:20px; font-weight:800; border:3px solid var(--dark); border-radius:18px; background:linear-gradient(135deg,#16a34a,#22c55e); color:white; cursor:pointer; box-shadow:4px 4px 0 var(--dark); transition:all .12s; display:none; }
+  .btn-next.show { display:block; animation:pop-btn .35s cubic-bezier(.34,1.56,.64,1) both; }
+  .btn-next:hover  { transform:translate(-2px,-2px); box-shadow:6px 6px 0 var(--dark); }
+  .btn-next:active { transform:translate(1px,1px);  box-shadow:2px 2px 0 var(--dark); }
+  @keyframes pop-btn { from{transform:scale(0)} to{transform:scale(1)} }
+
+  /* SCORE PANEL */
+  .score-panel { display:none; }
+  .score-panel.show { display:block; }
+  .score-card  { background:white; border:3px solid var(--dark); border-radius:28px; padding:36px 24px; box-shadow:4px 4px 0 var(--dark); text-align:center; }
+  .score-stars { font-size:60px; margin-bottom:16px; animation:star-pop .6s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes star-pop { from{transform:scale(0) rotate(-20deg)} to{transform:scale(1) rotate(0)} }
+  .score-num   { font-family:'Bungee',cursive; font-size:clamp(64px,20vw,96px); color:var(--dark); line-height:1; }
+  .score-denom { font-size:28px; color:#888; font-weight:700; }
+  .score-msg   { font-size:26px; font-weight:800; color:var(--dark); margin:14px 0 6px; }
+  .score-sub   { font-size:16px; color:#7c6d88; font-weight:600; }
+  .score-btns  { display:flex; gap:12px; margin-top:26px; }
+  .btn-retry { flex:1; padding:16px; font-family:'Fredoka','Noto Sans Thai',sans-serif; font-size:17px; font-weight:800; border:3px solid var(--dark); border-radius:16px; background:var(--yellow); color:var(--dark); cursor:pointer; box-shadow:3px 3px 0 var(--dark); transition:all .12s; }
+  .btn-cats  { flex:1; padding:16px; font-family:'Fredoka','Noto Sans Thai',sans-serif; font-size:17px; font-weight:800; border:3px solid var(--dark); border-radius:16px; background:linear-gradient(135deg,#16a34a,#22c55e); color:white; cursor:pointer; box-shadow:3px 3px 0 var(--dark); transition:all .12s; }
+  .btn-retry:hover,.btn-cats:hover { transform:translate(-1px,-1px); box-shadow:5px 5px 0 var(--dark); }
+
+  /* CONFETTI */
+  .confetti-piece { position:fixed; top:-20px; pointer-events:none; z-index:999; border-radius:2px; animation:confetti-fall linear forwards; }
+  @keyframes confetti-fall { 0%{transform:translateY(0) rotate(0deg);opacity:1} 100%{transform:translateY(110vh) rotate(900deg);opacity:0} }
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <a class="nav-brand" href="index.html">☀️ SUMMER</a>
+  <div style="flex:1"></div>
+  <a class="nav-link" href="index.html">🏠 หน้าหลัก</a>
+  <a class="nav-link active" href="farm_kid.html">🌾 สาธิตเกษตร</a>
+</nav>
+
+<div class="blobs" id="blobs"></div>
+
+<div class="page">
+
+  <!-- ── CATEGORY SELECTOR ── -->
+  <div id="catView">
+    <div class="hero">
+      <span class="hero-emoji">🌾</span>
+      <h1 class="hero-title">ฝึกสอบ<br>สาธิตเกษตร</h1>
+      <p class="hero-sub">เลือกหมวดที่อยากฝึก แล้วลุยเลย! 💪</p>
+      <div class="hero-badge">KASETSART DEMO SCHOOL · EXAM PREP</div>
+    </div>
+    <div class="cat-grid" id="catGrid"></div>
+  </div>
+
+  <!-- ── QUIZ PANEL ── -->
+  <div class="quiz-panel" id="quizView">
+    <div class="quiz-header">
+      <button class="quiz-back" onclick="goHome()">← หมวด</button>
+      <span class="quiz-cat-label" id="quizCatLabel"></span>
+    </div>
+    <div class="progress-row">
+      <div class="progress-bar"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
+      <span class="progress-text" id="progText">1 / 5</span>
+    </div>
+    <div class="question-card">
+      <span class="q-image" id="qImage">🌱</span>
+      <div class="q-text"    id="qText">คำถาม</div>
+      <div class="q-text-en" id="qTextEn">Question</div>
+    </div>
+    <div class="choices" id="choicesGrid"></div>
+    <div class="feedback-box idle" id="feedbackBox">‎</div>
+    <button class="btn-next" id="btnNext" onclick="nextQuestion()">ข้อถัดไป →</button>
+  </div>
+
+  <!-- ── SCORE PANEL ── -->
+  <div class="score-panel" id="scoreView">
+    <div class="score-card">
+      <div class="score-stars" id="scoreStars">⭐</div>
+      <div><span class="score-num" id="scoreNum">0</span><span class="score-denom"> / 5</span></div>
+      <div class="score-msg" id="scoreMsg">เก่งมาก!</div>
+      <div class="score-sub" id="scoreSub">ลองหมวดอื่นด้วยนะ</div>
+      <div class="score-btns">
+        <button class="btn-retry" onclick="retryCat()">🔄 ลองใหม่</button>
+        <button class="btn-cats"  onclick="goHome()">🏠 เลือกหมวด</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ═══ QUIZ DATA — 8 questions per category, 5 picked at random each session ═══ */
+const CATS = [
+  {
+    id:0, em:'🔬', name:'วิทยาศาสตร์', en:'Science & Nature', cls:'cc1',
+    qs:[
+      { img:'🐠', q:'สัตว์ตัวไหนอยู่ในทะเล?', en:'Which animal lives in the sea?',
+        ch:[{em:'🐠',l:'ปลา',ok:true},{em:'🐘',l:'ช้าง',ok:false},{em:'🦁',l:'สิงโต',ok:false}] },
+      { img:'🍃', q:'ต้นไม้ผลิออกซิเจนจากส่วนไหน?', en:'Which part of a plant makes oxygen?',
+        ch:[{em:'🍃',l:'ใบ',ok:true},{em:'🪵',l:'ลำต้น',ok:false},{em:'🌸',l:'ดอก',ok:false}] },
+      { img:'🦕', q:'สัตว์โลกล้านปีคือตัวไหน?', en:'Which one is a dinosaur?',
+        ch:[{em:'🦕',l:'ไดโนเสาร์',ok:true},{em:'🐱',l:'แมว',ok:false},{em:'🐧',l:'เพนกวิน',ok:false}] },
+      { img:'🦅', q:'สัตว์ตัวไหนบินได้?', en:'Which animal can fly?',
+        ch:[{em:'🦅',l:'นกอินทรี',ok:true},{em:'🐸',l:'กบ',ok:false},{em:'🐠',l:'ปลา',ok:false}] },
+      { img:'☀️', q:'ท้องฟ้าตอนกลางวันมีอะไร?', en:'What is in the daytime sky?',
+        ch:[{em:'☀️',l:'ดวงอาทิตย์',ok:true},{em:'🌙',l:'ดวงจันทร์',ok:false},{em:'⭐',l:'ดาว',ok:false}] },
+      { img:'🦋', q:'หนอนผีเสื้อโตขึ้นกลายเป็นอะไร?', en:'What does a caterpillar become?',
+        ch:[{em:'🦋',l:'ผีเสื้อ',ok:true},{em:'🐛',l:'หนอน',ok:false},{em:'🐝',l:'ผึ้ง',ok:false}] },
+      { img:'🌊', q:'ทะเลและมหาสมุทรเต็มไปด้วยอะไร?', en:'What fills the ocean?',
+        ch:[{em:'🌊',l:'น้ำเค็ม',ok:true},{em:'❄️',l:'น้ำแข็ง',ok:false},{em:'🌧️',l:'น้ำฝน',ok:false}] },
+      { img:'💧', q:'กบชอบอยู่ที่ไหน?', en:'Where do frogs like to live?',
+        ch:[{em:'💧',l:'ใกล้น้ำ',ok:true},{em:'🏔️',l:'บนเขาสูง',ok:false},{em:'🏜️',l:'ทะเลทราย',ok:false}] },
+    ]
+  },
+  {
+    id:1, em:'💪', name:'สุขภาพและร่างกาย', en:'Health & Body', cls:'cc2',
+    qs:[
+      { img:'👀', q:'เราใช้อะไรในการมองเห็น?', en:'What do we use to see?',
+        ch:[{em:'👀',l:'ตา',ok:true},{em:'👂',l:'หู',ok:false},{em:'👃',l:'จมูก',ok:false}] },
+      { img:'🍎', q:'อาหารชนิดไหนดีต่อสุขภาพ?', en:'Which food is healthy?',
+        ch:[{em:'🍎',l:'แอปเปิ้ล',ok:true},{em:'🍬',l:'ลูกอม',ok:false},{em:'🥤',l:'น้ำอัดลม',ok:false}] },
+      { img:'🦷', q:'ควรแปรงฟันวันละกี่ครั้ง?', en:'How often to brush teeth?',
+        ch:[{em:'🦷',l:'แปรง 2 ครั้ง',ok:true},{em:'💊',l:'1 ครั้งก็พอ',ok:false},{em:'🚫',l:'ไม่ต้องแปรง',ok:false}] },
+      { img:'🫁', q:'เราหายใจด้วยอวัยวะใด?', en:'Which organ do we breathe with?',
+        ch:[{em:'🫁',l:'ปอด',ok:true},{em:'❤️',l:'หัวใจ',ok:false},{em:'🧠',l:'สมอง',ok:false}] },
+      { img:'🏃', q:'กิจกรรมใดช่วยให้ร่างกายแข็งแรง?', en:'What keeps our body strong?',
+        ch:[{em:'🏃',l:'วิ่งออกกำลังกาย',ok:true},{em:'📺',l:'ดูทีวีทั้งวัน',ok:false},{em:'🛋️',l:'นอนเฉยๆ',ok:false}] },
+      { img:'😴', q:'ทำไมเราต้องนอนหลับ?', en:'Why do we need to sleep?',
+        ch:[{em:'😴',l:'ให้ร่างกายพักผ่อน',ok:true},{em:'🎮',l:'เล่นฝัน',ok:false},{em:'🌙',l:'กลัวความมืด',ok:false}] },
+      { img:'🧼', q:'ล้างมือทำไม?', en:'Why do we wash our hands?',
+        ch:[{em:'🧼',l:'ล้างเชื้อโรค',ok:true},{em:'🎨',l:'ล้างสี',ok:false},{em:'🥛',l:'ล้างนม',ok:false}] },
+      { img:'👃', q:'เราใช้อะไรดมกลิ่น?', en:'What do we use to smell?',
+        ch:[{em:'👃',l:'จมูก',ok:true},{em:'👅',l:'ลิ้น',ok:false},{em:'👂',l:'หู',ok:false}] },
+    ]
+  },
+  {
+    id:2, em:'👨‍👩‍👧', name:'สังคมและครอบครัว', en:'Society & Family', cls:'cc3',
+    qs:[
+      { img:'👨‍⚕️', q:'คนนี้ทำงานที่ไหน?', en:'Where does this person work?',
+        ch:[{em:'👨‍⚕️',l:'หมอในโรงพยาบาล',ok:true},{em:'👨‍🍳',l:'พ่อครัวในร้านอาหาร',ok:false},{em:'🧑‍🚒',l:'นักดับเพลิง',ok:false}] },
+      { img:'🇹🇭', q:'นี่คือธงชาติของประเทศใด?', en:'Which country is this flag?',
+        ch:[{em:'🇹🇭',l:'ประเทศไทย',ok:true},{em:'🇯🇵',l:'ญี่ปุ่น',ok:false},{em:'🇺🇸',l:'อเมริกา',ok:false}] },
+      { img:'🧑‍🚒', q:'คนนี้ทำงานอะไร?', en:'What does this person do?',
+        ch:[{em:'🧑‍🚒',l:'ดับไฟ',ok:true},{em:'👨‍⚕️',l:'รักษาคนไข้',ok:false},{em:'👮',l:'จับผู้ร้าย',ok:false}] },
+      { img:'🧹', q:'งานบ้านใดทำให้บ้านสะอาด?', en:'Which chore cleans the house?',
+        ch:[{em:'🧹',l:'กวาดบ้าน',ok:true},{em:'🎮',l:'เล่นเกม',ok:false},{em:'📖',l:'อ่านหนังสือ',ok:false}] },
+      { img:'👨‍👩‍👧', q:'คนในครอบครัวคือใคร?', en:'Who is in the family?',
+        ch:[{em:'👨‍👩‍👧',l:'พ่อ แม่ ลูก',ok:true},{em:'🧑‍🤝‍🧑',l:'เพื่อน',ok:false},{em:'👮',l:'ตำรวจ',ok:false}] },
+      { img:'🏫', q:'เราไปที่ไหนเพื่อเรียนหนังสือ?', en:'Where do we go to study?',
+        ch:[{em:'🏫',l:'โรงเรียน',ok:true},{em:'🏥',l:'โรงพยาบาล',ok:false},{em:'🛒',l:'ซูเปอร์มาร์เก็ต',ok:false}] },
+      { img:'🟢', q:'ไฟสัญญาณสีนี้แปลว่าอะไร?', en:'What does this traffic light color mean?',
+        ch:[{em:'🟢',l:'ไปได้เลย',ok:true},{em:'🔴',l:'หยุด',ok:false},{em:'🟡',l:'ระวัง',ok:false}] },
+      { img:'👮', q:'คนนี้ทำอาชีพอะไร?', en:'What is this person\'s job?',
+        ch:[{em:'👮',l:'ตำรวจ',ok:true},{em:'👨‍⚕️',l:'หมอ',ok:false},{em:'👨‍🍳',l:'พ่อครัว',ok:false}] },
+    ]
+  },
+  {
+    id:3, em:'🎨', name:'ศิลปะและสี', en:'Art & Colors', cls:'cc4',
+    qs:[
+      { img:'3️⃣', q:'แม่สีทั้งหมดมีกี่สี?', en:'How many primary colors are there?',
+        ch:[{em:'3️⃣',l:'3 สี',ok:true},{em:'4️⃣',l:'4 สี',ok:false},{em:'6️⃣',l:'6 สี',ok:false}] },
+      { img:'🟠', q:'สีแดง + สีเหลือง = สีอะไร?', en:'Red + Yellow = ?',
+        ch:[{em:'🟠',l:'ส้ม',ok:true},{em:'🟢',l:'เขียว',ok:false},{em:'🟣',l:'ม่วง',ok:false}] },
+      { img:'🟢', q:'สีน้ำเงิน + สีเหลือง = สีอะไร?', en:'Blue + Yellow = ?',
+        ch:[{em:'🟢',l:'เขียว',ok:true},{em:'🟠',l:'ส้ม',ok:false},{em:'🔴',l:'แดง',ok:false}] },
+      { img:'🔺', q:'รูปทรงใดมี 3 ด้าน?', en:'Which shape has 3 sides?',
+        ch:[{em:'🔺',l:'สามเหลี่ยม',ok:true},{em:'⭕',l:'วงกลม',ok:false},{em:'🟦',l:'สี่เหลี่ยม',ok:false}] },
+      { img:'7️⃣', q:'รุ้งกินน้ำมีกี่สี?', en:'How many colors in a rainbow?',
+        ch:[{em:'7️⃣',l:'7 สี',ok:true},{em:'5️⃣',l:'5 สี',ok:false},{em:'3️⃣',l:'3 สี',ok:false}] },
+      { img:'🟣', q:'สีแดง + สีน้ำเงิน = สีอะไร?', en:'Red + Blue = ?',
+        ch:[{em:'🟣',l:'ม่วง',ok:true},{em:'🟠',l:'ส้ม',ok:false},{em:'🟢',l:'เขียว',ok:false}] },
+      { img:'⭕', q:'รูปทรงนี้เรียกว่าอะไร?', en:'What shape is this ⭕?',
+        ch:[{em:'⭕',l:'วงกลม',ok:true},{em:'🔺',l:'สามเหลี่ยม',ok:false},{em:'🟦',l:'สี่เหลี่ยม',ok:false}] },
+      { img:'✏️', q:'เราใช้อะไรวาดรูป?', en:'What do we use to draw?',
+        ch:[{em:'✏️',l:'ดินสอ',ok:true},{em:'✂️',l:'กรรไกร',ok:false},{em:'📏',l:'ไม้บรรทัด',ok:false}] },
+    ]
+  },
+  {
+    id:4, em:'🌍', name:'โลกและธรรมชาติ', en:'World & Nature', cls:'cc5',
+    qs:[
+      { img:'🌧️', q:'ฤดูกาลใดที่ฝนตกมาก?', en:'Which season has the most rain?',
+        ch:[{em:'🌧️',l:'ฤดูฝน',ok:true},{em:'❄️',l:'ฤดูหนาว',ok:false},{em:'☀️',l:'ฤดูร้อน',ok:false}] },
+      { img:'💧', q:'น้ำแข็งโดนความร้อนกลายเป็นอะไร?', en:'What does ice become when heated?',
+        ch:[{em:'💧',l:'น้ำ',ok:true},{em:'💨',l:'ลม',ok:false},{em:'🔥',l:'ไฟ',ok:false}] },
+      { img:'🌱', q:'สิ่งใดในนี้มีชีวิต?', en:'Which one is alive?',
+        ch:[{em:'🌱',l:'ต้นไม้',ok:true},{em:'🪨',l:'หิน',ok:false},{em:'🪑',l:'เก้าอี้',ok:false}] },
+      { img:'🚗', q:'สิ่งใดทำให้อากาศเสีย?', en:'What pollutes the air?',
+        ch:[{em:'🚗',l:'ควันรถยนต์',ok:true},{em:'🌧️',l:'ฝนตก',ok:false},{em:'🌊',l:'น้ำทะเล',ok:false}] },
+      { img:'⬇️', q:'แรงโน้มถ่วงทำให้ของ...?', en:'Gravity makes things...?',
+        ch:[{em:'⬇️',l:'ตกลงสู่พื้น',ok:true},{em:'⬆️',l:'ลอยขึ้น',ok:false},{em:'↔️',l:'หมุนรอบ',ok:false}] },
+      { img:'🌳', q:'สิ่งที่ช่วยทำให้อากาศสะอาดคือ?', en:'What helps keep the air clean?',
+        ch:[{em:'🌳',l:'ต้นไม้',ok:true},{em:'🚗',l:'รถยนต์',ok:false},{em:'🏭',l:'โรงงาน',ok:false}] },
+      { img:'🌅', q:'ดวงอาทิตย์ขึ้นทางทิศใด?', en:'Where does the sun rise?',
+        ch:[{em:'🌅',l:'ทิศตะวันออก',ok:true},{em:'🌄',l:'ทิศตะวันตก',ok:false},{em:'⬆️',l:'ทิศเหนือ',ok:false}] },
+      { img:'🌙', q:'ตอนกลางคืนเห็นอะไรบนท้องฟ้า?', en:'What do we see in the night sky?',
+        ch:[{em:'🌙',l:'ดวงจันทร์',ok:true},{em:'☀️',l:'ดวงอาทิตย์',ok:false},{em:'🌈',l:'รุ้งกินน้ำ',ok:false}] },
+    ]
+  },
+];
+
+/* ═══ STATE ═══ */
+let curCat = null, curQ = 0, score = 0, answered = false, curQs = [];
+const bestScores = [null, null, null, null, null];
+
+const PRAISE   = ['เก่งมาก! 🎉','ถูกต้องเลย! ⭐','ใช่เลย! 🌟','ดีมากเลย! 🎊','เยี่ยมมาก! 🏆','สุดยอด! 🥳'];
+const OOPS_MSG = ['เกือบแล้ว! ดูเฉลยสีเขียวนะ 💚','ไม่เป็นไรนะ! ดูคำตอบสีเขียว 🌿','ลองใหม่ได้เลย! สีเขียวคือคำตอบ 💚'];
+const SCORE_TBL = [
+  ['😊 ไม่เป็นไรนะ!',    'ลองใหม่อีกครั้งได้เลย'],
+  ['💪 พยายามดีมาก!',    'ฝึกอีกนิดนะ'],
+  ['😄 ผ่านได้แล้ว!',    'ใกล้ถึงแล้ว!'],
+  ['🎉 เก่งมาก!',        'แทบเต็มแล้วเลย!'],
+  ['🌟 เก่งมากเลย!',     'เหลืออีกแค่ข้อเดียว!'],
+  ['🏆 เยี่ยมที่สุดเลย!', 'คะแนนเต็ม 5/5 !!!'],
+];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+/* ═══ BUILD CATEGORY GRID ═══ */
+function buildCatGrid() {
+  const grid = document.getElementById('catGrid');
+  grid.innerHTML = '';
+  CATS.forEach((cat, i) => {
+    const btn = document.createElement('button');
+    const best = bestScores[i];
+    btn.className = `cat-btn ${cat.cls}${best === 5 ? ' done' : ''}`;
+    btn.innerHTML =
+      `<span class="cat-em">${cat.em}</span>` +
+      `<div class="cat-name">${cat.name}</div>` +
+      `<div class="cat-en">${cat.en}</div>` +
+      `<div class="cat-score">${best !== null
+        ? '⭐'.repeat(best) + '☆'.repeat(5 - best) + ` ${best}/5`
+        : '✨ ยังไม่ได้ลอง'}</div>`;
+    btn.onclick = () => startCat(i);
+    grid.appendChild(btn);
+  });
+}
+
+/* ═══ START CATEGORY ═══ */
+function startCat(idx) {
+  curCat = idx; curQ = 0; score = 0; answered = false;
+  curQs = shuffle(CATS[idx].qs).slice(0, 5);
+  showView('quiz');
+  renderQ();
+}
+
+/* ═══ RENDER QUESTION ═══ */
+function renderQ() {
+  const q = curQs[curQ];
+  answered = false;
+
+  document.getElementById('quizCatLabel').textContent = CATS[curCat].em + ' ' + CATS[curCat].name;
+  document.getElementById('progFill').style.width = (curQ / 5 * 100) + '%';
+  document.getElementById('progText').textContent  = (curQ + 1) + ' / 5';
+
+  const imgEl = document.getElementById('qImage');
+  imgEl.textContent = q.img;
+  imgEl.style.animation = 'none';
+  void imgEl.offsetWidth;
+  imgEl.style.animation = '';
+
+  document.getElementById('qText').textContent   = q.q;
+  document.getElementById('qTextEn').textContent = q.en;
+
+  const fb = document.getElementById('feedbackBox');
+  fb.className = 'feedback-box idle';
+  fb.textContent = '‎';
+  document.getElementById('btnNext').classList.remove('show');
+
+  const grid = document.getElementById('choicesGrid');
+  grid.innerHTML = '';
+  shuffle(q.ch).forEach(ch => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn._ok = ch.ok;
+    btn.innerHTML = `<span class="ch-em">${ch.em}</span><span class="ch-lbl">${ch.l}</span>`;
+    btn.onclick = () => pick(btn, ch.ok);
+    grid.appendChild(btn);
+  });
+}
+
+/* ═══ PICK ANSWER ═══ */
+function pick(btn, isOk) {
+  if (answered) return;
+  answered = true;
+
+  document.querySelectorAll('#choicesGrid .choice-btn').forEach(b => {
+    b.disabled = true;
+    if (b._ok) b.classList.add('correct');
+  });
+  if (!isOk) btn.classList.add('wrong');
+
+  const fb = document.getElementById('feedbackBox');
+  if (isOk) {
+    score++;
+    fb.className = 'feedback-box correct';
+    fb.textContent = PRAISE[Math.floor(Math.random() * PRAISE.length)];
+  } else {
+    fb.className = 'feedback-box wrong';
+    fb.textContent = OOPS_MSG[Math.floor(Math.random() * OOPS_MSG.length)];
+  }
+
+  const btnNext = document.getElementById('btnNext');
+  btnNext.textContent = curQ === 4 ? '🎉 ดูคะแนน!' : 'ข้อถัดไป →';
+  btnNext.classList.add('show');
+}
+
+/* ═══ NEXT QUESTION ═══ */
+function nextQuestion() {
+  if (curQ === 4) { showScore(); return; }
+  curQ++;
+  renderQ();
+}
+
+/* ═══ SHOW SCORE ═══ */
+function showScore() {
+  bestScores[curCat] = Math.max(bestScores[curCat] ?? 0, score);
+  document.getElementById('scoreNum').textContent   = score;
+  document.getElementById('scoreStars').textContent =
+    score >= 5 ? '🏆🌟🎉' : score >= 4 ? '⭐⭐⭐⭐' : score >= 3 ? '⭐⭐⭐' : score >= 2 ? '⭐⭐' : '⭐';
+  const [msg, sub] = SCORE_TBL[score];
+  document.getElementById('scoreMsg').textContent = msg;
+  document.getElementById('scoreSub').textContent = sub;
+  showView('score');
+  if (score === 5) launchConfetti();
+}
+
+/* ═══ CONFETTI ═══ */
+function launchConfetti() {
+  const cols = ['#FF6B9D','#FFD93D','#22c55e','#4ECDC4','#A06CD5','#FF9F1C','#6366f1','#f43f5e'];
+  for (let i = 0; i < 70; i++) {
+    setTimeout(() => {
+      const c = document.createElement('div');
+      c.className = 'confetti-piece';
+      const size = 7 + Math.random() * 9;
+      c.style.cssText =
+        `left:${Math.random() * 100}vw;` +
+        `width:${size}px;height:${size * 1.4}px;` +
+        `background:${cols[Math.floor(Math.random() * cols.length)]};` +
+        `border-radius:${Math.random() > 0.4 ? '50%' : '2px'};` +
+        `transform:rotate(${Math.random() * 360}deg);` +
+        `animation-duration:${1.4 + Math.random() * 2}s;`;
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 3500);
+    }, i * 35);
+  }
+}
+
+function retryCat() { startCat(curCat); }
+function goHome()   { buildCatGrid(); showView('cat'); }
+
+function showView(v) {
+  document.getElementById('catView').style.display  = v === 'cat'   ? '' : 'none';
+  document.getElementById('quizView').className     = 'quiz-panel'  + (v === 'quiz'  ? ' show' : '');
+  document.getElementById('scoreView').className    = 'score-panel' + (v === 'score' ? ' show' : '');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ═══ BLOBS ═══ */
+(function(){
+  const cols = ['#bbf7d0','#fde68a','#bfdbfe','#e9d5ff','#fed7aa','#d1fae5','#fce7f3'];
+  const wrap = document.getElementById('blobs');
+  for (let i = 0; i < 18; i++) {
+    const b = document.createElement('div');
+    b.className = 'blob';
+    const s = 45 + Math.random() * 110;
+    b.style.cssText = `width:${s}px;height:${s}px;background:${cols[i % cols.length]};` +
+      `left:${Math.random()*100}%;top:${Math.random()*100}%;` +
+      `animation-duration:${9+Math.random()*12}s;animation-delay:${-Math.random()*8}s;`;
+    wrap.appendChild(b);
+  }
+})();
+
+buildCatGrid();
+</script>
+</body>
+</html>
