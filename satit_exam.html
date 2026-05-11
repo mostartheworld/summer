@@ -537,11 +537,32 @@ function hideParts(){
 function buildCatGrid(){
   const grid=document.getElementById('catGrid');
   grid.innerHTML='';
+  const countTypes=(qs)=>{
+    const counts={mcq:0,pattern:0,blocks:0,tts:0};
+    qs.forEach(q=>{
+      if(q.type==='pattern') counts.pattern++;
+      else if(q.type==='blocks') counts.blocks++;
+      else if(q.type==='tts') counts.tts++;
+      else counts.mcq++;
+    });
+    return counts;
+  };
+  const catCountLabel=(best,qs)=>{
+    const total=qs.length;
+    const c=countTypes(qs);
+    const parts=[`รวม ${total} ข้อ`];
+    if(c.mcq) parts.push(`ตัวเลือก ${c.mcq}`);
+    if(c.pattern) parts.push(`แพทเทิร์น ${c.pattern}`);
+    if(c.blocks) parts.push(`บล็อก ${c.blocks}`);
+    if(c.tts) parts.push(`ฟัง ${c.tts}`);
+    const base=parts.join(' · ');
+    return best!==null?`⭐ ${best} / 5 · ${base}`:base;
+  };
   CATS.forEach((cat,i)=>{
     const btn=document.createElement('button');
     const best=bestScores[i];
     btn.className='cat-btn '+cat.cls+(best!==null?' done':'');
-    btn.innerHTML=`<span class="cat-em">${cat.em}</span><div class="cat-name">${cat.name}</div><div class="cat-en">${cat.en}</div><div class="cat-score">${best!==null?'⭐ '+best+' / 5':cat.qs.length+' ข้อ'}</div>`;
+    btn.innerHTML=`<span class="cat-em">${cat.em}</span><div class="cat-name">${cat.name}</div><div class="cat-en">${cat.en}</div><div class="cat-score">${catCountLabel(best,cat.qs)}</div>`;
     btn.onclick=()=>startCat(i);
     grid.appendChild(btn);
   });
