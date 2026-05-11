@@ -1,4 +1,6 @@
 .DS_Store
 .claude/
+.codex/
+.agents/
 CLAUDE.md
 Knowledge/

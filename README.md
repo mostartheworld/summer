@@ -1,30 +1,38 @@
-# 🌟 Summer's World
+# Summer's World
 
-แหล่งเรียนรู้และเกมสนุกสำหรับ Summer — A fun learning game collection for kids age 5+.
+แหล่งเรียนรู้และเกมสนุกสำหรับ Summer (5 ขวบ) — a tiny family web platform for kids age 5+.
 
-> **v2** — UI updated to English navigation; Color Mixing game redesigned.
+- Stack: pure `HTML / CSS / JavaScript` (no build step, no framework)
+- UX goals: big buttons, forgiving interactions, English-first with Thai hints
+- Last updated: 2026-05-11
 
-## 🎮 เกม & กิจกรรม / Games & Activities
+## Quick start
 
-| Page | Description | Status |
-|------|-------------|--------|
-| [🎲 Questions](24_question.html) | 24 random conversation starters — bilingual 🇬🇧/🇹🇭 toggle, great for dinner or bedtime | ✅ Ready |
-| [🤖 Robot](robot_game.html) | Drag parts to build a robot — 243 combinations! | ✅ Ready |
-| [📚 Learn](knowledge.html) | Thai-English vocabulary across 6 topics + number fun | ✅ Ready |
-| [🪙 Coins](thai_money.html) | Learn Thai coins 1-2-5-10 baht, then try the quiz! | ✅ Ready |
-| [🎨 Colors](color_mix.html) | Mix red, blue, yellow — see what color you get! | ✅ Ready |
-| [🚀 Gravity](gravity.html) | Why does Artemis need so much fuel? Drop test + rocket launch + Moon facts | ✅ Ready |
-| [🌾 สาธิตเกษตร](farm_kid.html) | ฝึกข้อสอบ 5 หมวด เตรียมสอบเข้าโรงเรียนสาธิตเกษตร (50 คำถาม/หมวด สุ่มเล่นครั้งละ 5 ข้อ) | ✅ Ready |
-| [🛒 Pay](pay_money.html) | Pick coins to pay, get correct change back | ✅ Ready |
+- Local: open `index.html` in any browser
+- GitHub Pages (optional): serve the repo root (users can land on `home.html` → redirects to `index.html`)
 
-## 👨‍👩‍👧 สำหรับพ่อแม่ / For Parents
+## Games & activities
 
-| หน้า | คำอธิบาย | สถานะ |
-|------|----------|-------|
-| [🏫 เปรียบเทียบโรงเรียน ป.1](school_dashboard.html) | กราฟ · ค่าเทอม · เปรียบเทียบ 4 โรงเรียน | ✅ พร้อมใช้ |
+| Page | What it is | Status |
+|------|------------|--------|
+| `index.html` | Home hub / navigation | ✅ Ready |
+| `24_question.html` | 24 conversation starters — bilingual 🇬🇧/🇹🇭 toggle | ✅ Ready |
+| `robot_game.html` | Robot builder (drag parts) — lots of combinations | ✅ Ready |
+| `knowledge.html` | Thai-English vocabulary across multiple topics + number fun | ✅ Ready |
+| `thai_money.html` | Learn Thai coins (1/2/5/10 baht) + quiz | ✅ Ready |
+| `pay_money.html` | Pay with coins and get change back | ✅ Ready |
+| `color_mix.html` | Color mixing (red/blue/yellow) | ✅ Ready |
+| `gravity.html` | Gravity & rockets mini-explainer + interactive bits | ✅ Ready |
+| `farm_kid.html` | ฝึกข้อสอบหลายหมวด (เตรียมสอบแนวสาธิต/เกษตร) — สุ่มเล่นครั้งละ 5 ข้อ | ✅ Ready |
+| `satit_exam.html` | ฝึกสอบสาธิต: logic/patterns, spatial blocks, listening (TTS) และอื่นๆ | ✅ Ready |
 
-## 🚀 วิธีเปิดใช้ / How to Play
+## For parents
 
-เปิดไฟล์ `index.html` ในเบราว์เซอร์ แล้วเลือกกิจกรรมที่ต้องการ
+| Page | What it is | Status |
+|------|------------|--------|
+| `school_dashboard.html` | Compare schools (charts, fees, notes) | ✅ Ready |
 
-Open `index.html` in a browser and pick an activity!
+## Repo notes
+
+- `home.html` is a simple redirect to `index.html` (handy for some hosting setups).
+- `game-robot.html` is a legacy/alternate robot builder page (not linked from `index.html`).
