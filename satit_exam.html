@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📝 ฝึกสอบสาธิต — Summer's World</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#FFF8E8;--dark:#2D3047;--pink:#FF6B9D;--yellow:#FFD93D;--sat:#7c3aed}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{min-height:100vh;font-family:'Fredoka','Noto Sans Thai',sans-serif;background:#fff9f0;overflow-x:hidden}
+.blobs{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.blob{position:absolute;border-radius:50%;animation:blob-float ease-in-out infinite;opacity:.18}
+@keyframes blob-float{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(20px,-28px) scale(1.05)}}
+
+/* NAV */
+.site-nav{position:sticky;top:0;z-index:100;background:var(--cream);border-bottom:4px solid var(--dark);box-shadow:0 4px 0 var(--dark);padding:10px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.nav-brand{font-family:'Bungee',cursive;font-size:15px;color:var(--dark);text-shadow:2px 2px 0 var(--pink);white-space:nowrap;flex-shrink:0;text-decoration:none}
+.nav-links{display:flex;gap:6px;flex-wrap:wrap}
+.nav-link{text-decoration:none;font-family:'Fredoka','Noto Sans Thai',sans-serif;font-size:13px;font-weight:600;padding:5px 13px;border-radius:12px;border:2.5px solid var(--dark);color:var(--dark);background:white;transition:all .12s;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;box-shadow:2px 2px 0 var(--dark)}
+.nav-link:hover{background:var(--yellow);transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--dark)}
+.nav-link.active{background:var(--sat);color:white;border-color:var(--sat)}
+@media(max-width:420px){.nav-brand{font-size:13px}.nav-link{font-size:11px;padding:4px 10px}}
+
+/* PAGE */
+.page{position:relative;z-index:1;max-width:520px;margin:0 auto;padding:24px 16px 60px}
+
+/* HERO */
+.hero{text-align:center;margin-bottom:32px}
+.hero-emoji{font-size:88px;display:block;animation:hero-float 3s ease-in-out infinite}
+@keyframes hero-float{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-16px) rotate(3deg)}}
+.hero-title{font-family:'Bungee',cursive;font-size:clamp(24px,8vw,40px);color:var(--dark);margin:12px 0 8px;line-height:1.1}
+.hero-sub{color:#6b5e78;font-size:17px;font-weight:600;line-height:1.6}
+.hero-badge{display:inline-block;background:linear-gradient(135deg,#5a56e0,#7c3aed);color:white;font-family:'Bungee',cursive;font-size:10px;letter-spacing:1.5px;padding:5px 14px;border-radius:20px;border:2.5px solid var(--dark);margin-top:10px;box-shadow:2px 2px 0 var(--dark)}
+
+/* CATEGORY GRID */
+.cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px}
+.cat-btn{border:3px solid var(--dark);border-radius:22px;padding:22px 14px;text-align:center;cursor:pointer;box-shadow:4px 4px 0 var(--dark);transition:all .12s;font-family:'Fredoka','Noto Sans Thai',sans-serif;background:white}
+.cat-btn:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--dark)}
+.cat-btn:active{transform:translate(1px,1px);box-shadow:2px 2px 0 var(--dark)}
+.cat-btn .cat-em{font-size:52px;display:block;margin-bottom:10px}
+.cat-btn .cat-name{font-size:16px;font-weight:700;color:var(--dark);line-height:1.4}
+.cat-btn .cat-en{font-size:11px;font-weight:600;color:#888;margin-top:3px}
+.cat-btn .cat-score{font-size:13px;font-weight:700;margin-top:9px;color:#666}
+.cat-btn.done{outline:4px solid #7c3aed;outline-offset:2px}
+.cat-btn.done .cat-score{color:#7c3aed}
+.cat-btn.cc1{background:linear-gradient(145deg,#f0fdf4,#bbf7d0)}
+.cat-btn.cc2{background:linear-gradient(145deg,#fef9c3,#fde68a)}
+.cat-btn.cc3{background:linear-gradient(145deg,#eff6ff,#bfdbfe)}
+.cat-btn.cc4{background:linear-gradient(145deg,#fdf4ff,#e9d5ff)}
+
+/* QUIZ PANEL */
+.quiz-panel{display:none}
+.quiz-panel.show{display:block}
+.quiz-header{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.quiz-back{background:white;border:2.5px solid var(--dark);border-radius:999px;padding:10px 18px;font-size:15px;font-weight:700;color:var(--dark);cursor:pointer;font-family:inherit;box-shadow:2px 2px 0 var(--dark);transition:all .12s}
+.quiz-back:hover{background:var(--yellow)}
+.quiz-cat-label{font-size:18px;font-weight:700;color:var(--dark)}
+.progress-row{display:flex;align-items:center;gap:10px;margin-bottom:20px}
+.progress-bar{flex:1;height:16px;background:#e8e0f0;border-radius:999px;border:2px solid var(--dark);overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#7c3aed,#a78bfa);border-radius:999px;transition:width .4s cubic-bezier(.34,1.2,.64,1)}
+.progress-text{font-size:15px;font-weight:800;color:var(--dark);white-space:nowrap}
+
+.question-card{background:white;border:3px solid var(--dark);border-radius:24px;padding:24px 20px;box-shadow:4px 4px 0 var(--dark);margin-bottom:16px;text-align:center}
+.q-image{display:none;font-size:72px;line-height:1.2;margin-bottom:10px}
+.q-image.visible{display:block}
+.q-text{font-size:19px;font-weight:700;color:var(--dark);line-height:1.6;margin-bottom:4px;white-space:pre-line}
+.q-text-en{font-size:12px;color:#aaa;font-weight:600;margin-top:4px}
+
+/* ── PATTERN type ── */
+.pat-row{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;align-items:center;margin:14px 0 8px}
+.pat-shape{width:50px;height:50px;display:flex;align-items:center;justify-content:center;font-size:30px;border-radius:11px;background:#f0f4ff;border:2px solid #c7d2fe;user-select:none}
+.pat-blank{width:50px;height:50px;border:3px dashed #7c3aed;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:30px;background:#faf5ff;transition:all .35s}
+.pat-blank.filled{border-style:solid;border-color:#22c55e;background:#dcfce7;animation:pop-in .3s cubic-bezier(.34,1.56,.64,1)}
+@keyframes pop-in{from{transform:scale(0.5)}to{transform:scale(1)}}
+.pat-tiles{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:12px}
+.pat-tile{width:66px;height:66px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:30px;border:3px solid var(--dark);border-radius:14px;background:white;box-shadow:3px 3px 0 var(--dark);cursor:pointer;transition:all .12s;position:relative}
+.pat-tile:hover:not([disabled]){transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--dark);background:#f5f0ff}
+.pat-tile[disabled]{cursor:default}
+.pat-tile.correct-pick{border-color:#22c55e;background:#dcfce7;box-shadow:3px 3px 0 #22c55e}
+.pat-tile.wrong-pick{border-color:#ef4444;background:#fee2e2;box-shadow:3px 3px 0 #ef4444}
+.pat-letter{font-family:'Bungee',cursive;font-size:11px;color:#7c3aed;line-height:1}
+
+/* ── TTS type ── */
+.tts-card{background:#fffbeb;border:3px solid var(--dark);border-radius:20px;padding:18px;margin-bottom:14px;text-align:left}
+.tts-label{font-size:12px;font-weight:700;color:#92400e;margin-bottom:8px;letter-spacing:.5px;text-transform:uppercase}
+.tts-story{font-size:15px;line-height:1.9;color:var(--dark);font-weight:600}
+.btn-tts-wrap{text-align:center}
+.btn-tts{display:inline-flex;align-items:center;gap:8px;margin:0 auto 16px;padding:14px 28px;background:linear-gradient(135deg,#f59e0b,#fbbf24);border:3px solid var(--dark);border-radius:99px;font-family:'Fredoka','Noto Sans Thai',sans-serif;font-size:18px;font-weight:800;color:var(--dark);cursor:pointer;box-shadow:3px 3px 0 var(--dark);transition:all .12s}
+.btn-tts:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--dark)}
+.btn-tts.speaking{background:linear-gradient(135deg,#10b981,#34d399);animation:pulse-tts 1.2s ease infinite}
+@keyframes pulse-tts{0%,100%{transform:scale(1)}50%{transform:translate(-1px,-1px) scale(1.03)}}
+
+/* ── BLOCKS type ── */
+.block-wrap{display:flex;justify-content:center;margin:8px 0 4px}
+
+/* CHOICES */
+.choices{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:12px}
+.choice-btn{border:3px solid var(--dark);border-radius:20px;padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;font-family:'Fredoka','Noto Sans Thai',sans-serif;background:white;box-shadow:3px 3px 0 var(--dark);transition:all .12s;text-align:left;min-height:68px}
+.choice-btn:hover:not(:disabled){background:#f5f0ff;transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--dark)}
+.choice-btn:active:not(:disabled){transform:translate(1px,1px);box-shadow:1px 1px 0 var(--dark)}
+.choice-btn:disabled{cursor:default}
+.ch-letter{font-family:'Bungee',cursive;font-size:18px;color:#7c3aed;width:26px;flex-shrink:0;text-align:center}
+.ch-em{font-size:36px;flex-shrink:0;line-height:1}
+.ch-lbl{font-size:19px;font-weight:700;color:var(--dark);line-height:1.3}
+.choice-btn.correct{background:#dcfce7;border-color:#22c55e;box-shadow:3px 3px 0 #22c55e;animation:pop-correct .3s ease}
+.choice-btn.correct .ch-letter{color:#15803d}
+.choice-btn.wrong{background:#fee2e2;border-color:#ef4444;box-shadow:3px 3px 0 #ef4444}
+.choice-btn.wrong .ch-letter{color:#dc2626}
+@keyframes pop-correct{0%{transform:scale(1)}40%{transform:scale(1.04)}100%{transform:scale(1)}}
+
+.feedback-box{border-radius:16px;padding:16px 20px;text-align:center;font-size:20px;font-weight:700;margin-bottom:14px;min-height:64px;display:flex;align-items:center;justify-content:center}
+.feedback-box.correct{background:#dcfce7;color:#15803d}
+.feedback-box.wrong{background:#fef9c3;color:#92400e}
+.feedback-box.idle{background:transparent;visibility:hidden}
+
+.btn-next{width:100%;padding:18px;font-family:'Fredoka','Noto Sans Thai',sans-serif;font-size:20px;font-weight:800;border:3px solid var(--dark);border-radius:18px;background:linear-gradient(135deg,#5a56e0,#7c3aed);color:white;cursor:pointer;box-shadow:4px 4px 0 var(--dark);transition:all .12s;display:none}
+.btn-next.show{display:block;animation:pop-btn .35s cubic-bezier(.34,1.56,.64,1) both}
+.btn-next:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--dark)}
+.btn-next:active{transform:translate(1px,1px);box-shadow:2px 2px 0 var(--dark)}
+@keyframes pop-btn{from{transform:scale(0)}to{transform:scale(1)}}
+
+/* SCORE */
+.score-panel{display:none}
+.score-panel.show{display:block}
+.score-card{background:white;border:3px solid var(--dark);border-radius:28px;padding:36px 24px;box-shadow:4px 4px 0 var(--dark);text-align:center}
+.score-stars{font-size:60px;margin-bottom:16px;animation:star-pop .6s cubic-bezier(.34,1.56,.64,1)}
+@keyframes star-pop{from{transform:scale(0) rotate(-20deg)}to{transform:scale(1) rotate(0)}}
+.score-num{font-family:'Bungee',cursive;font-size:clamp(64px,20vw,96px);color:var(--dark);line-height:1}
+.score-denom{font-size:28px;color:#888;font-weight:700}
+.score-msg{font-size:26px;font-weight:800;color:var(--dark);margin:14px 0 6px}
+.score-sub{font-size:16px;color:#7c6d88;font-weight:600}
+.score-btns{display:flex;gap:12px;margin-top:26px}
+.btn-retry{flex:1;padding:16px;font-family:'Fredoka','Noto Sans Thai',sans-serif;font-size:17px;font-weight:800;border:3px solid var(--dark);border-radius:16px;background:var(--yellow);color:var(--dark);cursor:pointer;box-shadow:3px 3px 0 var(--dark);transition:all .12s}
+.btn-cats{flex:1;padding:16px;font-family:'Fredoka','Noto Sans Thai',sans-serif;font-size:17px;font-weight:800;border:3px solid var(--dark);border-radius:16px;background:linear-gradient(135deg,#5a56e0,#7c3aed);color:white;cursor:pointer;box-shadow:3px 3px 0 var(--dark);transition:all .12s}
+.btn-retry:hover,.btn-cats:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 var(--dark)}
+
+.confetti-piece{position:fixed;top:-20px;pointer-events:none;z-index:999;border-radius:2px;animation:confetti-fall linear forwards}
+@keyframes confetti-fall{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(110vh) rotate(900deg);opacity:0}}
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <a class="nav-brand" href="index.html">☀️ SUMMER</a>
+  <div class="nav-links">
+    <a class="nav-link" href="24_question.html">🎲 คำถาม</a>
+    <a class="nav-link" href="robot_game.html">🤖 Robot</a>
+    <a class="nav-link" href="knowledge.html">📚 Learn</a>
+    <a class="nav-link" href="thai_money.html">🪙 Coins</a>
+    <a class="nav-link" href="pay_money.html">🛒 Pay</a>
+    <a class="nav-link" href="color_mix.html">🎨 Colors</a>
+    <a class="nav-link" href="gravity.html">🚀 Gravity</a>
+    <a class="nav-link" href="farm_kid.html">🌾 ฝึกก่อนสอบ</a>
+    <a class="nav-link active" href="satit_exam.html">📝 ข้อสอบ</a>
+    <a class="nav-link" href="school_dashboard.html">🏫 Schools</a>
+  </div>
+</nav>
+
+<div class="blobs" id="blobs"></div>
+
+<div class="page">
+
+  <!-- ── CATEGORY SELECTOR ── -->
+  <div id="catView">
+    <div class="hero">
+      <span class="hero-emoji">📝</span>
+      <h1 class="hero-title">ฝึกสอบ<br>สาธิต</h1>
+      <p class="hero-sub">เลือกหมวดที่อยากฝึก แล้วลุยเลย! 💪</p>
+      <div class="hero-badge">SATIT DEMO SCHOOL · EXAM PREP</div>
+    </div>
+    <div class="cat-grid" id="catGrid"></div>
+  </div>
+
+  <!-- ── QUIZ PANEL ── -->
+  <div class="quiz-panel" id="quizView">
+    <div class="quiz-header">
+      <button class="quiz-back" onclick="goHome()">← หมวด</button>
+      <span class="quiz-cat-label" id="quizCatLabel"></span>
+    </div>
+    <div class="progress-row">
+      <div class="progress-bar"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
+      <span class="progress-text" id="progText">1 / 5</span>
+    </div>
+
+    <!-- Standard question card (mcq + blocks) -->
+    <div class="question-card" id="stdCard">
+      <span class="q-image" id="qImage">📝</span>
+      <div class="block-wrap" id="blockWrap" style="display:none"></div>
+      <div class="q-text" id="qText">คำถาม</div>
+      <div class="q-text-en" id="qTextEn"></div>
+    </div>
+
+    <!-- Pattern card -->
+    <div class="question-card" id="patCard" style="display:none">
+      <div class="q-text" id="patQText"></div>
+      <div class="pat-row" id="patRow"></div>
+    </div>
+    <div class="pat-tiles" id="patTiles" style="display:none"></div>
+
+    <!-- TTS card -->
+    <div class="tts-card" id="ttsCard" style="display:none">
+      <div class="tts-label">📖 อ่านแล้วตอบ / ฟังแล้วตอบ</div>
+      <div class="tts-story" id="ttsStory"></div>
+    </div>
+    <div class="btn-tts-wrap" id="ttsBtnWrap" style="display:none">
+      <button class="btn-tts" id="btnTTS" onclick="speakStory()">🔊 ฟังเรื่อง</button>
+    </div>
+    <div class="q-text" id="ttsQText" style="display:none;text-align:center;margin-bottom:14px;font-size:19px;font-weight:700;color:var(--dark)"></div>
+
+    <!-- Shared choices -->
+    <div class="choices" id="choicesGrid"></div>
+    <div class="feedback-box idle" id="feedbackBox">‎</div>
+    <button class="btn-next" id="btnNext" onclick="nextQuestion()">ข้อถัดไป →</button>
+  </div>
+
+  <!-- ── SCORE PANEL ── -->
+  <div class="score-panel" id="scoreView">
+    <div class="score-card">
+      <div class="score-stars" id="scoreStars">⭐</div>
+      <div><span class="score-num" id="scoreNum">0</span><span class="score-denom"> / 5</span></div>
+      <div class="score-msg" id="scoreMsg">เก่งมาก!</div>
+      <div class="score-sub" id="scoreSub">ลองหมวดอื่นด้วยนะ</div>
+      <div class="score-btns">
+        <button class="btn-retry" onclick="retryCat()">🔄 ลองใหม่</button>
+        <button class="btn-cats"  onclick="goHome()">🏠 เลือกหมวด</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ══════════════════════════════════════════
+   QUESTION DATA
+══════════════════════════════════════════ */
+const CATS = [
+
+/* ── CAT 0: ตรรกะและการคิด (Pattern + Number series) ── */
+{
+  id:0, em:'🧩', name:'ตรรกะและการคิด', en:'Logic & Patterns', cls:'cc1',
+  qs:[
+    // --- Pattern tap-to-fill ---
+    {type:'pattern', q:'เลือกรูปภาพที่หายไปให้ถูกต้อง',
+      pat:['☆','🎀','☁️','✦',null,'☁️'],
+      ch:[{sym:'🎀',l:'แพรพัน',ok:true},{sym:'☁️',l:'เมฆ',ok:false},{sym:'✦',l:'ดาว',ok:false},{sym:'🚩',l:'ธง',ok:false}]
+    },
+    {type:'pattern', q:'เลือกรูปภาพที่หายไปให้ถูกต้อง',
+      pat:['✖️','❤️','💥','🚫','✖️',null,'💥','🚫'],
+      ch:[{sym:'💥',l:'ระเบิด',ok:false},{sym:'❤️',l:'หัวใจ',ok:true},{sym:'✖️',l:'กากบาท',ok:false},{sym:'🚫',l:'ห้าม',ok:false}]
+    },
+    {type:'pattern', q:'ลูกศรที่หายไปชี้ทิศไหน?',
+      pat:['➡️','⬆️','⬇️','⬅️','➡️',null,'⬇️','⬅️'],
+      ch:[{sym:'⬅️',l:'ซ้าย',ok:false},{sym:'➡️',l:'ขวา',ok:false},{sym:'⬆️',l:'ขึ้น',ok:true},{sym:'⬇️',l:'ลง',ok:false}]
+    },
+    {type:'pattern', q:'สัตว์ที่หายไปคือตัวไหน?',
+      pat:['🦓','🐘',null,'🐍','🦓','🐘','🐸','🐍'],
+      ch:[{sym:'🦓',l:'ม้าลาย',ok:false},{sym:'🐘',l:'ช้าง',ok:false},{sym:'🐸',l:'กบ',ok:true},{sym:'🐍',l:'งู',ok:false}]
+    },
+    {type:'pattern', q:'สีที่หายไปคืออะไร?',
+      pat:['🔴','🟡','🔵','🔴',null,'🔵'],
+      ch:[{sym:'🔴',l:'แดง',ok:false},{sym:'🟡',l:'เหลือง',ok:true},{sym:'🔵',l:'น้ำเงิน',ok:false},{sym:'🟢',l:'เขียว',ok:false}]
+    },
+    {type:'pattern', q:'รูปที่หายไปคืออะไร?',
+      pat:['🌙','⭐','☀️','🌙',null,'☀️'],
+      ch:[{sym:'🌙',l:'ดวงจันทร์',ok:false},{sym:'⭐',l:'ดาว',ok:true},{sym:'☀️',l:'ดวงอาทิตย์',ok:false},{sym:'🌈',l:'รุ้ง',ok:false}]
+    },
+    {type:'pattern', q:'ผลไม้ที่หายไปคืออะไร?',
+      pat:['🍎','🍌','🍊','🍎',null,'🍊'],
+      ch:[{sym:'🍎',l:'แอปเปิ้ล',ok:false},{sym:'🍌',l:'กล้วย',ok:true},{sym:'🍊',l:'ส้ม',ok:false},{sym:'🍇',l:'องุ่น',ok:false}]
+    },
+    {type:'pattern', q:'สัตว์ที่หายไปคือตัวไหน?',
+      pat:['🐱','🐶','🐭','🐦','🐱','🐶','🐭',null],
+      ch:[{sym:'🐱',l:'แมว',ok:false},{sym:'🐶',l:'สุนัข',ok:false},{sym:'🐭',l:'หนู',ok:false},{sym:'🐦',l:'นก',ok:true}]
+    },
+    {type:'pattern', q:'เครื่องหมายที่หายไปคืออะไร?',
+      pat:['➕','➖','✖️','➗','➕',null,'✖️','➗'],
+      ch:[{sym:'✖️',l:'คูณ',ok:false},{sym:'➗',l:'หาร',ok:false},{sym:'➖',l:'ลบ',ok:true},{sym:'➕',l:'บวก',ok:false}]
+    },
+    {type:'pattern', q:'รูปที่หายไปในกระจก (สมมาตร) คืออะไร?',
+      pat:['🦓','🐍','🐭','🐦',null,'🐭','🐍','🦓'],
+      ch:[{sym:'🐍',l:'งู',ok:false},{sym:'🦓',l:'ม้าลาย',ok:false},{sym:'🐭',l:'หนู',ok:false},{sym:'🐦',l:'นก',ok:true}]
+    },
+    // --- Number series MCQ ---
+    {type:'mcq', img:'🔢', q:'5,  10,  15,  ___,  25,  30\nจำนวนที่หายไปคืออะไร?', en:'Find the missing number',
+      ch:[{em:'2️⃣',l:'20',ok:true},{em:'2️⃣',l:'21',ok:false},{em:'1️⃣',l:'19',ok:false},{em:'2️⃣',l:'22',ok:false}]},
+    {type:'mcq', img:'🔢', q:'14,  20,  26,  ___,  38\nจำนวนที่หายไปคืออะไร?', en:'Find the missing number',
+      ch:[{em:'2️⃣',l:'29',ok:false},{em:'2️⃣',l:'27',ok:false},{em:'3️⃣',l:'37',ok:false},{em:'3️⃣',l:'32',ok:true}]},
+    {type:'mcq', img:'🔢', q:'90,  81,  ___,  63,  54\nจำนวนที่หายไปคืออะไร?', en:'Find the missing number',
+      ch:[{em:'8️⃣',l:'80',ok:false},{em:'7️⃣',l:'72',ok:true},{em:'6️⃣',l:'64',ok:false},{em:'7️⃣',l:'73',ok:false}]},
+    {type:'mcq', img:'🔢', q:'2,  4,  8,  16,  ___\nจำนวนที่หายไปคืออะไร?', en:'Find the missing number (×2)',
+      ch:[{em:'3️⃣',l:'32',ok:true},{em:'2️⃣',l:'24',ok:false},{em:'2️⃣',l:'20',ok:false},{em:'6️⃣',l:'64',ok:false}]},
+    {type:'mcq', img:'🔢', q:'3,  6,  9,  ___,  15\nจำนวนที่หายไปคืออะไร?', en:'Find the missing number (+3)',
+      ch:[{em:'1️⃣',l:'11',ok:false},{em:'1️⃣',l:'12',ok:true},{em:'1️⃣',l:'13',ok:false},{em:'1️⃣',l:'10',ok:false}]},
+  ]
+},
+
+/* ── CAT 1: มิติสัมพันธ์ (Block counting with SVG) ── */
+{
+  id:1, em:'🧊', name:'มิติสัมพันธ์', en:'Spatial & Blocks', cls:'cc2',
+  qs:[
+    {type:'blocks', q:'มีกล่องทั้งหมดกี่ใบ?', en:'Count all the blocks',
+      // Staircase pyramid 5+4+3+2+1 = 15, each step goes up
+      pos:[
+        {x:0,y:0,z:0},{x:1,y:0,z:0},{x:2,y:0,z:0},{x:3,y:0,z:0},{x:4,y:0,z:0},
+        {x:0,y:0,z:1},{x:1,y:0,z:1},{x:2,y:0,z:1},{x:3,y:0,z:1},
+        {x:0,y:0,z:2},{x:1,y:0,z:2},{x:2,y:0,z:2},
+        {x:0,y:0,z:3},{x:1,y:0,z:3},
+        {x:0,y:0,z:4}
+      ],
+      ch:[{em:'1️⃣',l:'15',ok:true},{em:'2️⃣',l:'20',ok:false},{em:'1️⃣',l:'12',ok:false},{em:'2️⃣',l:'18',ok:false}]},
+    {type:'blocks', q:'มีกล่องทั้งหมดกี่ใบ?', en:'Count all the blocks',
+      // 3-step staircase (each step 2-wide) going up left
+      pos:[
+        {x:0,y:0,z:0},{x:1,y:0,z:0},{x:2,y:0,z:0},{x:3,y:0,z:0},
+        {x:0,y:0,z:1},{x:1,y:0,z:1},{x:2,y:0,z:1},
+        {x:0,y:0,z:2},{x:1,y:0,z:2},
+        {x:0,y:0,z:3}
+      ],
+      ch:[{em:'8️⃣',l:'8',ok:false},{em:'9️⃣',l:'9',ok:false},{em:'1️⃣',l:'10',ok:true},{em:'1️⃣',l:'11',ok:false}]},
+    {type:'blocks', q:'มีกล่องทั้งหมดกี่ใบ?', en:'Count all the blocks',
+      // 2×2×2 cube = 8
+      pos:[
+        {x:0,y:0,z:0},{x:1,y:0,z:0},{x:0,y:1,z:0},{x:1,y:1,z:0},
+        {x:0,y:0,z:1},{x:1,y:0,z:1},{x:0,y:1,z:1},{x:1,y:1,z:1}
+      ],
+      ch:[{em:'6️⃣',l:'6',ok:false},{em:'8️⃣',l:'8',ok:true},{em:'9️⃣',l:'9',ok:false},{em:'1️⃣',l:'12',ok:false}]},
+    {type:'blocks', q:'มีกล่องทั้งหมดกี่ใบ?', en:'Count all the blocks',
+      // L-shape: column of 4 + base of 4 extra = 8
+      pos:[
+        {x:0,y:0,z:0},{x:0,y:1,z:0},{x:0,y:2,z:0},{x:0,y:3,z:0},
+        {x:1,y:0,z:0},{x:2,y:0,z:0},{x:3,y:0,z:0},{x:4,y:0,z:0}
+      ],
+      ch:[{em:'6️⃣',l:'6',ok:false},{em:'7️⃣',l:'7',ok:false},{em:'8️⃣',l:'8',ok:true},{em:'9️⃣',l:'9',ok:false}]},
+    {type:'blocks', q:'มีกล่องทั้งหมดกี่ใบ?', en:'Count all the blocks',
+      // 3×3 flat layer = 9
+      pos:[
+        {x:0,y:0,z:0},{x:1,y:0,z:0},{x:2,y:0,z:0},
+        {x:0,y:1,z:0},{x:1,y:1,z:0},{x:2,y:1,z:0},
+        {x:0,y:2,z:0},{x:1,y:2,z:0},{x:2,y:2,z:0}
+      ],
+      ch:[{em:'8️⃣',l:'8',ok:false},{em:'9️⃣',l:'9',ok:true},{em:'1️⃣',l:'10',ok:false},{em:'6️⃣',l:'6',ok:false}]},
+    {type:'blocks', q:'มีกล่องทั้งหมดกี่ใบ?', en:'Count all the blocks',
+      // Plus shape (cross) = 5
+      pos:[
+        {x:1,y:0,z:0},{x:0,y:1,z:0},{x:1,y:1,z:0},{x:2,y:1,z:0},{x:1,y:2,z:0}
+      ],
+      ch:[{em:'4️⃣',l:'4',ok:false},{em:'5️⃣',l:'5',ok:true},{em:'6️⃣',l:'6',ok:false},{em:'3️⃣',l:'3',ok:false}]},
+    {type:'blocks', q:'มีกล่องทั้งหมดกี่ใบ?', en:'Count all the blocks',
+      // Tower 2×1×4 = 8
+      pos:[
+        {x:0,y:0,z:0},{x:1,y:0,z:0},
+        {x:0,y:0,z:1},{x:1,y:0,z:1},
+        {x:0,y:0,z:2},{x:1,y:0,z:2},
+        {x:0,y:0,z:3},{x:1,y:0,z:3}
+      ],
+      ch:[{em:'6️⃣',l:'6',ok:false},{em:'8️⃣',l:'8',ok:true},{em:'1️⃣',l:'10',ok:false},{em:'4️⃣',l:'4',ok:false}]},
+    {type:'blocks', q:'มีกล่องทั้งหมดกี่ใบ?', en:'Count all the blocks',
+      // T-shape = 7
+      pos:[
+        {x:0,y:0,z:0},{x:1,y:0,z:0},{x:2,y:0,z:0},{x:3,y:0,z:0},
+        {x:1,y:1,z:0},{x:2,y:1,z:0},
+        {x:1,y:2,z:0}
+      ],
+      ch:[{em:'5️⃣',l:'5',ok:false},{em:'6️⃣',l:'6',ok:false},{em:'7️⃣',l:'7',ok:true},{em:'8️⃣',l:'8',ok:false}]},
+  ]
+},
+
+/* ── CAT 2: วิทยาศาสตร์และคณิตศาสตร์ (MCQ) ── */
+{
+  id:2, em:'🔬', name:'วิทย์และคณิต', en:'Science & Maths', cls:'cc3',
+  qs:[
+    // SCIENCE
+    {type:'mcq', img:'🌍', q:'ภาพใดเป็นสิ่งมีชีวิต?\nเมฆ · เครื่องบิน · ว่าว · ต้นไม้', en:'Which is a living thing?',
+      ch:[{em:'☁️',l:'เมฆ',ok:false},{em:'✈️',l:'เครื่องบิน',ok:false},{em:'🪁',l:'ว่าว',ok:false},{em:'🌳',l:'ต้นไม้',ok:true}]},
+    {type:'mcq', img:'🔬', q:'ภาพใดเป็นสิ่งไม่มีชีวิต?\nต้นไม้ · เด็กทารก · กบ · รถพยาบาล', en:'Which is NOT a living thing?',
+      ch:[{em:'🌿',l:'ต้นไม้',ok:false},{em:'👶',l:'เด็กทารก',ok:false},{em:'🐸',l:'กบ',ok:false},{em:'🚑',l:'รถพยาบาล',ok:true}]},
+    {type:'mcq', img:'🌈', q:'สีรุ้ง: ม่วง คราม น้ำเงิน ___ เหลือง แสด แดง\nสีในช่องว่างคือสีใด?', en:'Rainbow colours — fill the gap',
+      ch:[{em:'🩵',l:'ฟ้า',ok:true},{em:'🩷',l:'ชมพู',ok:false},{em:'💚',l:'เขียว',ok:false},{em:'🖤',l:'ดำ',ok:false}]},
+    {type:'mcq', img:'🧲', q:'แม่เหล็กดูดวัสดุในข้อใด?', en:'What does a magnet attract?',
+      ch:[{em:'⚽',l:'ลูกบอล',ok:false},{em:'🏊',l:'ห่วงยาง',ok:false},{em:'🐻',l:'ตุ๊กตาหมี',ok:false},{em:'📌',l:'ตะปู',ok:true}]},
+    {type:'mcq', img:'🥚', q:'สัตว์ชนิดใดออกลูกเป็นไข่?', en:'Which animal lays eggs?',
+      ch:[{em:'🐶',l:'สุนัข',ok:false},{em:'🐱',l:'แมว',ok:false},{em:'🐢',l:'เต่า',ok:true},{em:'🐷',l:'หมู',ok:false}]},
+    {type:'mcq', img:'🌡️', q:'น้ำแข็งเป็นน้ำในสถานะใด?', en:'Ice is water in which state?',
+      ch:[{em:'🧊',l:'ของแข็ง',ok:true},{em:'💧',l:'ของเหลว',ok:false},{em:'💨',l:'แก๊ส',ok:false},{em:'🌊',l:'คลื่น',ok:false}]},
+    {type:'mcq', img:'🌌', q:'ดาวฤกษ์ที่อยู่ใกล้โลกที่สุดคืออะไร?', en:'Which star is closest to Earth?',
+      ch:[{em:'🌙',l:'ดวงจันทร์',ok:false},{em:'⭐',l:'ดาวเหนือ',ok:false},{em:'☀️',l:'ดวงอาทิตย์',ok:true},{em:'🪐',l:'ดาวเสาร์',ok:false}]},
+    {type:'mcq', img:'🪐', q:'ข้อใดไม่เข้าพวกกับ โลก ดวงจันทร์ ดาวศุกร์?', en:'Which does NOT belong?',
+      ch:[{em:'🌍',l:'โลก',ok:false},{em:'🌙',l:'ดวงจันทร์',ok:false},{em:'☀️',l:'ดวงอาทิตย์',ok:true},{em:'⭐',l:'ดาวศุกร์',ok:false}]},
+    // MATHS
+    {type:'mcq', img:'🔢', q:'จำนวนใดเป็นจำนวนคู่ทั้งหมด?', en:'Which set contains only even numbers?',
+      ch:[{em:'📊',l:'2, 8, 12, 13',ok:false},{em:'📊',l:'3, 5, 7, 9',ok:false},{em:'📊',l:'2, 4, 6, 8',ok:true},{em:'📊',l:'11, 12, 13, 14',ok:false}]},
+    {type:'mcq', img:'🔢', q:'จำนวนใดเป็นจำนวนคี่ทั้งหมด?', en:'Which set contains only odd numbers?',
+      ch:[{em:'📊',l:'2, 8, 12, 13',ok:false},{em:'📊',l:'3, 5, 7, 9',ok:true},{em:'📊',l:'2, 4, 6, 8',ok:false},{em:'📊',l:'11, 12, 13, 14',ok:false}]},
+    {type:'mcq', img:'🥚', q:'มีไข่ไก่อยู่ครึ่งโหล ซื้อไข่เป็ดเพิ่มอีกหนึ่งโหล\nรวมมีไข่ทั้งหมดกี่ฟอง?', en:'Half dozen + one dozen = ?',
+      ch:[{em:'🥚',l:'6 ฟอง',ok:false},{em:'🥚',l:'12 ฟอง',ok:false},{em:'🥚',l:'18 ฟอง',ok:true},{em:'🥚',l:'24 ฟอง',ok:false}]},
+    {type:'mcq', img:'🪑', q:'โต๊ะ 3 ตัว และเก้าอี้ 3 ตัว\nนับขารวมกันได้ทั้งหมดกี่ขา?', en:'3 tables + 3 chairs (4 legs each)',
+      ch:[{em:'🦵',l:'6 ขา',ok:false},{em:'🦵',l:'12 ขา',ok:false},{em:'🦵',l:'24 ขา',ok:true},{em:'🦵',l:'32 ขา',ok:false}]},
+    {type:'mcq', img:'🪙', q:'มีเงิน 6 บาท จะให้รวมเป็น 10 บาท\nต้องขอเหรียญ 2 บาท เพิ่มกี่เหรียญ?', en:'Have 6B, need 10B, coin=2B → how many?',
+      ch:[{em:'🪙',l:'1 เหรียญ',ok:false},{em:'🪙',l:'2 เหรียญ',ok:true},{em:'🪙',l:'3 เหรียญ',ok:false},{em:'🪙',l:'4 เหรียญ',ok:false}]},
+    {type:'mcq', img:'📅', q:'เดือนมีนาคม + เดือนเมษายน\nรวมกันมีทั้งหมดกี่วัน?', en:'March (31) + April (30) = ?',
+      ch:[{em:'📅',l:'61 วัน',ok:true},{em:'📅',l:'51 วัน',ok:false},{em:'📅',l:'31 วัน',ok:false},{em:'📅',l:'30 วัน',ok:false}]},
+    {type:'mcq', img:'🍕', q:'พิซซ่า 1 ถาด แบ่งเป็น 8 ชิ้น\nกิน 3 ชิ้น เหลือกี่ชิ้น?', en:'8 slices − 3 eaten = ?',
+      ch:[{em:'🍕',l:'3 ชิ้น',ok:false},{em:'🍕',l:'5 ชิ้น',ok:true},{em:'🍕',l:'4 ชิ้น',ok:false},{em:'🍕',l:'6 ชิ้น',ok:false}]},
+  ]
+},
+
+/* ── CAT 3: ภาษาและการฟัง (MCQ + TTS) ── */
+{
+  id:3, em:'📖', name:'ภาษาและการฟัง', en:'Language & Listening', cls:'cc4',
+  qs:[
+    // LANGUAGE MCQ
+    {type:'mcq', img:'🛣️', q:'ภาพนี้คือภาพอะไร?', en:'What is this picture?',
+      ch:[{em:'🛺',l:'รถสามล้อ',ok:false},{em:'🛵',l:'รถสองล้อ',ok:false},{em:'🏍️',l:'รถจักรยานยนต์',ok:false},{em:'🚲',l:'รถจักรยาน',ok:true}]},
+    {type:'mcq', img:'🐾', q:'🐯 เสือ · 🦁 สิงโต · 🦓 ม้าลาย · ___\nสัตว์ที่มาต่อคืออะไร?', en:'Tiger, lion, zebra — what comes next?',
+      ch:[{em:'🐱',l:'แมว',ok:false},{em:'🐕',l:'สุนัข',ok:false},{em:'🦒',l:'ยีราฟ',ok:true},{em:'🐭',l:'หนู',ok:false}]},
+    {type:'mcq', img:'👟', q:'นักเรียนวาง 👟 1 ___ ไว้หน้าห้องเรียน\nจงเติมคำในช่องว่างให้ถูกต้อง', en:'One ___ of shoes (Thai classifier)',
+      ch:[{em:'👉',l:'ข้าง',ok:false},{em:'👥',l:'คู่',ok:true},{em:'📦',l:'อัน',ok:false},{em:'✂️',l:'ชิ้น',ok:false}]},
+    {type:'mcq', img:'🪞', q:'ในห้องน้ำมีกระจก 4 ___\nจงเติมคำในช่องว่างให้ถูกต้อง', en:'Four ___ of mirrors (classifier)',
+      ch:[{em:'🔢',l:'ชิ้น',ok:false},{em:'🍃',l:'ใบ',ok:false},{em:'🖼️',l:'รูป',ok:false},{em:'🚪',l:'บาน',ok:true}]},
+    {type:'mcq', img:'📚', q:'คำว่า "สุนัข" หมายถึงสัตว์อะไร?', en:'What does "สุนัข" mean?',
+      ch:[{em:'🐱',l:'แมว',ok:false},{em:'🐕',l:'สุนัข / หมา',ok:true},{em:'🐰',l:'กระต่าย',ok:false},{em:'🐔',l:'ไก่',ok:false}]},
+    {type:'mcq', img:'🦛', q:'🦛 คือสัตว์ชนิดใด?', en:'What animal is this?',
+      ch:[{em:'🦛',l:'ฮิปโปโปเตมัส',ok:true},{em:'🐻',l:'หมีควาย',ok:false},{em:'🐂',l:'วัวกระทิง',ok:false},{em:'🐗',l:'หมูป่า',ok:false}]},
+    {type:'mcq', img:'🚘', q:'🚲 จักรยาน · 🏍️ มอเตอร์ไซค์ · 🚗 รถยนต์ · ___\nยานพาหนะที่มาต่อคืออะไร?', en:'Bicycle → motorbike → car → ?',
+      ch:[{em:'🐦',l:'นก',ok:false},{em:'✈️',l:'เครื่องบิน',ok:true},{em:'🌲',l:'ต้นไม้',ok:false},{em:'🥘',l:'หม้อ',ok:false}]},
+    {type:'mcq', img:'🍎', q:'"แอปเปิ้ล" เป็นภาษาอะไร?', en:'What language is "แอปเปิ้ล"?',
+      ch:[{em:'🇨🇳',l:'จีน',ok:false},{em:'🇬🇧',l:'อังกฤษ (ทับศัพท์)',ok:true},{em:'🇹🇭',l:'ไทยแท้',ok:false},{em:'🇯🇵',l:'ญี่ปุ่น',ok:false}]},
+    {type:'mcq', img:'🐟', q:'ปลา : น้ำ :: นก : ___\nเติมคำที่สัมพันธ์กัน', en:'Fish:Water :: Bird:___',
+      ch:[{em:'🌿',l:'ป่า',ok:false},{em:'☁️',l:'อากาศ / ฟ้า',ok:true},{em:'🌊',l:'ทะเล',ok:false},{em:'🌍',l:'โลก',ok:false}]},
+    // TTS LISTENING
+    {type:'tts',
+      story:'วันหยุดสงกรานต์ คุณพ่อพาทุกคนไปเยี่ยมคุณปู่คุณย่าที่จังหวัดระยอง ระหว่างทางแวะทานข้าวที่ร้านอาหารริมถนน คุณแม่สั่งข้าวผัด คุณพ่อสั่งต้มยำกุ้ง ซัมเมอร์สั่งข้าวหน้าไก่หนึ่งจาน พอถึงบ้านคุณปู่ คุณปู่คุณย่าดีใจมาก คุณปู่รดน้ำดำหัวให้ทุกคนในวันสงกรานต์',
+      q:'ครอบครัวไปจังหวัดไหน?', en:'Where did the family go?',
+      ch:[{em:'🗺️',l:'ชลบุรี',ok:false},{em:'🗺️',l:'ระยอง',ok:true},{em:'🗺️',l:'เชียงใหม่',ok:false},{em:'🗺️',l:'ภูเก็ต',ok:false}]},
+    {type:'tts',
+      story:'วันหยุดสงกรานต์ คุณพ่อพาทุกคนไปเยี่ยมคุณปู่คุณย่าที่จังหวัดระยอง ระหว่างทางแวะทานข้าวที่ร้านอาหารริมถนน คุณแม่สั่งข้าวผัด คุณพ่อสั่งต้มยำกุ้ง ซัมเมอร์สั่งข้าวหน้าไก่หนึ่งจาน พอถึงบ้านคุณปู่ คุณปู่คุณย่าดีใจมาก คุณปู่รดน้ำดำหัวให้ทุกคนในวันสงกรานต์',
+      q:'คุณแม่สั่งอาหารอะไร?', en:'What did Mum order?',
+      ch:[{em:'🍳',l:'ข้าวผัด',ok:true},{em:'🍲',l:'ต้มยำกุ้ง',ok:false},{em:'🍗',l:'ข้าวหน้าไก่',ok:false},{em:'🍜',l:'ก๋วยเตี๋ยว',ok:false}]},
+    {type:'tts',
+      story:'วันพุธที่ผ่านมา ครูพาเด็กๆ ไปทัศนศึกษาที่พิพิธภัณฑ์สัตว์น้ำ มีเด็กทั้งหมด 30 คน แบ่งเป็น 3 กลุ่ม กลุ่มละ 10 คน เด็กๆ ได้เห็นปลาหลายชนิด เช่น ปลาฉลาม ปลากระเบน และหมึกยักษ์ ตอนบ่ายสองโมง ครูให้เด็กๆ วาดรูปสัตว์น้ำที่ชอบที่สุด ทุกคนสนุกสนานมาก',
+      q:'มีเด็กทั้งหมดกี่คน?', en:'How many children were there?',
+      ch:[{em:'🔢',l:'10 คน',ok:false},{em:'🔢',l:'20 คน',ok:false},{em:'🔢',l:'30 คน',ok:true},{em:'🔢',l:'40 คน',ok:false}]},
+    {type:'tts',
+      story:'วันพุธที่ผ่านมา ครูพาเด็กๆ ไปทัศนศึกษาที่พิพิธภัณฑ์สัตว์น้ำ มีเด็กทั้งหมด 30 คน แบ่งเป็น 3 กลุ่ม กลุ่มละ 10 คน เด็กๆ ได้เห็นปลาหลายชนิด เช่น ปลาฉลาม ปลากระเบน และหมึกยักษ์ ตอนบ่ายสองโมง ครูให้เด็กๆ วาดรูปสัตว์น้ำที่ชอบที่สุด ทุกคนสนุกสนานมาก',
+      q:'ตอนบ่ายเด็กๆ ทำอะไร?', en:'What did the kids do in the afternoon?',
+      ch:[{em:'🏊',l:'ว่ายน้ำ',ok:false},{em:'✏️',l:'วาดรูปสัตว์น้ำ',ok:true},{em:'🎮',l:'เล่นเกม',ok:false},{em:'😴',l:'นอนหลับ',ok:false}]},
+  ]
+},
+
+]; // end CATS
+
+/* ══════════════════════════════════════════
+   STATE
+══════════════════════════════════════════ */
+let curCat=null, curQ=0, score=0, answered=false, curQs=[];
+const bestScores=[null,null,null,null];
+const LETTERS=['ก','ข','ค','ง'];
+const PRAISE=['เก่งมาก! 🎉','ถูกต้องเลย! ⭐','ใช่เลย! 🌟','ดีมากเลย! 🎊','เยี่ยมมาก! 🏆','สุดยอด! 🥳'];
+const OOPS=['เกือบแล้ว! ดูเฉลยสีเขียวนะ 💚','ไม่เป็นไรนะ! ดูคำตอบสีเขียว 🌿','ลองอีกครั้งได้เลย! 💚'];
+const SCORE_TBL=[
+  ['ฝึกอีกนิดนะ! 💪','ซัมเมอร์ทำได้แน่ๆ'],
+  ['เริ่มต้นดีแล้ว! 🌱','ฝึกบ่อยๆ จะเก่งขึ้นเอง'],
+  ['ทำได้ดี! 👍','ยังมีที่ฝึกได้อีกนะ'],
+  ['เก่งมากเลย! 🎉','อีกนิดก็เต็มแล้ว'],
+  ['ดีมากเลย! ⭐','เกือบเต็ม ลองอีกรอบ!'],
+  ['เยี่ยมมาก! 🏆🎊','ซัมเมอร์เก่งสุดๆ เลย!'],
+];
+
+/* ══════════════════════════════════════════
+   ISOMETRIC BLOCK SVG
+══════════════════════════════════════════ */
+function drawBlocks(positions) {
+  const S=22, cx=155, cy=110;
+  const sorted=[...positions].sort((a,b)=>{
+    const da=a.x+a.y, db=b.x+b.y;
+    if(da!==db) return db-da;
+    if(a.y!==b.y) return b.y-a.y;
+    return a.z-b.z;
+  });
+  let paths='';
+  for(const{x,y,z}of sorted){
+    // isometric screen coords (right=+x, back-left=+y, up=+z)
+    const sx=cx+(x-y)*S;
+    const sy=cy+(x+y)*S*0.5-z*S;
+    // top face rhombus
+    const T=[[sx,sy-S*0.5],[sx+S,sy],[sx,sy+S*0.5],[sx-S,sy]];
+    // left face
+    const L=[[sx-S,sy],[sx,sy+S*0.5],[sx,sy+S*0.5+S],[sx-S,sy+S]];
+    // right face
+    const R=[[sx,sy+S*0.5],[sx+S,sy],[sx+S,sy+S],[sx,sy+S*0.5+S]];
+    const p=arr=>arr.map(([px,py])=>`${Math.round(px)},${Math.round(py)}`).join(' ');
+    paths+=`<polygon points="${p(T)}" fill="#93c5fd" stroke="#1e40af" stroke-width="1.3"/>`;
+    paths+=`<polygon points="${p(L)}" fill="#3b82f6" stroke="#1e40af" stroke-width="1.3"/>`;
+    paths+=`<polygon points="${p(R)}" fill="#60a5fa" stroke="#1e40af" stroke-width="1.3"/>`;
+  }
+  return `<svg viewBox="0 0 310 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:300px">${paths}</svg>`;
+}
+
+/* ══════════════════════════════════════════
+   HELPERS
+══════════════════════════════════════════ */
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+function rand(arr){return arr[Math.floor(Math.random()*arr.length)];}
+function showFeedback(ok){
+  const fb=document.getElementById('feedbackBox');
+  fb.className='feedback-box '+(ok?'correct':'wrong');
+  fb.textContent=ok?rand(PRAISE):rand(OOPS);
+}
+function showNextBtn(){
+  const b=document.getElementById('btnNext');
+  b.textContent=curQ+1<curQs.length?'ข้อถัดไป →':'ดูผลคะแนน 🏆';
+  b.className='btn-next show';
+}
+function hideParts(){
+  ['stdCard','patCard','ttsCard','ttsBtnWrap','ttsQText'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.style.display='none';
+  });
+  document.getElementById('patTiles').style.display='none';
+  document.getElementById('blockWrap').style.display='none';
+  document.getElementById('choicesGrid').innerHTML='';
+  const fb=document.getElementById('feedbackBox');
+  fb.className='feedback-box idle'; fb.textContent='‎';
+  document.getElementById('btnNext').className='btn-next';
+}
+
+/* ══════════════════════════════════════════
+   BUILD CATEGORY GRID
+══════════════════════════════════════════ */
+function buildCatGrid(){
+  const grid=document.getElementById('catGrid');
+  grid.innerHTML='';
+  CATS.forEach((cat,i)=>{
+    const btn=document.createElement('button');
+    const best=bestScores[i];
+    btn.className='cat-btn '+cat.cls+(best!==null?' done':'');
+    btn.innerHTML=`<span class="cat-em">${cat.em}</span><div class="cat-name">${cat.name}</div><div class="cat-en">${cat.en}</div><div class="cat-score">${best!==null?'⭐ '+best+' / 5':cat.qs.length+' ข้อ'}</div>`;
+    btn.onclick=()=>startCat(i);
+    grid.appendChild(btn);
+  });
+}
+
+/* ══════════════════════════════════════════
+   START CATEGORY
+══════════════════════════════════════════ */
+function startCat(idx){
+  curCat=idx; curQ=0; score=0;
+  curQs=shuffle(CATS[idx].qs).slice(0,5);
+  showView('quiz');
+  renderQ();
+}
+
+/* ══════════════════════════════════════════
+   RENDER QUESTION (dispatcher)
+══════════════════════════════════════════ */
+function renderQ(){
+  const q=curQs[curQ];
+  answered=false;
+  hideParts();
+  document.getElementById('quizCatLabel').textContent=CATS[curCat].em+' '+CATS[curCat].name;
+  document.getElementById('progFill').style.width=(curQ/curQs.length*100)+'%';
+  document.getElementById('progText').textContent=(curQ+1)+' / '+curQs.length;
+  if(q.type==='pattern') renderPattern(q);
+  else if(q.type==='tts') renderTTS(q);
+  else if(q.type==='blocks') renderBlocks(q);
+  else renderMCQ(q);
+}
+
+/* ── Standard MCQ ── */
+function renderMCQ(q){
+  const card=document.getElementById('stdCard');
+  card.style.display='';
+  const imgEl=document.getElementById('qImage');
+  if(q.img){imgEl.textContent=q.img;imgEl.className='q-image visible';}
+  else{imgEl.className='q-image';}
+  document.getElementById('qText').textContent=q.q;
+  document.getElementById('qTextEn').textContent=q.en||'';
+  buildMCQChoices(q.ch);
+}
+
+function buildMCQChoices(chArr){
+  const grid=document.getElementById('choicesGrid');
+  const shuffled=shuffle(chArr);
+  shuffled.forEach((ch,i)=>{
+    const btn=document.createElement('button');
+    btn.className='choice-btn';
+    btn.innerHTML=`<span class="ch-letter">${LETTERS[i]}</span><span class="ch-em">${ch.em||''}</span><span class="ch-lbl">${ch.l}</span>`;
+    btn.onclick=()=>pickMCQ(btn,ch.ok,shuffled);
+    grid.appendChild(btn);
+  });
+}
+
+function pickMCQ(btn,isOk,shuffled){
+  if(answered)return;
+  answered=true;
+  if(isOk)score++;
+  document.getElementById('choicesGrid').querySelectorAll('.choice-btn').forEach((b,i)=>{
+    b.disabled=true;
+    if(shuffled[i].ok)b.classList.add('correct');
+  });
+  if(!isOk)btn.classList.add('wrong');
+  showFeedback(isOk);
+  showNextBtn();
+}
+
+/* ── Pattern tap-to-fill ── */
+function renderPattern(q){
+  document.getElementById('patCard').style.display='';
+  document.getElementById('patQText').textContent=q.q;
+  // Build pattern row
+  const row=document.getElementById('patRow');
+  row.innerHTML='';
+  let blankEl=null;
+  q.pat.forEach(sym=>{
+    if(sym===null){
+      const el=document.createElement('div');
+      el.className='pat-blank';
+      el.id='patBlank';
+      row.appendChild(el);
+      blankEl=el;
+    } else {
+      const el=document.createElement('div');
+      el.className='pat-shape';
+      el.textContent=sym;
+      row.appendChild(el);
+    }
+  });
+  // Build choice tiles
+  const tilesWrap=document.getElementById('patTiles');
+  tilesWrap.style.display='flex';
+  tilesWrap.innerHTML='';
+  const shuffled=shuffle(q.ch);
+  shuffled.forEach((ch,i)=>{
+    const tile=document.createElement('button');
+    tile.className='pat-tile';
+    tile.innerHTML=`<span class="pat-letter">${LETTERS[i]}</span><span>${ch.sym}</span>`;
+    tile.onclick=()=>pickPattern(tile,ch,shuffled,blankEl);
+    tilesWrap.appendChild(tile);
+  });
+}
+
+function pickPattern(tile,ch,shuffled,blankEl){
+  if(answered)return;
+  answered=true;
+  if(ch.ok)score++;
+  // Fill blank
+  blankEl.textContent=ch.sym;
+  blankEl.classList.add('filled');
+  // Mark tiles
+  document.getElementById('patTiles').querySelectorAll('.pat-tile').forEach((t,i)=>{
+    t.disabled=true;
+    if(shuffled[i].ok)t.classList.add('correct-pick');
+  });
+  if(!ch.ok)tile.classList.add('wrong-pick');
+  showFeedback(ch.ok);
+  showNextBtn();
+}
+
+/* ── TTS listen-then-answer ── */
+let ttsUtter=null;
+function renderTTS(q){
+  document.getElementById('ttsCard').style.display='';
+  document.getElementById('ttsStory').textContent=q.story;
+  document.getElementById('ttsBtnWrap').style.display='';
+  document.getElementById('ttsQText').textContent=q.q;
+  document.getElementById('ttsQText').style.display='block';
+  buildMCQChoices(q.ch);
+}
+
+function speakStory(){
+  if(!('speechSynthesis' in window))return;
+  const btn=document.getElementById('btnTTS');
+  if(speechSynthesis.speaking){
+    speechSynthesis.cancel();
+    btn.className='btn-tts';
+    btn.textContent='🔊 ฟังเรื่อง';
+    return;
+  }
+  const story=document.getElementById('ttsStory').textContent;
+  ttsUtter=new SpeechSynthesisUtterance(story);
+  ttsUtter.lang='th-TH';
+  ttsUtter.rate=0.85;
+  ttsUtter.onstart=()=>{btn.className='btn-tts speaking';btn.textContent='⏹ หยุดฟัง';};
+  ttsUtter.onend=()=>{btn.className='btn-tts';btn.textContent='🔊 ฟังอีกครั้ง';};
+  speechSynthesis.speak(ttsUtter);
+}
+
+/* ── Blocks counting ── */
+function renderBlocks(q){
+  const card=document.getElementById('stdCard');
+  card.style.display='';
+  document.getElementById('qImage').className='q-image';
+  const bw=document.getElementById('blockWrap');
+  bw.style.display='flex';
+  bw.innerHTML=drawBlocks(q.pos);
+  document.getElementById('qText').textContent=q.q;
+  document.getElementById('qTextEn').textContent=q.en||'';
+  buildMCQChoices(q.ch);
+}
+
+/* ══════════════════════════════════════════
+   NEXT / SCORE
+══════════════════════════════════════════ */
+function nextQuestion(){
+  if(speechSynthesis.speaking)speechSynthesis.cancel();
+  curQ++;
+  if(curQ>=curQs.length){showScore();return;}
+  renderQ();
+}
+
+function showScore(){
+  if(bestScores[curCat]===null||score>bestScores[curCat])bestScores[curCat]=score;
+  document.getElementById('scoreNum').textContent=score;
+  const[msg,sub]=SCORE_TBL[score];
+  document.getElementById('scoreMsg').textContent=msg;
+  document.getElementById('scoreSub').textContent=sub;
+  document.getElementById('scoreStars').textContent=
+    score===5?'🏆⭐⭐⭐⭐⭐':score>=4?'⭐⭐⭐⭐':score>=3?'⭐⭐⭐':score>=2?'⭐⭐':'⭐';
+  showView('score');
+  if(score>=4)launchConfetti();
+}
+
+function launchConfetti(){
+  const cols=['#FF6B9D','#FFD93D','#7c3aed','#4ECDC4','#a78bfa','#FF9F1C','#6366f1','#f43f5e'];
+  for(let i=0;i<70;i++){
+    setTimeout(()=>{
+      const c=document.createElement('div');
+      const sz=7+Math.random()*9;
+      c.className='confetti-piece';
+      c.style.cssText=`left:${Math.random()*100}%;width:${sz}px;height:${sz}px;background:${cols[Math.floor(Math.random()*cols.length)]};animation-duration:${1.8+Math.random()*1.4}s`;
+      document.body.appendChild(c);
+      setTimeout(()=>c.remove(),3500);
+    },i*40);
+  }
+}
+
+function retryCat(){startCat(curCat);}
+function goHome(){
+  if(speechSynthesis.speaking)speechSynthesis.cancel();
+  buildCatGrid();showView('cat');
+}
+
+function showView(v){
+  document.getElementById('catView').style.display=v==='cat'?'':'none';
+  document.getElementById('quizView').className='quiz-panel'+(v==='quiz'?' show':'');
+  document.getElementById('scoreView').className='score-panel'+(v==='score'?' show':'');
+}
+
+/* ══════════════════════════════════════════
+   INIT
+══════════════════════════════════════════ */
+buildCatGrid();
+showView('cat');
+
+// background blobs
+(function(){
+  const cols=['#bbf7d0','#fde68a','#bfdbfe','#e9d5ff','#fed7aa','#d1fae5','#fce7f3'];
+  const wrap=document.getElementById('blobs');
+  for(let i=0;i<18;i++){
+    const b=document.createElement('div');
+    b.className='blob';
+    const s=45+Math.random()*110;
+    b.style.cssText=`width:${s}px;height:${s}px;background:${cols[i%cols.length]};left:${Math.random()*100}%;top:${Math.random()*100}%;animation-duration:${9+Math.random()*13}s;animation-delay:${-Math.random()*10}s`;
+    wrap.appendChild(b);
+  }
+})();
+</script>
+</body>
+</html>
