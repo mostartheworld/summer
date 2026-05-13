@@ -4,7 +4,7 @@
 
 - Stack: pure `HTML / CSS / JavaScript` (no build step, no framework)
 - UX goals: big buttons, forgiving interactions, English-first with Thai hints
-- Last updated: 2026-05-11
+- Last updated: 2026-05-13
 
 ## Quick start
 
@@ -24,7 +24,7 @@
 | `color_mix.html` | Color mixing (red/blue/yellow) | ✅ Ready |
 | `gravity.html` | Gravity & rockets mini-explainer + interactive bits | ✅ Ready |
 | `farm_kid.html` | ฝึกข้อสอบหลายหมวด (เตรียมสอบแนวสาธิต/เกษตร) — สุ่มเล่นครั้งละ 5 ข้อ | ✅ Ready |
-| `satit_exam.html` | ฝึกสอบสาธิต: logic/patterns, spatial blocks, listening (TTS) และอื่นๆ | ✅ Ready |
+| `satit_exam.html` | ฝึกสอบสาธิต — 115 ข้อ 6 หมวด: ตรรกะ (โดมิโน+อนุกรม), มิติสัมพันธ์ (บล็อก+คลี่ลูกเต๋า), วิทย์-คณิต, ภาษา-ฟัง, ภาษาไทย, ลากเส้น (canvas) | ✅ Ready |
 
 ## For parents
 
