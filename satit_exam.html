@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>📝 ฝึกสอบสาธิต — Summer's World</title>
+<title>📝 ตะลุยสาธิต — Summer's World</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;600;700;900&display=swap" rel="stylesheet">
@@ -26,6 +26,9 @@ body{min-height:100vh;font-family:'Fredoka','Noto Sans Thai',sans-serif;backgrou
 
 /* PAGE */
 .page{position:relative;z-index:1;max-width:520px;margin:0 auto;padding:24px 16px 60px}
+.home-link-wrap{margin-bottom:14px}
+.home-link{display:inline-flex;align-items:center;gap:8px;text-decoration:none;background:white;color:var(--dark);border:2.5px solid var(--dark);border-radius:999px;padding:10px 16px;font-size:15px;font-weight:800;box-shadow:2px 2px 0 var(--dark)}
+.home-link:hover{background:var(--yellow)}
 
 /* HERO */
 .hero{text-align:center;margin-bottom:32px}
@@ -159,8 +162,8 @@ body{min-height:100vh;font-family:'Fredoka','Noto Sans Thai',sans-serif;backgrou
     <a class="nav-link" href="pay_money.html">🛒 Pay</a>
     <a class="nav-link" href="color_mix.html">🎨 Colors</a>
     <a class="nav-link" href="gravity.html">🚀 Gravity</a>
-    <a class="nav-link" href="farm_kid.html">🌾 ฝึกก่อนสอบ</a>
-    <a class="nav-link active" href="satit_exam.html">📝 ข้อสอบ</a>
+    <a class="nav-link" href="farm_kid.html">🌾 Farm Quiz</a>
+    <a class="nav-link active" href="satit_exam.html">📝 Satit Drill</a>
     <a class="nav-link" href="school_dashboard.html">🏫 Schools</a>
   </div>
 </nav>
@@ -168,14 +171,17 @@ body{min-height:100vh;font-family:'Fredoka','Noto Sans Thai',sans-serif;backgrou
 <div class="blobs" id="blobs"></div>
 
 <div class="page">
+  <div class="home-link-wrap">
+    <a class="home-link" href="index.html">← กลับหน้าหลัก</a>
+  </div>
 
   <!-- ── CATEGORY SELECTOR ── -->
   <div id="catView">
     <div class="hero">
       <span class="hero-emoji">📝</span>
-      <h1 class="hero-title">ฝึกสอบ<br>สาธิต</h1>
-      <p class="hero-sub">เลือกหมวดที่อยากฝึก แล้วลุยเลย! 💪</p>
-      <div class="hero-badge">SATIT DEMO SCHOOL · EXAM PREP</div>
+      <h1 class="hero-title">ตะลุย<br>สาธิต</h1>
+      <p class="hero-sub">ฝึกแบบข้อสอบจริง ทีละชุดไปเลย! ✍️</p>
+      <div class="hero-badge">SATIT DRILL · REAL PRACTICE</div>
     </div>
     <div class="cat-grid" id="catGrid"></div>
   </div>
@@ -183,7 +189,7 @@ body{min-height:100vh;font-family:'Fredoka','Noto Sans Thai',sans-serif;backgrou
   <!-- ── QUIZ PANEL ── -->
   <div class="quiz-panel" id="quizView">
     <div class="quiz-header">
-      <button class="quiz-back" onclick="goHome()">← หมวด</button>
+      <button class="quiz-back" onclick="goHome()">← ชุด</button>
       <span class="quiz-cat-label" id="quizCatLabel"></span>
     </div>
     <div class="progress-row">
@@ -225,7 +231,7 @@ body{min-height:100vh;font-family:'Fredoka','Noto Sans Thai',sans-serif;backgrou
   <!-- ── CANVAS DRAWING PANEL ── -->
   <div id="canvasView" style="display:none">
     <div class="quiz-header">
-      <button class="quiz-back" onclick="goHome()">← หมวด</button>
+      <button class="quiz-back" onclick="goHome()">← ชุด</button>
       <span class="quiz-cat-label">✏️ ลากเส้น</span>
     </div>
     <div class="progress-row">
@@ -248,10 +254,10 @@ body{min-height:100vh;font-family:'Fredoka','Noto Sans Thai',sans-serif;backgrou
       <div class="score-stars" id="scoreStars">⭐</div>
       <div><span class="score-num" id="scoreNum">0</span><span class="score-denom"> / 5</span></div>
       <div class="score-msg" id="scoreMsg">เก่งมาก!</div>
-      <div class="score-sub" id="scoreSub">ลองหมวดอื่นด้วยนะ</div>
+      <div class="score-sub" id="scoreSub">ลองชุดอื่นด้วยนะ</div>
       <div class="score-btns">
         <button class="btn-retry" onclick="retryCat()">🔄 ลองใหม่</button>
-        <button class="btn-cats"  onclick="goHome()">🏠 เลือกหมวด</button>
+        <button class="btn-cats"  onclick="goHome()">🏠 กลับไปเลือกชุด</button>
       </div>
     </div>
   </div>
@@ -266,7 +272,7 @@ const CATS = [
 
 /* ── CAT 0: ตรรกะและการคิด (Pattern + Number series) ── */
 {
-  id:0, em:'🧩', name:'ตรรกะและการคิด', en:'Logic & Patterns', cls:'cc1',
+  id:0, em:'🧩', name:'คิดเร็ว', en:'Logic Sprint', cls:'cc1',
   qs:[
     // --- Pattern tap-to-fill ---
     {type:'pattern', q:'เลือกรูปภาพที่หายไปให้ถูกต้อง',
@@ -375,7 +381,7 @@ const CATS = [
 
 /* ── CAT 1: มิติสัมพันธ์ (Block counting with SVG) ── */
 {
-  id:1, em:'🧊', name:'มิติสัมพันธ์', en:'Spatial & Blocks', cls:'cc2',
+  id:1, em:'🧊', name:'มองรูปทรง', en:'Shapes & Space', cls:'cc2',
   qs:[
     {type:'blocks', q:'มีกล่องทั้งหมดกี่ใบ?', en:'Count all the blocks',
       // Staircase pyramid 5+4+3+2+1 = 15, each step goes up
@@ -562,7 +568,7 @@ const CATS = [
 
 /* ── CAT 2: วิทยาศาสตร์และคณิตศาสตร์ (MCQ) ── */
 {
-  id:2, em:'🔬', name:'วิทย์และคณิต', en:'Science & Maths', cls:'cc3',
+  id:2, em:'🔬', name:'วิทย์+เลข', en:'Science & Math', cls:'cc3',
   qs:[
     // SCIENCE
     {type:'mcq', img:'🌍', q:'ภาพใดเป็นสิ่งมีชีวิต?\nเมฆ · เครื่องบิน · ว่าว · ต้นไม้', en:'Which is a living thing?',
@@ -601,7 +607,7 @@ const CATS = [
 
 /* ── CAT 3: ภาษาและการฟัง (MCQ + TTS) ── */
 {
-  id:3, em:'📖', name:'ภาษาและการฟัง', en:'Language & Listening', cls:'cc4',
+  id:3, em:'📖', name:'อ่านจับใจ', en:'Reading & Listening', cls:'cc4',
   qs:[
     // LANGUAGE MCQ
     {type:'mcq', img:'🚲', q:'ภาพนี้คือภาพอะไร?', en:'What is this picture?',
@@ -646,7 +652,7 @@ const CATS = [
 
 /* ── CAT 4: ภาษาไทย (ภาพ + ตัวเลือก) ── */
 {
-  id:4, em:'🇹🇭', name:'ภาษาไทย', en:'Thai Language', cls:'cc1',
+  id:4, em:'🇹🇭', name:'ไทยล้วน', en:'Thai Practice', cls:'cc1',
   qs:[
     // ภาพนี้คืออะไร?
     {type:'mcq', img:'🦒', q:'ภาพนี้คือสัตว์ชนิดใด?', en:'What animal is this?',
