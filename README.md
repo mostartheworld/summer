@@ -35,4 +35,3 @@
 ## Repo notes
 
 - `home.html` is a simple redirect to `index.html` (handy for some hosting setups).
-- `game-robot.html` is a legacy/alternate robot builder page (not linked from `index.html`).
