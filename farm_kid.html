@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🌾 ฝึกก่อนสอบ — Summer's World</title>
+<title>🌾 ฟาร์มฝึกคิด — Summer's World</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;600;700;900&display=swap" rel="stylesheet">
@@ -28,6 +28,9 @@
 
   /* PAGE */
   .page { position:relative; z-index:1; max-width:520px; margin:0 auto; padding:24px 16px 60px; }
+  .home-link-wrap { margin-bottom:14px; }
+  .home-link { display:inline-flex; align-items:center; gap:8px; text-decoration:none; background:white; color:var(--dark); border:2.5px solid var(--dark); border-radius:999px; padding:10px 16px; font-size:15px; font-weight:800; box-shadow:2px 2px 0 var(--dark); }
+  .home-link:hover { background:var(--yellow); }
 
   /* HERO */
   .hero { text-align:center; margin-bottom:32px; }
@@ -130,8 +133,8 @@
     <a class="nav-link" href="pay_money.html">🛒 Pay</a>
     <a class="nav-link" href="color_mix.html">🎨 Colors</a>
     <a class="nav-link" href="gravity.html">🚀 Gravity</a>
-    <a class="nav-link active" href="farm_kid.html">🌾 สาธิต</a>
-    <a class="nav-link" href="satit_exam.html">📝 Exam</a>
+    <a class="nav-link active" href="farm_kid.html">🌾 Farm Quiz</a>
+    <a class="nav-link" href="satit_exam.html">📝 Satit Drill</a>
     <a class="nav-link" href="school_dashboard.html">🏫 Schools</a>
   </div>
 </nav>
@@ -139,14 +142,17 @@
 <div class="blobs" id="blobs"></div>
 
 <div class="page">
+  <div class="home-link-wrap">
+    <a class="home-link" href="index.html">← กลับหน้าหลัก</a>
+  </div>
 
   <!-- ── CATEGORY SELECTOR ── -->
   <div id="catView">
     <div class="hero">
       <span class="hero-emoji">🌾</span>
-      <h1 class="hero-title">ฝึกก่อนสอบ</h1>
-      <p class="hero-sub">เลือกหมวดที่อยากฝึก แล้วลุยเลย! 💪</p>
-      <div class="hero-badge">KASETSART DEMO SCHOOL · EXAM PREP</div>
+      <h1 class="hero-title">ฟาร์มฝึกคิด</h1>
+      <p class="hero-sub">ฝึกคิดทีละเรื่อง สนุกแบบฟาร์มๆ 🐮</p>
+      <div class="hero-badge">FARM QUIZ · THINK & PLAY</div>
     </div>
     <div class="cat-grid" id="catGrid"></div>
   </div>
@@ -154,7 +160,7 @@
   <!-- ── QUIZ PANEL ── -->
   <div class="quiz-panel" id="quizView">
     <div class="quiz-header">
-      <button class="quiz-back" onclick="goHome()">← หมวด</button>
+      <button class="quiz-back" onclick="goHome()">← เรื่อง</button>
       <span class="quiz-cat-label" id="quizCatLabel"></span>
     </div>
     <div class="progress-row">
@@ -177,10 +183,10 @@
       <div class="score-stars" id="scoreStars">⭐</div>
       <div><span class="score-num" id="scoreNum">0</span><span class="score-denom"> / 5</span></div>
       <div class="score-msg" id="scoreMsg">เก่งมาก!</div>
-      <div class="score-sub" id="scoreSub">ลองหมวดอื่นด้วยนะ</div>
+      <div class="score-sub" id="scoreSub">ลองเรื่องอื่นในฟาร์มได้อีกนะ</div>
       <div class="score-btns">
         <button class="btn-retry" onclick="retryCat()">🔄 ลองใหม่</button>
-        <button class="btn-cats"  onclick="goHome()">🏠 เลือกหมวด</button>
+        <button class="btn-cats"  onclick="goHome()">🏠 กลับไปเลือกเรื่อง</button>
       </div>
     </div>
   </div>
@@ -191,7 +197,7 @@
 /* ═══ QUIZ DATA — 50 questions per category, 5 picked at random each session ═══ */
 const CATS = [
   {
-    id:0, em:'🔬', name:'วิทยาศาสตร์', en:'Science & Nature', cls:'cc1',
+    id:0, em:'🔬', name:'ธรรมชาติในไร่', en:'Farm Nature', cls:'cc1',
     qs:[
       { img:'🐠', q:'สัตว์ตัวไหนอยู่ในทะเล?', en:'Which animal lives in the sea?',
         ch:[{em:'🐠',l:'ปลา',ok:true},{em:'🐘',l:'ช้าง',ok:false},{em:'🦁',l:'สิงโต',ok:false}] },
@@ -297,7 +303,7 @@ const CATS = [
     ]
   },
   {
-    id:1, em:'💪', name:'สุขภาพและร่างกาย', en:'Health & Body', cls:'cc2',
+    id:1, em:'💪', name:'ร่างกายแข็งแรง', en:'Healthy Body', cls:'cc2',
     qs:[
       { img:'👀', q:'เราใช้อะไรในการมองเห็น?', en:'What do we use to see?',
         ch:[{em:'👀',l:'ตา',ok:true},{em:'👂',l:'หู',ok:false},{em:'👃',l:'จมูก',ok:false}] },
@@ -403,7 +409,7 @@ const CATS = [
     ]
   },
   {
-    id:2, em:'👨‍👩‍👧', name:'สังคมและครอบครัว', en:'Society & Family', cls:'cc3',
+    id:2, em:'👨‍👩‍👧', name:'บ้านและการช่วยเหลือ', en:'Home Helpers', cls:'cc3',
     qs:[
       { img:'👨‍⚕️', showImg:true, q:'คนนี้ทำงานที่ไหน?', en:'Where does this person work?',
         ch:[{em:'🏥',l:'โรงพยาบาล',ok:true},{em:'🍽️',l:'ร้านอาหาร',ok:false},{em:'🚒',l:'สถานีดับเพลิง',ok:false}] },
@@ -509,7 +515,7 @@ const CATS = [
     ]
   },
   {
-    id:3, em:'🎨', name:'ศิลปะและสี', en:'Art & Colors', cls:'cc4',
+    id:3, em:'🎨', name:'สีสันในสวน', en:'Garden Colors', cls:'cc4',
     qs:[
       { img:'3️⃣', q:'แม่สีทั้งหมดมีกี่สี?', en:'How many primary colors are there?',
         ch:[{em:'3️⃣',l:'3 สี',ok:true},{em:'4️⃣',l:'4 สี',ok:false},{em:'6️⃣',l:'6 สี',ok:false}] },
@@ -615,7 +621,7 @@ const CATS = [
     ]
   },
   {
-    id:4, em:'🌍', name:'โลกและธรรมชาติ', en:'World & Nature', cls:'cc5',
+    id:4, em:'🌍', name:'รอบตัวในฟาร์ม', en:'Around the Farm', cls:'cc5',
     qs:[
       { img:'🌧️', q:'ฤดูกาลใดที่ฝนตกมาก?', en:'Which season has the most rain?',
         ch:[{em:'🌧️',l:'ฤดูฝน',ok:true},{em:'❄️',l:'ฤดูหนาว',ok:false},{em:'☀️',l:'ฤดูร้อน',ok:false}] },
