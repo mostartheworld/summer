@@ -139,6 +139,12 @@ body{min-height:100vh;font-family:'Fredoka','Noto Sans Thai',sans-serif;backgrou
 
 .confetti-piece{position:fixed;top:-20px;pointer-events:none;z-index:999;border-radius:2px;animation:confetti-fall linear forwards}
 @keyframes confetti-fall{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(110vh) rotate(900deg);opacity:0}}
+
+/* ── DOMINO type ── */
+.domino-seq-wrap{display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap;margin:10px 0}
+.domino-blank{border:3px dashed #7c3aed;border-radius:10px;width:70px;height:36px;display:flex;align-items:center;justify-content:center;font-family:'Bungee',cursive;font-size:22px;color:#7c3aed;background:#faf5ff}
+.domino-arrow{font-size:16px;color:#aaa;line-height:1}
+.ch-domino-svg{flex:1;display:flex;align-items:center;justify-content:center;padding:4px 0}
 </style>
 </head>
 <body>
@@ -214,6 +220,26 @@ body{min-height:100vh;font-family:'Fredoka','Noto Sans Thai',sans-serif;backgrou
     <div class="choices" id="choicesGrid"></div>
     <div class="feedback-box idle" id="feedbackBox">‎</div>
     <button class="btn-next" id="btnNext" onclick="nextQuestion()">ข้อถัดไป →</button>
+  </div>
+
+  <!-- ── CANVAS DRAWING PANEL ── -->
+  <div id="canvasView" style="display:none">
+    <div class="quiz-header">
+      <button class="quiz-back" onclick="goHome()">← หมวด</button>
+      <span class="quiz-cat-label">✏️ ลากเส้น</span>
+    </div>
+    <div class="progress-row">
+      <div class="progress-bar"><div class="progress-fill" id="cvProgFill" style="width:0%"></div></div>
+      <span class="progress-text" id="cvProgText">1 / 6</span>
+    </div>
+    <div class="question-card">
+      <div class="q-text" id="cvInstruct">วาดรูปตามลำดับจุด 1 → 2 → ...</div>
+      <div style="display:flex;justify-content:center;margin-top:12px">
+        <canvas id="drawCanvas" width="280" height="220" style="border:2px dashed #c4b5fd;border-radius:14px;touch-action:none;cursor:crosshair;max-width:100%"></canvas>
+      </div>
+    </div>
+    <div class="feedback-box idle" id="cvFeedback">‎</div>
+    <button class="btn-next" id="cvNextBtn" onclick="nextDrawing()">ข้อถัดไป →</button>
   </div>
 
   <!-- ── SCORE PANEL ── -->
@@ -294,6 +320,56 @@ const CATS = [
       ch:[{em:'3️⃣',l:'32',ok:true},{em:'2️⃣',l:'24',ok:false},{em:'2️⃣',l:'20',ok:false},{em:'6️⃣',l:'64',ok:false}]},
     {type:'mcq', img:'🔢', q:'3,  6,  9,  ___,  15\nจำนวนที่หายไปคืออะไร?', en:'Find the missing number (+3)',
       ch:[{em:'1️⃣',l:'11',ok:false},{em:'1️⃣',l:'12',ok:true},{em:'1️⃣',l:'13',ok:false},{em:'1️⃣',l:'10',ok:false}]},
+    // --- โดมิโน (1_2): นับแต้ม + เปรียบเทียบ ---
+    {type:'domino', left:1, right:3, q:'โดมิโนนี้มีแต้มรวมกันกี่แต้ม?', en:'How many dots total?',
+      ch:[{em:'3️⃣',l:'3',ok:false},{em:'4️⃣',l:'4',ok:true},{em:'5️⃣',l:'5',ok:false},{em:'6️⃣',l:'6',ok:false}]},
+    {type:'domino', left:2, right:4, q:'โดมิโนนี้มีแต้มรวมกันกี่แต้ม?', en:'How many dots total?',
+      ch:[{em:'5️⃣',l:'5',ok:false},{em:'7️⃣',l:'7',ok:false},{em:'6️⃣',l:'6',ok:true},{em:'8️⃣',l:'8',ok:false}]},
+    {type:'domino', left:3, right:5, q:'โดมิโนนี้มีแต้มรวมกันกี่แต้ม?', en:'How many dots total?',
+      ch:[{em:'7️⃣',l:'7',ok:false},{em:'8️⃣',l:'8',ok:true},{em:'9️⃣',l:'9',ok:false},{em:'6️⃣',l:'6',ok:false}]},
+    {type:'domino', left:4, right:6, q:'โดมิโนนี้มีแต้มรวมกันกี่แต้ม?', en:'How many dots total?',
+      ch:[{em:'9️⃣',l:'9',ok:false},{em:'🔟',l:'10',ok:true},{em:'1️⃣',l:'11',ok:false},{em:'8️⃣',l:'8',ok:false}]},
+    {type:'domino', left:5, right:6, q:'โดมิโนนี้มีแต้มรวมกันกี่แต้ม?', en:'How many dots total?',
+      ch:[{em:'🔟',l:'10',ok:false},{em:'1️⃣',l:'11',ok:true},{em:'9️⃣',l:'9',ok:false},{em:'1️⃣',l:'12',ok:false}]},
+    {type:'domino', left:6, right:6, q:'โดมิโนนี้มีแต้มรวมกันกี่แต้ม?', en:'How many dots total?',
+      ch:[{em:'1️⃣',l:'10',ok:false},{em:'1️⃣',l:'11',ok:false},{em:'1️⃣',l:'12',ok:true},{em:'1️⃣',l:'13',ok:false}]},
+    {type:'domino', left:5, right:2, q:'ด้านไหนมีแต้มมากกว่า?', en:'Which side has more dots?',
+      ch:[{em:'⬅️',l:'ด้านซ้าย',ok:true},{em:'➡️',l:'ด้านขวา',ok:false},{em:'⚖️',l:'เท่ากัน',ok:false},{em:'🤷',l:'ไม่รู้',ok:false}]},
+    {type:'domino', left:1, right:4, q:'ด้านไหนมีแต้มมากกว่า?', en:'Which side has more dots?',
+      ch:[{em:'⬅️',l:'ด้านซ้าย',ok:false},{em:'➡️',l:'ด้านขวา',ok:true},{em:'⚖️',l:'เท่ากัน',ok:false},{em:'🤷',l:'ไม่รู้',ok:false}]},
+    {type:'domino', left:4, right:4, q:'ด้านไหนมีแต้มมากกว่า?', en:'Which side has more dots?',
+      ch:[{em:'⬅️',l:'ด้านซ้าย',ok:false},{em:'➡️',l:'ด้านขวา',ok:false},{em:'⚖️',l:'เท่ากัน',ok:true},{em:'🤷',l:'ไม่รู้',ok:false}]},
+    {type:'domino', left:6, right:4, q:'ด้านซ้ายมีแต้มมากกว่าด้านขวากี่แต้ม?', en:'How many more dots on the left side?',
+      ch:[{em:'1️⃣',l:'1',ok:false},{em:'2️⃣',l:'2',ok:true},{em:'3️⃣',l:'3',ok:false},{em:'4️⃣',l:'4',ok:false}]},
+    {type:'domino', left:5, right:2, q:'ด้านซ้ายมีแต้มมากกว่าด้านขวากี่แต้ม?', en:'How many more dots on the left side?',
+      ch:[{em:'2️⃣',l:'2',ok:false},{em:'3️⃣',l:'3',ok:true},{em:'4️⃣',l:'4',ok:false},{em:'7️⃣',l:'7',ok:false}]},
+    {type:'domino', left:6, right:2, q:'ด้านซ้ายมีแต้มมากกว่าด้านขวากี่แต้ม?', en:'How many more dots on the left side?',
+      ch:[{em:'3️⃣',l:'3',ok:false},{em:'4️⃣',l:'4',ok:true},{em:'5️⃣',l:'5',ok:false},{em:'2️⃣',l:'2',ok:false}]},
+    // --- โดมิโนอนุกรม (1_3): หาโดมิโนถัดไป ---
+    {type:'domino-seq', seq:[[1,1],[2,1],[3,1]], q:'โดมิโนใดควรมาต่อจากลำดับนี้?', en:'Which domino comes next?',
+      ch:[{left:4,right:1,ok:true},{left:4,right:2,ok:false},{left:5,right:1,ok:false},{left:3,right:2,ok:false}]},
+    {type:'domino-seq', seq:[[1,1],[2,2],[3,3]], q:'โดมิโนใดควรมาต่อจากลำดับนี้?', en:'Which domino comes next?',
+      ch:[{left:4,right:4,ok:true},{left:4,right:3,ok:false},{left:3,right:4,ok:false},{left:5,right:5,ok:false}]},
+    {type:'domino-seq', seq:[[1,2],[2,3],[3,4]], q:'โดมิโนใดควรมาต่อจากลำดับนี้?', en:'Which domino comes next?',
+      ch:[{left:4,right:5,ok:true},{left:4,right:4,ok:false},{left:5,right:5,ok:false},{left:3,right:5,ok:false}]},
+    {type:'domino-seq', seq:[[6,6],[5,5],[4,4]], q:'โดมิโนใดควรมาต่อจากลำดับนี้?', en:'Which domino comes next?',
+      ch:[{left:3,right:3,ok:true},{left:2,right:2,ok:false},{left:4,right:3,ok:false},{left:3,right:4,ok:false}]},
+    {type:'domino-seq', seq:[[3,1],[3,2],[3,3]], q:'โดมิโนใดควรมาต่อจากลำดับนี้?', en:'Which domino comes next?',
+      ch:[{left:3,right:4,ok:true},{left:4,right:4,ok:false},{left:2,right:4,ok:false},{left:4,right:3,ok:false}]},
+    {type:'domino-seq', seq:[[1,6],[2,5],[3,4]], q:'โดมิโนใดควรมาต่อจากลำดับนี้?', en:'Which domino comes next?',
+      ch:[{left:4,right:3,ok:true},{left:3,right:3,ok:false},{left:5,right:3,ok:false},{left:4,right:4,ok:false}]},
+    {type:'domino-seq', seq:[[2,1],[3,2],[4,3]], q:'โดมิโนใดควรมาต่อจากลำดับนี้?', en:'Which domino comes next?',
+      ch:[{left:5,right:4,ok:true},{left:5,right:5,ok:false},{left:4,right:4,ok:false},{left:6,right:4,ok:false}]},
+    {type:'domino-seq', seq:[[1,1],[1,2],[1,3]], q:'โดมิโนใดควรมาต่อจากลำดับนี้?', en:'Which domino comes next?',
+      ch:[{left:1,right:4,ok:true},{left:2,right:4,ok:false},{left:1,right:5,ok:false},{left:2,right:3,ok:false}]},
+    {type:'domino-seq', seq:[[6,1],[5,2],[4,3]], q:'โดมิโนใดควรมาต่อจากลำดับนี้?', en:'Which domino comes next?',
+      ch:[{left:3,right:4,ok:true},{left:2,right:5,ok:false},{left:4,right:4,ok:false},{left:3,right:3,ok:false}]},
+    {type:'domino-seq', seq:[[2,6],[3,5],[4,4]], q:'โดมิโนใดควรมาต่อจากลำดับนี้?', en:'Which domino comes next?',
+      ch:[{left:5,right:3,ok:true},{left:4,right:3,ok:false},{left:6,right:2,ok:false},{left:5,right:4,ok:false}]},
+    {type:'domino-seq', seq:[[1,3],[2,3],[3,3]], q:'โดมิโนใดควรมาต่อจากลำดับนี้?', en:'Which domino comes next?',
+      ch:[{left:4,right:3,ok:true},{left:3,right:4,ok:false},{left:4,right:4,ok:false},{left:5,right:3,ok:false}]},
+    {type:'domino-seq', seq:[[6,2],[5,2],[4,2]], q:'โดมิโนใดควรมาต่อจากลำดับนี้?', en:'Which domino comes next?',
+      ch:[{left:3,right:2,ok:true},{left:2,right:2,ok:false},{left:3,right:3,ok:false},{left:4,right:1,ok:false}]},
   ]
 },
 
@@ -365,6 +441,122 @@ const CATS = [
         {x:1,y:2,z:0}
       ],
       ch:[{em:'5️⃣',l:'5',ok:false},{em:'6️⃣',l:'6',ok:false},{em:'7️⃣',l:'7',ok:true},{em:'8️⃣',l:'8',ok:false}]},
+    // 2_2 บล็อกประยุกต์ (รูปทรงซับซ้อน)
+    {type:'blocks', q:'มีกล่องทั้งหมดกี่ใบ?', en:'Count all the blocks',
+      pos:[
+        {x:0,y:0,z:0},{x:1,y:0,z:0},{x:2,y:0,z:0},
+        {x:0,y:1,z:0},{x:1,y:1,z:0},{x:2,y:1,z:0}
+      ],
+      ch:[{em:'5️⃣',l:'5',ok:false},{em:'6️⃣',l:'6',ok:true},{em:'7️⃣',l:'7',ok:false},{em:'8️⃣',l:'8',ok:false}]},
+    {type:'blocks', q:'มีกล่องทั้งหมดกี่ใบ?', en:'Count all the blocks',
+      pos:[
+        {x:0,y:0,z:0},{x:1,y:0,z:0},
+        {x:0,y:0,z:1},{x:1,y:0,z:1},
+        {x:0,y:1,z:0},{x:0,y:1,z:1}
+      ],
+      ch:[{em:'5️⃣',l:'5',ok:false},{em:'6️⃣',l:'6',ok:true},{em:'7️⃣',l:'7',ok:false},{em:'4️⃣',l:'4',ok:false}]},
+    {type:'blocks', q:'มีกล่องทั้งหมดกี่ใบ?', en:'Count all the blocks',
+      pos:[
+        {x:0,y:0,z:0},{x:1,y:0,z:0},{x:2,y:0,z:0},{x:3,y:0,z:0},
+        {x:0,y:0,z:1},{x:1,y:0,z:1},{x:2,y:0,z:1},
+        {x:0,y:0,z:2},{x:1,y:0,z:2},
+        {x:0,y:0,z:3}
+      ],
+      ch:[{em:'8️⃣',l:'8',ok:false},{em:'9️⃣',l:'9',ok:false},{em:'🔟',l:'10',ok:true},{em:'1️⃣',l:'11',ok:false}]},
+    {type:'blocks', q:'มีกล่องทั้งหมดกี่ใบ?', en:'Count all the blocks',
+      pos:[
+        {x:0,y:0,z:0},{x:0,y:0,z:1},
+        {x:2,y:0,z:0},{x:2,y:0,z:1},{x:2,y:0,z:2}
+      ],
+      ch:[{em:'4️⃣',l:'4',ok:false},{em:'5️⃣',l:'5',ok:true},{em:'6️⃣',l:'6',ok:false},{em:'7️⃣',l:'7',ok:false}]},
+    {type:'blocks', q:'มีกล่องทั้งหมดกี่ใบ?', en:'Count all the blocks',
+      pos:[
+        {x:0,y:0,z:0},{x:1,y:0,z:0},{x:2,y:0,z:0},{x:3,y:0,z:0},
+        {x:0,y:1,z:0},{x:0,y:2,z:0},{x:0,y:3,z:0}
+      ],
+      ch:[{em:'6️⃣',l:'6',ok:false},{em:'7️⃣',l:'7',ok:true},{em:'8️⃣',l:'8',ok:false},{em:'5️⃣',l:'5',ok:false}]},
+    {type:'blocks', q:'มีกล่องทั้งหมดกี่ใบ?', en:'Count all the blocks',
+      pos:[
+        {x:0,y:0,z:0},{x:1,y:0,z:0},{x:2,y:0,z:0},
+        {x:0,y:1,z:0},{x:1,y:1,z:0},
+        {x:0,y:2,z:0},{x:1,y:2,z:0},{x:2,y:2,z:0}
+      ],
+      ch:[{em:'7️⃣',l:'7',ok:false},{em:'8️⃣',l:'8',ok:true},{em:'9️⃣',l:'9',ok:false},{em:'6️⃣',l:'6',ok:false}]},
+    {type:'blocks', q:'มีกล่องทั้งหมดกี่ใบ?', en:'Count all the blocks',
+      pos:[
+        {x:0,y:0,z:0},{x:1,y:0,z:0},{x:0,y:1,z:0},{x:1,y:1,z:0},
+        {x:0,y:0,z:1},{x:1,y:0,z:1},{x:0,y:1,z:1},{x:1,y:1,z:1},
+        {x:2,y:0,z:0},{x:2,y:0,z:1},{x:2,y:0,z:2}
+      ],
+      ch:[{em:'🔟',l:'10',ok:false},{em:'1️⃣',l:'11',ok:true},{em:'1️⃣',l:'12',ok:false},{em:'9️⃣',l:'9',ok:false}]},
+    {type:'blocks', q:'มีกล่องทั้งหมดกี่ใบ?', en:'Count all the blocks',
+      pos:[
+        {x:0,y:0,z:0},{x:1,y:0,z:0},{x:2,y:0,z:0},
+        {x:0,y:0,z:1},{x:0,y:0,z:2},
+        {x:0,y:1,z:0},{x:0,y:1,z:1}
+      ],
+      ch:[{em:'6️⃣',l:'6',ok:false},{em:'7️⃣',l:'7',ok:true},{em:'8️⃣',l:'8',ok:false},{em:'5️⃣',l:'5',ok:false}]},
+    // 2_3 คลี่ลูกเต๋า — ถามว่าด้านใดอยู่ตรงข้ามด้าน ★
+    {type:'cubenet',
+      layout:[[null,'blue',null,null],['green','red','yellow','pink'],[null,'purple',null,null]],
+      hl:'red',
+      q:'ด้าน ★ สีแดง อยู่ตรงข้ามกับสีใด?', en:'Which colour is opposite to red (★)?',
+      ch:[{em:'🩷',l:'ชมพู',ok:true},{em:'🔵',l:'น้ำเงิน',ok:false},{em:'🟢',l:'เขียว',ok:false},{em:'🟡',l:'เหลือง',ok:false}]},
+    {type:'cubenet',
+      layout:[[null,'blue',null,null],['green','red','yellow','pink'],[null,'purple',null,null]],
+      hl:'blue',
+      q:'ด้าน ★ สีน้ำเงิน อยู่ตรงข้ามกับสีใด?', en:'Which colour is opposite to blue (★)?',
+      ch:[{em:'🟣',l:'ม่วง',ok:true},{em:'🩷',l:'ชมพู',ok:false},{em:'🟢',l:'เขียว',ok:false},{em:'🔴',l:'แดง',ok:false}]},
+    {type:'cubenet',
+      layout:[[null,'blue',null,null],['green','red','yellow','pink'],[null,'purple',null,null]],
+      hl:'green',
+      q:'ด้าน ★ สีเขียว อยู่ตรงข้ามกับสีใด?', en:'Which colour is opposite to green (★)?',
+      ch:[{em:'🟡',l:'เหลือง',ok:true},{em:'🟣',l:'ม่วง',ok:false},{em:'🔴',l:'แดง',ok:false},{em:'🩷',l:'ชมพู',ok:false}]},
+    {type:'cubenet',
+      layout:[[null,'red',null,null],['yellow','blue','purple','green'],[null,'pink',null,null]],
+      hl:'blue',
+      q:'ด้าน ★ สีน้ำเงิน อยู่ตรงข้ามกับสีใด?', en:'Which colour is opposite to blue (★)?',
+      ch:[{em:'🟢',l:'เขียว',ok:true},{em:'🔴',l:'แดง',ok:false},{em:'🟡',l:'เหลือง',ok:false},{em:'🩷',l:'ชมพู',ok:false}]},
+    {type:'cubenet',
+      layout:[[null,'red',null,null],['yellow','blue','purple','green'],[null,'pink',null,null]],
+      hl:'red',
+      q:'ด้าน ★ สีแดง อยู่ตรงข้ามกับสีใด?', en:'Which colour is opposite to red (★)?',
+      ch:[{em:'🩷',l:'ชมพู',ok:true},{em:'🟢',l:'เขียว',ok:false},{em:'🟣',l:'ม่วง',ok:false},{em:'🔵',l:'น้ำเงิน',ok:false}]},
+    {type:'cubenet',
+      layout:[[null,'red',null,null],['yellow','blue','purple','green'],[null,'pink',null,null]],
+      hl:'yellow',
+      q:'ด้าน ★ สีเหลือง อยู่ตรงข้ามกับสีใด?', en:'Which colour is opposite to yellow (★)?',
+      ch:[{em:'🟣',l:'ม่วง',ok:true},{em:'🔴',l:'แดง',ok:false},{em:'🩷',l:'ชมพู',ok:false},{em:'🔵',l:'น้ำเงิน',ok:false}]},
+    {type:'cubenet',
+      layout:[[null,'yellow',null,null],['pink','green','red','blue'],[null,'purple',null,null]],
+      hl:'green',
+      q:'ด้าน ★ สีเขียว อยู่ตรงข้ามกับสีใด?', en:'Which colour is opposite to green (★)?',
+      ch:[{em:'🔵',l:'น้ำเงิน',ok:true},{em:'🟡',l:'เหลือง',ok:false},{em:'🔴',l:'แดง',ok:false},{em:'🩷',l:'ชมพู',ok:false}]},
+    {type:'cubenet',
+      layout:[[null,'yellow',null,null],['pink','green','red','blue'],[null,'purple',null,null]],
+      hl:'yellow',
+      q:'ด้าน ★ สีเหลือง อยู่ตรงข้ามกับสีใด?', en:'Which colour is opposite to yellow (★)?',
+      ch:[{em:'🟣',l:'ม่วง',ok:true},{em:'🔵',l:'น้ำเงิน',ok:false},{em:'🔴',l:'แดง',ok:false},{em:'🩷',l:'ชมพู',ok:false}]},
+    {type:'cubenet',
+      layout:[[null,'yellow',null,null],['pink','green','red','blue'],[null,'purple',null,null]],
+      hl:'pink',
+      q:'ด้าน ★ สีชมพู อยู่ตรงข้ามกับสีใด?', en:'Which colour is opposite to pink (★)?',
+      ch:[{em:'🔴',l:'แดง',ok:true},{em:'🟡',l:'เหลือง',ok:false},{em:'🟣',l:'ม่วง',ok:false},{em:'🔵',l:'น้ำเงิน',ok:false}]},
+    {type:'cubenet',
+      layout:[[null,'purple',null,null],['red','yellow','green','blue'],[null,'pink',null,null]],
+      hl:'yellow',
+      q:'ด้าน ★ สีเหลือง อยู่ตรงข้ามกับสีใด?', en:'Which colour is opposite to yellow (★)?',
+      ch:[{em:'🔵',l:'น้ำเงิน',ok:true},{em:'🟢',l:'เขียว',ok:false},{em:'🔴',l:'แดง',ok:false},{em:'🩷',l:'ชมพู',ok:false}]},
+    {type:'cubenet',
+      layout:[[null,'purple',null,null],['red','yellow','green','blue'],[null,'pink',null,null]],
+      hl:'purple',
+      q:'ด้าน ★ สีม่วง อยู่ตรงข้ามกับสีใด?', en:'Which colour is opposite to purple (★)?',
+      ch:[{em:'🩷',l:'ชมพู',ok:true},{em:'🔵',l:'น้ำเงิน',ok:false},{em:'🟢',l:'เขียว',ok:false},{em:'🔴',l:'แดง',ok:false}]},
+    {type:'cubenet',
+      layout:[[null,'purple',null,null],['red','yellow','green','blue'],[null,'pink',null,null]],
+      hl:'red',
+      q:'ด้าน ★ สีแดง อยู่ตรงข้ามกับสีใด?', en:'Which colour is opposite to red (★)?',
+      ch:[{em:'🟢',l:'เขียว',ok:true},{em:'🟣',l:'ม่วง',ok:false},{em:'🩷',l:'ชมพู',ok:false},{em:'🟡',l:'เหลือง',ok:false}]},
   ]
 },
 
@@ -450,13 +642,66 @@ const CATS = [
   ]
 },
 
+,
+
+/* ── CAT 4: ภาษาไทย (ภาพ + ตัวเลือก) ── */
+{
+  id:4, em:'🇹🇭', name:'ภาษาไทย', en:'Thai Language', cls:'cc1',
+  qs:[
+    // ภาพนี้คืออะไร?
+    {type:'mcq', img:'🦒', q:'ภาพนี้คือสัตว์ชนิดใด?', en:'What animal is this?',
+      ch:[{em:'🦒',l:'ยีราฟ',ok:true},{em:'🦓',l:'ม้าลาย',ok:false},{em:'🐫',l:'อูฐ',ok:false},{em:'🦏',l:'แรด',ok:false}]},
+    {type:'mcq', img:'🌻', q:'ดอกไม้ในภาพชื่อว่าอะไร?', en:'What flower is this?',
+      ch:[{em:'🌸',l:'ดาวเรือง',ok:false},{em:'🌺',l:'มะลิ',ok:false},{em:'🌻',l:'ทานตะวัน',ok:true},{em:'🌷',l:'กุหลาบ',ok:false}]},
+    {type:'mcq', img:'🥕', q:'ผักในภาพชื่อว่าอะไร?', en:'What vegetable is this?',
+      ch:[{em:'🥔',l:'มันฝรั่ง',ok:false},{em:'🥕',l:'แครอท',ok:true},{em:'🧅',l:'หัวหอม',ok:false},{em:'🌽',l:'ข้าวโพด',ok:false}]},
+    {type:'mcq', img:'🚒', q:'รถในภาพใช้สำหรับทำอะไร?', en:'What is this vehicle used for?',
+      ch:[{em:'🚑',l:'ส่งผู้ป่วย',ok:false},{em:'🚓',l:'จับโจร',ok:false},{em:'🚒',l:'ดับเพลิง',ok:true},{em:'🚌',l:'รับส่งคน',ok:false}]},
+    {type:'mcq', img:'🥁', q:'เครื่องดนตรีชนิดนี้ชื่อว่าอะไร?', en:'What instrument is this?',
+      ch:[{em:'🎸',l:'กีตาร์',ok:false},{em:'🎹',l:'เปียโน',ok:false},{em:'🥁',l:'กลอง',ok:true},{em:'🎺',l:'ทรัมเปต',ok:false}]},
+    {type:'mcq', img:'🌋', q:'ภาพนี้คืออะไร?', en:'What is this?',
+      ch:[{em:'⛰️',l:'ภูเขา',ok:false},{em:'🏔️',l:'เนินเขา',ok:false},{em:'🌋',l:'ภูเขาไฟ',ok:true},{em:'🗻',l:'ยอดหิมะ',ok:false}]},
+    {type:'mcq', img:'🔭', q:'อุปกรณ์นี้ใช้ทำอะไร?', en:'What is this instrument used for?',
+      ch:[{em:'🔭',l:'ดูดาวและดวงจันทร์',ok:true},{em:'🔬',l:'ส่องสิ่งเล็กๆ',ok:false},{em:'📡',l:'รับสัญญาณวิทยุ',ok:false},{em:'📷',l:'ถ่ายภาพ',ok:false}]},
+    {type:'mcq', img:'🦅', q:'นกในภาพชื่อว่าอะไร?', en:'What bird is this?',
+      ch:[{em:'🦚',l:'นกยูง',ok:false},{em:'🦅',l:'นกอินทรี',ok:true},{em:'🦜',l:'นกแก้ว',ok:false},{em:'🦩',l:'นกฟลามิงโก้',ok:false}]},
+    // ข้อใดไม่เข้าพวก
+    {type:'mcq', img:'🔍', q:'🐟 🦈 🐬 🦁\nข้อใดไม่เข้าพวก?', en:'Which does NOT belong?',
+      ch:[{em:'🐟',l:'ปลา',ok:false},{em:'🦈',l:'ฉลาม',ok:false},{em:'🐬',l:'โลมา',ok:false},{em:'🦁',l:'สิงโต',ok:true}]},
+    {type:'mcq', img:'🔍', q:'🍎 🍌 🥕 🍊\nข้อใดไม่เข้าพวก?', en:'Which does NOT belong?',
+      ch:[{em:'🍎',l:'แอปเปิ้ล',ok:false},{em:'🍌',l:'กล้วย',ok:false},{em:'🥕',l:'แครอท',ok:true},{em:'🍊',l:'ส้ม',ok:false}]},
+    {type:'mcq', img:'🔍', q:'✏️ 📏 📚 ⚽\nข้อใดไม่เข้าพวก?', en:'Which does NOT belong?',
+      ch:[{em:'✏️',l:'ดินสอ',ok:false},{em:'📏',l:'ไม้บรรทัด',ok:false},{em:'📚',l:'หนังสือ',ok:false},{em:'⚽',l:'ลูกฟุตบอล',ok:true}]},
+    {type:'mcq', img:'🔍', q:'🌹 🌻 🌼 🍄\nข้อใดไม่เข้าพวก?', en:'Which does NOT belong?',
+      ch:[{em:'🌹',l:'กุหลาบ',ok:false},{em:'🌻',l:'ทานตะวัน',ok:false},{em:'🌼',l:'เดซี่',ok:false},{em:'🍄',l:'เห็ด',ok:true}]},
+    // คำตรงข้าม
+    {type:'mcq', img:'🔄', q:'"ร้อน" มีความหมายตรงข้ามกับคำใด?', en:'Opposite of "hot"?',
+      ch:[{em:'🌡️',l:'อุ่น',ok:false},{em:'❄️',l:'เย็น',ok:true},{em:'🔥',l:'อบอ้าว',ok:false},{em:'☀️',l:'ร้อนจัด',ok:false}]},
+    {type:'mcq', img:'🔄', q:'"กว้าง" มีความหมายตรงข้ามกับคำใด?', en:'Opposite of "wide"?',
+      ch:[{em:'📐',l:'ใหญ่',ok:false},{em:'📏',l:'ยาว',ok:false},{em:'➡️',l:'แคบ',ok:true},{em:'⬆️',l:'สูง',ok:false}]},
+    {type:'mcq', img:'🔄', q:'"มืด" มีความหมายตรงข้ามกับคำใด?', en:'Opposite of "dark"?',
+      ch:[{em:'🖤',l:'ดำ',ok:false},{em:'💡',l:'สว่าง',ok:true},{em:'🔵',l:'น้ำเงิน',ok:false},{em:'🚪',l:'ปิด',ok:false}]},
+    {type:'mcq', img:'🔄', q:'"เร็ว" มีความหมายตรงข้ามกับคำใด?', en:'Opposite of "fast"?',
+      ch:[{em:'🏃',l:'วิ่ง',ok:false},{em:'🐢',l:'ช้า',ok:true},{em:'🛑',l:'หยุด',ok:false},{em:'🚶',l:'เดิน',ok:false}]},
+    // หน่วยนับ (Thai classifiers)
+    {type:'mcq', img:'✏️', q:'ดินสอ 3 ___ จงเติมหน่วยนับให้ถูกต้อง', en:'3 ___ of pencils (classifier)',
+      ch:[{em:'✏️',l:'แท่ง',ok:true},{em:'🚗',l:'คัน',ok:false},{em:'📦',l:'ใบ',ok:false},{em:'🍃',l:'ชิ้น',ok:false}]},
+    {type:'mcq', img:'🚗', q:'รถยนต์ 2 ___ จงเติมหน่วยนับให้ถูกต้อง', en:'2 ___ of cars (classifier)',
+      ch:[{em:'🛩️',l:'ลำ',ok:false},{em:'🚗',l:'คัน',ok:true},{em:'🐾',l:'ตัว',ok:false},{em:'🍃',l:'ใบ',ok:false}]},
+    {type:'mcq', img:'📄', q:'กระดาษ 5 ___ จงเติมหน่วยนับให้ถูกต้อง', en:'5 ___ of paper (classifier)',
+      ch:[{em:'📄',l:'แผ่น',ok:true},{em:'🔢',l:'ชิ้น',ok:false},{em:'✏️',l:'อัน',ok:false},{em:'🍃',l:'ใบ',ok:false}]},
+    {type:'mcq', img:'🐘', q:'ช้าง 4 ___ จงเติมหน่วยนับให้ถูกต้อง', en:'4 ___ of elephants (classifier)',
+      ch:[{em:'🐘',l:'ตัว',ok:true},{em:'🚗',l:'คัน',ok:false},{em:'👤',l:'คน',ok:false},{em:'🏠',l:'หลัง',ok:false}]},
+  ]
+},
+
 ]; // end CATS
 
 /* ══════════════════════════════════════════
    STATE
 ══════════════════════════════════════════ */
 let curCat=null, curQ=0, score=0, answered=false, curQs=[];
-const bestScores=[null,null,null,null];
+const bestScores=[null,null,null,null,null];
 const LETTERS=['ก','ข','ค','ง'];
 const PRAISE=['เก่งมาก! 🎉','ถูกต้องเลย! ⭐','ใช่เลย! 🌟','ดีมากเลย! 🎊','เยี่ยมมาก! 🏆','สุดยอด! 🥳'];
 const OOPS=['เกือบแล้ว! ดูเฉลยสีเขียวนะ 💚','ไม่เป็นไรนะ! ดูคำตอบสีเขียว 🌿','ลองอีกครั้งได้เลย! 💚'];
@@ -525,6 +770,7 @@ function hideParts(){
   });
   document.getElementById('patTiles').style.display='none';
   document.getElementById('blockWrap').style.display='none';
+  document.getElementById('qImage').style.fontSize='';
   document.getElementById('choicesGrid').innerHTML='';
   const fb=document.getElementById('feedbackBox');
   fb.className='feedback-box idle'; fb.textContent='‎';
@@ -538,11 +784,13 @@ function buildCatGrid(){
   const grid=document.getElementById('catGrid');
   grid.innerHTML='';
   const countTypes=(qs)=>{
-    const counts={mcq:0,pattern:0,blocks:0,tts:0};
+    const counts={mcq:0,pattern:0,blocks:0,tts:0,domino:0,cubenet:0};
     qs.forEach(q=>{
       if(q.type==='pattern') counts.pattern++;
       else if(q.type==='blocks') counts.blocks++;
       else if(q.type==='tts') counts.tts++;
+      else if(q.type==='domino'||q.type==='domino-seq') counts.domino++;
+      else if(q.type==='cubenet') counts.cubenet++;
       else counts.mcq++;
     });
     return counts;
@@ -554,18 +802,26 @@ function buildCatGrid(){
     if(c.mcq) parts.push(`ตัวเลือก ${c.mcq}`);
     if(c.pattern) parts.push(`แพทเทิร์น ${c.pattern}`);
     if(c.blocks) parts.push(`บล็อก ${c.blocks}`);
+    if(c.domino) parts.push(`โดมิโน ${c.domino}`);
+    if(c.cubenet) parts.push(`คลี่ลูกเต๋า ${c.cubenet}`);
     if(c.tts) parts.push(`ฟัง ${c.tts}`);
     const base=parts.join(' · ');
-    return best!==null?`⭐ ${best} / 5 · ${base}`:base;
+    return (best!=null)?`⭐ ${best} / 5 · ${base}`:base;
   };
   CATS.forEach((cat,i)=>{
     const btn=document.createElement('button');
     const best=bestScores[i];
-    btn.className='cat-btn '+cat.cls+(best!==null?' done':'');
+    btn.className='cat-btn '+cat.cls+(best!=null?' done':'');
     btn.innerHTML=`<span class="cat-em">${cat.em}</span><div class="cat-name">${cat.name}</div><div class="cat-en">${cat.en}</div><div class="cat-score">${catCountLabel(best,cat.qs)}</div>`;
     btn.onclick=()=>startCat(i);
     grid.appendChild(btn);
   });
+  // Canvas drawing button (ทักษะมือ)
+  const cvBtn=document.createElement('button');
+  cvBtn.className='cat-btn cc2';
+  cvBtn.innerHTML=`<span class="cat-em">✏️</span><div class="cat-name">ลากเส้น</div><div class="cat-en">Drawing</div><div class="cat-score">6 แบบ — ลากตามจุด</div>`;
+  cvBtn.onclick=startCanvas;
+  grid.appendChild(cvBtn);
 }
 
 /* ══════════════════════════════════════════
@@ -591,6 +847,9 @@ function renderQ(){
   if(q.type==='pattern') renderPattern(q);
   else if(q.type==='tts') renderTTS(q);
   else if(q.type==='blocks') renderBlocks(q);
+  else if(q.type==='domino') renderDomino(q);
+  else if(q.type==='domino-seq') renderDominoSeq(q);
+  else if(q.type==='cubenet') renderCubeNet(q);
   else renderMCQ(q);
 }
 
@@ -727,6 +986,109 @@ function renderBlocks(q){
 }
 
 /* ══════════════════════════════════════════
+   DOMINO SVG + RENDERING
+══════════════════════════════════════════ */
+const DOT_POS={
+  0:[],
+  1:[[0.5,0.5]],
+  2:[[0.75,0.25],[0.25,0.75]],
+  3:[[0.75,0.25],[0.5,0.5],[0.25,0.75]],
+  4:[[0.25,0.25],[0.75,0.25],[0.25,0.75],[0.75,0.75]],
+  5:[[0.25,0.25],[0.75,0.25],[0.5,0.5],[0.25,0.75],[0.75,0.75]],
+  6:[[0.25,0.25],[0.75,0.25],[0.25,0.5],[0.75,0.5],[0.25,0.75],[0.75,0.75]],
+};
+function makeDominoSVG(left,right,w,h){
+  const halfW=w/2,R=Math.max(4,Math.round(h*0.14));
+  const dotR=Math.max(2.5,h*0.1);
+  const pad=Math.round(h*0.17);
+  const cW=halfW-pad*2,cH=h-pad*2;
+  function half(n,ox){
+    return(DOT_POS[n]||[]).map(([fx,fy])=>{
+      const cx=(ox+pad+fx*cW).toFixed(1);
+      const cy=(pad+fy*cH).toFixed(1);
+      return`<circle cx="${cx}" cy="${cy}" r="${dotR.toFixed(1)}" fill="#2d3047"/>`;
+    }).join('');
+  }
+  return`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" style="width:${w}px;height:${h}px;display:block">
+    <rect width="${w}" height="${h}" rx="${R}" ry="${R}" fill="#fffef0" stroke="#2d3047" stroke-width="2.5"/>
+    <line x1="${halfW}" y1="${R}" x2="${halfW}" y2="${h-R}" stroke="#2d3047" stroke-width="1.8"/>
+    ${half(left,0)}${half(right,halfW)}</svg>`;
+}
+
+function renderDomino(q){
+  const card=document.getElementById('stdCard');
+  card.style.display='';
+  const imgEl=document.getElementById('qImage');
+  imgEl.className='q-image visible';
+  imgEl.style.fontSize='0';
+  imgEl.innerHTML=`<div style="display:flex;justify-content:center">${makeDominoSVG(q.left,q.right,160,82)}</div>`;
+  document.getElementById('qText').textContent=q.q;
+  document.getElementById('qTextEn').textContent=q.en||'';
+  buildMCQChoices(q.ch);
+}
+
+function renderDominoSeq(q){
+  const card=document.getElementById('stdCard');
+  card.style.display='';
+  const imgEl=document.getElementById('qImage');
+  imgEl.className='q-image visible';
+  imgEl.style.fontSize='0';
+  const items=q.seq.map((pair,i)=>
+    `${i>0?'<span class="domino-arrow">→</span>':''}${makeDominoSVG(pair[0],pair[1],68,35)}`
+  ).join('');
+  imgEl.innerHTML=`<div class="domino-seq-wrap">${items}<span class="domino-arrow">→</span><div class="domino-blank">?</div></div>`;
+  document.getElementById('qText').textContent=q.q;
+  document.getElementById('qTextEn').textContent=q.en||'';
+  buildDominoSeqChoices(q.ch);
+}
+
+function buildDominoSeqChoices(chArr){
+  const grid=document.getElementById('choicesGrid');
+  const shuffled=shuffle(chArr);
+  shuffled.forEach((ch,i)=>{
+    const btn=document.createElement('button');
+    btn.className='choice-btn';
+    btn.innerHTML=`<span class="ch-letter">${LETTERS[i]}</span><span class="ch-domino-svg">${makeDominoSVG(ch.left,ch.right,92,46)}</span>`;
+    btn.onclick=()=>pickMCQ(btn,ch.ok,shuffled);
+    grid.appendChild(btn);
+  });
+}
+
+/* ══════════════════════════════════════════
+   CUBE NET SVG + RENDERING
+══════════════════════════════════════════ */
+const FACE_CLR={red:'#ef4444',blue:'#3b82f6',green:'#16a34a',yellow:'#fbbf24',purple:'#7c3aed',pink:'#f472b6'};
+function drawCubeNet(layout,hl){
+  const CS=46;
+  const rows=layout.length;
+  const cols=Math.max(...layout.map(r=>r.length));
+  let cells='';
+  layout.forEach((row,ri)=>{
+    row.forEach((face,ci)=>{
+      if(!face)return;
+      const x=ci*CS,y=ri*CS;
+      const isHL=face===hl;
+      const fill=FACE_CLR[face]||'#ccc';
+      cells+=`<rect x="${x+1}" y="${y+1}" width="${CS-2}" height="${CS-2}" fill="${fill}" stroke="${isHL?'#000':'#555'}" stroke-width="${isHL?3.5:1.5}" rx="5"/>`;
+      if(isHL)cells+=`<text x="${x+CS/2}" y="${y+CS/2+8}" text-anchor="middle" font-size="24" fill="white" font-weight="bold">★</text>`;
+    });
+  });
+  const W=cols*CS,H=rows*CS;
+  return`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:${Math.min(W*1.3,260)}px;height:auto;display:block">${cells}</svg>`;
+}
+function renderCubeNet(q){
+  const card=document.getElementById('stdCard');
+  card.style.display='';
+  const imgEl=document.getElementById('qImage');
+  imgEl.className='q-image visible';
+  imgEl.style.fontSize='0';
+  imgEl.innerHTML=`<div style="display:flex;justify-content:center">${drawCubeNet(q.layout,q.hl)}</div>`;
+  document.getElementById('qText').textContent=q.q;
+  document.getElementById('qTextEn').textContent=q.en||'';
+  buildMCQChoices(q.ch);
+}
+
+/* ══════════════════════════════════════════
    NEXT / SCORE
 ══════════════════════════════════════════ */
 function nextQuestion(){
@@ -772,6 +1134,111 @@ function showView(v){
   document.getElementById('catView').style.display=v==='cat'?'':'none';
   document.getElementById('quizView').className='quiz-panel'+(v==='quiz'?' show':'');
   document.getElementById('scoreView').className='score-panel'+(v==='score'?' show':'');
+  document.getElementById('canvasView').style.display=v==='canvas'?'':'none';
+}
+
+/* ══════════════════════════════════════════
+   CANVAS DRAWING (3_1 + 3_2)
+══════════════════════════════════════════ */
+const DRAWINGS=[
+  {name:'สามเหลี่ยม',em:'🔺',dots:[{x:140,y:30},{x:252,y:192},{x:28,y:192}],closed:true},
+  {name:'บ้าน',em:'🏠',dots:[{x:30,y:192},{x:30,y:100},{x:140,y:28},{x:250,y:100},{x:250,y:192}],closed:true},
+  {name:'สี่เหลี่ยม',em:'⬜',dots:[{x:38,y:38},{x:242,y:38},{x:242,y:182},{x:38,y:182}],closed:true},
+  {name:'เพชร',em:'💎',dots:[{x:140,y:20},{x:255,y:110},{x:140,y:200},{x:25,y:110}],closed:true},
+  {name:'บันได',em:'🪜',dots:[{x:28,y:195},{x:28,y:138},{x:95,y:138},{x:95,y:82},{x:162,y:82},{x:162,y:26},{x:228,y:26}],closed:false},
+  {name:'ซิกแซก',em:'⚡',dots:[{x:28,y:28},{x:110,y:192},{x:192,y:28},{x:272,y:192}],closed:false},
+];
+let cvIdx=0,cvCollected=0,cvAnswered=false;
+
+function startCanvas(){
+  cvIdx=0;
+  showView('canvas');
+  renderDrawing();
+}
+
+function renderDrawing(){
+  const d=DRAWINGS[cvIdx];
+  document.getElementById('cvProgFill').style.width=(cvIdx/DRAWINGS.length*100)+'%';
+  document.getElementById('cvProgText').textContent=(cvIdx+1)+' / '+DRAWINGS.length;
+  document.getElementById('cvInstruct').textContent='วาดรูป'+d.name+' — ลากเส้นผ่านจุด 1→2→3... ตามลำดับ';
+  document.getElementById('cvFeedback').className='feedback-box idle';
+  document.getElementById('cvFeedback').textContent='‎';
+  document.getElementById('cvNextBtn').className='btn-next';
+  cvCollected=0; cvAnswered=false;
+  setupCanvasEvents(d);
+}
+
+function drawState(d,collected){
+  const c=document.getElementById('drawCanvas');
+  const g=c.getContext('2d');
+  c.width=c.width; // clear
+  // Draw completed path
+  if(collected>1){
+    g.strokeStyle='#7c3aed'; g.lineWidth=4; g.lineCap='round'; g.lineJoin='round';
+    g.beginPath();
+    g.moveTo(d.dots[0].x,d.dots[0].y);
+    for(let i=1;i<collected;i++) g.lineTo(d.dots[i].x,d.dots[i].y);
+    if(collected===d.dots.length&&d.closed) g.closePath();
+    g.stroke();
+  }
+  // Draw dots
+  d.dots.forEach((pt,i)=>{
+    const done=i<collected;
+    g.beginPath(); g.arc(pt.x,pt.y,18,0,Math.PI*2);
+    g.fillStyle=done?'#22c55e':'#7c3aed'; g.fill();
+    g.strokeStyle='white'; g.lineWidth=2.5; g.stroke();
+    g.fillStyle='white';
+    g.font='bold 13px Fredoka,sans-serif';
+    g.textAlign='center'; g.textBaseline='middle';
+    g.fillText(done?'✓':(i+1),pt.x,pt.y);
+  });
+}
+
+function setupCanvasEvents(d){
+  // Replace canvas to remove old listeners
+  const old=document.getElementById('drawCanvas');
+  const nc=old.cloneNode(false);
+  old.parentNode.replaceChild(nc,old);
+  const c=document.getElementById('drawCanvas');
+  let pressing=false;
+  const HIT=30;
+  function getPos(e){
+    const r=c.getBoundingClientRect();
+    const sx=c.width/r.width, sy=c.height/r.height;
+    const src=e.touches?e.touches[0]:e;
+    return{x:(src.clientX-r.left)*sx,y:(src.clientY-r.top)*sy};
+  }
+  function check(pos){
+    if(cvAnswered)return;
+    const pt=d.dots[cvCollected];
+    if(!pt)return;
+    const dx=pos.x-pt.x,dy=pos.y-pt.y;
+    if(Math.sqrt(dx*dx+dy*dy)<HIT){
+      cvCollected++;
+      drawState(d,cvCollected);
+      if(cvCollected===d.dots.length){
+        cvAnswered=true;
+        const fb=document.getElementById('cvFeedback');
+        fb.className='feedback-box correct'; fb.textContent=rand(PRAISE);
+        const nb=document.getElementById('cvNextBtn');
+        nb.textContent=cvIdx+1<DRAWINGS.length?'ข้อถัดไป →':'จบแล้ว! 🏆';
+        nb.className='btn-next show';
+      }
+    }
+  }
+  c.addEventListener('mousedown',e=>{pressing=true;check(getPos(e));});
+  c.addEventListener('mousemove',e=>{if(pressing)check(getPos(e));});
+  c.addEventListener('mouseup',()=>pressing=false);
+  c.addEventListener('touchstart',e=>{e.preventDefault();pressing=true;check(getPos(e));},{passive:false});
+  c.addEventListener('touchmove',e=>{e.preventDefault();if(pressing)check(getPos(e));},{passive:false});
+  c.addEventListener('touchend',()=>pressing=false);
+  drawState(d,0);
+}
+
+function nextDrawing(){
+  cvIdx++;
+  if(cvIdx>=DRAWINGS.length){goHome();return;}
+  renderDrawing();
 }
 
 /* ══════════════════════════════════════════
