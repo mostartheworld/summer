@@ -742,7 +742,7 @@ function drawBlocks(positions) {
   });
   let paths='';
   sorted.forEach(({x,y,z},i)=>{
-    const base=palette[i%palette.length];
+    const base=palette[(x+y*3)%palette.length];
     const sx=cx+(x-y)*S, sy=cy+(x+y)*S*0.5-z*S;
     const T=[[sx,sy-S*0.5],[sx+S,sy],[sx,sy+S*0.5],[sx-S,sy]];
     const L=[[sx-S,sy],[sx,sy+S*0.5],[sx,sy+S*0.5+S],[sx-S,sy+S]];
