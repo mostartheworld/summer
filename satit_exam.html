@@ -742,10 +742,12 @@ function drawBlocks(positions) {
     const T=[[sx,sy-S*0.5],[sx+S,sy],[sx,sy+S*0.5],[sx-S,sy]];
     const L=[[sx-S,sy],[sx,sy+S*0.5],[sx,sy+S*0.5+S],[sx-S,sy+S]];
     const R=[[sx,sy+S*0.5],[sx+S,sy],[sx+S,sy+S],[sx,sy+S*0.5+S]];
+    const hex=[[sx,sy-S*0.5],[sx+S,sy],[sx+S,sy+S],[sx,sy+S*0.5+S],[sx-S,sy+S],[sx-S,sy]];
     const p=arr=>arr.map(([px,py])=>`${Math.round(px)},${Math.round(py)}`).join(' ');
-    paths+=`<polygon points="${p(T)}" fill="${lit(base,1.15)}" stroke="#111827" stroke-width="2"/>`;
-    paths+=`<polygon points="${p(L)}" fill="${dim(base,0.62)}" stroke="#111827" stroke-width="2"/>`;
-    paths+=`<polygon points="${p(R)}" fill="${base}" stroke="#111827" stroke-width="2"/>`;
+    paths+=`<polygon points="${p(T)}" fill="${lit(base,1.15)}" stroke="none"/>`;
+    paths+=`<polygon points="${p(L)}" fill="${dim(base,0.62)}" stroke="none"/>`;
+    paths+=`<polygon points="${p(R)}" fill="${base}" stroke="none"/>`;
+    paths+=`<polygon points="${p(hex)}" fill="none" stroke="#111827" stroke-width="2.5" stroke-linejoin="round"/>`;
   });
   return `<svg viewBox="0 0 310 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:300px">${paths}</svg>`;
 }
