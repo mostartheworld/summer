@@ -734,24 +734,18 @@ function drawBlocks(positions) {
     if(a.y!==b.y) return b.y-a.y;
     return a.z-b.z;
   });
-  const SK='#111827';
   let paths='';
   sorted.forEach(({x,y,z},i)=>{
     const base=palette[i%palette.length];
     const sx=cx+(x-y)*S, sy=cy+(x+y)*S*0.5-z*S;
-    // named key points
-    const tp=[sx,sy-S*0.5], lt=[sx-S,sy], rt=[sx+S,sy];
-    const fc=[sx,sy+S*0.5], bl=[sx-S,sy+S], br=[sx+S,sy+S], bt=[sx,sy+S*0.5+S];
+    const T=[[sx,sy-S*0.5],[sx+S,sy],[sx,sy+S*0.5],[sx-S,sy]];
+    const L=[[sx-S,sy],[sx,sy+S*0.5],[sx,sy+S*0.5+S],[sx-S,sy+S]];
+    const R=[[sx,sy+S*0.5],[sx+S,sy],[sx+S,sy+S],[sx,sy+S*0.5+S]];
     const p=arr=>arr.map(([px,py])=>`${Math.round(px)},${Math.round(py)}`).join(' ');
-    const ln=(a,b)=>`<line x1="${Math.round(a[0])}" y1="${Math.round(a[1])}" x2="${Math.round(b[0])}" y2="${Math.round(b[1])}" stroke="${SK}" stroke-width="2" stroke-linecap="round"/>`;
-    // 3 faces (no stroke — clean fills)
-    paths+=`<polygon points="${p([tp,rt,fc,lt])}" fill="${lit(base,1.15)}" stroke="none"/>`;
-    paths+=`<polygon points="${p([lt,fc,bt,bl])}" fill="${dim(base,0.6)}" stroke="none"/>`;
-    paths+=`<polygon points="${p([fc,rt,br,bt])}" fill="${base}" stroke="none"/>`;
-    // internal Y-ridges (separate the 3 faces visually)
-    paths+=ln(lt,fc)+ln(rt,fc)+ln(fc,bt);
-    // outer hex outline (clearly bounds the whole block)
-    paths+=`<polygon points="${p([tp,rt,br,bt,bl,lt])}" fill="none" stroke="${SK}" stroke-width="2.5" stroke-linejoin="round"/>`;
+    const SK='stroke="#111827" stroke-width="2.5" stroke-linejoin="round"';
+    paths+=`<polygon points="${p(T)}" fill="${lit(base,1.15)}" ${SK}/>`;
+    paths+=`<polygon points="${p(L)}" fill="${dim(base,0.75)}" ${SK}/>`;
+    paths+=`<polygon points="${p(R)}" fill="${base}" ${SK}/>`;
   });
   return `<svg viewBox="0 0 310 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:300px">${paths}</svg>`;
 }
