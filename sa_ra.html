@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🗣️ สระ, Sa-ra — Summer's World</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root { --cream:#FFF8E8; --dark:#2D3047; --pink:#FF6B9D; --yellow:#FFD93D; --orange:#FF9F1C; --sara:#f97316; }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body {
+    min-height:100vh;
+    font-family:'Fredoka','Noto Sans Thai',sans-serif;
+    background:
+      radial-gradient(circle at 14% 20%, rgba(255,215,61,.32) 0%, transparent 30%),
+      radial-gradient(circle at 86% 18%, rgba(255,107,157,.24) 0%, transparent 28%),
+      radial-gradient(circle at 50% 88%, rgba(34,197,94,.18) 0%, transparent 32%),
+      linear-gradient(135deg, #fff7ed 0%, #fff3d6 52%, #ffe4e6 100%);
+    overflow-x:hidden;
+  }
+
+  .blobs { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+  .blob { position:absolute; border-radius:50%; animation: blob-float ease-in-out infinite; opacity:.16; filter: blur(14px); }
+  @keyframes blob-float { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(18px,-24px) scale(1.08); } }
+
+  .site-nav {
+    position:sticky; top:0; z-index:100;
+    background:var(--cream);
+    border-bottom:4px solid var(--dark);
+    box-shadow:0 4px 0 var(--dark);
+    padding:10px 16px;
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  }
+  .nav-brand {
+    font-family:'Bungee',cursive; font-size:15px; color:var(--dark);
+    text-shadow:2px 2px 0 var(--pink); white-space:nowrap; flex-shrink:0; text-decoration:none;
+  }
+  .nav-links { display:flex; gap:6px; flex-wrap:wrap; }
+  .nav-link {
+    text-decoration:none; font-size:13px; font-weight:600;
+    padding:5px 13px; border-radius:12px; border:2.5px solid var(--dark);
+    color:var(--dark); background:white; transition:all .12s;
+    display:inline-flex; align-items:center; gap:4px; white-space:nowrap;
+    box-shadow:2px 2px 0 var(--dark);
+  }
+  .nav-link:hover { background:var(--yellow); transform:translate(-1px,-1px); box-shadow:3px 3px 0 var(--dark); }
+  .nav-link.active { background:linear-gradient(135deg,var(--sara), #fb7185); color:white; border-color:transparent; }
+
+  .page { position:relative; z-index:1; max-width:560px; margin:0 auto; padding:24px 16px 72px; }
+  .home-link-wrap { margin-bottom:14px; }
+  .home-link {
+    display:inline-flex; align-items:center; gap:8px; text-decoration:none; background:white;
+    color:var(--dark); border:2.5px solid var(--dark); border-radius:999px;
+    padding:10px 16px; font-size:15px; font-weight:800; box-shadow:2px 2px 0 var(--dark);
+  }
+  .home-link:hover { background:var(--yellow); }
+
+  .hero { text-align:center; margin-bottom:20px; }
+  .hero-emoji { font-size:88px; display:block; animation: hero-float 3s ease-in-out infinite; filter: drop-shadow(0 12px 20px rgba(0,0,0,.12)); }
+  @keyframes hero-float { 0%,100%{ transform:translateY(0) rotate(-3deg); } 50%{ transform:translateY(-14px) rotate(3deg); } }
+  .hero-title { font-family:'Bungee',cursive; font-size:clamp(24px,8vw,42px); color:var(--dark); line-height:1.1; margin:12px 0 8px; }
+  .hero-sub { color:#6b5e78; font-size:17px; font-weight:600; line-height:1.6; max-width:440px; margin:0 auto; }
+  .hero-badge {
+    display:inline-block; background:linear-gradient(135deg,#f97316,#fb7185);
+    color:white; font-family:'Bungee',cursive; font-size:10px; letter-spacing:1.5px;
+    padding:5px 14px; border-radius:20px; border:2.5px solid var(--dark);
+    margin-top:10px; box-shadow:2px 2px 0 var(--dark);
+  }
+
+  .play-card {
+    background:rgba(255,255,255,.88); backdrop-filter: blur(10px);
+    border:3px solid var(--dark); border-radius:28px; box-shadow:4px 4px 0 var(--dark);
+    padding:22px 18px 20px; margin-bottom:18px; position:relative; overflow:hidden;
+  }
+  .play-card::before {
+    content:""; position:absolute; inset:0;
+    background: radial-gradient(circle at 18% 18%, rgba(255,215,61,.22), transparent 35%),
+                radial-gradient(circle at 82% 20%, rgba(255,107,157,.18), transparent 32%);
+    pointer-events:none;
+  }
+  .play-card > * { position:relative; }
+
+  .mode-chip {
+    display:inline-flex; align-items:center; justify-content:center;
+    background:#2a2434; color:white; border-radius:999px;
+    padding:7px 16px; font-size:13px; font-weight:800; margin-bottom:14px;
+  }
+  .display-main {
+    font-size:clamp(42px,11vw,68px);
+    font-weight:900;
+    min-height:132px;
+    display:flex; align-items:center; justify-content:center; gap:12px; flex-wrap:wrap;
+    text-align:center; color:var(--dark); line-height:1.1;
+  }
+  .display-sub {
+    min-height:54px;
+    font-size:clamp(18px,4vw,26px);
+    color:#6b5e78;
+    text-align:center;
+    margin-bottom:12px;
+    font-weight:700;
+  }
+  .piece { display:inline-flex; align-items:center; justify-content:center; min-width:72px; }
+  .piece.strong { color:#0f172a; text-shadow:2px 2px 0 rgba(255,255,255,.6); }
+  .piece.vowel { color:#f97316; }
+  .answer {
+    display:inline-block;
+    border-bottom:6px dashed var(--sara);
+    color:#9333ea;
+    padding:0 6px;
+  }
+  .plus, .equals { font-family:'Bungee',cursive; font-size:.58em; color:#c084fc; }
+  .hint-row {
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    color:#7c6d88; font-size:14px; font-weight:700; margin-bottom:16px;
+  }
+
+  .btn-group { display:flex; flex-direction:column; gap:12px; }
+  .btn {
+    border:none; border-radius:999px; cursor:pointer; min-height:58px;
+    padding:14px 18px; font-family:inherit; font-size:18px; font-weight:800;
+    transition:transform .12s, box-shadow .12s, filter .12s;
+  }
+  .btn:active { transform:translateY(3px); box-shadow:none; }
+  .btn-primary {
+    background:linear-gradient(135deg,#f97316,#fb7185); color:white;
+    box-shadow:0 6px 0 #c2410c;
+  }
+  .btn-secondary {
+    background:white; color:var(--dark); border:2.5px solid var(--dark);
+    box-shadow:0 6px 0 var(--dark);
+  }
+  .btn:hover { filter:saturate(1.05); }
+
+  .examples-title {
+    font-family:'Bungee',cursive; font-size:12px; letter-spacing:2px;
+    color:rgba(45,48,71,.55); margin:18px 0 10px; text-transform:uppercase;
+  }
+  .example-grid { display:grid; grid-template-columns:repeat(2, 1fr); gap:10px; }
+  .example-chip {
+    background:white; border:2.5px solid var(--dark); border-radius:18px; box-shadow:3px 3px 0 var(--dark);
+    padding:14px 10px; text-align:center;
+  }
+  .example-chip .th { font-size:26px; font-weight:900; color:var(--dark); line-height:1.1; }
+  .example-chip .en { font-size:11px; font-weight:800; color:#fb7185; margin-top:4px; letter-spacing:.4px; }
+  .example-chip.active { background:linear-gradient(135deg,#fff7ed,#ffe4e6); transform:translateY(-2px); }
+
+  .tip-card {
+    background:linear-gradient(135deg, rgba(255,255,255,.96), rgba(255,244,230,.96));
+    border:3px solid var(--dark); border-radius:24px; box-shadow:4px 4px 0 var(--dark);
+    padding:18px 16px; margin-top:16px;
+  }
+  .tip-title { font-family:'Bungee',cursive; font-size:14px; color:var(--dark); margin-bottom:8px; }
+  .tip-text { color:#5f5670; font-size:15px; line-height:1.55; font-weight:600; }
+  .tip-text strong { color:#f97316; }
+
+  @media (max-width: 420px) {
+    .nav-brand { font-size:13px; }
+    .nav-link { font-size:11px; padding:4px 10px; }
+    .page { padding:20px 12px 64px; }
+    .play-card { padding:18px 14px 18px; }
+    .hero-emoji { font-size:72px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <a class="nav-brand" href="index.html">☀️ SUMMER</a>
+  <div class="nav-links">
+    <a class="nav-link" href="24_question.html">🎲 Questions</a>
+    <a class="nav-link" href="robot_game.html">🤖 Robot</a>
+    <a class="nav-link" href="knowledge.html">📚 Learn</a>
+    <a class="nav-link active" href="sa_ra.html">🗣️ Sa-ra</a>
+    <a class="nav-link" href="thai_money.html">🪙 Coins</a>
+    <a class="nav-link" href="pay_money.html">🛒 Pay</a>
+    <a class="nav-link" href="color_mix.html">🎨 Colors</a>
+    <a class="nav-link" href="gravity.html">🚀 Gravity</a>
+    <a class="nav-link" href="farm_kid.html">🌾 Farm Quiz</a>
+    <a class="nav-link" href="satit_exam.html">📝 Satit Drill</a>
+    <a class="nav-link" href="school_dashboard.html">🏫 Schools</a>
+  </div>
+</nav>
+
+<div class="blobs" id="blobs"></div>
+
+<div class="page">
+  <div class="home-link-wrap">
+    <a class="home-link" href="index.html">← กลับหน้าหลัก</a>
+  </div>
+
+  <header class="hero">
+    <span class="hero-emoji">🗣️</span>
+    <h1 class="hero-title">สระ</h1>
+    <p class="hero-sub">ฝึกอ่านคำสั้นๆ แบบสนุกๆ พร้อมฟังเสียงได้</p>
+    <div class="hero-badge">สระ · SA-RA · THAI PHONICS</div>
+  </header>
+
+  <section class="play-card" aria-label="Thai vowel practice">
+    <div class="mode-chip" id="modeTag">โหมดภาษาไทย</div>
+    <div class="display-main" id="mainArea"></div>
+    <div class="display-sub" id="subArea"></div>
+    <div class="hint-row">🔊 กดฟังเสียงแล้วอ่านตามได้เลย</div>
+    <div class="btn-group">
+      <button class="btn btn-primary" type="button" onclick="revealAndSpeak()">🔊 ฟังเสียง & เฉลย</button>
+      <button class="btn btn-secondary" type="button" onclick="nextQuestion()">สุ่มคำใหม่ ➜</button>
+    </div>
+  </section>
+
+  <div class="examples-title">ตัวอย่างคำสระอา</div>
+  <section class="example-grid" id="exampleGrid"></section>
+
+  <section class="tip-card">
+    <div class="tip-title">จำง่ายๆ</div>
+    <div class="tip-text">สระอาออกเสียง <strong>"aa"</strong> ยาวนิดๆ และวางหลังพยัญชนะ เช่น <strong>กา</strong>, <strong>มา</strong>, <strong>ตา</strong></div>
+  </section>
+</div>
+
+<script>
+  (function() {
+    const colors = ['#ffb3d9', '#ffe082', '#a5f3c6', '#bfdbfe', '#ddd6fe', '#99f6e4', '#fca5a5', '#fbcfe8'];
+    const wrap = document.getElementById('blobs');
+    for (let i = 0; i < 12; i++) {
+      const blob = document.createElement('div');
+      blob.className = 'blob';
+      const size = 130 + Math.random() * 210;
+      blob.style.cssText =
+        `width:${size}px;height:${size}px;background:${colors[i % colors.length]};` +
+        `left:${Math.random() * 105 - 5}%;top:${Math.random() * 105 - 5}%;` +
+        `animation-duration:${14 + Math.random() * 18}s;animation-delay:${-Math.random() * 12}s;`;
+      wrap.appendChild(blob);
+    }
+  })();
+
+  const database = [
+    { thC: 'ก', enC: 'k', word: 'กา', enWord: 'kaa', read: 'กอ อา กา', enRead: 'k aa kaa' },
+    { thC: 'ม', enC: 'm', word: 'มา', enWord: 'maa', read: 'มอ อา มา', enRead: 'm aa maa' },
+    { thC: 'ต', enC: 't', word: 'ตา', enWord: 'taa', read: 'ตอ อา ตา', enRead: 't aa taa' },
+    { thC: 'ป', enC: 'p', word: 'ปา', enWord: 'paa', read: 'ปอ อา ปา', enRead: 'p aa paa' },
+    { thC: 'น', enC: 'n', word: 'นา', enWord: 'naa', read: 'นอ อา นา', enRead: 'n aa naa' },
+    { thC: 'ร', enC: 'r', word: 'รา', enWord: 'raa', read: 'รอ อา รา', enRead: 'r aa raa' },
+    { thC: 'ฟ', enC: 'f', word: 'ฟา', enWord: 'faa', read: 'ฟอ อา ฟา', enRead: 'f aa faa' },
+    { thC: 'ล', enC: 'l', word: 'ลา', enWord: 'laa', read: 'ลอ อา ลา', enRead: 'l aa laa' }
+  ];
+
+  const exampleGrid = document.getElementById('exampleGrid');
+  let currentItem = database[0];
+  let isThaiMain = true;
+  let isRevealed = false;
+
+  function renderExamples(activeWord) {
+    exampleGrid.innerHTML = '';
+    database.forEach(item => {
+      const chip = document.createElement('div');
+      chip.className = `example-chip${item.word === activeWord ? ' active' : ''}`;
+      chip.innerHTML = `<div class="th">${item.word}</div><div class="en">${item.enWord}</div>`;
+      exampleGrid.appendChild(chip);
+    });
+  }
+
+  function buildThaiDisplay(item, revealed) {
+    const answer = revealed ? item.word : '?';
+    return `
+      <span class="piece strong">${item.thC}</span>
+      <span class="plus">+</span>
+      <span class="piece vowel">า</span>
+      <span class="equals">=</span>
+      <span class="answer" id="res">${answer}</span>
+    `;
+  }
+
+  function buildEnglishDisplay(item, revealed) {
+    const answer = revealed ? item.enWord : '?';
+    return `
+      <span class="piece strong">${item.enC}</span>
+      <span class="plus">+</span>
+      <span class="piece vowel">aa</span>
+      <span class="equals">=</span>
+      <span class="answer" id="res">${answer}</span>
+    `;
+  }
+
+  function nextQuestion() {
+    currentItem = database[Math.floor(Math.random() * database.length)];
+    isThaiMain = Math.random() > 0.5;
+    isRevealed = false;
+
+    document.getElementById('modeTag').textContent = isThaiMain ? 'โหมดภาษาไทย' : 'English Mode';
+    document.getElementById('mainArea').innerHTML = isThaiMain ? buildThaiDisplay(currentItem, false) : buildEnglishDisplay(currentItem, false);
+    document.getElementById('subArea').textContent = isThaiMain ? `${currentItem.enC} + aa = ?` : `${currentItem.thC} + า = ?`;
+    renderExamples(currentItem.word);
+  }
+
+  function revealAndSpeak() {
+    isRevealed = true;
+    document.getElementById('mainArea').innerHTML = isThaiMain ? buildThaiDisplay(currentItem, true) : buildEnglishDisplay(currentItem, true);
+    document.getElementById('subArea').textContent = isThaiMain ? `${currentItem.enC} + aa = ${currentItem.enWord}` : `${currentItem.thC} + า = ${currentItem.word}`;
+
+    const primary = new SpeechSynthesisUtterance(isThaiMain ? currentItem.read : currentItem.enRead);
+    primary.lang = isThaiMain ? 'th-TH' : 'en-US';
+    primary.rate = 0.72;
+
+    const secondary = new SpeechSynthesisUtterance(isThaiMain ? currentItem.enRead : currentItem.read);
+    secondary.lang = isThaiMain ? 'en-US' : 'th-TH';
+    secondary.rate = 0.72;
+
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(primary);
+      window.speechSynthesis.speak(secondary);
+    }
+  }
+
+  nextQuestion();
+</script>
+</body>
+</html>
