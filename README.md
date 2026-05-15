@@ -4,7 +4,7 @@
 
 - Stack: pure `HTML / CSS / JavaScript` (no build step, no framework)
 - UX goals: big buttons, forgiving interactions, English-first with Thai hints
-- Last updated: 2026-05-15
+- Last updated: 2026-05-16
 
 ## Quick start
 
