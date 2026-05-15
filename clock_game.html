@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>นาฬิกา — Summer's World</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #fff9f0;
+      --dark:  #1e293b;
+      --c1:    #2563eb;
+      --c2:    #7c3aed;
+      --c3:    #ec4899;
+    }
+
+    body {
+      font-family: 'Fredoka', 'Noto Sans Thai', sans-serif;
+      background: var(--cream);
+      background:
+        radial-gradient(ellipse at 15% 10%, rgba(99,102,241,.18), transparent 45%),
+        radial-gradient(ellipse at 85% 10%, rgba(236,72,153,.14), transparent 40%),
+        radial-gradient(ellipse at 50% 90%, rgba(37,99,235,.14), transparent 50%),
+        var(--cream);
+      min-height: 100vh;
+      padding-bottom: 40px;
+    }
+
+    /* ── NAV ── */
+    .site-nav {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--cream);
+      border-bottom: 4px solid var(--dark);
+      box-shadow: 0 4px 0 var(--dark);
+      padding: 10px 16px;
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    }
+    .nav-brand { font-family: 'Bungee', cursive; font-size: 15px; color: var(--dark); text-decoration: none; white-space: nowrap; }
+    .nav-links { display: flex; gap: 6px; flex-wrap: wrap; }
+    .nav-link {
+      text-decoration: none; font-size: 13px; font-weight: 600;
+      padding: 5px 13px; border-radius: 12px;
+      border: 2.5px solid var(--dark); color: var(--dark); background: white;
+      transition: all .12s; display: inline-flex; align-items: center; gap: 4px;
+      white-space: nowrap; box-shadow: 2px 2px 0 var(--dark);
+    }
+    .nav-link:hover { background: #fef9c3; transform: translate(-1px,-1px); box-shadow: 3px 3px 0 var(--dark); }
+    .nav-link.active { background: linear-gradient(135deg, var(--c1), var(--c2)); color: white; border-color: transparent; box-shadow: none; }
+    @media (max-width: 420px) { .nav-brand { font-size: 13px; } .nav-link { font-size: 11px; padding: 4px 10px; } }
+
+    /* ── BLOBS ── */
+    .blobs { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+    .blob { position: absolute; border-radius: 50%; opacity: .2; animation: drift linear infinite; }
+    @keyframes drift {
+      0%,100% { transform: translate(0,0) scale(1); }
+      33% { transform: translate(20px,-28px) scale(1.06); }
+      66% { transform: translate(-16px,18px) scale(.96); }
+    }
+
+    /* ── PAGE ── */
+    .page { position: relative; z-index: 2; max-width: 480px; margin: 0 auto; padding: 24px 16px 48px; }
+
+    /* ── HERO ── */
+    .hero { text-align: center; margin-bottom: 22px; }
+    .hero-emoji { font-size: 52px; display: block; margin-bottom: 6px; }
+    .hero-title { font-family: 'Bungee', cursive; font-size: 26px; color: var(--dark); letter-spacing: 1px; margin-bottom: 4px; }
+    .hero-sub { font-size: 15px; color: #64748b; }
+
+    /* ── MODE SELECTOR ── */
+    .mode-wrap { display: flex; gap: 8px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; }
+    .mode-btn {
+      font-family: 'Fredoka', 'Noto Sans Thai', sans-serif;
+      font-size: 14px; font-weight: 700;
+      padding: 8px 18px; border-radius: 999px;
+      border: 2.5px solid var(--dark); background: white; cursor: pointer;
+      box-shadow: 2px 2px 0 var(--dark); transition: all .12s;
+    }
+    .mode-btn:hover { background: #fef9c3; transform: translate(-1px,-1px); box-shadow: 3px 3px 0 var(--dark); }
+    .mode-btn.active {
+      background: linear-gradient(135deg, var(--c1), var(--c2));
+      color: white; border-color: transparent; box-shadow: none;
+    }
+
+    /* ── SCORE BAR ── */
+    .score-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      background: white; border: 2.5px solid var(--dark); border-radius: 16px;
+      padding: 10px 16px; margin-bottom: 22px;
+      box-shadow: 3px 3px 0 var(--dark);
+    }
+    .score-col { text-align: center; }
+    .score-label { font-size: 11px; color: #94a3b8; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; }
+    .score-num { font-family: 'Bungee', cursive; font-size: 24px; color: var(--c1); line-height: 1.1; }
+    .prog-wrap { flex: 1; margin: 0 14px; }
+    .prog-bar { height: 8px; background: #e2e8f0; border-radius: 999px; overflow: hidden; }
+    .prog-fill { height: 100%; background: linear-gradient(90deg, var(--c1), var(--c2), var(--c3)); border-radius: 999px; transition: width .4s ease; width: 0%; }
+
+    /* ── CLOCK SVG ── */
+    .clock-wrap { display: flex; justify-content: center; margin-bottom: 26px; }
+    .clock-svg {
+      width: min(230px, 72vw);
+      height: min(230px, 72vw);
+      filter: drop-shadow(0 8px 28px rgba(37,99,235,.22));
+    }
+
+    /* ── CHOICES ── */
+    .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+    .choice-btn {
+      font-family: 'Fredoka', 'Noto Sans Thai', sans-serif;
+      font-size: 19px; font-weight: 700; line-height: 1.3;
+      padding: 18px 8px; border-radius: 18px;
+      border: 3px solid var(--dark); background: white;
+      cursor: pointer; box-shadow: 4px 4px 0 var(--dark);
+      transition: all .12s; color: var(--dark);
+    }
+    .choice-btn:hover:not(:disabled) { background: #eff6ff; transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--dark); }
+    .choice-btn:active:not(:disabled) { transform: translate(2px,2px); box-shadow: 2px 2px 0 var(--dark); }
+    .choice-btn.correct { background: #dcfce7; border-color: #16a34a; color: #166534; box-shadow: 4px 4px 0 #16a34a; }
+    .choice-btn.wrong   { background: #fee2e2; border-color: #dc2626; color: #991b1b; box-shadow: 4px 4px 0 #dc2626; }
+    .choice-btn:disabled { cursor: default; }
+
+    /* ── FEEDBACK ── */
+    .feedback { text-align: center; font-size: 22px; font-weight: 700; min-height: 34px; margin-bottom: 14px; }
+    .feedback.correct { color: #16a34a; }
+    .feedback.wrong   { color: #dc2626; }
+
+    /* ── NEXT BUTTON ── */
+    .next-btn {
+      display: block; width: 100%;
+      font-family: 'Fredoka', 'Noto Sans Thai', sans-serif;
+      font-size: 20px; font-weight: 700;
+      padding: 16px; border-radius: 18px;
+      border: 3px solid var(--dark);
+      background: linear-gradient(135deg, var(--c1), var(--c2));
+      color: white; cursor: pointer;
+      box-shadow: 4px 4px 0 var(--dark);
+      transition: all .15s;
+      opacity: 0; pointer-events: none;
+    }
+    .next-btn.show { opacity: 1; pointer-events: auto; }
+    .next-btn:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--dark); }
+
+    /* ── RESULT ── */
+    .result {
+      display: none; text-align: center;
+      background: white; border: 3px solid var(--dark); border-radius: 24px;
+      padding: 36px 24px; box-shadow: 6px 6px 0 var(--dark);
+    }
+    .result.show { display: block; }
+    .result-emoji { font-size: 72px; margin-bottom: 10px; }
+    .result-title { font-family: 'Bungee', cursive; font-size: 26px; color: var(--dark); margin-bottom: 6px; }
+    .result-sub { font-size: 18px; color: #64748b; margin-bottom: 6px; }
+    .result-big { font-family: 'Bungee', cursive; font-size: 42px; color: var(--c1); margin-bottom: 24px; }
+    .retry-btn {
+      font-family: 'Fredoka', 'Noto Sans Thai', sans-serif;
+      font-size: 20px; font-weight: 700; padding: 16px 48px;
+      border-radius: 999px; border: 3px solid var(--dark);
+      background: linear-gradient(135deg, var(--c1), var(--c2));
+      color: white; cursor: pointer; box-shadow: 4px 4px 0 var(--dark);
+      transition: all .15s;
+    }
+    .retry-btn:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--dark); }
+
+    /* ── BACK LINK ── */
+    .home-link-wrap { margin-bottom: 16px; }
+    .home-link {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: white; border: 2.5px solid var(--dark); border-radius: 999px;
+      padding: 8px 18px; font-size: 14px; font-weight: 700;
+      color: var(--dark); text-decoration: none; box-shadow: 2px 2px 0 var(--dark);
+      transition: all .12s;
+    }
+    .home-link:hover { background: #fef9c3; transform: translate(-2px,-2px); box-shadow: 4px 4px 0 var(--dark); }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <a class="nav-brand" href="index.html">☀️ SUMMER</a>
+  <div class="nav-links">
+    <a class="nav-link" href="24_question.html">🎲 Questions</a>
+    <a class="nav-link" href="robot_game.html">🤖 Robot</a>
+    <a class="nav-link" href="knowledge.html">📚 Learn</a>
+    <a class="nav-link" href="sa_ra.html">🗣️ Sa-ra</a>
+    <a class="nav-link active" href="clock_game.html">🕐 Clock</a>
+    <a class="nav-link" href="thai_money.html">🪙 Coins</a>
+    <a class="nav-link" href="pay_money.html">🛒 Pay</a>
+    <a class="nav-link" href="color_mix.html">🎨 Colors</a>
+    <a class="nav-link" href="gravity.html">🚀 Gravity</a>
+    <a class="nav-link" href="farm_kid.html">🌾 Farm Quiz</a>
+    <a class="nav-link" href="satit_exam.html">📝 Satit Drill</a>
+    <a class="nav-link" href="school_dashboard.html">🏫 Schools</a>
+  </div>
+</nav>
+
+<div class="blobs" id="blobs"></div>
+
+<div class="page">
+
+  <div class="home-link-wrap">
+    <a class="home-link" href="index.html">← กลับหน้าหลัก</a>
+  </div>
+
+  <div class="hero">
+    <span class="hero-emoji">🕐</span>
+    <h1 class="hero-title">CLOCK GAME</h1>
+    <p class="hero-sub">นาฬิกาชี้กี่โมง? — แตะคำตอบที่ถูก!</p>
+  </div>
+
+  <div class="mode-wrap">
+    <button class="mode-btn active" data-mode="full">เต็มชั่วโมง</button>
+    <button class="mode-btn" data-mode="half">ครึ่งชั่วโมง</button>
+    <button class="mode-btn" data-mode="mix">ผสม 🎲</button>
+  </div>
+
+  <div class="score-bar">
+    <div class="score-col">
+      <div class="score-label">คะแนน</div>
+      <div class="score-num" id="score-display">0</div>
+    </div>
+    <div class="prog-wrap">
+      <div class="prog-bar"><div class="prog-fill" id="prog-fill"></div></div>
+    </div>
+    <div class="score-col">
+      <div class="score-label">ข้อที่</div>
+      <div class="score-num" id="q-display">1/10</div>
+    </div>
+  </div>
+
+  <!-- Game area -->
+  <div id="game-area">
+    <div class="clock-wrap">
+      <svg class="clock-svg" viewBox="0 0 200 200" id="clock-svg">
+        <!-- Outer rim -->
+        <circle cx="100" cy="100" r="96" fill="#1e293b"/>
+        <!-- Face -->
+        <circle cx="100" cy="100" r="90" fill="white"/>
+        <circle cx="100" cy="100" r="88" fill="#f8fafc"/>
+        <!-- Tick marks and numbers added by JS -->
+        <!-- Minute hand -->
+        <line id="min-hand" x1="100" y1="100" x2="100" y2="26" stroke="#6366f1" stroke-width="4" stroke-linecap="round"/>
+        <!-- Hour hand -->
+        <line id="hr-hand"  x1="100" y1="100" x2="100" y2="48" stroke="#1e293b" stroke-width="7" stroke-linecap="round"/>
+        <!-- Center cap -->
+        <circle cx="100" cy="100" r="8" fill="#ef4444"/>
+        <circle cx="100" cy="100" r="3.5" fill="white"/>
+      </svg>
+    </div>
+
+    <div class="choices" id="choices"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="next-btn">ข้อต่อไป →</button>
+  </div>
+
+  <!-- Result screen -->
+  <div class="result" id="result">
+    <div class="result-emoji" id="res-emoji">🎉</div>
+    <div class="result-title" id="res-title">เก่งมากเลย!</div>
+    <div class="result-sub">คะแนนของหนู</div>
+    <div class="result-big" id="res-score">0 / 10</div>
+    <button class="retry-btn" id="retry-btn">เล่นอีกครั้ง 🔄</button>
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+/* ── Blobs ── */
+(function() {
+  const cols = ["#c7d2fe","#bfdbfe","#ddd6fe","#bae6fd","#fde68a","#fbcfe8","#a5f3fc"];
+  const w = document.getElementById("blobs");
+  for (let i = 0; i < 18; i++) {
+    const b = document.createElement("div");
+    b.className = "blob";
+    const s = 40 + Math.random() * 110;
+    b.style.cssText = `width:${s}px;height:${s}px;background:${cols[i%cols.length]};` +
+      `left:${Math.random()*100}%;top:${Math.random()*100}%;` +
+      `animation-duration:${8+Math.random()*14}s;animation-delay:${-Math.random()*10}s;`;
+    w.appendChild(b);
+  }
+})();
+
+/* ── Build clock face (ticks + numbers) ── */
+(function buildFace() {
+  const svg = document.getElementById("clock-svg");
+  const NS  = "http://www.w3.org/2000/svg";
+  const ref = document.getElementById("min-hand");
+
+  function ins(el) { svg.insertBefore(el, ref); }
+
+  // Minute ticks
+  for (let i = 0; i < 60; i++) {
+    const rad = i * 6 * Math.PI / 180;
+    const isHour = i % 5 === 0;
+    const r1 = isHour ? 78 : 83;
+    const ln = document.createElementNS(NS, "line");
+    ln.setAttribute("x1", 100 + r1  * Math.sin(rad));
+    ln.setAttribute("y1", 100 - r1  * Math.cos(rad));
+    ln.setAttribute("x2", 100 + 88  * Math.sin(rad));
+    ln.setAttribute("y2", 100 - 88  * Math.cos(rad));
+    ln.setAttribute("stroke", isHour ? "#94a3b8" : "#cbd5e1");
+    ln.setAttribute("stroke-width", isHour ? "2.5" : "1");
+    ln.setAttribute("stroke-linecap", "round");
+    ins(ln);
+  }
+
+  // Numbers 1-12
+  [12,1,2,3,4,5,6,7,8,9,10,11].forEach((n, i) => {
+    const rad = i * 30 * Math.PI / 180;
+    const tx  = document.createElementNS(NS, "text");
+    tx.setAttribute("x", 100 + 66 * Math.sin(rad));
+    tx.setAttribute("y", 100 - 66 * Math.cos(rad));
+    tx.setAttribute("text-anchor", "middle");
+    tx.setAttribute("dominant-baseline", "central");
+    tx.setAttribute("font-size", "14");
+    tx.setAttribute("font-weight", "700");
+    tx.setAttribute("font-family", "Fredoka, sans-serif");
+    tx.setAttribute("fill", "#1e293b");
+    tx.textContent = n;
+    ins(tx);
+  });
+})();
+
+/* ── Hand positioning ── */
+function setHands(h, m) {
+  const toRad = d => d * Math.PI / 180;
+  const hrAngle  = ((h % 12) + m / 60) * 30;
+  const minAngle = m * 6;
+  const hrLen = 46, minLen = 68;
+
+  document.getElementById("hr-hand").setAttribute("x2",  100 + hrLen  * Math.sin(toRad(hrAngle)));
+  document.getElementById("hr-hand").setAttribute("y2",  100 - hrLen  * Math.cos(toRad(hrAngle)));
+  document.getElementById("min-hand").setAttribute("x2", 100 + minLen * Math.sin(toRad(minAngle)));
+  document.getElementById("min-hand").setAttribute("y2", 100 - minLen * Math.cos(toRad(minAngle)));
+}
+
+/* ── Time data ── */
+function label(h, m) {
+  return m === 0 ? `${h} โมงตรง` : `${h} โมงครึ่ง`;
+}
+function makePool(mode) {
+  const pool = [];
+  for (let h = 1; h <= 12; h++) {
+    if (mode !== "half") pool.push({ h, m: 0,  text: label(h, 0) });
+    if (mode !== "full") pool.push({ h, m: 30, text: label(h, 30) });
+  }
+  return pool;
+}
+
+/* ── Game state ── */
+const TOTAL = 10;
+let mode = "full", pool = makePool("full");
+let score = 0, qIndex = 0, answered = false, current = null;
+
+function shuffle(a) {
+  const b = [...a];
+  for (let i = b.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [b[i], b[j]] = [b[j], b[i]];
+  }
+  return b;
+}
+
+function updateBar() {
+  document.getElementById("score-display").textContent = score;
+  document.getElementById("q-display").textContent = (qIndex + 1) + "/" + TOTAL;
+  document.getElementById("prog-fill").style.width = (qIndex / TOTAL * 100) + "%";
+}
+
+function newQuestion() {
+  answered = false;
+  document.getElementById("feedback").textContent = "";
+  document.getElementById("feedback").className = "feedback";
+  document.getElementById("next-btn").classList.remove("show");
+
+  current = pool[Math.floor(Math.random() * pool.length)];
+  setHands(current.h, current.m);
+  updateBar();
+
+  // 3 wrong distractors from pool (different h or m)
+  const wrong = shuffle(pool.filter(t => !(t.h === current.h && t.m === current.m))).slice(0, 3);
+  const options = shuffle([current, ...wrong]);
+
+  const box = document.getElementById("choices");
+  box.innerHTML = "";
+  options.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.className = "choice-btn";
+    btn.textContent = opt.text;
+    btn.addEventListener("click", () => pick(btn, opt));
+    box.appendChild(btn);
+  });
+}
+
+function pick(btn, chosen) {
+  if (answered) return;
+  answered = true;
+
+  const isRight = chosen.h === current.h && chosen.m === current.m;
+  const fb = document.getElementById("feedback");
+
+  document.querySelectorAll(".choice-btn").forEach(b => {
+    b.disabled = true;
+    if (b.textContent === current.text) b.classList.add("correct");
+  });
+
+  if (isRight) {
+    score++;
+    fb.textContent = "เก่งมาก! 🎉";
+    fb.className = "feedback correct";
+  } else {
+    btn.classList.add("wrong");
+    fb.textContent = "ลองใหม่นะ 💪";
+    fb.className = "feedback wrong";
+  }
+
+  qIndex++;
+
+  if (qIndex >= TOTAL) {
+    setTimeout(showResult, 1300);
+  } else {
+    document.getElementById("next-btn").classList.add("show");
+  }
+}
+
+function showResult() {
+  document.getElementById("game-area").style.display = "none";
+  const rs = document.getElementById("result");
+  rs.classList.add("show");
+  document.getElementById("res-score").textContent = score + " / " + TOTAL;
+
+  const pct = score / TOTAL;
+  let emoji, title;
+  if      (pct === 1)    { emoji = "🏆"; title = "เพอร์เฟกต์!"; }
+  else if (pct >= .8)    { emoji = "⭐"; title = "เก่งมากเลย!"; }
+  else if (pct >= .6)    { emoji = "😊"; title = "ดีนะ!"; }
+  else if (pct >= .4)    { emoji = "💪"; title = "ฝึกอีกนิดนะ!"; }
+  else                   { emoji = "🌱"; title = "เดี๋ยวก็เก่งเอง!"; }
+
+  document.getElementById("res-emoji").textContent = emoji;
+  document.getElementById("res-title").textContent = title;
+}
+
+function resetGame() {
+  score = 0; qIndex = 0;
+  pool = makePool(mode);
+  document.getElementById("game-area").style.display = "block";
+  document.getElementById("result").classList.remove("show");
+  newQuestion();
+}
+
+/* ── Wiring ── */
+document.querySelectorAll(".mode-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    mode = btn.dataset.mode;
+    resetGame();
+  });
+});
+
+document.getElementById("next-btn").addEventListener("click", newQuestion);
+document.getElementById("retry-btn").addEventListener("click", resetGame);
+
+/* ── Start ── */
+newQuestion();
+</script>
+</body>
+</html>

@@ -4,7 +4,7 @@
 
 - Stack: pure `HTML / CSS / JavaScript` (no build step, no framework)
 - UX goals: big buttons, forgiving interactions, English-first with Thai hints
-- Last updated: 2026-05-16
+- Last updated: 2026-05-16 (2)
 
 ## Quick start
 
@@ -26,6 +26,7 @@
 | `farm_kid.html` | ฝึกข้อสอบหลายหมวด (เตรียมสอบแนวสาธิต/เกษตร) — สุ่มเล่นครั้งละ 5 ข้อ | ✅ Ready |
 | `satit_exam.html` | ฝึกสอบสาธิต — 115 ข้อ 6 หมวด: ตรรกะ (โดมิโน+อนุกรม), มิติสัมพันธ์ (บล็อก+คลี่ลูกเต๋า), วิทย์-คณิต, ภาษา-ฟัง, ภาษาไทย, ลากเส้น (canvas) | ✅ Ready |
 | `sa_ra.html` | สระ (Sa-ra) — ฝึกอ่านคำสั้นๆ พร้อมฟังเสียง Thai phonics practice | ✅ Ready |
+| `clock_game.html` | นาฬิกา — อ่านเข็มนาฬิกา เต็มชั่วโมง/ครึ่งชั่วโมง 3 โหมด 10 ข้อ/รอบ | ✅ Ready |
 
 ## For parents
 
