@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🗣️ สระ, Sa-ra — Summer's World</title>
+<title>🗣️ สระ — Summer's World</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;600;700;900&display=swap" rel="stylesheet">
@@ -87,6 +87,34 @@
     background:#2a2434; color:white; border-radius:999px;
     padding:7px 16px; font-size:13px; font-weight:800; margin-bottom:14px;
   }
+  .mode-bar { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-bottom:12px; }
+  .mode-btn {
+    border:none; cursor:pointer;
+    background:white; color:var(--dark);
+    border:2.5px solid var(--dark);
+    border-radius:999px;
+    padding:10px 14px;
+    font-family:inherit;
+    font-size:14px;
+    font-weight:900;
+    box-shadow:2px 2px 0 var(--dark);
+    transition:transform .12s, box-shadow .12s, background .12s;
+  }
+  .mode-btn:active { transform:translateY(3px); box-shadow:none; }
+  .mode-btn.active { background:linear-gradient(135deg,#f97316,#fb7185); color:white; border-color:transparent; }
+
+  .status-row { display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin:6px 0 12px; }
+  .pill {
+    display:inline-flex; align-items:center; gap:8px;
+    background:white; color:var(--dark);
+    border:2.5px solid var(--dark);
+    border-radius:999px;
+    padding:8px 12px;
+    font-size:13px;
+    font-weight:900;
+    box-shadow:2px 2px 0 var(--dark);
+  }
+  .pill strong { font-family:'Bungee',cursive; font-size:12px; }
   .display-main {
     font-size:clamp(42px,11vw,68px);
     font-weight:900;
@@ -117,6 +145,28 @@
     color:#7c6d88; font-size:14px; font-weight:700; margin-bottom:16px;
   }
 
+  .vowel-title {
+    font-family:'Bungee',cursive; font-size:12px; letter-spacing:2px;
+    color:rgba(45,48,71,.55); margin:6px 0 10px; text-transform:uppercase;
+  }
+  .vowel-row { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+  .vowel-chip {
+    border:none; cursor:pointer;
+    background:white; color:var(--dark);
+    border:2.5px solid var(--dark);
+    border-radius:999px;
+    padding:10px 14px;
+    font-family:inherit;
+    font-size:15px;
+    font-weight:900;
+    box-shadow:2px 2px 0 var(--dark);
+    display:inline-flex; align-items:center; gap:8px;
+    transition:transform .12s, box-shadow .12s, background .12s;
+  }
+  .vowel-chip:active { transform:translateY(3px); box-shadow:none; }
+  .vowel-chip.active { background:linear-gradient(135deg,#fff7ed,#ffe4e6); }
+  .vowel-chip .mini { font-size:11px; font-weight:900; color:#fb7185; letter-spacing:.4px; }
+
   .btn-group { display:flex; flex-direction:column; gap:12px; }
   .btn {
     border:none; border-radius:999px; cursor:pointer; min-height:58px;
@@ -134,6 +184,35 @@
   }
   .btn:hover { filter:saturate(1.05); }
 
+  .choice-grid { display:grid; grid-template-columns:repeat(2, 1fr); gap:10px; margin-top:10px; }
+  .choice-btn {
+    border:none; cursor:pointer;
+    background:white; color:var(--dark);
+    border:2.5px solid var(--dark);
+    border-radius:18px;
+    min-height:64px;
+    font-family:inherit;
+    font-size:22px;
+    font-weight:900;
+    box-shadow:3px 3px 0 var(--dark);
+    transition:transform .12s, box-shadow .12s, background .12s;
+  }
+  .choice-btn:active { transform:translateY(3px); box-shadow:none; }
+  .choice-btn.correct { background:linear-gradient(135deg,#dcfce7,#86efac); }
+  .choice-btn.wrong { background:linear-gradient(135deg,#ffe4e6,#fecdd3); }
+  .choice-btn:disabled { cursor:default; opacity:1; }
+
+  .feedback {
+    text-align:center;
+    font-size:18px;
+    font-weight:900;
+    min-height:26px;
+    margin-top:10px;
+    color:#5f5670;
+  }
+  .feedback.good { color:#15803d; }
+  .feedback.try { color:#be123c; }
+
   .examples-title {
     font-family:'Bungee',cursive; font-size:12px; letter-spacing:2px;
     color:rgba(45,48,71,.55); margin:18px 0 10px; text-transform:uppercase;
@@ -144,7 +223,6 @@
     padding:14px 10px; text-align:center;
   }
   .example-chip .th { font-size:26px; font-weight:900; color:var(--dark); line-height:1.1; }
-  .example-chip .en { font-size:11px; font-weight:800; color:#fb7185; margin-top:4px; letter-spacing:.4px; }
   .example-chip.active { background:linear-gradient(135deg,#fff7ed,#ffe4e6); transform:translateY(-2px); }
 
   .tip-card {
@@ -170,18 +248,18 @@
 <nav class="site-nav">
   <a class="nav-brand" href="index.html">☀️ SUMMER</a>
   <div class="nav-links">
-    <a class="nav-link" href="24_question.html">🎲 Questions</a>
-    <a class="nav-link" href="robot_game.html">🤖 Robot</a>
-    <a class="nav-link" href="knowledge.html">📚 Learn</a>
-    <a class="nav-link active" href="sa_ra.html">🗣️ Sa-ra</a>
-    <a class="nav-link" href="clock_game.html">🕐 Clock</a>
-    <a class="nav-link" href="thai_money.html">🪙 Coins</a>
-    <a class="nav-link" href="pay_money.html">🛒 Pay</a>
-    <a class="nav-link" href="color_mix.html">🎨 Colors</a>
-    <a class="nav-link" href="gravity.html">🚀 Gravity</a>
-    <a class="nav-link" href="farm_kid.html">🌾 Farm Quiz</a>
-    <a class="nav-link" href="satit_exam.html">📝 Satit Drill</a>
-    <a class="nav-link" href="school_dashboard.html">🏫 Schools</a>
+    <a class="nav-link" href="24_question.html">🎲 คำถาม</a>
+    <a class="nav-link" href="robot_game.html">🤖 หุ่นยนต์</a>
+    <a class="nav-link" href="knowledge.html">📚 เรียนรู้</a>
+    <a class="nav-link active" href="sa_ra.html">🗣️ สระ</a>
+    <a class="nav-link" href="clock_game.html">🕐 นาฬิกา</a>
+    <a class="nav-link" href="thai_money.html">🪙 เหรียญ</a>
+    <a class="nav-link" href="pay_money.html">🛒 จ่ายเงิน</a>
+    <a class="nav-link" href="color_mix.html">🎨 สี</a>
+    <a class="nav-link" href="gravity.html">🚀 แรงโน้มถ่วง</a>
+    <a class="nav-link" href="farm_kid.html">🌾 ฝึกก่อนสอบ</a>
+    <a class="nav-link" href="satit_exam.html">📝 ฝึกสอบสาธิต</a>
+    <a class="nav-link" href="school_dashboard.html">🏫 โรงเรียน</a>
   </div>
 </nav>
 
@@ -195,27 +273,44 @@
   <header class="hero">
     <span class="hero-emoji">🗣️</span>
     <h1 class="hero-title">สระ</h1>
-    <p class="hero-sub">ฝึกอ่านคำสั้นๆ แบบสนุกๆ พร้อมฟังเสียงได้</p>
-    <div class="hero-badge">สระ · SA-RA · THAI PHONICS</div>
+    <p class="hero-sub">เลือกสระ แล้วฝึกอ่านคำสั้นๆ แบบสนุกๆ พร้อมฟังเสียงได้</p>
+    <div class="hero-badge">สระ · ฝึกอ่าน · ฟังเสียง</div>
   </header>
 
-  <section class="play-card" aria-label="Thai vowel practice">
-    <div class="mode-chip" id="modeTag">โหมดภาษาไทย</div>
+  <div class="vowel-title">เลือกสระ</div>
+  <div class="vowel-row" id="vowelRow"></div>
+
+  <section class="play-card" aria-label="ฝึกสระภาษาไทย">
+    <div class="mode-bar" aria-label="เลือกโหมด">
+      <button class="mode-btn active" id="practiceModeBtn" type="button">🧩 โหมดฝึก</button>
+      <button class="mode-btn" id="gameModeBtn" type="button">🏁 โหมดเกม 10 ข้อ</button>
+    </div>
+    <div class="mode-chip" id="modeTag">สระอา</div>
+    <div class="status-row" id="statusRow" style="display:none;">
+      <div class="pill">ข้อ <strong id="qIndex">1</strong>/<strong id="qTotal">10</strong></div>
+      <div class="pill">คะแนน <strong id="scoreNow">0</strong></div>
+    </div>
     <div class="display-main" id="mainArea"></div>
     <div class="display-sub" id="subArea"></div>
     <div class="hint-row">🔊 กดฟังเสียงแล้วอ่านตามได้เลย</div>
-    <div class="btn-group">
-      <button class="btn btn-primary" type="button" onclick="revealAndSpeak()">🔊 ฟังเสียง & เฉลย</button>
-      <button class="btn btn-secondary" type="button" onclick="nextQuestion()">สุ่มคำใหม่ ➜</button>
+    <div class="choice-grid" id="choiceGrid" style="display:none;"></div>
+    <div class="feedback" id="feedback"></div>
+    <div class="btn-group" id="practiceButtons">
+      <button class="btn btn-primary" id="revealBtn" type="button">🔊 ฟังเสียง & เฉลย</button>
+      <button class="btn btn-secondary" id="nextBtn" type="button">สุ่มคำใหม่ ➜</button>
+    </div>
+    <div class="btn-group" id="gameButtons" style="display:none;">
+      <button class="btn btn-primary" id="nextGameBtn" type="button">ข้อต่อไป ➜</button>
+      <button class="btn btn-secondary" id="restartGameBtn" type="button">เริ่มเกมใหม่</button>
     </div>
   </section>
 
-  <div class="examples-title">ตัวอย่างคำสระอา</div>
+  <div class="examples-title" id="examplesTitle">ตัวอย่างคำ</div>
   <section class="example-grid" id="exampleGrid"></section>
 
   <section class="tip-card">
     <div class="tip-title">จำง่ายๆ</div>
-    <div class="tip-text">สระอาออกเสียง <strong>"aa"</strong> ยาวนิดๆ และวางหลังพยัญชนะ เช่น <strong>กา</strong>, <strong>มา</strong>, <strong>ตา</strong></div>
+    <div class="tip-text" id="tipText"></div>
   </section>
 </div>
 
@@ -235,86 +330,401 @@
     }
   })();
 
-  const database = [
-    { thC: 'ก', enC: 'k', word: 'กา', enWord: 'kaa', read: 'กอ อา กา', enRead: 'k aa kaa' },
-    { thC: 'ม', enC: 'm', word: 'มา', enWord: 'maa', read: 'มอ อา มา', enRead: 'm aa maa' },
-    { thC: 'ต', enC: 't', word: 'ตา', enWord: 'taa', read: 'ตอ อา ตา', enRead: 't aa taa' },
-    { thC: 'ป', enC: 'p', word: 'ปา', enWord: 'paa', read: 'ปอ อา ปา', enRead: 'p aa paa' },
-    { thC: 'น', enC: 'n', word: 'นา', enWord: 'naa', read: 'นอ อา นา', enRead: 'n aa naa' },
-    { thC: 'ร', enC: 'r', word: 'รา', enWord: 'raa', read: 'รอ อา รา', enRead: 'r aa raa' },
-    { thC: 'ฟ', enC: 'f', word: 'ฟา', enWord: 'faa', read: 'ฟอ อา ฟา', enRead: 'f aa faa' },
-    { thC: 'ล', enC: 'l', word: 'ลา', enWord: 'laa', read: 'ลอ อา ลา', enRead: 'l aa laa' }
+  const vowels = [
+    {
+      id: 'aa',
+      label: 'อา',
+      name: 'สระอา',
+      pattern: { type: 'after', mark: 'า' },
+      tipHtml: 'สระอาออกเสียง <strong>"อา"</strong> ยาวนิดๆ และวางหลังพยัญชนะ เช่น <strong>กา</strong>, <strong>มา</strong>, <strong>ตา</strong>',
+      items: [
+        { thC: 'ก', word: 'กา', read: 'กอ อา กา' },
+        { thC: 'ม', word: 'มา', read: 'มอ อา มา' },
+        { thC: 'ต', word: 'ตา', read: 'ตอ อา ตา' },
+        { thC: 'ป', word: 'ปา', read: 'ปอ อา ปา' },
+        { thC: 'น', word: 'นา', read: 'นอ อา นา' },
+        { thC: 'ร', word: 'รา', read: 'รอ อา รา' },
+        { thC: 'ล', word: 'ลา', read: 'ลอ อา ลา' }
+      ]
+    },
+    {
+      id: 'i',
+      label: 'อิ',
+      name: 'สระอิ',
+      pattern: { type: 'after', mark: 'ิ' },
+      tipHtml: 'สระอิออกเสียง <strong>"อิ"</strong> สั้นๆ (วรรณยุกต์เล็กด้านบน) เช่น <strong>กิ</strong>, <strong>มิ</strong>, <strong>ติ</strong>',
+      items: [
+        { thC: 'ก', word: 'กิ', read: 'กอ อิ กิ' },
+        { thC: 'ม', word: 'มิ', read: 'มอ อิ มิ' },
+        { thC: 'ต', word: 'ติ', read: 'ตอ อิ ติ' },
+        { thC: 'ป', word: 'ปิ', read: 'ปอ อิ ปิ' },
+        { thC: 'น', word: 'นิ', read: 'นอ อิ นิ' },
+        { thC: 'ล', word: 'ลิ', read: 'ลอ อิ ลิ' }
+      ]
+    },
+    {
+      id: 'ii',
+      label: 'อี',
+      name: 'สระอี',
+      pattern: { type: 'after', mark: 'ี' },
+      tipHtml: 'สระอีออกเสียง <strong>"อี"</strong> ยาวกว่าอิ เช่น <strong>กี</strong>, <strong>มี</strong>, <strong>ตี</strong>',
+      items: [
+        { thC: 'ก', word: 'กี', read: 'กอ อี กี' },
+        { thC: 'ม', word: 'มี', read: 'มอ อี มี' },
+        { thC: 'ต', word: 'ตี', read: 'ตอ อี ตี' },
+        { thC: 'ป', word: 'ปี', read: 'ปอ อี ปี' },
+        { thC: 'น', word: 'นี', read: 'นอ อี นี' },
+        { thC: 'ล', word: 'ลี', read: 'ลอ อี ลี' }
+      ]
+    },
+    {
+      id: 'u',
+      label: 'อุ',
+      name: 'สระอุ',
+      pattern: { type: 'after', mark: 'ุ' },
+      tipHtml: 'สระอุออกเสียง <strong>"อุ"</strong> สั้นๆ (สัญลักษณ์อยู่ล่าง) เช่น <strong>กุ</strong>, <strong>มุ</strong>, <strong>ตุ</strong>',
+      items: [
+        { thC: 'ก', word: 'กุ', read: 'กอ อุ กุ' },
+        { thC: 'ม', word: 'มุ', read: 'มอ อุ มุ' },
+        { thC: 'ต', word: 'ตุ', read: 'ตอ อุ ตุ' },
+        { thC: 'ป', word: 'ปุ', read: 'ปอ อุ ปุ' },
+        { thC: 'น', word: 'นุ', read: 'นอ อุ นุ' },
+        { thC: 'ล', word: 'ลุ', read: 'ลอ อุ ลุ' }
+      ]
+    },
+    {
+      id: 'uu',
+      label: 'อู',
+      name: 'สระอู',
+      pattern: { type: 'after', mark: 'ู' },
+      tipHtml: 'สระอูออกเสียง <strong>"อู"</strong> ยาวกว่าอุ เช่น <strong>กู</strong>, <strong>มู</strong>, <strong>ตู</strong>',
+      items: [
+        { thC: 'ก', word: 'กู', read: 'กอ อู กู' },
+        { thC: 'ม', word: 'มู', read: 'มอ อู มู' },
+        { thC: 'ต', word: 'ตู', read: 'ตอ อู ตู' },
+        { thC: 'ป', word: 'ปู', read: 'ปอ อู ปู' },
+        { thC: 'น', word: 'นู', read: 'นอ อู นู' },
+        { thC: 'ล', word: 'ลู', read: 'ลอ อู ลู' }
+      ]
+    },
+    {
+      id: 'e',
+      label: 'เอ',
+      name: 'สระเอ',
+      pattern: { type: 'before', mark: 'เ' },
+      tipHtml: 'สระเอออกเสียง <strong>"เอ"</strong> (เขียน เ ก่อนพยัญชนะ) เช่น <strong>เก</strong>, <strong>เม</strong>, <strong>เต</strong>',
+      items: [
+        { thC: 'ก', word: 'เก', read: 'กอ เอ เก' },
+        { thC: 'ม', word: 'เม', read: 'มอ เอ เม' },
+        { thC: 'ต', word: 'เต', read: 'ตอ เอ เต' },
+        { thC: 'ป', word: 'เป', read: 'ปอ เอ เป' },
+        { thC: 'น', word: 'เน', read: 'นอ เอ เน' },
+        { thC: 'ล', word: 'เล', read: 'ลอ เอ เล' }
+      ]
+    },
+    {
+      id: 'ae',
+      label: 'แอ',
+      name: 'สระแอ',
+      pattern: { type: 'before', mark: 'แ' },
+      tipHtml: 'สระแอออกเสียง <strong>"แอ"</strong> (เขียน แ ก่อนพยัญชนะ) เช่น <strong>แก</strong>, <strong>แม</strong>, <strong>แต</strong>',
+      items: [
+        { thC: 'ก', word: 'แก', read: 'กอ แอ แก' },
+        { thC: 'ม', word: 'แม', read: 'มอ แอ แม' },
+        { thC: 'ต', word: 'แต', read: 'ตอ แอ แต' },
+        { thC: 'ป', word: 'แพ', read: 'ปอ แอ แพ' },
+        { thC: 'น', word: 'แน', read: 'นอ แอ แน' },
+        { thC: 'ล', word: 'แล', read: 'ลอ แอ แล' }
+      ]
+    },
+    {
+      id: 'o',
+      label: 'โอ',
+      name: 'สระโอ',
+      pattern: { type: 'before', mark: 'โ' },
+      tipHtml: 'สระโอออกเสียง <strong>"โอ"</strong> (เขียน โ ก่อนพยัญชนะ) เช่น <strong>โก</strong>, <strong>โม</strong>, <strong>โต</strong>',
+      items: [
+        { thC: 'ก', word: 'โก', read: 'กอ โอ โก' },
+        { thC: 'ม', word: 'โม', read: 'มอ โอ โม' },
+        { thC: 'ต', word: 'โต', read: 'ตอ โอ โต' },
+        { thC: 'ป', word: 'โป', read: 'ปอ โอ โป' },
+        { thC: 'น', word: 'โน', read: 'นอ โอ โน' },
+        { thC: 'ล', word: 'โล', read: 'ลอ โอ โล' }
+      ]
+    },
+    {
+      id: 'ai',
+      label: 'ไอ',
+      name: 'สระไอ',
+      pattern: { type: 'before', mark: 'ไ' },
+      tipHtml: 'สระไอออกเสียง <strong>"ไอ"</strong> (เขียน ไ ก่อนพยัญชนะ) เช่น <strong>ไป</strong>, <strong>ไอ</strong>',
+      items: [
+        { thC: 'ป', word: 'ไป', read: 'ปอ ไอ ไป' },
+        { thC: 'อ', word: 'ไอ', read: 'ออ ไอ ไอ' },
+        { thC: 'ม', word: 'ไม', read: 'มอ ไอ ไม' },
+        { thC: 'ต', word: 'ไต', read: 'ตอ ไอ ไต' }
+      ]
+    }
   ];
 
+  const vowelRow = document.getElementById('vowelRow');
+  const examplesTitle = document.getElementById('examplesTitle');
+  const tipText = document.getElementById('tipText');
   const exampleGrid = document.getElementById('exampleGrid');
-  let currentItem = database[0];
-  let isThaiMain = true;
+  const practiceModeBtn = document.getElementById('practiceModeBtn');
+  const gameModeBtn = document.getElementById('gameModeBtn');
+  const statusRow = document.getElementById('statusRow');
+  const qIndex = document.getElementById('qIndex');
+  const qTotal = document.getElementById('qTotal');
+  const scoreNow = document.getElementById('scoreNow');
+  const choiceGrid = document.getElementById('choiceGrid');
+  const feedback = document.getElementById('feedback');
+  const practiceButtons = document.getElementById('practiceButtons');
+  const gameButtons = document.getElementById('gameButtons');
+  const revealBtn = document.getElementById('revealBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const nextGameBtn = document.getElementById('nextGameBtn');
+  const restartGameBtn = document.getElementById('restartGameBtn');
+
+  let currentVowel = vowels[0];
+  let currentItem = currentVowel.items[0];
   let isRevealed = false;
+  let mode = 'practice'; // 'practice' | 'game'
+
+  const GAME_TOTAL = 10;
+  let gameStep = 0;
+  let gameScore = 0;
+  let gameAnswered = false;
+  let gameCorrectWord = '';
+
+  function buildQuestionDisplay(item, vowel, revealed) {
+    const answer = revealed ? item.word : '?';
+    const mark = vowel.pattern.mark;
+
+    if (vowel.pattern.type === 'before') {
+      return `
+        <span class="piece vowel">${mark}</span>
+        <span class="plus">+</span>
+        <span class="piece strong">${item.thC}</span>
+        <span class="equals">=</span>
+        <span class="answer" id="res">${answer}</span>
+      `;
+    }
+
+    return `
+      <span class="piece strong">${item.thC}</span>
+      <span class="plus">+</span>
+      <span class="piece vowel">${mark}</span>
+      <span class="equals">=</span>
+      <span class="answer" id="res">${answer}</span>
+    `;
+  }
+
+  function speakThai(text) {
+    if (!window.speechSynthesis) return;
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'th-TH';
+    u.rate = 0.72;
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(u);
+  }
 
   function renderExamples(activeWord) {
     exampleGrid.innerHTML = '';
-    database.forEach(item => {
+    currentVowel.items.forEach(item => {
       const chip = document.createElement('div');
       chip.className = `example-chip${item.word === activeWord ? ' active' : ''}`;
-      chip.innerHTML = `<div class="th">${item.word}</div><div class="en">${item.enWord}</div>`;
+      chip.innerHTML = `<div class="th">${item.word}</div>`;
       exampleGrid.appendChild(chip);
     });
   }
 
-  function buildThaiDisplay(item, revealed) {
-    const answer = revealed ? item.word : '?';
-    return `
-      <span class="piece strong">${item.thC}</span>
-      <span class="plus">+</span>
-      <span class="piece vowel">า</span>
-      <span class="equals">=</span>
-      <span class="answer" id="res">${answer}</span>
-    `;
+  function renderVowelChips() {
+    vowelRow.innerHTML = '';
+    vowels.forEach(v => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = `vowel-chip${v.id === currentVowel.id ? ' active' : ''}`;
+      btn.innerHTML = `<span>${v.label}</span><span class="mini">${v.name}</span>`;
+      btn.addEventListener('click', () => setVowel(v.id));
+      vowelRow.appendChild(btn);
+    });
   }
 
-  function buildEnglishDisplay(item, revealed) {
-    const answer = revealed ? item.enWord : '?';
-    return `
-      <span class="piece strong">${item.enC}</span>
-      <span class="plus">+</span>
-      <span class="piece vowel">aa</span>
-      <span class="equals">=</span>
-      <span class="answer" id="res">${answer}</span>
-    `;
+  function setVowel(vowelId) {
+    const found = vowels.find(v => v.id === vowelId);
+    if (!found) return;
+    currentVowel = found;
+    isRevealed = false;
+    if (mode === 'game') startGame();
+    else nextQuestion();
+    renderVowelChips();
   }
 
   function nextQuestion() {
-    currentItem = database[Math.floor(Math.random() * database.length)];
-    isThaiMain = Math.random() > 0.5;
+    currentItem = currentVowel.items[Math.floor(Math.random() * currentVowel.items.length)];
     isRevealed = false;
 
-    document.getElementById('modeTag').textContent = isThaiMain ? 'โหมดภาษาไทย' : 'English Mode';
-    document.getElementById('mainArea').innerHTML = isThaiMain ? buildThaiDisplay(currentItem, false) : buildEnglishDisplay(currentItem, false);
-    document.getElementById('subArea').textContent = isThaiMain ? `${currentItem.enC} + aa = ?` : `${currentItem.thC} + า = ?`;
+    document.getElementById('modeTag').textContent = currentVowel.name;
+    document.getElementById('mainArea').innerHTML = buildQuestionDisplay(currentItem, currentVowel, false);
+    document.getElementById('subArea').textContent =
+      currentVowel.pattern.type === 'before'
+        ? `${currentVowel.pattern.mark} + ${currentItem.thC} = ?`
+        : `${currentItem.thC} + ${currentVowel.pattern.mark} = ?`;
+
+    examplesTitle.textContent = `ตัวอย่างคำ ${currentVowel.name}`;
+    tipText.innerHTML = currentVowel.tipHtml;
     renderExamples(currentItem.word);
+    feedback.textContent = '';
+    feedback.className = 'feedback';
   }
 
   function revealAndSpeak() {
     isRevealed = true;
-    document.getElementById('mainArea').innerHTML = isThaiMain ? buildThaiDisplay(currentItem, true) : buildEnglishDisplay(currentItem, true);
-    document.getElementById('subArea').textContent = isThaiMain ? `${currentItem.enC} + aa = ${currentItem.enWord}` : `${currentItem.thC} + า = ${currentItem.word}`;
-
-    const primary = new SpeechSynthesisUtterance(isThaiMain ? currentItem.read : currentItem.enRead);
-    primary.lang = isThaiMain ? 'th-TH' : 'en-US';
-    primary.rate = 0.72;
-
-    const secondary = new SpeechSynthesisUtterance(isThaiMain ? currentItem.enRead : currentItem.read);
-    secondary.lang = isThaiMain ? 'en-US' : 'th-TH';
-    secondary.rate = 0.72;
-
-    if (window.speechSynthesis) {
-      window.speechSynthesis.cancel();
-      window.speechSynthesis.speak(primary);
-      window.speechSynthesis.speak(secondary);
-    }
+    document.getElementById('mainArea').innerHTML = buildQuestionDisplay(currentItem, currentVowel, true);
+    document.getElementById('subArea').textContent =
+      currentVowel.pattern.type === 'before'
+        ? `${currentVowel.pattern.mark} + ${currentItem.thC} = ${currentItem.word}`
+        : `${currentItem.thC} + ${currentVowel.pattern.mark} = ${currentItem.word}`;
+    speakThai(currentItem.read);
   }
 
-  nextQuestion();
+  function shuffleInPlace(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function setMode(nextMode) {
+    mode = nextMode;
+    const isGame = mode === 'game';
+
+    practiceModeBtn.classList.toggle('active', !isGame);
+    gameModeBtn.classList.toggle('active', isGame);
+
+    statusRow.style.display = isGame ? '' : 'none';
+    choiceGrid.style.display = isGame ? '' : 'none';
+    practiceButtons.style.display = isGame ? 'none' : '';
+    gameButtons.style.display = isGame ? '' : 'none';
+
+    if (isGame) startGame();
+    else nextQuestion();
+  }
+
+  function startGame() {
+    gameStep = 0;
+    gameScore = 0;
+    qTotal.textContent = String(GAME_TOTAL);
+    scoreNow.textContent = String(gameScore);
+    feedback.textContent = 'เริ่มเลย! เลือกคำที่ถูกต้อง';
+    feedback.className = 'feedback';
+    nextGameQuestion();
+  }
+
+  function nextGameQuestion() {
+    gameStep += 1;
+    gameAnswered = false;
+    currentItem = currentVowel.items[Math.floor(Math.random() * currentVowel.items.length)];
+    gameCorrectWord = currentItem.word;
+
+    qIndex.textContent = String(gameStep);
+    scoreNow.textContent = String(gameScore);
+
+    document.getElementById('modeTag').textContent = `${currentVowel.name} · เกม`;
+    document.getElementById('mainArea').innerHTML = buildQuestionDisplay(currentItem, currentVowel, false);
+    document.getElementById('subArea').textContent =
+      currentVowel.pattern.type === 'before'
+        ? `${currentVowel.pattern.mark} + ${currentItem.thC} = ?`
+        : `${currentItem.thC} + ${currentVowel.pattern.mark} = ?`;
+
+    examplesTitle.textContent = `ตัวอย่างคำ ${currentVowel.name}`;
+    tipText.innerHTML = currentVowel.tipHtml;
+    renderExamples(currentItem.word);
+
+    const pool = currentVowel.items.map(x => x.word).filter(w => w !== gameCorrectWord);
+    shuffleInPlace(pool);
+    const choices = [gameCorrectWord, ...pool.slice(0, 3)];
+    shuffleInPlace(choices);
+
+    choiceGrid.innerHTML = '';
+    choices.forEach(word => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'choice-btn';
+      btn.textContent = word;
+      btn.addEventListener('click', () => onChoose(word, btn));
+      choiceGrid.appendChild(btn);
+    });
+
+    feedback.textContent = 'เลือกคำที่ถูกต้อง';
+    feedback.className = 'feedback';
+    nextGameBtn.disabled = true;
+    nextGameBtn.style.display = 'none';
+  }
+
+  function finishGame() {
+    document.getElementById('modeTag').textContent = `${currentVowel.name} · จบเกม`;
+    document.getElementById('mainArea').innerHTML = `<span class="piece strong">🎉</span> <span class="piece vowel">เก่งมาก!</span>`;
+    document.getElementById('subArea').textContent = `ได้ ${gameScore} คะแนน จาก ${GAME_TOTAL} ข้อ`;
+    choiceGrid.innerHTML = '';
+    feedback.textContent = gameScore >= 8 ? 'สุดยอด!' : (gameScore >= 5 ? 'ดีมาก ลองอีกครั้งได้' : 'ไม่เป็นไร ลองใหม่ได้เลย');
+    feedback.className = `feedback ${gameScore >= 5 ? 'good' : 'try'}`;
+    nextGameBtn.style.display = 'none';
+    nextGameBtn.disabled = true;
+    speakThai(`จบเกม ได้ ${gameScore} คะแนน จาก ${GAME_TOTAL} ข้อ`);
+  }
+
+  function onChoose(word, btnEl) {
+    if (gameAnswered) return;
+    gameAnswered = true;
+
+    const buttons = Array.from(choiceGrid.querySelectorAll('button'));
+    buttons.forEach(b => { b.disabled = true; });
+
+    const isCorrect = word === gameCorrectWord;
+    if (isCorrect) {
+      gameScore += 1;
+      scoreNow.textContent = String(gameScore);
+      btnEl.classList.add('correct');
+      feedback.textContent = 'ถูกต้อง! 👏';
+      feedback.className = 'feedback good';
+    } else {
+      btnEl.classList.add('wrong');
+      const correctBtn = buttons.find(b => b.textContent === gameCorrectWord);
+      if (correctBtn) correctBtn.classList.add('correct');
+      feedback.textContent = 'ลองใหม่นะ — คำที่ถูกคือ...';
+      feedback.className = 'feedback try';
+    }
+
+    document.getElementById('mainArea').innerHTML = buildQuestionDisplay(currentItem, currentVowel, true);
+    document.getElementById('subArea').textContent =
+      currentVowel.pattern.type === 'before'
+        ? `${currentVowel.pattern.mark} + ${currentItem.thC} = ${currentItem.word}`
+        : `${currentItem.thC} + ${currentVowel.pattern.mark} = ${currentItem.word}`;
+    speakThai(currentItem.read);
+
+    if (gameStep >= GAME_TOTAL) {
+      nextGameBtn.style.display = 'none';
+      nextGameBtn.disabled = true;
+      setTimeout(finishGame, 450);
+      return;
+    }
+
+    nextGameBtn.style.display = '';
+    nextGameBtn.disabled = false;
+  }
+
+  practiceModeBtn.addEventListener('click', () => setMode('practice'));
+  gameModeBtn.addEventListener('click', () => setMode('game'));
+  revealBtn.addEventListener('click', () => revealAndSpeak());
+  nextBtn.addEventListener('click', () => nextQuestion());
+  nextGameBtn.addEventListener('click', () => nextGameQuestion());
+  restartGameBtn.addEventListener('click', () => startGame());
+
+  renderVowelChips();
+  setMode('practice');
 </script>
 </body>
 </html>
