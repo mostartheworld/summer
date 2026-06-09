@@ -1,217 +1,483 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎭 RP / Viva / สัมภาษณ์ + วันสอบ - Summer's World</title>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&amp;family=Noto+Sans+Thai:wght@400;600;700&amp;display=swap" rel="stylesheet">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Fredoka', 'Noto Sans Thai', sans-serif;
-            background: #FFF8E7;
-            color: #2C3E50;
-            min-height: 100vh;
-        }
-        .header {
-            background: #12132a;
-            color: white;
-            padding: 20px 0;
-            text-align: center;
-            font-size: 32px;
-            font-weight: 700;
-            letter-spacing: 3px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-        .sun { font-size: 48px; vertical-align: middle; margin-right: 15px; }
-        .nav {
-            background: white;
-            padding: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            justify-content: center;
-            border-bottom: 8px solid #2C3E50;
-            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
-        }
-        .nav-btn {
-            background: white;
-            border: 6px solid #2C3E50;
-            border-radius: 9999px;
-            padding: 14px 22px;
-            font-size: 17px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            min-width: 140px;
-            justify-content: center;
-            box-shadow: 0 8px 15px rgba(0,0,0,0.15);
-            transition: all 0.2s ease;
-            text-decoration: none;
-            color: #2C3E50;
-        }
-        .nav-btn:hover {
-            transform: translateY(-6px) scale(1.05);
-            box-shadow: 0 15px 25px rgba(0,0,0,0.2);
-        }
-        .nav-btn.active {
-            background: #FF8C00;
-            color: white;
-            border-color: #D97706;
-        }
-        .content {
-            max-width: 920px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-        .card {
-            background: white;
-            border: 8px solid #2C3E50;
-            border-radius: 28px;
-            padding: 32px;
-            margin-bottom: 32px;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
-        }
-        .back {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #FF6B9D;
-            color: white;
-            border: none;
-            padding: 18px 42px;
-            font-size: 22px;
-            font-weight: 700;
-            border-radius: 9999px;
-            box-shadow: 0 10px 20px rgba(255,107,157,0.4);
-            z-index: 100;
-            cursor: pointer;
-        }
-        .checklist-item {
-            background: #ecfdf5;
-            border: 4px solid #10b981;
-            border-radius: 16px;
-            padding: 16px;
-            margin: 12px 0;
-            font-size: 18px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>เตรียมลูกสอบ RP / Viva — Summer's World</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #fff9f0;
+      --dark:  #1e293b;
+      --c1:    #7c3aed;
+      --c2:    #c855f7;
+      --c3:    #ec4899;
+    }
+
+    body {
+      font-family: 'Fredoka', 'Noto Sans Thai', sans-serif;
+      background: var(--cream);
+      background:
+        radial-gradient(ellipse at 15% 10%, rgba(124,58,237,.15), transparent 45%),
+        radial-gradient(ellipse at 85% 10%, rgba(200,85,247,.12), transparent 40%),
+        radial-gradient(ellipse at 50% 90%, rgba(236,72,153,.10), transparent 50%),
+        var(--cream);
+      min-height: 100vh;
+      padding-bottom: 48px;
+    }
+
+    /* ── NAV ── */
+    .site-nav {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--cream);
+      border-bottom: 4px solid var(--dark);
+      box-shadow: 0 4px 0 var(--dark);
+      padding: 10px 16px;
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    }
+    .nav-brand { font-family: 'Bungee', cursive; font-size: 15px; color: var(--dark); text-decoration: none; white-space: nowrap; }
+    .nav-links { display: flex; gap: 6px; flex-wrap: wrap; }
+    .nav-link {
+      text-decoration: none; font-size: 13px; font-weight: 600;
+      padding: 5px 13px; border-radius: 12px;
+      border: 2.5px solid var(--dark); color: var(--dark); background: white;
+      transition: all .12s; display: inline-flex; align-items: center; gap: 4px;
+      white-space: nowrap; box-shadow: 2px 2px 0 var(--dark);
+    }
+    .nav-link:hover { background: #fef9c3; transform: translate(-1px,-1px); box-shadow: 3px 3px 0 var(--dark); }
+    .nav-link.active { background: linear-gradient(135deg, var(--c1), var(--c2)); color: white; border-color: transparent; box-shadow: none; }
+    @media (max-width: 420px) { .nav-brand { font-size: 13px; } .nav-link { font-size: 11px; padding: 4px 10px; } }
+
+    /* ── BLOBS ── */
+    .blobs { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+    .blob { position: absolute; border-radius: 50%; opacity: .18; animation: drift linear infinite; }
+    @keyframes drift {
+      0%,100% { transform: translate(0,0) scale(1); }
+      33% { transform: translate(20px,-28px) scale(1.06); }
+      66% { transform: translate(-16px,18px) scale(.96); }
+    }
+
+    /* ── PAGE ── */
+    .page { position: relative; z-index: 2; max-width: 600px; margin: 0 auto; padding: 24px 16px 48px; }
+
+    /* ── HOME LINK ── */
+    .home-link-wrap { margin-bottom: 16px; }
+    .home-link {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: white; border: 2.5px solid var(--dark); border-radius: 999px;
+      padding: 8px 18px; font-size: 14px; font-weight: 700;
+      color: var(--dark); text-decoration: none; box-shadow: 2px 2px 0 var(--dark);
+      transition: all .12s;
+    }
+    .home-link:hover { background: #fef9c3; transform: translate(-2px,-2px); box-shadow: 4px 4px 0 var(--dark); }
+
+    /* ── HERO ── */
+    .hero { text-align: center; margin-bottom: 22px; }
+    .hero-emoji { font-size: 52px; display: block; margin-bottom: 6px; }
+    .hero-title { font-family: 'Bungee', cursive; font-size: 24px; color: var(--dark); letter-spacing: 1px; margin-bottom: 4px; }
+    .hero-sub { font-size: 15px; color: #64748b; }
+
+    /* ── TABS ── */
+    .tabs-outer { overflow-x: auto; margin-bottom: 22px; }
+    .tabs-outer::-webkit-scrollbar { display: none; }
+    .tabs-wrap { display: flex; gap: 8px; min-width: max-content; padding-bottom: 2px; }
+    .tab-btn {
+      font-family: 'Fredoka', 'Noto Sans Thai', sans-serif;
+      font-size: 14px; font-weight: 700; white-space: nowrap;
+      padding: 9px 18px; border-radius: 999px;
+      border: 2.5px solid var(--dark); background: white; cursor: pointer;
+      box-shadow: 2px 2px 0 var(--dark); transition: all .12s; color: var(--dark);
+    }
+    .tab-btn:hover { background: #fef9c3; transform: translate(-1px,-1px); box-shadow: 3px 3px 0 var(--dark); }
+    .tab-btn.active { background: linear-gradient(135deg, var(--c1), var(--c2)); color: white; border-color: transparent; box-shadow: none; }
+
+    /* ── SECTIONS ── */
+    .section { display: none; }
+    .section.show { display: block; }
+
+    /* ── CONTENT CARDS ── */
+    .c-card {
+      background: white; border: 3px solid var(--dark); border-radius: 22px;
+      padding: 24px; margin-bottom: 18px;
+      box-shadow: 4px 4px 0 var(--dark);
+    }
+    .c-card-title {
+      font-family: 'Bungee', cursive; font-size: 20px; color: var(--dark);
+      margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+    }
+    .c-card p { font-size: 16px; line-height: 1.7; color: #334155; }
+    .c-card ul { list-style: none; margin-top: 12px; }
+    .c-card ul li {
+      padding: 10px 14px; margin-bottom: 8px;
+      border-radius: 12px; font-size: 15px; line-height: 1.5; color: #1e293b;
+    }
+
+    /* ── COLOR ACCENTS ── */
+    .accent-pink   { background: #fff0f6; border-color: #f9a8d4; }
+    .accent-purple { background: #f5f3ff; border-color: #c4b5fd; }
+    .accent-rose   { background: #fff1f2; border-color: #fda4af; }
+    .accent-amber  { background: #fffbeb; border-color: #fcd34d; }
+    .accent-green  { background: #f0fdf4; border-color: #86efac; }
+    .accent-teal   { background: #f0fdfa; border-color: #5eead4; }
+
+    .tag-pink   { background: #fce7f3; color: #be185d; }
+    .tag-purple { background: #ede9fe; color: #6d28d9; }
+    .tag-rose   { background: #ffe4e6; color: #9f1239; }
+    .tag-amber  { background: #fef3c7; color: #92400e; }
+    .tag-green  { background: #dcfce7; color: #166534; }
+    .tag-teal   { background: #ccfbf1; color: #0f766e; }
+
+    /* scenario box */
+    .scenario {
+      background: white; border: 2.5px solid var(--dark); border-radius: 16px;
+      padding: 16px 18px; margin-bottom: 12px; box-shadow: 3px 3px 0 var(--dark);
+    }
+    .scenario-q { font-size: 15px; font-weight: 700; color: var(--dark); margin-bottom: 6px; }
+    .scenario-a { font-size: 14px; color: #6d28d9; font-style: italic; }
+    .scenario-tip { font-size: 13px; color: #64748b; margin-top: 6px; }
+
+    /* question grid */
+    .q-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .q-item {
+      background: white; border: 2.5px solid var(--dark); border-radius: 14px;
+      padding: 14px; font-size: 14px; line-height: 1.5; color: var(--dark);
+      box-shadow: 3px 3px 0 var(--dark);
+    }
+    @media (max-width: 420px) { .q-grid { grid-template-columns: 1fr; } }
+
+    /* checklist */
+    .check-item {
+      display: flex; align-items: center; gap: 14px;
+      background: white; border: 2.5px solid var(--dark); border-radius: 16px;
+      padding: 16px 18px; margin-bottom: 10px; box-shadow: 3px 3px 0 var(--dark);
+      cursor: pointer; transition: all .12s;
+    }
+    .check-item:hover { transform: translate(-2px,-2px); box-shadow: 5px 5px 0 var(--dark); }
+    .check-item input[type="checkbox"] { width: 24px; height: 24px; accent-color: var(--c1); flex-shrink: 0; cursor: pointer; }
+    .check-item label { font-size: 16px; font-weight: 600; color: var(--dark); cursor: pointer; flex: 1; }
+    .check-item.checked { background: #f5f3ff; border-color: var(--c1); }
+    .check-item.checked label { text-decoration: line-through; color: #94a3b8; }
+
+    /* exam day list */
+    .elist li {
+      font-size: 15px; line-height: 1.7;
+      padding: 8px 12px; border-radius: 10px; margin-bottom: 6px;
+    }
+
+    /* section heading tag */
+    .s-tag {
+      display: inline-block; font-family: 'Bungee', cursive;
+      font-size: 11px; letter-spacing: 1.5px; padding: 4px 12px;
+      border-radius: 999px; margin-bottom: 16px;
+    }
+  </style>
 </head>
 <body>
-    <div class="header">
-        <span class="sun">☀️</span> SUMMER'S WORLD
+
+<nav class="site-nav">
+  <a class="nav-brand" href="index.html">☀️ SUMMER</a>
+  <div class="nav-links">
+    <a class="nav-link" href="24_question.html">🎲 Questions</a>
+    <a class="nav-link" href="robot_game.html">🤖 Robot</a>
+    <a class="nav-link" href="knowledge.html">📚 Learn</a>
+    <a class="nav-link" href="sa_ra.html">🗣️ Sa-ra</a>
+    <a class="nav-link" href="clock_game.html">🕐 Clock</a>
+    <a class="nav-link" href="thai_money.html">🪙 Coins</a>
+    <a class="nav-link" href="pay_money.html">🛒 Pay</a>
+    <a class="nav-link" href="color_mix.html">🎨 Colors</a>
+    <a class="nav-link" href="gravity.html">🚀 Gravity</a>
+    <a class="nav-link" href="farm_kid.html">🌾 Farm Quiz</a>
+    <a class="nav-link" href="satit_exam.html">📝 Satit Drill</a>
+    <a class="nav-link" href="math_2digit.html">🔢 Math</a>
+    <a class="nav-link active" href="rp-prep-for-summer.html">🎭 RP Prep</a>
+    <a class="nav-link" href="school_dashboard.html">🏫 Schools</a>
+  </div>
+</nav>
+
+<div class="blobs" id="blobs"></div>
+
+<div class="page">
+
+  <div class="home-link-wrap">
+    <a class="home-link" href="index.html">← กลับหน้าหลัก</a>
+  </div>
+
+  <div class="hero">
+    <span class="hero-emoji">🎭</span>
+    <h1 class="hero-title">เตรียมลูกสอบ RP / VIVA</h1>
+    <p class="hero-sub">คู่มือคุณแม่ • Regular Program • อัสสัมชัญ</p>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs-outer">
+    <div class="tabs-wrap" id="tabs">
+      <button class="tab-btn active" data-section="rp">🎭 RP</button>
+      <button class="tab-btn" data-section="viva">🗣️ Viva</button>
+      <button class="tab-btn" data-section="interview">🤝 สัมภาษณ์</button>
+      <button class="tab-btn" data-section="examples">📝 แนวข้อสอบ</button>
+      <button class="tab-btn" data-section="examday">📅 วันสอบ</button>
+      <button class="tab-btn" data-section="checklist">✅ Checklist</button>
+    </div>
+  </div>
+
+  <!-- ── RP ── -->
+  <div id="s-rp" class="section show">
+    <div class="s-tag tag-pink">Role Play</div>
+
+    <div class="c-card">
+      <div class="c-card-title">👁️ สิ่งที่ครูจะดู</div>
+      <ul>
+        <li class="accent-pink">💬 พูดสุภาพและชัดเจน</li>
+        <li class="accent-pink">🧩 แก้ปัญหาได้ด้วยตัวเอง</li>
+        <li class="accent-pink">💗 มีน้ำใจและเห็นอกเห็นใจคนอื่น</li>
+        <li class="accent-pink">😊 ภาษากายมั่นใจ ยิ้มได้</li>
+      </ul>
     </div>
 
-    <div class="nav">
-        <a href="index.html" class="nav-btn">🏠 หน้าแรก</a>
-        <a href="#" onclick="showSection(0)" class="nav-btn active">🎭 RP</a>
-        <a href="#" onclick="showSection(1)" class="nav-btn">🗣️ Viva</a>
-        <a href="#" onclick="showSection(2)" class="nav-btn">🤝 สัมภาษณ์</a>
-        <a href="#" onclick="showSection(3)" class="nav-btn">📝 แนวข้อสอบ</a>
-        <a href="#" onclick="showSection(4)" class="nav-btn">📅 วันสอบ</a>
-        <a href="#" onclick="showSection(5)" class="nav-btn">✅ Checklist</a>
+    <div class="c-card">
+      <div class="c-card-title">📌 ตัวอย่างสถานการณ์</div>
+
+      <div class="scenario">
+        <div class="scenario-q">สถานการณ์: เพื่อนไม่ยอมแบ่งของเล่น</div>
+        <div class="scenario-a">✨ "มาเล่นด้วยกันนะคะ เรานำกันคนละครึ่งได้เลย"</div>
+        <div class="scenario-tip">💡 เน้นแบ่งปัน ไม่ใช้อารมณ์ หาทางออกร่วมกัน</div>
+      </div>
+
+      <div class="scenario">
+        <div class="scenario-q">สถานการณ์: ลูกค้าไม่พอใจสินค้า (ลูกเป็นพนักงาน)</div>
+        <div class="scenario-a">✨ "ขอโทษนะคะ เดี๋ยวเปลี่ยนให้ใหม่เลยค่ะ รอสักครู่นะคะ"</div>
+        <div class="scenario-tip">💡 ขอโทษก่อน เสนอทางแก้ไข ไม่ขัดขืน</div>
+      </div>
+
+      <div class="scenario">
+        <div class="scenario-q">สถานการณ์: เพื่อนร้องไห้อยู่คนเดียว</div>
+        <div class="scenario-a">✨ "เป็นอะไรหรือเปล่าคะ? อยากให้ช่วยอะไรไหมคะ?"</div>
+        <div class="scenario-tip">💡 แสดงความใส่ใจ ไม่เดินผ่านเฉยๆ</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── VIVA ── -->
+  <div id="s-viva" class="section">
+    <div class="s-tag tag-purple">Viva / ปากเปล่า</div>
+
+    <div class="c-card">
+      <div class="c-card-title">🗣️ Viva คืออะไร?</div>
+      <p>ครูจะถามคำถามตรงๆ เกี่ยวกับตัวลูก ความฝัน หรือสิ่งที่ลูกเรียนรู้จากชีวิตประจำวัน ฝึกให้ลูกตอบด้วยตัวเองโดยไม่ท่อง</p>
     </div>
 
-    <div class="content">
-        <h1 style="text-align:center; font-size:48px; margin:30px 0 16px; color:#7C3AED;">เตรียมลูกสอบ RP / Viva / สัมภาษณ์</h1>
-        <p style="text-align:center; font-size:22px; color:#6B21A8; margin-bottom:40px;">คู่มือคุณแม่ • Regular Program • อัสสัมชัญ</p>
-
-        <div id="section0" class="card">
-            <h2 style="font-size:32px; color:#DB2777; margin-bottom:20px;">🎭 RP (Role Play)</h2>
-            <p style="font-size:20px; line-height:1.7;">ลูกจะถูกให้เล่นบทบาทสมมติ เช่น เป็นลูกค้า, พนักงาน, เพื่อนที่ทะเลาะกัน</p>
-            <div style="background:#FCE7F3; padding:25px; border-radius:20px; margin-top:25px; border:5px solid #9F1239;">
-                <strong>ตัวอย่างสถานการณ์:</strong><br><br>
-                • เพื่อนไม่ยอมแบ่งของเล่น → “มาเล่นด้วยกันนะคะ เรานำกันคนละครึ่ง”<br>
-                • ลูกค้าไม่พอใจสินค้า → “ขอโทษนะคะ เดี๋ยวเปลี่ยนให้ใหม่เลยค่ะ”<br><br>
-                <strong>สิ่งที่ครูดู:</strong> พูดสุภาพ, มีน้ำใจ, แก้ปัญหา, ภาษากายมั่นใจ
-            </div>
-        </div>
-
-        <div id="section1" class="card" style="display:none;">
-            <h2 style="font-size:32px; color:#6B21A8; margin-bottom:20px;">🗣️ Viva (ปากเปล่า)</h2>
-            <p style="font-size:20px;">ครูจะถามคำถามตรงๆ เกี่ยวกับตัวลูก ความฝัน และสิ่งที่ลูกเรียนรู้จากชีวิตประจำวัน</p>
-            <div style="background:#E0F2FE; padding:25px; border-radius:20px; margin-top:25px;">
-                <strong>ตัวอย่างคำถาม:</strong><br><br>
-                • ลูกชอบอะไรที่สุดในชีวิต?<br>
-                • ถ้าเพื่อนทำผิด ลูกจะทำยังไง?<br>
-                • ลูกอยากเป็นอะไรเมื่อโตขึ้น?<br>
-                • ทำไมลูกถึงอยากเรียนที่อัสสัมชัญ?
-            </div>
-        </div>
-
-        <div id="section2" class="card" style="display:none;">
-            <h2 style="font-size:32px; color:#9F1239; margin-bottom:20px;">🤝 การสัมภาษณ์</h2>
-            <p style="font-size:20px;">ลูกต้องแนะนำตัวเองได้ดี พูดเหตุผลที่อยากเรียนอัสสัมชัญ และความฝันในอนาคตด้วยความมั่นใจ</p>
-        </div>
-
-        <div id="section3" class="card" style="display:none;">
-            <h2 style="font-size:32px; color:#D97706; margin-bottom:20px;">📝 แนวข้อสอบตัวอย่าง</h2>
-            <p style="font-size:19px; line-height:1.8;">จากภาพกลุ่มผู้ปกครอง:</p>
-            <ul style="font-size:19px; line-height:2.2; margin-top:16px;">
-                <li>• จับคู่ตัวเลข (2-2, 1-2-3, ลำดับเลข)</li>
-                <li>• ทอนเงิน ซื้อของ รวมราคา</li>
-                <li>• คำตรงข้าม</li>
-                <li>• ทักษะชีวิต (ผูกเชือกรองเท้า, ไหว้ครู, จัดกระเป๋าเอง)</li>
-            </ul>
-        </div>
-
-        <!-- New Exam Day Preparation Section -->
-        <div id="section4" class="card" style="display:none;">
-            <h2 style="font-size:32px; color:#10B981; margin-bottom:20px;">📅 การเตรียมตัววันสอบ</h2>
-            <div style="background:#ecfdf5; padding:28px; border-radius:24px; border:6px solid #10b981;">
-                <h3 style="color:#166534; margin-bottom:16px;">สิ่งที่ต้องนำไป</h3>
-                <ul style="font-size:19px; line-height:2;">
-                    <li>✅ พิมพ์เอกสาร 1 ชุด (มี QR Code)</li>
-                    <li>✅ ใบสมัคร (ห้อยติดตัวเป็นบัตร)</li>
-                    <li>✅ รูปถ่าย + ชื่อ + เลขที่สอบ</li>
-                    <li>✅ บัตรจากผู้ปกครอง (ใช้แทน ID)</li>
-                </ul>
-                
-                <h3 style="color:#166534; margin:24px 0 16px;">สิ่งที่ห้ามนำไป</h3>
-                <ul style="font-size:19px; line-height:2;">
-                    <li>❌ โทรศัพท์มือถือ</li>
-                    <li>❌ อุปกรณ์อิเล็กทรอนิกส์</li>
-                    <li>❌ ของเล่นหรือสิ่งรบกวน</li>
-                </ul>
-                
-                <h3 style="color:#166534; margin:24px 0 16px;">สิ่งที่ควรทำวันสอบ</h3>
-                <ul style="font-size:19px; line-height:2;">
-                    <li>🌅 ไปถึงก่อนเวลาที่ระบบนัด</li>
-                    <li>🙏 ไหว้คุณพ่อรูปปั้นก่อนสอบ (ขอพร)</li>
-                    <li>😊 ยิ้ม ไหว้ครูสุภาพ</li>
-                    <li>🧠 นึกถึงคำที่ฝึกมา อย่ากังวล</li>
-                </ul>
-            </div>
-        </div>
-
-        <div id="section5" class="card" style="display:none;">
-            <h2 style="font-size:32px; color:#10B981; margin-bottom:20px;">✅ Checklist คุณแม่</h2>
-            <div class="checklist-item">ฝึก RP กับลูกทุกวัน</div>
-            <div class="checklist-item">ฝึกให้ลูกยิ้ม สบตา พูดดังชัด</div>
-            <div class="checklist-item">ซ้อมคำถาม Viva และสัมภาษณ์</div>
-            <div class="checklist-item">เตรียมเอกสารพิมพ์ล่วงหน้า 1 วัน</div>
-            <div class="checklist-item">ให้กำลังใจลูกทุกคืนก่อนนอน</div>
-        </div>
+    <div class="c-card">
+      <div class="c-card-title">💬 ตัวอย่างคำถาม Viva</div>
+      <ul>
+        <li class="accent-purple">• ลูกชอบอะไรที่สุดในชีวิต?</li>
+        <li class="accent-purple">• ถ้าเพื่อนทำผิด ลูกจะทำยังไง?</li>
+        <li class="accent-purple">• ลูกอยากเป็นอะไรเมื่อโตขึ้น?</li>
+        <li class="accent-purple">• ทำไมลูกถึงอยากเรียนที่อัสสัมชัญ?</li>
+        <li class="accent-purple">• ลูกชอบทำอะไรกับครอบครัว?</li>
+      </ul>
     </div>
 
-    <button onclick="window.location.href='index.html'" class="back">
-        ← กลับไป Summer's World
-    </button>
+    <div class="c-card">
+      <div class="c-card-title">🌟 เคล็ดลับตอบให้ดี</div>
+      <ul>
+        <li class="accent-purple">🎯 ตอบจากใจ ไม่ต้องท่องจำ</li>
+        <li class="accent-purple">👀 มองหน้าครูขณะพูด</li>
+        <li class="accent-purple">🔊 พูดเสียงดังฟังชัด ไม่งึมงำ</li>
+        <li class="accent-purple">😊 ยิ้มก่อนเริ่มพูดทุกครั้ง</li>
+      </ul>
+    </div>
+  </div>
 
-    <script>
-        function showSection(n) {
-            document.querySelectorAll('.card').forEach((card, i) => {
-                card.style.display = (i === n) ? 'block' : 'none';
-            });
-            document.querySelectorAll('.nav-btn').forEach((btn, i) => {
-                btn.classList.toggle('active', i === n+1);
-            });
-        }
-        window.onload = () => {
-            document.querySelectorAll('.card')[0].style.display = 'block';
-        };
-    </script>
+  <!-- ── INTERVIEW ── -->
+  <div id="s-interview" class="section">
+    <div class="s-tag tag-rose">สัมภาษณ์</div>
+
+    <div class="c-card">
+      <div class="c-card-title">🤝 การสัมภาษณ์</div>
+      <p>ลูกต้องแนะนำตัวเองได้ พูดถึงเหตุผลที่อยากเรียนอัสสัมชัญ และความฝันในอนาคตด้วยความมั่นใจ</p>
+    </div>
+
+    <div class="c-card">
+      <div class="c-card-title">📋 คำถามที่ควรฝึก</div>
+      <div class="q-grid">
+        <div class="q-item">ชื่อ-นามสกุลของลูกคืออะไรคะ?</div>
+        <div class="q-item">ลูกชอบเรียนวิชาอะไร?</div>
+        <div class="q-item">ลูกช่วยแม่ทำอะไรได้บ้าง?</div>
+        <div class="q-item">ถ้าเห็นเพื่อนล้ม ลูกจะทำยังไง?</div>
+        <div class="q-item">ลูกอยากเรียนที่นี่เพราะอะไร?</div>
+        <div class="q-item">ลูกมีน้องหรือพี่ไหมคะ?</div>
+      </div>
+    </div>
+
+    <div class="c-card">
+      <div class="c-card-title">💡 วิธีฝึก</div>
+      <ul>
+        <li class="accent-rose">🪞 ฝึกหน้ากระจกทุกเช้า</li>
+        <li class="accent-rose">📹 อัดวิดีโอให้ลูกดูตัวเอง</li>
+        <li class="accent-rose">🎮 เล่น Role Play กับคุณพ่อ/แม่</li>
+        <li class="accent-rose">🌙 ทบทวนก่อนนอนทุกคืน</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ── แนวข้อสอบ ── -->
+  <div id="s-examples" class="section">
+    <div class="s-tag tag-amber">แนวข้อสอบ</div>
+
+    <div class="c-card">
+      <div class="c-card-title">🔢 จับคู่ตัวเลขและลำดับ</div>
+      <ul>
+        <li class="accent-amber">• จับคู่ตัวเลข (2-2, 1-2-3)</li>
+        <li class="accent-amber">• เรียงลำดับตัวเลขจากน้อยไปมาก</li>
+        <li class="accent-amber">• หาตัวเลขที่หายไปในลำดับ</li>
+      </ul>
+    </div>
+
+    <div class="c-card">
+      <div class="c-card-title">🪙 เงินและการซื้อของ</div>
+      <ul>
+        <li class="accent-amber">• ทอนเงิน ซื้อของ รวมราคา</li>
+        <li class="accent-amber">• เหรียญ 1, 2, 5, 10 บาท</li>
+        <li class="accent-amber">• จ่ายเงินให้พอดี หรือได้ทอน</li>
+      </ul>
+    </div>
+
+    <div class="c-card">
+      <div class="c-card-title">📖 ภาษาไทย</div>
+      <ul>
+        <li class="accent-amber">• คำตรงข้าม (สูง↔ต่ำ, ร้อน↔เย็น)</li>
+        <li class="accent-amber">• จับคู่ภาพกับคำ</li>
+        <li class="accent-amber">• คำที่ขาดหายไปในประโยค</li>
+      </ul>
+    </div>
+
+    <div class="c-card">
+      <div class="c-card-title">🌟 ทักษะชีวิต (สำคัญมาก!)</div>
+      <p style="margin-bottom: 12px; font-size: 14px; color: #64748b;">ข้อสอบอัสสัมชัญ RP เน้นเรื่องนี้มาก</p>
+      <ul>
+        <li class="accent-amber">👟 ผูกเชือกรองเท้าเองได้</li>
+        <li class="accent-amber">🙏 ไหว้ครูและผู้ใหญ่สุภาพ</li>
+        <li class="accent-amber">🎒 จัดกระเป๋าและเตรียมของเองได้</li>
+        <li class="accent-amber">🤲 แบ่งปันและช่วยเหลือเพื่อน</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ── วันสอบ ── -->
+  <div id="s-examday" class="section">
+    <div class="s-tag tag-green">วันสอบ</div>
+
+    <div class="c-card">
+      <div class="c-card-title">✅ สิ่งที่ต้องนำไป</div>
+      <ul class="elist accent-green">
+        <li class="accent-green">✅ พิมพ์เอกสาร 1 ชุด (มี QR Code)</li>
+        <li class="accent-green">✅ ใบสมัคร (ห้อยติดตัวเป็นบัตร)</li>
+        <li class="accent-green">✅ รูปถ่าย + ชื่อ + เลขที่สอบ</li>
+        <li class="accent-green">✅ บัตรจากผู้ปกครอง (ใช้แทน ID)</li>
+      </ul>
+    </div>
+
+    <div class="c-card">
+      <div class="c-card-title">❌ สิ่งที่ห้ามนำไป</div>
+      <ul>
+        <li class="accent-rose">❌ โทรศัพท์มือถือ</li>
+        <li class="accent-rose">❌ อุปกรณ์อิเล็กทรอนิกส์</li>
+        <li class="accent-rose">❌ ของเล่นหรือสิ่งรบกวน</li>
+      </ul>
+    </div>
+
+    <div class="c-card">
+      <div class="c-card-title">🌅 สิ่งที่ควรทำวันสอบ</div>
+      <ul>
+        <li class="accent-green">🌅 ไปถึงก่อนเวลาที่ระบบนัด</li>
+        <li class="accent-green">🙏 ไหว้คุณพ่อรูปปั้นก่อนสอบ (ขอพร)</li>
+        <li class="accent-green">😊 ยิ้ม ไหว้ครูสุภาพ</li>
+        <li class="accent-green">🧠 นึกถึงคำที่ฝึกมา อย่ากังวล</li>
+        <li class="accent-green">💪 บอกลูกว่าทำได้แน่นอน!</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ── Checklist ── -->
+  <div id="s-checklist" class="section">
+    <div class="s-tag tag-teal">Checklist คุณแม่</div>
+
+    <div class="c-card">
+      <div class="c-card-title">📋 ทำทุกวันก่อนสอบ</div>
+
+      <div class="check-item" onclick="toggleCheck(this)">
+        <input type="checkbox" id="c1"><label for="c1">ฝึก RP กับลูกวันละ 2–3 สถานการณ์</label>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <input type="checkbox" id="c2"><label for="c2">ฝึกให้ลูกยิ้ม + สบตา + พูดดังชัด</label>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <input type="checkbox" id="c3"><label for="c3">ซ้อมคำถาม Viva และสัมภาษณ์ทุกวัน</label>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <input type="checkbox" id="c4"><label for="c4">ฝึกผูกเชือกรองเท้าและไหว้สุภาพ</label>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <input type="checkbox" id="c5"><label for="c5">ให้กำลังใจลูกทุกคืนก่อนนอน 💗</label>
+      </div>
+    </div>
+
+    <div class="c-card">
+      <div class="c-card-title">📅 เตรียมก่อนวันสอบ 1 วัน</div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <input type="checkbox" id="c6"><label for="c6">พิมพ์เอกสารและเตรียมบัตรครบ</label>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <input type="checkbox" id="c7"><label for="c7">จัดเสื้อผ้าและกระเป๋าให้ลูก</label>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <input type="checkbox" id="c8"><label for="c8">ซ้อมนอนเร็ว ตื่นเช้า ไม่ตื่นตัว</label>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <input type="checkbox" id="c9"><label for="c9">บอกลูกว่าพรุ่งนี้จะไปทำอะไร</label>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end .page -->
+
+<script>
+(function() {
+  const cols = ["#ddd6fe","#fbcfe8","#bfdbfe","#fde68a","#bbf7d0","#99f6e4","#fca5a5","#e9d5ff"];
+  const wrap = document.getElementById("blobs");
+  for (let i = 0; i < 18; i++) {
+    const b = document.createElement("div");
+    b.className = "blob";
+    const s = 50 + Math.random() * 130;
+    b.style.cssText = `width:${s}px;height:${s}px;background:${cols[i % cols.length]};
+      left:${Math.random() * 100}%;top:${Math.random() * 100}%;
+      animation-duration:${9 + Math.random() * 14}s;animation-delay:${-Math.random() * 10}s;`;
+    wrap.appendChild(b);
+  }
+})();
+
+// Tabs
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('show'));
+    btn.classList.add('active');
+    document.getElementById('s-' + btn.dataset.section).classList.add('show');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+});
+
+// Checklist toggle
+function toggleCheck(item) {
+  const cb = item.querySelector('input[type="checkbox"]');
+  cb.checked = !cb.checked;
+  item.classList.toggle('checked', cb.checked);
+}
+</script>
+
 </body>
 </html>
