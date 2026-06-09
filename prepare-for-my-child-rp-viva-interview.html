@@ -29,26 +29,28 @@
     <div class="max-w-6xl mx-auto">
         <!-- Prominent Top Menu -->
         <div class="bg-white shadow-lg sticky top-0 z-50 border-b border-purple-200">
-            <div class="flex items-center justify-between px-8 py-5">
-                <div class="flex items-center gap-4">
-                    <div class="text-4xl">🌸</div>
+            <!-- Row 1: Brand + label -->
+            <div class="flex items-center justify-between px-4 md:px-8 pt-3 pb-2 md:pb-0 md:pt-4">
+                <div class="flex items-center gap-3">
+                    <div class="text-3xl md:text-4xl">🌸</div>
                     <div>
-                        <h1 class="title text-3xl font-bold text-purple-800">เตรียมลูกสอบ</h1>
-                        <p class="text-xs text-purple-500 -mt-1">Regular Program • อัสสัมชัญ</p>
+                        <h1 class="title text-xl md:text-3xl font-bold text-purple-800">เตรียมลูกสอบ</h1>
+                        <p class="text-xs text-purple-500 -mt-0.5">Regular Program • อัสสัมชัญ</p>
                     </div>
                 </div>
-                
-                <div class="flex gap-3 text-sm font-medium">
-                    <a href="#home" onclick="switchMenu(0)" class="nav-button bg-purple-100 text-purple-700 px-8 py-3 rounded-3xl">🏠 หน้าหลัก</a>
-                    <a href="#rp" onclick="switchMenu(1)" class="nav-button bg-pink-100 text-pink-700 px-8 py-3 rounded-3xl">🎭 RP (Role Play)</a>
-                    <a href="#viva" onclick="switchMenu(2)" class="nav-button bg-purple-100 text-purple-700 px-8 py-3 rounded-3xl">🗣️ Viva</a>
-                    <a href="#interview" onclick="switchMenu(3)" class="nav-button bg-rose-100 text-rose-700 px-8 py-3 rounded-3xl">🤝 สัมภาษณ์</a>
-                    <a href="#examples" onclick="switchMenu(4)" class="nav-button bg-amber-100 text-amber-700 px-8 py-3 rounded-3xl">📝 แนวข้อสอบ</a>
-                    <a href="#checklist" onclick="switchMenu(5)" class="nav-button bg-emerald-100 text-emerald-700 px-8 py-3 rounded-3xl">✅ Checklist</a>
-                </div>
-                
-                <div class="text-xs bg-white border border-purple-200 px-5 py-2.5 rounded-3xl text-purple-500">
+                <div class="text-xs bg-white border border-purple-200 px-3 py-1.5 rounded-3xl text-purple-500 hidden sm:block">
                     Hermes ทำให้คุณแม่ 💕
+                </div>
+            </div>
+            <!-- Row 2: Nav buttons (scrollable on mobile) -->
+            <div class="overflow-x-auto scrollbar-hide px-4 md:px-8 pb-3 pt-1">
+                <div class="flex gap-2 text-sm font-medium min-w-max">
+                    <a href="#home" onclick="switchMenu(0)" class="nav-button bg-purple-100 text-purple-700 px-4 md:px-6 py-2 rounded-3xl whitespace-nowrap">🏠 หน้าหลัก</a>
+                    <a href="#rp" onclick="switchMenu(1)" class="nav-button bg-pink-100 text-pink-700 px-4 md:px-6 py-2 rounded-3xl whitespace-nowrap">🎭 RP (Role Play)</a>
+                    <a href="#viva" onclick="switchMenu(2)" class="nav-button bg-purple-100 text-purple-700 px-4 md:px-6 py-2 rounded-3xl whitespace-nowrap">🗣️ Viva</a>
+                    <a href="#interview" onclick="switchMenu(3)" class="nav-button bg-rose-100 text-rose-700 px-4 md:px-6 py-2 rounded-3xl whitespace-nowrap">🤝 สัมภาษณ์</a>
+                    <a href="#examples" onclick="switchMenu(4)" class="nav-button bg-amber-100 text-amber-700 px-4 md:px-6 py-2 rounded-3xl whitespace-nowrap">📝 แนวข้อสอบ</a>
+                    <a href="#checklist" onclick="switchMenu(5)" class="nav-button bg-emerald-100 text-emerald-700 px-4 md:px-6 py-2 rounded-3xl whitespace-nowrap">✅ Checklist</a>
                 </div>
             </div>
         </div>
