@@ -4,7 +4,7 @@
 
 - Stack: pure `HTML / CSS / JavaScript` (no build step, no framework)
 - UX goals: big buttons, forgiving interactions, English-first with Thai hints
-- Last updated: 2026-06-09
+- Last updated: 2026-06-10
 
 ## Quick start
 
@@ -34,6 +34,7 @@
 | Page | What it is | Status |
 |------|------------|--------|
 | `school_dashboard.html` | Compare schools (charts, fees, notes) | ✅ Ready |
+| `rp-prep-for-summer.html` | เตรียมลูกสอบ PRE ACP อัสสัมชัญ — RP / Viva / สัมภาษณ์ / แนวข้อสอบ / Checklist (6 tabs) | ✅ Ready |
 
 ## Repo notes
 
