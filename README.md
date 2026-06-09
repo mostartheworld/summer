@@ -4,7 +4,7 @@
 
 - Stack: pure `HTML / CSS / JavaScript` (no build step, no framework)
 - UX goals: big buttons, forgiving interactions, English-first with Thai hints
-- Last updated: 2026-05-19 (1)
+- Last updated: 2026-06-09
 
 ## Quick start
 
@@ -27,6 +27,7 @@
 | `satit_exam.html` | ฝึกสอบสาธิต — 115 ข้อ 6 หมวด: ตรรกะ (โดมิโน+อนุกรม), มิติสัมพันธ์ (บล็อก+คลี่ลูกเต๋า), วิทย์-คณิต, ภาษา-ฟัง, ภาษาไทย, ลากเส้น (canvas) | ✅ Ready |
 | `sa_ra.html` | สระ — ฝึกสระพื้นฐาน (อา อิ อี อุ อู เอ แอ โอ ไอ) + โหมดเกม 10 ข้อ + ฟังเสียงสะกดไทย (หน้าไทยล้วน) | ✅ Ready |
 | `clock_game.html` | นาฬิกา — อ่านเข็มนาฬิกา เต็มชั่วโมง/ครึ่งชั่วโมง 3 โหมด 10 ข้อ/รอบ | ✅ Ready |
+| `math_2digit.html` | บวกลบสองหลัก — base-10 blocks (🟦=10 🔴=1) visual aid, 3 โหมด (บวก/ลบ/ผสม), 3 ระดับ, 10 ข้อ/รอบ | ✅ Ready |
 
 ## For parents
 
