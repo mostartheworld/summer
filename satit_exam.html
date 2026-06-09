@@ -166,6 +166,7 @@ body{min-height:100vh;font-family:'Fredoka','Noto Sans Thai',sans-serif;backgrou
     <a class="nav-link" href="gravity.html">🚀 Gravity</a>
     <a class="nav-link" href="farm_kid.html">🌾 Farm Quiz</a>
     <a class="nav-link active" href="satit_exam.html">📝 Satit Drill</a>
+    <a class="nav-link" href="math_2digit.html">🔢 Math</a>
     <a class="nav-link" href="school_dashboard.html">🏫 Schools</a>
   </div>
 </nav>
@@ -600,10 +601,34 @@ const CATS = [
       ch:[{em:'🦵',l:'6 ขา',ok:false},{em:'🦵',l:'12 ขา',ok:false},{em:'🦵',l:'24 ขา',ok:true},{em:'🦵',l:'32 ขา',ok:false}]},
     {type:'mcq', img:'🪙', q:'มีเงิน 6 บาท จะให้รวมเป็น 10 บาท\nต้องขอเหรียญ 2 บาท เพิ่มกี่เหรียญ?', en:'Have 6B, need 10B, coin=2B → how many?',
       ch:[{em:'🪙',l:'1 เหรียญ',ok:false},{em:'🪙',l:'2 เหรียญ',ok:true},{em:'🪙',l:'3 เหรียญ',ok:false},{em:'🪙',l:'4 เหรียญ',ok:false}]},
-    {type:'mcq', img:'📅', q:'เดือนมีนาคม + เดือนเมษายน\nรวมกันมีทั้งหมดกี่วัน?', en:'March (31) + April (30) = ?',
+    {type:'mcq', img:'📅', q:'เดือนมีนาคม + เดือนเมษายน\\nรวมกันมีทั้งหมดกี่วัน?', en:'March (31) + April (30) = ?',
       ch:[{em:'📅',l:'61 วัน',ok:true},{em:'📅',l:'51 วัน',ok:false},{em:'📅',l:'31 วัน',ok:false},{em:'📅',l:'30 วัน',ok:false}]},
-    {type:'mcq', img:'🍕', q:'พิซซ่า 1 ถาด แบ่งเป็น 8 ชิ้น\nกิน 3 ชิ้น เหลือกี่ชิ้น?', en:'8 slices − 3 eaten = ?',
+    {type:'mcq', img:'🍕', q:'พิซซ่า 1 ถาด แบ่งเป็น 8 ชิ้น\\nกิน 3 ชิ้น เหลือกี่ชิ้น?', en:'8 slices − 3 eaten = ?',
       ch:[{em:'🍕',l:'3 ชิ้น',ok:false},{em:'🍕',l:'5 ชิ้น',ok:true},{em:'🍕',l:'4 ชิ้น',ok:false},{em:'🍕',l:'6 ชิ้น',ok:false}]},
+
+    // ── NEW: Finance & Number-Pair Questions (10 items) from LINE parent groups ──
+    // Insights: numerical pairing (2-2 choose pair), sequences (1-2-3 style), money totals,
+    // change making, coin values, applied math for real Satit exam prep. Kid-friendly with emojis.
+    {type:'mcq', img:'🪙', q:'เหรียญ 5 บาทสองเหรียญ + เหรียญ 1 บาท\\nรวมเป็นเงินเท่าไหร่?', en:'2×5B + 1B = ?',
+      ch:[{em:'🪙',l:'11 บาท',ok:true},{em:'🪙',l:'10 บาท',ok:false},{em:'🪙',l:'12 บาท',ok:false},{em:'🪙',l:'6 บาท',ok:false}]},
+    {type:'mcq', img:'💰', q:'ซื้อขนม 12 บาท จ่าย 20 บาท\\nเงินทอนเท่าไหร่?', en:'20B pay for 12B, change?',
+      ch:[{em:'💵',l:'8 บาท',ok:true},{em:'💵',l:'12 บาท',ok:false},{em:'💵',l:'32 บาท',ok:false},{em:'💵',l:'10 บาท',ok:false}]},
+    {type:'mcq', img:'🔢', q:'จับคู่ตัวเลข 2 2 ที่รวมกันได้ 10', en:'Pair that sums to 10',
+      ch:[{em:'3️⃣+7️⃣',l:'3+7',ok:true},{em:'4️⃣+6️⃣',l:'4+6',ok:false},{em:'2️⃣+5️⃣',l:'2+5',ok:false},{em:'1️⃣+8️⃣',l:'1+8',ok:false}]},
+    {type:'mcq', img:'🔢', q:'ลำดับ 2, 4, 6, 8, ___ คืออะไร?', en:'Next in 2,4,6,8?',
+      ch:[{em:'🔟',l:'10',ok:true},{em:'9️⃣',l:'9',ok:false},{em:'1️⃣',l:'12',ok:false},{em:'7️⃣',l:'7',ok:false}]},
+    {type:'mcq', img:'🛒', q:'นมกล่องละ 15 บาท ซื้อ 2 กล่อง\\nรวมเท่าไหร่?', en:'2 boxes ×15B = ?',
+      ch:[{em:'💰',l:'30 บาท',ok:true},{em:'💰',l:'15 บาท',ok:false},{em:'💰',l:'45 บาท',ok:false},{em:'💰',l:'20 บาท',ok:false}]},
+    {type:'mcq', img:'🪙', q:'เงิน 10 บาท เปลี่ยนเป็นเหรียญ 5 บาท\\nได้กี่เหรียญ?', en:'10B into 5B coins = ?',
+      ch:[{em:'2️⃣',l:'2 เหรียญ',ok:true},{em:'1️⃣',l:'1 เหรียญ',ok:false},{em:'3️⃣',l:'3 เหรียญ',ok:false},{em:'4️⃣',l:'4 เหรียญ',ok:false}]},
+    {type:'mcq', img:'📊', q:'ตัวเลขคู่ 2 4 6 8 :: ตัวเลขคี่คือ?', en:'Even 2 4 6 8 :: Odd?',
+      ch:[{em:'🔢',l:'1 3 5 7',ok:true},{em:'🔢',l:'2 4 6 10',ok:false},{em:'🔢',l:'5 10 15',ok:false},{em:'🔢',l:'3 6 9',ok:false}]},
+    {type:'mcq', img:'🍎', q:'แอปเปิ้ล 4 ลูก ราคา 5 บาทต่อลูก\\nรวมกี่บาท?', en:'4×5B apples = ?',
+      ch:[{em:'💵',l:'20 บาท',ok:true},{em:'💵',l:'15 บาท',ok:false},{em:'💵',l:'25 บาท',ok:false},{em:'💵',l:'9 บาท',ok:false}]},
+    {type:'mcq', img:'🔢', q:'คู่ไหนรวมเท่ากับ 5+5?', en:'Which pair = 5+5?',
+      ch:[{em:'6️⃣+4️⃣',l:'6+4',ok:true},{em:'7️⃣+3️⃣',l:'7+3',ok:false},{em:'8️⃣+2️⃣',l:'8+2',ok:false},{em:'9️⃣+1️⃣',l:'9+1',ok:false}]},
+    {type:'mcq', img:'🏪', q:'มีเงิน 50 บาท ซื้อของ 35 บาท\\nเหลือเงินกี่บาท?', en:'50B - 35B = ?',
+      ch:[{em:'💰',l:'15 บาท',ok:true},{em:'💰',l:'20 บาท',ok:false},{em:'💰',l:'85 บาท',ok:false},{em:'💰',l:'25 บาท',ok:false}]},
   ]
 },
 
@@ -703,13 +728,36 @@ const CATS = [
   ]
 },
 
+/* ── CAT 5: ทักษะชีวิต & วันสอบ (Practical Independence + Exam Day from parent groups) ── */
+{
+  id:5, em:'🧳', name:'พร้อมสอบ', en:'Exam Day Ready', cls:'cc3',
+  qs:[
+    {type:'mcq', img:'🙇‍♂️', q:'ก่อนสอบควรไหว้คุณพ่อรูปปั้น?', en:'Bow to the statue before exam?',
+      ch:[{em:'🙇‍♂️',l:'ใช่ ไหว้ขอพร',ok:true},{em:'📸',l:'ถ่ายรูป',ok:false},{em:'🏃',l:'วิ่งเล่น',ok:false},{em:'🍎',l:'ให้ผลไม้',ok:false}]},
+    {type:'mcq', img:'📵', q:'ห้ามนำอะไรเข้าไปในห้องสอบ?', en:'What is forbidden in exam room?',
+      ch:[{em:'📚',l:'หนังสือ',ok:false},{em:'📱',l:'โทรศัพท์',ok:true},{em:'🖍️',l:'ดินสอสี',ok:false},{em:'🥪',l:'ขนม',ok:false}]},
+    {type:'mcq', img:'👟', q:'เด็กควรใส่รองเท้าเองเพื่อฝึกความเป็นอิสระ', en:'Put on shoes by yourself?',
+      ch:[{em:'👟',l:'ใช่ ทำเอง',ok:true},{em:'🆘',l:'รอแม่ช่วย',ok:false},{em:'📢',l:'ร้องเรียก',ok:false},{em:'📱',l:'เล่นเกม',ok:false}]},
+    {type:'mcq', img:'🟩', q:'RP ใช้สีอะไรในวันสอบ?', en:'RP track color?',
+      ch:[{em:'🟩',l:'เขียว',ok:true},{em:'🔵',l:'น้ำเงิน (EP)',ok:false},{em:'🟥',l:'แดง',ok:false},{em:'🟨',l:'เหลือง',ok:false}]},
+    {type:'mcq', img:'🖨️', q:'ต้องพิมพ์อะไรมาด้วยในวันสอบ?', en:'What to print for exam day?',
+      ch:[{em:'📋',l:'ใบมัดจำ 1 ชุด',ok:true},{em:'🆔',l:'บัตรประชาชน',ok:false},{em:'📸',l:'รูปถ่าย',ok:false},{em:'📝',l:'ใบสมัคร',ok:false}]},
+    {type:'mcq', img:'🤫', q:'กฎสำคัญ: ไม่ควรเม้าท์คุยกันมาก', en:'Important rule: No private chatting?',
+      ch:[{em:'🤫',l:'ใช่ เงียบและฟังครู',ok:true},{em:'📣',l:'คุยดังๆ',ok:false},{em:'📱',l:'ส่งรูปกลุ่ม',ok:false},{em:'❓',l:'ถามครูตลอด',ok:false}]},
+    {type:'mcq', img:'⏰', q:'ควรมาถึงสถานที่สอบกี่โมง?', en:'Be on time for exam?',
+      ch:[{em:'🕒',l:'ตรงเวลา',ok:true},{em:'🕕',l:'ช้า 30 นาที',ok:false},{em:'🕘',l:'เช้ามืด',ok:false},{em:'🕛',l:'เที่ยงคืน',ok:false}]},
+    {type:'mcq', img:'📝', q:'ในวันสอบเด็กควรเขียนชื่อเอง', en:'Write your own name independently?',
+      ch:[{em:'✍️',l:'ใช่ เขียนเอง',ok:true},{em:'🆘',l:'ให้ผู้ใหญ่เขียน',ok:false},{em:'📱',l:'ใช้โทรศัพท์',ok:false},{em:'🎤',l:'บอกปากเปล่า',ok:false}]},
+  ]
+}
+
 ]; // end CATS
 
 /* ══════════════════════════════════════════
    STATE
 ══════════════════════════════════════════ */
 let curCat=null, curQ=0, score=0, answered=false, curQs=[];
-const bestScores=[null,null,null,null,null];
+const bestScores=[null,null,null,null,null,null];
 const LETTERS=['ก','ข','ค','ง'];
 const PRAISE=['เก่งมาก! 🎉','ถูกต้องเลย! ⭐','ใช่เลย! 🌟','ดีมากเลย! 🎊','เยี่ยมมาก! 🏆','สุดยอด! 🥳'];
 const OOPS=['เกือบแล้ว! ดูเฉลยสีเขียวนะ 💚','ไม่เป็นไรนะ! ดูคำตอบสีเขียว 🌿','ลองอีกครั้งได้เลย! 💚'];
