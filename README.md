@@ -4,7 +4,7 @@
 
 - Stack: pure `HTML / CSS / JavaScript` (no build step, no framework)
 - UX goals: big buttons, forgiving interactions, English-first with Thai hints
-- Last updated: 2026-06-10
+- Last updated: 2026-07-04
 
 ## Quick start
 
@@ -33,7 +33,7 @@
 
 | Page | What it is | Status |
 |------|------------|--------|
-| `school_dashboard.html` | Compare schools (charts, fees, notes) | ✅ Ready |
+| `school_dashboard.html` | Compare schools (charts, fees, notes) — Summer สอบติดอัสสัมชัญ แผนกประถมแล้ว 🎉 หน้านี้เก็บไว้เป็นข้อมูลอ้างอิง | ✅ Ready |
 | `rp-prep-for-summer.html` | เตรียมลูกสอบ PRE ACP อัสสัมชัญ — RP / Viva / สัมภาษณ์ / แนวข้อสอบ / Checklist (6 tabs) | ✅ Ready |
 
 ## Repo notes
