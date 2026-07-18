@@ -314,11 +314,21 @@
     </div>
   </div>
 
+  <!-- ── FILTER TABS ── -->
+  <div class="section-wrap" style="margin-bottom: 8px;">
+    <div class="filter-tabs" style="display:flex; gap:8px; padding:0 16px; flex-wrap:wrap;">
+      <button onclick="filterCards('all')" class="filter-btn active" id="filter-all">ทั้งหมด</button>
+      <button onclick="filterCards('game')" class="filter-btn" id="filter-game">🎮 Games</button>
+      <button onclick="filterCards('learn')" class="filter-btn" id="filter-learn">📚 Learn</button>
+      <button onclick="filterCards('parent')" class="filter-btn" id="filter-parent">👨‍👩‍👧 Parent</button>
+    </div>
+  </div>
+
   <!-- ── KIDS SECTION ── -->
   <div class="section-wrap">
     <div class="section-title">🎮 Summer's Activities</div>
   </div>
-  <div class="grid">
+  <div class="grid" id="activity-grid">
 
     <a href="24_question.html" class="card c-pink">
       <div class="card-icon">🎲</div>
