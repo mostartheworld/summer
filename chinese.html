@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>เรียนภาษาจีน (繁體) — Summer's World</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;600;700&family=Noto+Sans+Thai:wght@400;600;700&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --red: #E11D48;
+      --gold: #FBBF24;
+      --dark: #1E293B;
+      --cream: #FFF8F0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Fredoka', 'Noto Sans Thai', 'Noto Sans TC', sans-serif;
+      background: var(--cream);
+      background-image:
+        radial-gradient(circle at 20% 20%, rgba(225,29,72,0.08), transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(251,191,36,0.1), transparent 50%);
+      min-height: 100vh;
+      padding-bottom: 60px;
+    }
+    .site-nav {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--cream);
+      border-bottom: 4px solid var(--dark);
+      box-shadow: 0 4px 0 var(--dark);
+      padding: 10px 16px;
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    }
+    .nav-brand { font-family: 'Bungee', cursive; font-size: 15px; color: var(--dark); text-decoration: none; white-space: nowrap; }
+    .nav-links { display: flex; gap: 6px; flex-wrap: wrap; }
+    .nav-link {
+      text-decoration: none; font-size: 13px; font-weight: 600;
+      padding: 5px 13px; border-radius: 12px;
+      border: 2.5px solid var(--dark); color: var(--dark); background: white;
+      transition: all .12s;
+    }
+    .nav-link.active { background: var(--red); color: white; }
+    .page { max-width: 720px; margin: 0 auto; padding: 24px 16px; }
+    .hero { text-align: center; margin-bottom: 32px; }
+    .hero-emoji { font-size: 82px; margin-bottom: 8px; display: block; }
+    .hero-title {
+      font-family: 'Bungee', cursive; font-size: clamp(32px, 8vw, 52px);
+      color: var(--red); text-shadow: 3px 3px 0 var(--dark);
+    }
+    .hero-sub { font-size: 17px; color: #64748b; margin-top: 6px; font-weight: 600; }
+    .section { margin-bottom: 42px; }
+    .section-title {
+      font-size: 22px; font-weight: 800; color: var(--dark);
+      margin-bottom: 16px; display: flex; align-items: center; gap: 10px;
+    }
+    .card-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 14px;
+    }
+    .word-card {
+      background: white; border-radius: 20px; padding: 18px 14px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+      text-align: center; transition: transform 0.2s, box-shadow 0.2s;
+      border: 3px solid #fed7d7; cursor: pointer;
+    }
+    .word-card:hover { transform: translateY(-6px); box-shadow: 0 12px 28px rgba(225,29,72,0.15); }
+    .word-card:active { transform: scale(0.96); }
+    .chinese { font-size: 44px; font-weight: 700; color: var(--red); margin-bottom: 4px; }
+    .pinyin { font-size: 15px; color: #854d0e; font-weight: 600; }
+    .meaning { font-size: 15px; color: var(--dark); margin-top: 6px; font-weight: 700; }
+    .speaker { font-size: 18px; margin-top: 8px; color: #e11d48; }
+    .quiz-box {
+      background: white; border-radius: 24px; padding: 28px 22px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.1); border: 4px solid #fed7d7;
+    }
+    .quiz-question {
+      font-size: 19px; font-weight: 800; color: var(--dark);
+      text-align: center; margin-bottom: 20px;
+    }
+    .quiz-options {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    }
+    .quiz-btn {
+      padding: 16px 12px; border: 3px solid #fed7d7; border-radius: 18px;
+      background: #fff1f2; font-size: 20px; font-weight: 800; color: var(--dark);
+      cursor: pointer; transition: all 0.15s;
+    }
+    .quiz-btn:hover:not(:disabled) { background: #fecdd3; transform: translateY(-2px); }
+    .quiz-btn.correct { background: #dcfce7 !important; border-color: #22c55e; color: #166534; }
+    .quiz-btn.wrong { background: #fee2e2 !important; border-color: #ef4444; color: #991b1b; }
+    .quiz-feedback { text-align: center; margin-top: 18px; font-size: 26px; font-weight: 900; min-height: 38px; }
+    .quiz-feedback.correct { color: #16a34a; }
+    .quiz-feedback.wrong { color: #dc2626; }
+    .result-box { text-align: center; padding: 20px 10px; }
+    .result-emoji { font-size: 72px; margin-bottom: 10px; }
+    .result-title { font-size: 26px; font-weight: 900; color: var(--dark); }
+    .result-score { font-size: 48px; font-weight: 900; color: var(--red); }
+    .restart-btn {
+      margin-top: 20px; padding: 14px 42px; border: none; border-radius: 999px;
+      background: linear-gradient(135deg, var(--red), #f43f5e);
+      color: white; font-size: 18px; font-weight: 800; cursor: pointer;
+      box-shadow: 0 6px 20px rgba(225,29,72,0.3);
+    }
+  </style>
+</head>
+<body>
+  <nav class="site-nav">
+    <a href="index.html" class="nav-brand">Summer's World</a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">🏠 หน้าแรก</a>
+      <a href="thai_money.html" class="nav-link">🪙 เงินไทย</a>
+      <a href="math_2digit.html" class="nav-link">🔢 คณิต</a>
+      <a href="chinese.html" class="nav-link active">🀄 ภาษาจีน</a>
+      <a href="clock_game.html" class="nav-link">🕐 นาฬิกา</a>
+      <a href="color_mix.html" class="nav-link">🎨 สี</a>
+      <a href="farm_kid.html" class="nav-link">🌾 ฟาร์ม</a>
+      <a href="robot_game.html" class="nav-link">🤖 หุ่นยนต์</a>
+      <a href="knowledge.html" class="nav-link">📚 ความรู้</a>
+    </div>
+  </nav>
+
+  <div class="page">
+    <!-- Hero -->
+    <div class="hero">
+      <div class="hero-emoji">🀄️</div>
+      <h1 class="hero-title">เรียนภาษาจีน</h1>
+      <p class="hero-sub">繁體中文 ✨ กดที่การ์ดเพื่อฟังเสียงอ่านนะคะ!</p>
+    </div>
+
+    <!-- Greetings -->
+    <div class="section">
+      <div class="section-title">👋 คำทักทาย</div>
+      <div class="card-grid">
+        <div class="word-card" onclick="speak('你好', 'Nǐ hǎo')">
+          <div class="chinese">你好</div>
+          <div class="pinyin">Nǐ hǎo</div>
+          <div class="meaning">สวัสดี</div>
+          <div class="speaker">🔊 กดเพื่อฟังเสียง</div>
+        </div>
+        <div class="word-card" onclick="speak('謝謝', 'Xiè xiè')">
+          <div class="chinese">謝謝</div>
+          <div class="pinyin">Xiè xiè</div>
+          <div class="meaning">ขอบคุณ</div>
+          <div class="speaker">🔊 กดเพื่อฟังเสียง</div>
+        </div>
+        <div class="word-card" onclick="speak('再見', 'Zài jiàn')">
+          <div class="chinese">再見</div>
+          <div class="pinyin">Zài jiàn</div>
+          <div class="meaning">ลาก่อน</div>
+          <div class="speaker">🔊 กดเพื่อฟังเสียง</div>
+        </div>
+        <div class="word-card" onclick="speak('我愛你', 'Wǒ ài nǐ')">
+          <div class="chinese">我愛你</div>
+          <div class="pinyin">Wǒ ài nǐ</div>
+          <div class="meaning">ฉันรักคุณ</div>
+          <div class="speaker">🔊 กดเพื่อฟังเสียง</div>
+        </div>
+        <div class="word-card" onclick="speak('夏天', 'Xià tiān')">
+          <div class="chinese">夏天</div>
+          <div class="pinyin">Xià tiān</div>
+          <div class="meaning">ฤดูร้อน / Summer</div>
+          <div class="speaker">🔊 กดเพื่อฟังเสียง</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Family -->
+    <div class="section">
+      <div class="section-title">👨‍👩‍👧‍👦 ครอบครัว</div>
+      <div class="card-grid">
+        <div class="word-card" onclick="speak('媽媽', 'Mā ma')">
+          <div class="chinese">媽媽</div>
+          <div class="pinyin">Mā ma</div>
+          <div class="meaning">แม่</div>
+          <div class="speaker">🔊 กดเพื่อฟังเสียง</div>
+        </div>
+        <div class="word-card" onclick="speak('爸爸', 'Bà ba')">
+          <div class="chinese">爸爸</div>
+          <div class="pinyin">Bà ba</div>
+          <div class="meaning">พ่อ</div>
+          <div class="speaker">🔊 กดเพื่อฟังเสียง</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Numbers -->
+    <div class="section">
+      <div class="section-title">🔢 ตัวเลข 1-10</div>
+      <div class="card-grid">
+        <div class="word-card" onclick="speak('一', 'Yī')"><div class="chinese">一</div><div class="pinyin">Yī</div><div class="meaning">หนึ่ง</div></div>
+        <div class="word-card" onclick="speak('二', 'Èr')"><div class="chinese">二</div><div class="pinyin">Èr</div><div class="meaning">สอง</div></div>
+        <div class="word-card" onclick="speak('三', 'Sān')"><div class="chinese">三</div><div class="pinyin">Sān</div><div class="meaning">สาม</div></div>
+        <div class="word-card" onclick="speak('四', 'Sì')"><div class="chinese">四</div><div class="pinyin">Sì</div><div class="meaning">สี่</div></div>
+        <div class="word-card" onclick="speak('五', 'Wǔ')"><div class="chinese">五</div><div class="pinyin">Wǔ</div><div class="meaning">ห้า</div></div>
+        <div class="word-card" onclick="speak('六', 'Liù')"><div class="chinese">六</div><div class="pinyin">Liù</div><div class="meaning">หก</div></div>
+        <div class="word-card" onclick="speak('七', 'Qī')"><div class="chinese">七</div><div class="pinyin">Qī</div><div class="meaning">เจ็ด</div></div>
+        <div class="word-card" onclick="speak('八', 'Bā')"><div class="chinese">八</div><div class="pinyin">Bā</div><div class="meaning">แปด</div></div>
+        <div class="word-card" onclick="speak('九', 'Jiǔ')"><div class="chinese">九</div><div class="pinyin">Jiǔ</div><div class="meaning">เก้า</div></div>
+        <div class="word-card" onclick="speak('十', 'Shí')"><div class="chinese">十</div><div class="pinyin">Shí</div><div class="meaning">สิบ</div></div>
+      </div>
+    </div>
+
+    <!-- Quiz -->
+    <div class="section">
+      <div class="section-title">🎮 มาทดสอบกัน!</div>
+      <div class="quiz-box" id="quiz-box">
+        <div id="quiz-content">
+          <div class="quiz-question" id="question"></div>
+          <div class="quiz-options" id="options"></div>
+          <div class="quiz-feedback" id="feedback"></div>
+        </div>
+        <div class="result-box" id="result" style="display: none;">
+          <div class="result-emoji">🎉</div>
+          <div class="result-title">เก่งมากเลย!</div>
+          <div class="result-score" id="score"></div>
+          <div style="color:#64748b; margin-top:4px;">คะแนนเต็ม 6 ข้อ</div>
+          <button class="restart-btn" onclick="restartQuiz()">เล่นอีกครั้ง</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Text-to-Speech function (Traditional Chinese)
+    function speak(chinese, pinyin) {
+      const utterance = new SpeechSynthesisUtterance(chinese);
+      utterance.lang = 'zh-TW'; // Traditional Chinese
+      utterance.rate = 0.9;
+      utterance.pitch = 1.1;
+      
+      // Try to find a Chinese voice
+      const voices = speechSynthesis.getVoices();
+      const chineseVoice = voices.find(v => 
+        v.lang.includes('zh') || v.lang.includes('ZH') || 
+        v.name.toLowerCase().includes('chinese') || 
+        v.name.toLowerCase().includes('mandarin')
+      );
+      if (chineseVoice) utterance.voice = chineseVoice;
+
+      speechSynthesis.speak(utterance);
+    }
+
+    // Quiz data (Traditional)
+    const questions = [
+      { q: "คำว่า '你好' อ่านว่าอย่างไร?", options: ["Nǐ hǎo", "Xiè xiè", "Zài jiàn"], answer: 0 },
+      { q: "คำว่า '謝謝' แปลว่าอะไร?", options: ["สวัสดี", "ขอบคุณ", "ลาก่อน"], answer: 1 },
+      { q: "เลข '五' คือเลขอะไร?", options: ["3", "5", "8"], answer: 1 },
+      { q: "คำว่า '媽媽' หมายถึงใคร?", options: ["พ่อ", "แม่", "พี่สาว"], answer: 1 },
+      { q: "เลข '八' อ่านว่าอะไร?", options: ["Bā", "Liù", "Qī"], answer: 0 },
+      { q: "คำว่า '我愛你' แปลว่าอะไร?", options: ["ขอบคุณ", "ฉันรักคุณ", "สวัสดี"], answer: 1 }
+    ];
+
+    let current = 0;
+    let score = 0;
+
+    function showQuestion() {
+      const q = questions[current];
+      document.getElementById('question').innerHTML = q.q;
+      const opts = document.getElementById('options');
+      opts.innerHTML = '';
+      document.getElementById('feedback').innerHTML = '';
+
+      q.options.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'quiz-btn';
+        btn.innerHTML = opt;
+        btn.onclick = () => checkAnswer(i, btn, q.answer);
+        opts.appendChild(btn);
+      });
+    }
+
+    function checkAnswer(selected, btn, correct) {
+      const allBtns = document.querySelectorAll('#options .quiz-btn');
+      allBtns.forEach(b => b.disabled = true);
+
+      if (selected === correct) {
+        btn.classList.add('correct');
+        document.getElementById('feedback').innerHTML = '✅ ถูกต้อง! เก่งจังเลย~';
+        document.getElementById('feedback').className = 'quiz-feedback correct';
+        score++;
+      } else {
+        btn.classList.add('wrong');
+        allBtns[correct].classList.add('correct');
+        document.getElementById('feedback').innerHTML = '❌ ยังไม่ถูก ลองใหม่นะคะ!';
+        document.getElementById('feedback').className = 'quiz-feedback wrong';
+      }
+
+      setTimeout(() => {
+        current++;
+        if (current < questions.length) {
+          showQuestion();
+        } else {
+          showResult();
+        }
+      }, 1400);
+    }
+
+    function showResult() {
+      document.getElementById('quiz-content').style.display = 'none';
+      document.getElementById('result').style.display = 'block';
+      document.getElementById('score').innerHTML = `${score} / ${questions.length}`;
+    }
+
+    function restartQuiz() {
+      current = 0;
+      score = 0;
+      document.getElementById('quiz-content').style.display = 'block';
+      document.getElementById('result').style.display = 'none';
+      showQuestion();
+    }
+
+    // Preload voices
+    window.speechSynthesis.onvoiceschanged = function() {};
+
+    window.onload = function() {
+      showQuestion();
+    }
+  </script>
+</body>
+</html>
