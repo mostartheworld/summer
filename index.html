@@ -233,6 +233,25 @@
   .card:nth-child(8) { animation-delay: .48s; }
   .card:nth-child(9) { animation-delay: .54s; }
 
+  /* ── FILTER TABS ── */
+  .filter-btn {
+    font-family: 'Fredoka', 'Noto Sans Thai', sans-serif;
+    font-size: 13px; font-weight: 700;
+    color: rgba(255,255,255,.65);
+    background: rgba(255,255,255,.08);
+    border: 1.5px solid rgba(255,255,255,.15);
+    border-radius: 20px;
+    padding: 8px 16px; min-height: 40px;
+    cursor: pointer;
+    transition: background .15s, color .15s, border-color .15s;
+  }
+  .filter-btn:active { transform: scale(.96); }
+  .filter-btn.active {
+    background: var(--yellow);
+    color: var(--dark);
+    border-color: var(--yellow);
+  }
+
   /* ── BOTTOM NAV ── */
   .bottom-nav {
     position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
@@ -330,7 +349,7 @@
   </div>
   <div class="grid" id="activity-grid">
 
-    <a href="24_question.html" class="card c-pink">
+    <a href="24_question.html" class="card c-pink" data-cat="learn">
       <div class="card-icon">🎲</div>
       <div class="card-name-th">Talk Time with Parents</div>
       <div class="card-name-en">24 QUESTIONS</div>
@@ -338,7 +357,7 @@
       <div class="card-arrow">→</div>
     </a>
 
-    <a href="robot_game.html" class="card c-gold">
+    <a href="robot_game.html" class="card c-gold" data-cat="game">
       <div class="card-icon">🤖</div>
       <div class="card-name-th">Robot Builder</div>
       <div class="card-name-en">ROBOT BUILDER</div>
@@ -346,7 +365,7 @@
       <div class="card-arrow">→</div>
     </a>
 
-    <a href="knowledge.html" class="card c-purple">
+    <a href="knowledge.html" class="card c-purple" data-cat="learn">
       <div class="card-icon">📚</div>
       <div class="card-name-th">Knowledge Playground</div>
       <div class="card-name-en">KNOWLEDGE</div>
@@ -354,7 +373,7 @@
       <div class="card-arrow">→</div>
     </a>
 
-    <a href="sa_ra.html" class="card c-sara">
+    <a href="sa_ra.html" class="card c-sara" data-cat="learn">
       <div class="card-icon">🗣️</div>
       <div class="card-name-th">สระ</div>
       <div class="card-name-en">Sa-ra</div>
@@ -362,7 +381,7 @@
       <div class="card-arrow">→</div>
     </a>
 
-    <a href="clock_game.html" class="card c-clock">
+    <a href="clock_game.html" class="card c-clock" data-cat="game">
       <div class="card-icon">🕐</div>
       <div class="card-name-th">นาฬิกา</div>
       <div class="card-name-en">CLOCK GAME</div>
@@ -370,7 +389,7 @@
       <div class="card-arrow">→</div>
     </a>
 
-    <a href="thai_money.html" class="card c-coin">
+    <a href="thai_money.html" class="card c-coin" data-cat="learn">
       <div class="card-icon">🪙</div>
       <div class="card-name-th">Thai Coins</div>
       <div class="card-name-en">THAI COINS</div>
@@ -378,7 +397,15 @@
       <div class="card-arrow">→</div>
     </a>
 
-    <a href="color_mix.html" class="card c-rainbow">
+    <a href="chinese.html" class="card c-pink" data-cat="learn">
+      <div class="card-icon">🀄️</div>
+      <div class="card-name-th">ภาษาจีน</div>
+      <div class="card-name-en">CHINESE</div>
+      <div class="card-desc">เรียนตัวอักษรจีนแบบดั้งเดิม + กดฟังเสียงได้เลย</div>
+      <div class="card-arrow">→</div>
+    </a>
+
+    <a href="color_mix.html" class="card c-rainbow" data-cat="game">
       <div class="card-icon">🎨</div>
       <div class="card-name-th">Color Mixing</div>
       <div class="card-name-en">COLOR MIXING</div>
@@ -386,7 +413,7 @@
       <div class="card-arrow">→</div>
     </a>
 
-    <a href="gravity.html" class="card c-space">
+    <a href="gravity.html" class="card c-space" data-cat="learn">
       <div class="card-icon">🚀</div>
       <div class="card-name-th">แรงโน้มถ่วง</div>
       <div class="card-name-en">GRAVITY</div>
@@ -394,7 +421,7 @@
       <div class="card-arrow">→</div>
     </a>
 
-    <a href="farm_kid.html" class="card c-farm">
+    <a href="farm_kid.html" class="card c-farm" data-cat="game">
       <div class="card-icon">🌾</div>
       <div class="card-name-th">ฟาร์มฝึกคิด</div>
       <div class="card-name-en">FARM QUIZ</div>
@@ -402,7 +429,7 @@
       <div class="card-arrow">→</div>
     </a>
 
-    <a href="satit_exam.html" class="card c-purple">
+    <a href="satit_exam.html" class="card c-purple" data-cat="learn">
       <div class="card-icon">📝</div>
       <div class="card-name-th">ตะลุยสาธิต</div>
       <div class="card-name-en">SATIT DRILL</div>
@@ -410,7 +437,7 @@
       <div class="card-arrow">→</div>
     </a>
 
-    <a href="pay_money.html" class="card c-teal">
+    <a href="pay_money.html" class="card c-teal" data-cat="game">
       <div class="card-icon">🛒</div>
       <div class="card-name-th">Pay & Shop</div>
       <div class="card-name-en">PAY & SHOP</div>
@@ -418,7 +445,7 @@
       <div class="card-arrow">→</div>
     </a>
 
-    <a href="math_2digit.html" class="card c-math">
+    <a href="math_2digit.html" class="card c-math" data-cat="learn">
       <div class="card-icon">🔢</div>
       <div class="card-name-th">บวกลบสองหลัก</div>
       <div class="card-name-en">MATH GAME</div>
@@ -434,7 +461,7 @@
   </div>
   <div class="grid">
 
-    <a href="school_dashboard.html" class="card c-green card-wide">
+    <a href="school_dashboard.html" class="card c-green card-wide" data-cat="parent">
       <div class="card-icon">🏫</div>
       <div class="card-info">
         <div class="card-name-th">Primary 1 School Comparison</div>
@@ -444,7 +471,7 @@
       <div class="card-arrow">→</div>
     </a>
 
-    <a href="prepare-for-my-child-rp-viva-interview.html" class="card c-purple card-wide">
+    <a href="prepare-for-my-child-rp-viva-interview.html" class="card c-purple card-wide" data-cat="parent">
       <div class="card-icon">🎭</div>
       <div class="card-info">
         <div class="card-name-th">เตรียมลูกสอบ RP / Viva / สัมภาษณ์</div>
@@ -523,6 +550,16 @@
 </nav>
 
 <script>
+  // Filter tabs
+  function filterCards(cat) {
+    document.querySelectorAll('.filter-btn').forEach(function(btn) {
+      btn.classList.toggle('active', btn.id === 'filter-' + cat);
+    });
+    document.querySelectorAll('.card[data-cat]').forEach(function(card) {
+      card.style.display = (cat === 'all' || card.dataset.cat === cat) ? '' : 'none';
+    });
+  }
+
   // Time-based greeting (English-first)
   const h = new Date().getHours();
   document.getElementById('greeting').textContent =
