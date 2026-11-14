@@ -12,7 +12,7 @@
   :root {
     --dark:#12132a; --dark2:#1e1f3a; --panel:#262848; --line:#3a3c66; --cream:#FFF8E8; --muted:#b9b6d6;
     --yellow:#FFD93D; --pink:#FF6B9D; --blue:#4ECDC4; --purple:#A06CD5; --orange:#FF9F1C;
-    --common:#FF6B9D; --rare:#38bdf8; --epic:#A06CD5;
+    --common:#FF6B9D; --rare:#38bdf8; --epic:#A06CD5; --ultra:linear-gradient(135deg,#b8860b,#FFD93D);
     --special:linear-gradient(135deg,#38bdf8,#FF6B9D); --unknown:#6b6d92;
   }
   html,body { min-height:100vh; font-family:'Fredoka','Noto Sans Thai',sans-serif; color:var(--cream);
@@ -48,7 +48,7 @@
   .code { font-variant-numeric:tabular-nums; letter-spacing:.5px; }
   .badge { display:inline-flex; align-items:center; gap:6px; padding:3px 12px 3px 8px; border-radius:999px; font-weight:700; font-size:13px; color:#fff; }
   .badge::before { content:""; width:12px; height:12px; background:rgba(255,255,255,.9); clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%); }
-  .r-common{background:var(--common)} .r-rare{background:var(--rare)} .r-epic{background:var(--epic)} .r-special{background:var(--special)} .r-unknown{background:var(--unknown)}
+  .r-common{background:var(--common)} .r-rare{background:var(--rare)} .r-epic{background:var(--epic)} .r-ultra{background:var(--ultra)} .r-special{background:var(--special)} .r-unknown{background:var(--unknown)}
   .own { margin-top:12px; }
   .own[aria-pressed="true"] { background:var(--yellow); color:#2a2200; }
 
@@ -102,15 +102,15 @@
       <select id="fSeries" aria-label="ชุด"><option value="">ทุกชุด</option></select>
       <select id="fRarity" aria-label="ความแรร์">
         <option value="">ทุกความแรร์</option><option value="common">Common</option><option value="rare">Rare</option>
-        <option value="epic">Epic</option><option value="special">Special Edition</option><option value="unknown">ไม่ระบุ</option>
+        <option value="epic">Epic</option><option value="ultra">Ultra Rare</option><option value="special">Special Edition</option><option value="unknown">ไม่ระบุ</option>
       </select>
       <select id="fOwn" aria-label="สะสม"><option value="">ทั้งหมด</option><option value="own">มีแล้ว</option><option value="need">ยังไม่มี</option></select>
     </div>
     <div class="legend">
-      <span class="badge r-common">Common</span><span class="badge r-rare">Rare</span><span class="badge r-epic">Epic</span><span class="badge r-special">Special</span>
+      <span class="badge r-common">Common</span><span class="badge r-rare">Rare</span><span class="badge r-epic">Epic</span><span class="badge r-ultra">Ultra Rare</span><span class="badge r-special">Special</span>
     </div>
     <div class="grid" id="grid"></div>
-    <p class="note">ข้อมูลจากใบเช็กลิสต์ในกล่อง · สีหกเหลี่ยม: ชมพู Common · ฟ้า Rare · ม่วง Epic · ไล่สี Special · ชุดที่ใบเช็กลิสต์ไม่มีรหัส/สีจะขึ้น "ไม่ระบุ" · ข้อมูลอยู่ที่ <code>mrbeast/catalog.json</code></p>
+    <p class="note">ข้อมูลจากใบเช็กลิสต์ในกล่อง · สีหกเหลี่ยม: ชมพู Common · ฟ้า Rare · ม่วง Epic · ไล่สี Special · Series 5 ใช้ระบบใหม่: กรอบชมพู Common · เงิน Rare · ทอง Ultra Rare · ชุดที่ใบเช็กลิสต์ไม่มีรหัส/สีจะขึ้น "ไม่ระบุ" · ข้อมูลอยู่ที่ <code>mrbeast/catalog.json</code></p>
     <p class="note">MrBeast Lab and all figure images © Moose Toys / MrBeast. Fan-made, non-commercial page for family use — not affiliated with or endorsed by Moose Toys or MrBeast.<br>
     MrBeast Lab และภาพฟิกเกอร์ทั้งหมดเป็นลิขสิทธิ์ของ Moose Toys / MrBeast · หน้านี้แฟนทำเองสำหรับใช้ในครอบครัว ไม่หารายได้ และไม่เกี่ยวข้องกับเจ้าของลิขสิทธิ์</p>
   </section>
@@ -118,8 +118,8 @@
 
 <script>
 const BASE='mrbeast/';
-const RL={common:'Common · ธรรมดา',rare:'Rare · หายาก',epic:'Epic · หายากมาก',special:'Special Edition · รุ่นพิเศษ',unknown:'ไม่ระบุ'};
-const RC={common:'var(--common)',rare:'var(--rare)',epic:'var(--epic)',special:'var(--special)',unknown:'var(--unknown)'};
+const RL={common:'Common · ธรรมดา',rare:'Rare · หายาก',epic:'Epic · หายากมาก',ultra:'Ultra Rare · หายากสุด',special:'Special Edition · รุ่นพิเศษ',unknown:'ไม่ระบุ'};
+const RC={common:'var(--common)',rare:'var(--rare)',epic:'var(--epic)',ultra:'var(--ultra)',special:'var(--special)',unknown:'var(--unknown)'};
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
 let ITEMS=[], byId={};
