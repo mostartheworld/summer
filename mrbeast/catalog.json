@@ -1,6 +1,6 @@
 {
  "updated": "2026-11-14",
- "count": 485,
+ "count": 486,
  "items": [
   {
    "id": "s3-001",
@@ -4933,7 +4933,7 @@
   {
    "id": "s5-040",
    "code": "5-040",
-   "name": "5-040 (ชื่อถูกตัด)",
+   "name": "Bad Banana… (?)",
    "series": "Lab Lurkers",
    "wave": 5,
    "rarity": "ultra",
@@ -5335,6 +5335,17 @@
    "rarity": "ultra",
    "pack": "6 pack",
    "img": "img/s5-070.webp",
+   "source": "checklist"
+  },
+  {
+   "id": "s5-085",
+   "code": "5-085",
+   "name": "Hyperdiamond Mega Case",
+   "series": "Limited Edition (Series 5)",
+   "wave": 5,
+   "rarity": "limited",
+   "pack": "3 pack / 6 pack · มีแค่ 1,000 ตัว",
+   "img": "img/s5-085.webp",
    "source": "checklist"
   }
  ]
