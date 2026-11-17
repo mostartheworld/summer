@@ -1,253 +1,269 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Thai Coins — Summer's World</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Mali:wght@500;700&family=Noto+Sans+Thai:wght@400;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root { --pink: #FF6B9D; --blue: #4ECDC4; --yellow: #FFD93D; --dark: #2D3047; --cream: #FFF8E8; --green: #95E06C; }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Fredoka', 'Mali', 'Noto Sans Thai', sans-serif; min-height: 100vh; overflow-x: hidden; background: radial-gradient(circle at 15% 25%, #FFD93D 0%, transparent 45%), radial-gradient(circle at 85% 75%, #FF6B9D 0%, transparent 45%), radial-gradient(circle at 50% 50%, #4ECDC4 0%, transparent 60%), linear-gradient(135deg, #FFE066 0%, #FF9F1C 50%, #4ECDC4 100%); }
-
-    .stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
-    .star { position: absolute; animation: twinkle 3s ease-in-out infinite; }
-    @keyframes twinkle { 0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.5; } 50% { transform: scale(1.4) rotate(180deg); opacity: 1; } }
-
-    .page { position: relative; z-index: 1; max-width: 680px; margin: 0 auto; padding: 32px 16px 80px; }
-
-    .site-nav { position: sticky; top: 0; z-index: 100; background: var(--cream); border-bottom: 4px solid var(--dark); box-shadow: 0 4px 0 var(--dark); padding: 10px 16px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-    .nav-brand { font-family: 'Bungee', cursive; font-size: 15px; color: var(--dark); text-shadow: 2px 2px 0 var(--pink); white-space: nowrap; flex-shrink: 0; text-decoration: none; }
-    .nav-links { display: flex; gap: 6px; flex-wrap: wrap; }
-    .nav-link { text-decoration: none; font-family: 'Fredoka', 'Noto Sans Thai', sans-serif; font-size: 13px; font-weight: 600; padding: 5px 13px; border-radius: 12px; border: 2.5px solid var(--dark); color: var(--dark); background: white; transition: all .12s; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; box-shadow: 2px 2px 0 var(--dark); }
-    .nav-link:hover { background: var(--yellow); transform: translate(-1px,-1px); box-shadow: 3px 3px 0 var(--dark); }
-    .nav-link:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 var(--dark); }
-    .nav-link.active { background: var(--pink); color: white; }
-    @media (max-width: 420px) { .nav-brand { font-size: 13px; } .nav-link { font-size: 11px; padding: 4px 10px; } }
-
-    .hero { text-align: center; margin-bottom: 36px; }
-    .hero-emoji { font-size: 88px; display: block; margin-bottom: 8px; animation: heroBounce 2.5s ease-in-out infinite; filter: drop-shadow(0 6px 18px rgba(245,158,11,.3)); }
-    @keyframes heroBounce { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-14px) scale(1.07)} }
-    .hero-title { font-family: 'Prompt','Noto Sans Thai',sans-serif; font-size: clamp(34px,9vw,56px); font-weight: 900; line-height: 1.1; background: linear-gradient(135deg,#f59e0b,#d97706,#b45309); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    .hero-sub { font-size: 16px; color: #78716c; margin-top: 8px; font-weight: 600; }
-
-    .section-title { font-family: 'Prompt','Noto Sans Thai',sans-serif; font-size: 22px; font-weight: 900; color: #1c1917; margin-bottom: 18px; display: flex; align-items: center; gap: 10px; }
-
-    .coins-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 48px; }
-    .coin-card { background: #fff; border-radius: 22px; padding: 18px 10px 16px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,.09); transition: transform .2s, box-shadow .2s; }
-    .coin-card:hover { transform: translateY(-5px); box-shadow: 0 12px 32px rgba(0,0,0,.14); }
-
-    .coin { width: 72px; height: 72px; border-radius: 50%; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; font-family: 'Prompt',sans-serif; font-weight: 900; }
-    .coin-1 { font-size: 22px; color: #555; background: radial-gradient(circle at 35% 30%, #f4f4f4, #aaa); box-shadow: 0 4px 12px rgba(0,0,0,.2), inset 0 1px 4px rgba(255,255,255,.7); }
-    .coin-2 { font-size: 22px; color: #444; background: radial-gradient(circle at 35% 30%, #e8e8e8, #999); box-shadow: 0 4px 12px rgba(0,0,0,.2), inset 0 1px 4px rgba(255,255,255,.7); border: 4px solid #c8c8c8; }
-    .coin-5 { font-size: 22px; color: #4a3500; background: radial-gradient(circle at 35% 30%, #f0f0f0, #b5b5b5); box-shadow: 0 4px 12px rgba(0,0,0,.2), inset 0 1px 4px rgba(255,255,255,.7); border: 6px solid #d4a017; }
-    .coin-10 { font-size: 20px; color: #7c2d12; background: radial-gradient(circle at 35% 30%, #fef08a, #d97706); box-shadow: 0 4px 12px rgba(0,0,0,.2), inset 0 1px 4px rgba(255,255,255,.5); border: 6px solid #c0c0c0; }
-
-    .coin-value { font-family: 'Prompt','Noto Sans Thai',sans-serif; font-size: 17px; font-weight: 900; color: #1c1917; margin-bottom: 2px; }
-    .coin-label { font-size: 11px; color: #78716c; font-weight: 600; }
-    .coin-hint { font-size: 10px; font-weight: 700; margin-top: 6px; padding: 3px 8px; border-radius: 999px; display: inline-block; }
-    .hint-silver { background: #f1f5f9; color: #64748b; }
-    .hint-gold { background: #fef3c7; color: #b45309; }
-    .hint-two { background: #fef9ee; color: #92400e; border: 1px solid #fde68a; }
-
-    .quiz-box { background: #fff; border-radius: 28px; padding: 28px 20px; box-shadow: 0 8px 32px rgba(0,0,0,.1); }
-    .quiz-progress-wrap { margin-bottom: 22px; }
-    .quiz-progress-text { font-size: 13px; color: #92400e; font-weight: 700; margin-bottom: 6px; }
-    .quiz-progress-bar { height: 10px; background: #fef3c7; border-radius: 999px; overflow: hidden; }
-    .quiz-progress-fill { height: 100%; background: linear-gradient(90deg,#f59e0b,#fcd34d); border-radius: 999px; transition: width .4s ease; }
-
-    .quiz-coin-area { text-align: center; margin-bottom: 28px; }
-    .quiz-coin-big { width: 130px; height: 130px; border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; transition: transform .2s; }
-    .quiz-coin-big.coin-1 { font-size: 40px; } .quiz-coin-big.coin-2 { font-size: 40px; border-width: 7px; }
-    .quiz-coin-big.coin-5 { font-size: 40px; border-width: 11px; } .quiz-coin-big.coin-10 { font-size: 36px; border-width: 11px; }
-    .quiz-coin-big.shake { animation: shakeCoin .45s; }
-    @keyframes shakeCoin { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-10px)} 40%,80%{transform:translateX(10px)} }
-    .quiz-question { font-size: 20px; font-weight: 800; color: #1c1917; }
-
-    .quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .quiz-btn { padding: 16px 8px; border: 3px solid #fde68a; border-radius: 18px; background: #fffbeb; font-family: 'Prompt','Noto Sans Thai',sans-serif; font-size: 22px; font-weight: 900; color: #92400e; cursor: pointer; transition: all .15s; min-height: 68px; }
-    .quiz-btn:hover:not(:disabled) { background: #fef3c7; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(245,158,11,.3); }
-    .quiz-btn:active:not(:disabled) { transform: scale(.95); }
-    .quiz-btn.correct { background: #dcfce7 !important; border-color: #22c55e !important; color: #15803d !important; }
-    .quiz-btn.wrong { background: #fee2e2 !important; border-color: #f87171 !important; color: #b91c1c !important; }
-    .quiz-btn:disabled { cursor: default; }
-
-    .quiz-feedback { text-align: center; margin-top: 18px; font-size: 26px; font-weight: 900; min-height: 40px; }
-    .quiz-feedback.correct { color: #16a34a; } .quiz-feedback.wrong { color: #dc2626; }
-
-    .quiz-next-btn { display: block; width: 100%; margin-top: 16px; padding: 16px; border: none; border-radius: 18px; background: linear-gradient(135deg,#f59e0b,#fcd34d); font-family: 'Prompt','Noto Sans Thai',sans-serif; font-size: 20px; font-weight: 900; color: #7c2d12; cursor: pointer; transition: transform .2s, box-shadow .2s; box-shadow: 0 4px 14px rgba(245,158,11,.4); }
-    .quiz-next-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(245,158,11,.45); }
-
-    .result-box { text-align: center; padding: 16px 0 8px; }
-    .result-emoji { font-size: 76px; display: block; margin-bottom: 10px; animation: heroBounce 2s ease-in-out infinite; }
-    .result-title { font-family: 'Prompt',sans-serif; font-size: 28px; font-weight: 900; color: #1c1917; margin-bottom: 6px; }
-    .result-score { font-size: 52px; font-weight: 900; color: #f59e0b; font-family: 'Nunito',sans-serif; margin-bottom: 6px; }
-    .result-sub { font-size: 16px; color: #78716c; margin-bottom: 28px; }
-    .restart-btn { padding: 16px 44px; border: none; border-radius: 999px; background: linear-gradient(135deg,#f59e0b,#fcd34d); font-family: 'Prompt','Noto Sans Thai',sans-serif; font-size: 20px; font-weight: 900; color: #7c2d12; cursor: pointer; box-shadow: 0 4px 18px rgba(245,158,11,.4); transition: transform .2s; }
-    .restart-btn:hover { transform: scale(1.06); }
-
-    @media (max-width: 520px) {
-      .page { padding: 24px 12px 60px; }
-      .coins-grid { grid-template-columns: repeat(2,1fr); gap: 12px; }
-      .quiz-options { gap: 10px; }
-      .quiz-btn { font-size: 20px; min-height: 60px; }
-      .quiz-coin-big { width: 110px; height: 110px; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🪙 เหรียญไทย — Summer's World</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="world-theme.css">
+<style>
+  .info { font-weight: 800; }
+  .info b { color: var(--orange-dark); }
+  .choice { min-width: 0; flex: 1 1 0; font-size: 24px; min-height: 68px; }
+  .choice.right { background: #22c55e; box-shadow: 0 6px 0 #15803d; color: #fff; }
+  .choice.wrong { background: #ef4444; box-shadow: 0 6px 0 #b91c1c; color: #fff; }
+  #nextBtn { display: none; }
+  .big-em { font-size: 56px; text-align: center; }
+</style>
 </head>
 <body>
+<div class="w-fade-in"></div>
+<canvas class="w-canvas" id="world"></canvas>
 
-<div class="stars" id="stars"></div>
-
-<nav class="site-nav">
-  <a class="nav-brand" href="index.html">☀️ SUMMER</a>
-  <div class="nav-links">
-    <a class="nav-link" href="24_question.html">🎲 Questions</a>
-    <a class="nav-link" href="robot_game.html">🤖 Robot</a>
-    <a class="nav-link" href="knowledge.html">📚 Learn</a>
-    <a class="nav-link" href="sa_ra.html">🗣️ Sa-ra</a>
-    <a class="nav-link" href="clock_game.html">🕐 Clock</a>
-    <a class="nav-link active" href="thai_money.html">🪙 Coins</a>
-    <a class="nav-link" href="pay_money.html">🛒 Pay</a>
-    <a class="nav-link" href="color_mix.html">🎨 Colors</a>
-    <a class="nav-link" href="gravity.html">🚀 Gravity</a>
-    <a class="nav-link" href="farm_kid.html">🌾 Farm Quiz</a>
-    <a class="nav-link" href="satit_exam.html">📝 Satit Drill</a>
-    <a class="nav-link" href="math_2digit.html">🔢 Math</a>
-    <a class="nav-link" href="school_dashboard.html">🏫 Schools</a>
-    <a class="nav-link" href="chinese.html">🀄 ภาษาจีน</a>
+<div class="w-top">
+  <a class="w-pill w-back" href="index.html" data-fade title="กลับเกาะ Back to island">🏝️ <span>กลับเกาะ</span></a>
+  <div class="w-pill w-title">🪙 เหรียญไทย <span class="en">· THAI COINS</span></div>
+  <div class="w-icons">
+    <button class="w-pill w-icon" id="soundBtn" title="เปิด/ปิดเสียง Sound">🔊</button>
   </div>
-</nav>
-
-<div class="page">
-
-  <div class="hero">
-    <span class="hero-emoji">🪙</span>
-    <h1 class="hero-title">Thai Coins</h1>
-    <p class="hero-sub">Learn Thai baht coins 🇹🇭</p>
-  </div>
-
-  <div class="section-title">🔍 Meet the Coins</div>
-  <div class="coins-grid">
-    <div class="coin-card">
-      <div class="coin coin-1">๑</div>
-      <div class="coin-value">1 Baht</div>
-      <div class="coin-label">One Baht</div>
-      <span class="coin-hint hint-silver">⚪ Silver</span>
-    </div>
-    <div class="coin-card">
-      <div class="coin coin-2">๒</div>
-      <div class="coin-value">2 Baht</div>
-      <div class="coin-label">Two Baht</div>
-      <span class="coin-hint hint-silver">⚪ Silver Rim</span>
-    </div>
-    <div class="coin-card">
-      <div class="coin coin-5">๕</div>
-      <div class="coin-value">5 Baht</div>
-      <div class="coin-label">Five Baht</div>
-      <span class="coin-hint hint-gold">🟡 Gold Rim</span>
-    </div>
-    <div class="coin-card">
-      <div class="coin coin-10">๑๐</div>
-      <div class="coin-value">10 Baht</div>
-      <div class="coin-label">Ten Baht</div>
-      <span class="coin-hint hint-two">🟡⚪ Two-Tone</span>
-    </div>
-  </div>
-
-  <div class="section-title">🎮 Quiz Time!</div>
-  <div class="quiz-box">
-    <div id="quizContent"></div>
-  </div>
-
 </div>
 
+<div class="w-caption" id="caption"></div>
+
+<div class="w-dock">
+  <!-- Meet the coins -->
+  <div class="w-controls" data-mode="meet">
+    <div class="w-pill">👆 แตะเหรียญเพื่อฟังชื่อ</div>
+  </div>
+  <!-- Quiz -->
+  <div class="w-controls" data-mode="quiz">
+    <div class="w-pill info">⭐ <b id="score">0</b> · ข้อ <b id="qnum">1</b>/8</div>
+  </div>
+  <div class="w-controls" data-mode="quiz" id="choices"></div>
+  <div class="w-controls" data-mode="quiz"><button class="w-btn big" id="nextBtn">ข้อต่อไป ▶</button></div>
+  <div class="w-modes">
+    <button class="w-mode on" data-go="meet"><span class="em">🔍</span>รู้จักเหรียญ</button>
+    <button class="w-mode" data-go="quiz"><span class="em">🎮</span>ทายเหรียญ</button>
+  </div>
+</div>
+
+<div class="w-modal-bg" id="result">
+  <div class="w-card" style="text-align:center">
+    <div class="big-em" id="rEm">🥇</div>
+    <h2 id="rTitle">เก่งมาก!</h2>
+    <p>ได้ <b id="rScore" style="font-size:28px">0 / 8</b> ข้อ</p>
+    <button class="w-btn" id="retryBtn">เล่นอีกครั้ง 🔄</button>
+  </div>
+</div>
+
+<div class="w-fallback" id="fallback">
+  <div class="big">🪙</div>
+  <h2>โหลดฉาก 3D ไม่ได้</h2>
+  <div>ต้องต่ออินเทอร์เน็ตนะ / This page needs internet</div>
+  <a class="w-btn" href="menu.html">ไปหน้าเมนู ▶</a>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script src="world-kit.js"></script>
 <script>
-  (function() {
-    const emojis = ['⭐','✨','🌟','💫','⚡','🌈'];
-    const container = document.getElementById("stars");
-    for (let i = 0; i < 18; i++) {
-      const s = document.createElement('div');
-      s.className = 'star';
-      s.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-      s.style.left = Math.random() * 100 + '%';
-      s.style.top = Math.random() * 100 + '%';
-      s.style.animationDelay = Math.random() * 3 + 's';
-      s.style.fontSize = (14 + Math.random() * 16) + 'px';
-      container.appendChild(s);
-    }
-  })();
-
-  const COINS = [
-    { value:1,  thai:'๑',  label:'1 Baht',  cls:'coin-1' },
-    { value:2,  thai:'๒',  label:'2 Baht',  cls:'coin-2' },
-    { value:5,  thai:'๕',  label:'5 Baht',  cls:'coin-5' },
-    { value:10, thai:'๑๐', label:'10 Baht', cls:'coin-10' },
-  ];
-  const TOTAL = 8;
-  let questions = [], current = 0, score = 0;
-
-  function shuffle(arr) { const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
-
-  function startQuiz() { const q=[]; COINS.forEach(c=>{q.push(c);q.push(c);}); questions=shuffle(q); current=0; score=0; renderQuestion(); }
-
-  function renderQuestion() {
-    const coin = questions[current];
-    const others = shuffle(COINS.filter(c => c.value !== coin.value)).slice(0,2);
-    const opts = shuffle([coin, ...others]);
-    const pct = Math.round((current/TOTAL)*100);
-    document.getElementById('quizContent').innerHTML = `
-      <div class="quiz-progress-wrap">
-        <div class="quiz-progress-text">Question ${current+1} of ${TOTAL}</div>
-        <div class="quiz-progress-bar"><div class="quiz-progress-fill" style="width:${pct}%"></div></div>
-      </div>
-      <div class="quiz-coin-area">
-        <div class="quiz-coin-big ${coin.cls}" id="quizCoin">${coin.thai}</div>
-        <div class="quiz-question">How many baht is this coin? 🤔</div>
-      </div>
-      <div class="quiz-options">
-        ${opts.map(o=>`<button class="quiz-btn" onclick="answer(${o.value},${coin.value})" data-val="${o.value}">${o.label}</button>`).join('')}
-      </div>
-      <div class="quiz-feedback" id="qFeedback"></div>`;
-  }
-
-  function answer(chosen, correct) {
-    document.querySelectorAll('.quiz-btn').forEach(b => b.disabled=true);
-    const fb = document.getElementById('qFeedback');
-    if (chosen === correct) {
-      score++;
-      document.querySelector(`[data-val="${correct}"]`).classList.add('correct');
-      fb.className='quiz-feedback correct'; fb.textContent='🎉 Great job!';
-    } else {
-      document.querySelector(`[data-val="${chosen}"]`).classList.add('wrong');
-      document.querySelector(`[data-val="${correct}"]`).classList.add('correct');
-      fb.className='quiz-feedback wrong'; fb.textContent='💪 Nice try! Keep going!';
-      const c=document.getElementById('quizCoin'); if(c){c.classList.add('shake');setTimeout(()=>c.classList.remove('shake'),450);}
-    }
-    const btn=document.createElement('button'); btn.className='quiz-next-btn';
-    btn.textContent=current+1<TOTAL?'Next Question →':'See Result 🏆';
-    btn.onclick=()=>{current++;current<TOTAL?renderQuestion():renderResult();};
-    fb.insertAdjacentElement('afterend',btn);
-  }
-
-  function renderResult() {
-    let emoji='🥇', msg='Amazing work!';
-    if(score<=4){emoji='😊';msg='Keep practicing!';}
-    else if(score<=6){emoji='⭐';msg='Great job!';}
-    document.getElementById('quizContent').innerHTML=`
-      <div class="result-box">
-        <span class="result-emoji">${emoji}</span>
-        <div class="result-title">${msg}</div>
-        <div class="result-score">${score} / ${TOTAL}</div>
-        <div class="result-sub">Summer got ${score} out of ${TOTAL} correct 🌟</div>
-        <button class="restart-btn" onclick="startQuiz()">🔄 Play Again</button>
-      </div>`;
-  }
-
-  startQuiz();
+  setTimeout(function () { if (!window.__worldReady) document.getElementById('fallback').classList.add('show'); }, 10000);
 </script>
 
+<script type="module">
+/* =========================================================
+   เหรียญไทย (Thai coins)
+   🔍 meet : 4 giant coins stand on pedestals — tap one to flip it and hear about it
+   🎮 quiz : a coin spins in the middle — tap how many baht it is (8 questions)
+   Coin models come from kit.makeCoin (world-kit.js)
+   ========================================================= */
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const kit = WorldKit(THREE, OrbitControls);
+const { box } = kit;
+const stage = kit.createStage({ canvas: document.getElementById('world') });
+const { scene, camera, controls } = stage;
+controls.minDistance = 7; controls.maxDistance = 38;
+controls.minPolarAngle = .4; controls.maxPolarAngle = 1.45;
+kit.bindSoundButton(document.getElementById('soundBtn'));
+kit.bindFadeLinks();
+const fx = kit.createConfetti(scene);
+const floaters = kit.createFloaters(scene, { count: 16, radius: 14, spread: 10, y0: -2 });
+
+const captionEl = document.getElementById('caption');
+let captionTimer = null;
+function caption(text, say = true, ms = 4500) {
+  captionEl.textContent = text; captionEl.classList.add('show');
+  clearTimeout(captionTimer); captionTimer = setTimeout(() => captionEl.classList.remove('show'), ms);
+  if (say) kit.speak(text.replace(/[^฀-๿0-9 ]/g, ' '));
+}
+
+// ── Coin museum ──
+box(scene, 16, .4, 10, '#8fd16a', 0, -.2, 0);
+box(scene, 16, 1.2, 10, '#d39a5c', 0, -1, 0);
+box(scene, 14, 1, 8, '#b87e47', 0, -2.1, 0);
+box(scene, 10, .8, 6, '#9b6a3c', 0, -3, 0);
+box(scene, 14, .12, 4, '#c0392b', 0, .06, .4, false);                         // red carpet
+const VALUES = [1, 2, 5, 10];
+const SCALE = 2.6;                                                              // giant coins
+const museum = VALUES.map((v, i) => {
+  const x = -5.1 + i * 3.4;
+  box(scene, 2, 1.2, 2, '#f2e6d0', x, .6, -1);
+  box(scene, 2.2, .2, 2.2, '#e3793a', x, 1.3, -1);
+  const coin = kit.makeCoin(v, SCALE);
+  coin.rotation.x = Math.PI / 2;                                                // stand up, face the camera
+  coin.position.set(x, 1.4 + kit.COINS[v].r * SCALE, -1);
+  scene.add(coin);
+  const l = kit.labelSprite(`${v} บาท`, .55); l.position.set(x, .7, .3); scene.add(l);
+  return { v, coin, flip: 0, spin: 0 };
+});
+const summer = kit.makeSummer();
+summer.g.position.set(-6.4, 0, 2.2); summer.g.rotation.y = .5;
+scene.add(summer.g);
+
+// ── Quiz coin (shown in quiz mode, spins in front of the museum) ──
+let quizCoin = null;
+function showQuizCoin(v) {
+  if (quizCoin) scene.remove(quizCoin);
+  quizCoin = kit.makeCoin(v, 2.5);
+  quizCoin.rotation.x = Math.PI / 2;
+  quizCoin.position.set(0, 3.6, 2.6);
+  quizCoin.userData.pop = 0;
+  scene.add(quizCoin);
+}
+
+function describe(v) {
+  const C = kit.COINS[v];
+  return `${C.th} ${C.color} ขนาด${C.size}`;
+}
+
+/* =========================================================
+   Quiz (same rules as before: each coin twice, 8 questions, 3 choices)
+   ========================================================= */
+const TOTAL = 8;
+const shuffle = a => [...a].sort(() => Math.random() - .5);
+let questions = [], qi = 0, score = 0, answered = false;
+const choicesEl = document.getElementById('choices'), nextBtn = document.getElementById('nextBtn');
+function startQuiz() {
+  questions = shuffle([...VALUES, ...VALUES]); qi = 0; score = 0;
+  document.getElementById('score').textContent = 0;
+  document.getElementById('result').classList.remove('show');
+  ask();
+}
+function ask() {
+  answered = false; nextBtn.style.display = 'none';
+  const v = questions[qi];
+  document.getElementById('qnum').textContent = qi + 1;
+  showQuizCoin(v);
+  choicesEl.innerHTML = '';
+  shuffle([v, ...shuffle(VALUES.filter(x => x !== v)).slice(0, 2)]).forEach(o => {
+    const b = document.createElement('button');
+    b.className = 'w-btn white choice'; b.textContent = `${o} บาท`; b.dataset.v = o;
+    b.onclick = () => answer(b, o);
+    choicesEl.appendChild(b);
+  });
+  caption('เหรียญนี้กี่บาท? 🤔');
+}
+function answer(btn, o) {
+  if (answered) return;
+  answered = true;
+  const v = questions[qi];
+  [...choicesEl.children].forEach(b => { b.disabled = true; if (+b.dataset.v === v) b.classList.add('right'); });
+  if (o === v) {
+    score++; document.getElementById('score').textContent = score;
+    caption(`ถูกต้อง! ${describe(v)} 🎉`);
+    fx.burst(0, 4, 2.6, ['#f2cf63', '#d9dde3', '#ffffff']); cheerT = 2;
+  } else {
+    btn.classList.add('wrong');
+    caption(`นี่คือ${describe(v)} นะ 💪`, true, 5500);
+    quizCoin.userData.shake = .5;
+  }
+  qi++;
+  if (qi >= TOTAL) setTimeout(showResult, 1800);
+  else nextBtn.style.display = 'inline-flex';
+}
+function showResult() {
+  const [em, title] = score >= 7 ? ['🥇', 'เก่งมาก!'] : score >= 5 ? ['⭐', 'ดีมาก!'] : ['😊', 'ฝึกอีกนิดนะ!'];
+  document.getElementById('rEm').textContent = em;
+  document.getElementById('rTitle').textContent = title;
+  document.getElementById('rScore').textContent = `${score} / ${TOTAL}`;
+  document.getElementById('result').classList.add('show');
+  kit.speak(`${title} ได้ ${score} ข้อ`);
+  if (score >= 5) kit.cheer();
+}
+nextBtn.onclick = ask;
+document.getElementById('retryBtn').onclick = startQuiz;
+
+/* =========================================================
+   Modes, taps, loop
+   ========================================================= */
+let mode = null;
+const portrait = innerWidth < innerHeight;
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('.w-mode').forEach(b => b.classList.toggle('on', b.dataset.go === m));
+  document.querySelectorAll('.w-controls').forEach(c => { c.style.display = c.dataset.mode === m ? '' : 'none'; });
+  museum.forEach(x => { x.coin.visible = m === 'meet'; });   // hide the labelled coins during the quiz (no peeking!)
+  if (m === 'quiz') { startQuiz(); kit.flyTo(stage, new THREE.Vector3(0, 5, portrait ? 19 : 13), new THREE.Vector3(0, portrait ? 2.6 : 2.4, 1)); }
+  else {
+    if (quizCoin) { scene.remove(quizCoin); quizCoin = null; }
+    nextBtn.style.display = 'none';
+    kit.flyTo(stage, new THREE.Vector3(1, 7, portrait ? 37 : 15), new THREE.Vector3(0, portrait ? 2 : 2.4, 0));
+    caption('แตะเหรียญเพื่อฟังชื่อนะ 👆');
+  }
+}
+document.querySelectorAll('.w-mode').forEach(b => b.onclick = () => setMode(b.dataset.go));
+
+const raycaster = new THREE.Raycaster(), ndc = new THREE.Vector2();
+const canvas = stage.renderer.domElement;
+let press = null, cheerT = 0;
+canvas.addEventListener('pointerdown', e => { press = { x: e.clientX, y: e.clientY, t: performance.now() }; });
+canvas.addEventListener('pointerup', e => {
+  if (!press) return;
+  const tap = Math.hypot(e.clientX - press.x, e.clientY - press.y) < 10 && performance.now() - press.t < 500;
+  press = null;
+  if (!tap || mode !== 'meet') return;
+  ndc.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
+  raycaster.setFromCamera(ndc, camera);
+  const hit = raycaster.intersectObjects(museum.map(m => m.coin))[0];
+  if (!hit) return;
+  const m = museum.find(x => x.coin === hit.object);
+  m.flip = 1;
+  kit.tones([1200 + m.v * 40, 1500 + m.v * 40], .05, 'sine', .1);   // "ting!"
+  caption(describe(m.v) + ' 🪙');
+  cheerT = 1.2;
+});
+
+camera.position.set(0, 9, 26); controls.target.set(0, 2.4, 0);
+setMode('meet');
+
+stage.start((dt, time) => {
+  museum.forEach((m, i) => {
+    // tapped coins do a full flip; idle coins sway gently
+    if (m.flip > 0) { m.flip = Math.max(0, m.flip - dt * 1.2); m.coin.rotation.z = (1 - m.flip) * Math.PI * 2; m.coin.position.y = 1.4 + kit.COINS[m.v].r * SCALE + Math.sin((1 - m.flip) * Math.PI) * 1.2; }
+    else m.coin.rotation.z = Math.sin(time * 1.2 + i) * .35;
+  });
+  if (quizCoin) {
+    const u = quizCoin.userData;
+    u.pop = Math.min(1, u.pop + dt * 3);
+    quizCoin.scale.setScalar(u.pop + Math.sin(u.pop * Math.PI) * .2);
+    quizCoin.rotation.z = Math.sin(time * 1.5) * .6;
+    if (u.shake > 0) { u.shake -= dt; quizCoin.position.x = Math.sin(time * 50) * .15; } else quizCoin.position.x = 0;
+    quizCoin.position.y = 3.2 + Math.sin(time * 2) * .15;
+  }
+  cheerT -= dt;
+  kit.poseSummer(summer, time, cheerT > 0 ? 'cheer' : 'idle');
+  floaters.update(dt, time);
+  fx.update(dt);
+});
+window.__worldReady = true;
+</script>
 </body>
 </html>

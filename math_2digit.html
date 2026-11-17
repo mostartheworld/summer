@@ -1,545 +1,355 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>บวกลบสองหลัก — Summer's World</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;600;700;900&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --cream: #fff9f0;
-      --dark:  #1e293b;
-      --c1:    #f97316;
-      --c2:    #eab308;
-      --c3:    #fb923c;
-    }
-
-    body {
-      font-family: 'Fredoka', 'Noto Sans Thai', sans-serif;
-      background: var(--cream);
-      background:
-        radial-gradient(ellipse at 15% 10%, rgba(249,115,22,.18), transparent 45%),
-        radial-gradient(ellipse at 85% 10%, rgba(234,179,8,.14), transparent 40%),
-        radial-gradient(ellipse at 50% 90%, rgba(249,115,22,.12), transparent 50%),
-        var(--cream);
-      min-height: 100vh;
-      padding-bottom: 40px;
-    }
-
-    /* ── NAV ── */
-    .site-nav {
-      position: sticky; top: 0; z-index: 100;
-      background: var(--cream);
-      border-bottom: 4px solid var(--dark);
-      box-shadow: 0 4px 0 var(--dark);
-      padding: 10px 16px;
-      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-    }
-    .nav-brand { font-family: 'Bungee', cursive; font-size: 15px; color: var(--dark); text-decoration: none; white-space: nowrap; }
-    .nav-links { display: flex; gap: 6px; flex-wrap: wrap; }
-    .nav-link {
-      text-decoration: none; font-size: 13px; font-weight: 600;
-      padding: 5px 13px; border-radius: 12px;
-      border: 2.5px solid var(--dark); color: var(--dark); background: white;
-      transition: all .12s; display: inline-flex; align-items: center; gap: 4px;
-      white-space: nowrap; box-shadow: 2px 2px 0 var(--dark);
-    }
-    .nav-link:hover { background: #fef9c3; transform: translate(-1px,-1px); box-shadow: 3px 3px 0 var(--dark); }
-    .nav-link.active { background: linear-gradient(135deg, var(--c1), var(--c2)); color: white; border-color: transparent; box-shadow: none; }
-    @media (max-width: 420px) { .nav-brand { font-size: 13px; } .nav-link { font-size: 11px; padding: 4px 10px; } }
-
-    /* ── BLOBS ── */
-    .blobs { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
-    .blob { position: absolute; border-radius: 50%; opacity: .2; animation: drift linear infinite; }
-    @keyframes drift {
-      0%,100% { transform: translate(0,0) scale(1); }
-      33% { transform: translate(20px,-28px) scale(1.06); }
-      66% { transform: translate(-16px,18px) scale(.96); }
-    }
-
-    /* ── PAGE ── */
-    .page { position: relative; z-index: 2; max-width: 480px; margin: 0 auto; padding: 24px 16px 48px; }
-
-    /* ── HERO ── */
-    .hero { text-align: center; margin-bottom: 20px; }
-    .hero-emoji { font-size: 52px; display: block; margin-bottom: 6px; }
-    .hero-title { font-family: 'Bungee', cursive; font-size: 26px; color: var(--dark); letter-spacing: 1px; margin-bottom: 4px; }
-    .hero-sub { font-size: 15px; color: #64748b; }
-
-    /* ── SELECTOR BUTTONS ── */
-    .selector-wrap { display: flex; gap: 8px; justify-content: center; margin-bottom: 10px; flex-wrap: wrap; }
-    .sel-btn {
-      font-family: 'Fredoka', 'Noto Sans Thai', sans-serif;
-      font-size: 15px; font-weight: 700;
-      padding: 10px 20px; border-radius: 999px;
-      border: 2.5px solid var(--dark); background: white; cursor: pointer;
-      box-shadow: 2px 2px 0 var(--dark); transition: all .12s;
-    }
-    .sel-btn:hover { background: #fef9c3; transform: translate(-1px,-1px); box-shadow: 3px 3px 0 var(--dark); }
-    .sel-btn.active {
-      background: linear-gradient(135deg, var(--c1), var(--c2));
-      color: white; border-color: transparent; box-shadow: none;
-    }
-
-    /* ── SCORE BAR ── */
-    .score-bar {
-      display: flex; align-items: center; justify-content: space-between;
-      background: white; border: 2.5px solid var(--dark); border-radius: 16px;
-      padding: 10px 16px; margin-bottom: 14px;
-      box-shadow: 3px 3px 0 var(--dark);
-    }
-    .score-col { text-align: center; }
-    .score-label { font-size: 11px; color: #94a3b8; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; }
-    .score-num { font-family: 'Bungee', cursive; font-size: 24px; color: var(--c1); line-height: 1.1; }
-    .prog-wrap { flex: 1; margin: 0 14px; }
-    .prog-bar { height: 8px; background: #e2e8f0; border-radius: 999px; overflow: hidden; }
-    .prog-fill { height: 100%; background: linear-gradient(90deg, var(--c1), var(--c2)); border-radius: 999px; transition: width .4s ease; width: 0%; }
-
-    /* ── LEGEND ── */
-    .legend {
-      display: flex; justify-content: center; gap: 20px; margin-bottom: 14px;
-      font-size: 14px; color: #64748b; font-weight: 600;
-    }
-    .legend span { display: inline-flex; align-items: center; gap: 5px; }
-
-    /* ── QUESTION CARD ── */
-    .q-card {
-      background: white; border: 3px solid var(--dark); border-radius: 24px;
-      padding: 24px 20px 20px; margin-bottom: 16px;
-      box-shadow: 5px 5px 0 var(--dark); text-align: center;
-    }
-    .blocks-row {
-      font-size: 26px; line-height: 1.5; letter-spacing: 1px;
-      min-height: 38px; word-break: break-word; white-space: normal;
-    }
-    .num-display {
-      font-family: 'Bungee', cursive; font-size: 54px;
-      color: var(--dark); line-height: 1.05;
-    }
-    .op-row {
-      font-family: 'Bungee', cursive; font-size: 38px;
-      color: var(--c1); margin: 4px 0;
-    }
-    .divider {
-      height: 4px; background: linear-gradient(90deg, var(--c1), var(--c2));
-      border-radius: 99px; margin: 10px auto; max-width: 180px;
-    }
-    .question-mark {
-      font-family: 'Bungee', cursive; font-size: 58px; color: #cbd5e1; margin-top: 4px;
-    }
-
-    /* ── CHOICES ── */
-    .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-    .choice-btn {
-      font-family: 'Bungee', cursive;
-      font-size: 30px; font-weight: 700;
-      padding: 20px 8px; border-radius: 18px;
-      border: 3px solid var(--dark); background: white;
-      cursor: pointer; box-shadow: 4px 4px 0 var(--dark);
-      transition: all .12s; color: var(--dark);
-    }
-    .choice-btn:hover:not(:disabled) { background: #fff7ed; transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--dark); }
-    .choice-btn:active:not(:disabled) { transform: translate(2px,2px); box-shadow: 2px 2px 0 var(--dark); }
-    .choice-btn.correct { background: #dcfce7; border-color: #16a34a; color: #166534; box-shadow: 4px 4px 0 #16a34a; }
-    .choice-btn.wrong   { background: #fee2e2; border-color: #dc2626; color: #991b1b; box-shadow: 4px 4px 0 #dc2626; }
-    .choice-btn:disabled { cursor: default; }
-
-    /* ── FEEDBACK ── */
-    .feedback { text-align: center; font-size: 20px; font-weight: 700; min-height: 32px; margin-bottom: 12px; }
-    .feedback.correct { color: #16a34a; }
-    .feedback.wrong   { color: #e85c22; }
-
-    /* ── NEXT BUTTON ── */
-    .next-btn {
-      display: block; width: 100%;
-      font-family: 'Fredoka', 'Noto Sans Thai', sans-serif;
-      font-size: 20px; font-weight: 700;
-      padding: 16px; border-radius: 18px;
-      border: 3px solid var(--dark);
-      background: linear-gradient(135deg, var(--c1), var(--c2));
-      color: white; cursor: pointer;
-      box-shadow: 4px 4px 0 var(--dark);
-      transition: all .15s;
-      opacity: 0; pointer-events: none;
-    }
-    .next-btn.show { opacity: 1; pointer-events: auto; }
-    .next-btn:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--dark); }
-
-    /* ── RESULT ── */
-    .result {
-      display: none; text-align: center;
-      background: white; border: 3px solid var(--dark); border-radius: 24px;
-      padding: 36px 24px; box-shadow: 6px 6px 0 var(--dark);
-    }
-    .result.show { display: block; }
-    .result-emoji { font-size: 72px; margin-bottom: 8px; }
-    .result-stars { font-size: 38px; margin-bottom: 10px; }
-    .result-title { font-family: 'Bungee', cursive; font-size: 26px; color: var(--dark); margin-bottom: 6px; }
-    .result-sub { font-size: 17px; color: #64748b; margin-bottom: 4px; }
-    .result-big { font-family: 'Bungee', cursive; font-size: 44px; color: var(--c1); margin-bottom: 28px; }
-    .retry-btn {
-      font-family: 'Fredoka', 'Noto Sans Thai', sans-serif;
-      font-size: 20px; font-weight: 700; padding: 16px 48px;
-      border-radius: 999px; border: 3px solid var(--dark);
-      background: linear-gradient(135deg, var(--c1), var(--c2));
-      color: white; cursor: pointer; box-shadow: 4px 4px 0 var(--dark);
-      transition: all .15s;
-    }
-    .retry-btn:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--dark); }
-
-    /* ── BACK LINK ── */
-    .home-link-wrap { margin-bottom: 16px; }
-    .home-link {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: white; border: 2.5px solid var(--dark); border-radius: 999px;
-      padding: 8px 18px; font-size: 14px; font-weight: 700;
-      color: var(--dark); text-decoration: none; box-shadow: 2px 2px 0 var(--dark);
-      transition: all .12s;
-    }
-    .home-link:hover { background: #fef9c3; transform: translate(-2px,-2px); box-shadow: 4px 4px 0 var(--dark); }
-
-    @media (max-width: 420px) {
-      .num-display { font-size: 42px; }
-      .choice-btn { font-size: 24px; padding: 16px 6px; }
-      .blocks-row { font-size: 20px; }
-      .question-mark { font-size: 46px; }
-      .op-row { font-size: 30px; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🔢 บวกลบสองหลัก — Summer's World</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="world-theme.css">
+<style>
+  .eq {
+    position: fixed; top: 84px; left: 50%; transform: translateX(-50%); z-index: 5;
+    background: #fff; border-radius: 999px; padding: 6px 26px; box-shadow: 0 6px 0 rgba(0,0,0,.08);
+    font-family: 'Fredoka', sans-serif; font-size: 40px; font-weight: 700; white-space: nowrap; color: var(--ink);
+  }
+  .eq .op { color: var(--orange); margin: 0 6px; }
+  .eq #ans { display: inline-block; min-width: 64px; text-align: center; color: #cbbda4; }
+  .eq #ans.ok { color: #16a34a; }
+  .w-caption { top: 158px; }
+  .info { font-weight: 800; }
+  .info b { color: var(--orange-dark); }
+  .legend { font-size: 15px; font-weight: 700; color: var(--muted); }
+  .choice { min-width: 0; flex: 1 1 0; font-size: 32px; min-height: 72px; font-family: 'Fredoka', sans-serif; }
+  .choice.right { background: #22c55e; box-shadow: 0 6px 0 #15803d; }
+  .choice.wrong { background: #ef4444; box-shadow: 0 6px 0 #b91c1c; }
+  #nextBtn { display: none; }
+  .stars-big { font-size: 46px; text-align: center; }
+  @media (max-width: 480px) { .eq { font-size: 32px; padding: 4px 18px; } .choice { font-size: 26px; } }
+</style>
 </head>
 <body>
+<div class="w-fade-in"></div>
+<canvas class="w-canvas" id="world"></canvas>
 
-<nav class="site-nav">
-  <a class="nav-brand" href="index.html">☀️ SUMMER</a>
-  <div class="nav-links">
-    <a class="nav-link" href="24_question.html">🎲 Questions</a>
-    <a class="nav-link" href="robot_game.html">🤖 Robot</a>
-    <a class="nav-link" href="knowledge.html">📚 Learn</a>
-    <a class="nav-link" href="sa_ra.html">🗣️ Sa-ra</a>
-    <a class="nav-link" href="clock_game.html">🕐 Clock</a>
-    <a class="nav-link" href="thai_money.html">🪙 Coins</a>
-    <a class="nav-link" href="pay_money.html">🛒 Pay</a>
-    <a class="nav-link" href="color_mix.html">🎨 Colors</a>
-    <a class="nav-link" href="gravity.html">🚀 Gravity</a>
-    <a class="nav-link" href="farm_kid.html">🌾 Farm Quiz</a>
-    <a class="nav-link" href="satit_exam.html">📝 Satit Drill</a>
-    <a class="nav-link active" href="math_2digit.html">🔢 Math</a>
-    <a class="nav-link" href="school_dashboard.html">🏫 Schools</a>
-    <a class="nav-link" href="chinese.html">🀄 ภาษาจีน</a>
+<div class="w-top">
+  <a class="w-pill w-back" href="index.html" data-fade title="กลับเกาะ Back to island">🏝️ <span>กลับเกาะ</span></a>
+  <div class="w-pill w-title">🔢 บวกลบ <span class="en">· 2-DIGIT MATH</span></div>
+  <div class="w-icons">
+    <button class="w-pill w-icon" id="levelBtn" title="ระดับ Level" style="width:auto;padding:0 14px;font-size:16px">⭐</button>
+    <button class="w-pill w-icon" id="soundBtn" title="เปิด/ปิดเสียง Sound">🔊</button>
   </div>
-</nav>
-
-<div class="blobs" id="blobs"></div>
-
-<div class="page">
-
-  <div class="home-link-wrap">
-    <a class="home-link" href="index.html">← กลับหน้าหลัก</a>
-  </div>
-
-  <div class="hero">
-    <span class="hero-emoji">🔢</span>
-    <h1 class="hero-title">MATH GAME</h1>
-    <p class="hero-sub">บวกลบเลขสองหลัก — แตะคำตอบที่ถูก!</p>
-  </div>
-
-  <!-- Mode selector -->
-  <div class="selector-wrap" id="mode-wrap">
-    <button class="sel-btn active" data-mode="add">➕ บวก</button>
-    <button class="sel-btn" data-mode="sub">➖ ลบ</button>
-    <button class="sel-btn" data-mode="mix">🎲 ผสม</button>
-  </div>
-
-  <!-- Difficulty selector -->
-  <div class="selector-wrap" id="level-wrap" style="margin-bottom: 18px;">
-    <button class="sel-btn active" data-level="1">⭐ ง่าย</button>
-    <button class="sel-btn" data-level="2">⭐⭐ กลาง</button>
-    <button class="sel-btn" data-level="3">⭐⭐⭐ ยาก</button>
-  </div>
-
-  <!-- Score bar -->
-  <div class="score-bar">
-    <div class="score-col">
-      <div class="score-label">คะแนน</div>
-      <div class="score-num" id="score-display">0</div>
-    </div>
-    <div class="prog-wrap">
-      <div class="prog-bar"><div class="prog-fill" id="prog-fill"></div></div>
-    </div>
-    <div class="score-col">
-      <div class="score-label">ข้อ</div>
-      <div class="score-num" id="q-display">1/10</div>
-    </div>
-  </div>
-
-  <!-- Legend -->
-  <div class="legend">
-    <span>🟦 = สิบ (10)</span>
-    <span>🔴 = หนึ่ง (1)</span>
-  </div>
-
-  <!-- Game -->
-  <div id="game-wrap">
-
-    <div class="q-card">
-      <div class="blocks-row" id="blocks-a"></div>
-      <div class="num-display" id="num-a">–</div>
-      <div class="op-row" id="op-display">+</div>
-      <div class="blocks-row" id="blocks-b"></div>
-      <div class="num-display" id="num-b">–</div>
-      <div class="divider"></div>
-      <div class="question-mark">?</div>
-    </div>
-
-    <div class="choices" id="choices"></div>
-
-    <div class="feedback" id="feedback"></div>
-
-    <button class="next-btn" id="next-btn">ข้อต่อไป →</button>
-
-  </div>
-
-  <!-- Result -->
-  <div class="result" id="result">
-    <div class="result-emoji" id="result-emoji">🎉</div>
-    <div class="result-stars" id="result-stars">⭐⭐⭐</div>
-    <div class="result-title">จบแล้ว!</div>
-    <div class="result-sub">ได้คะแนน</div>
-    <div class="result-big" id="result-score">10/10</div>
-    <button class="retry-btn" id="retry-btn">เล่นอีกครั้ง 🔄</button>
-  </div>
-
 </div>
 
-<!-- Blobs script -->
+<div class="eq"><span id="na">–</span><span class="op" id="op">+</span><span id="nb">–</span><span class="op">=</span><span id="ans">?</span></div>
+<div class="w-caption" id="caption"></div>
+
+<div class="w-dock">
+  <div class="w-controls">
+    <div class="w-pill info">⭐ <b id="score">0</b> · ข้อ <b id="qnum">1</b>/10</div>
+    <div class="w-pill legend">🟦 สิบ · 🟥 หนึ่ง</div>
+  </div>
+  <div class="w-controls" id="choices"></div>
+  <div class="w-controls"><button class="w-btn big" id="nextBtn">ข้อต่อไป ▶</button></div>
+  <div class="w-modes">
+    <button class="w-mode on" data-mode="add"><span class="em">➕</span>บวก</button>
+    <button class="w-mode" data-mode="sub"><span class="em">➖</span>ลบ</button>
+    <button class="w-mode" data-mode="mix"><span class="em">🎲</span>ผสม</button>
+  </div>
+</div>
+
+<div class="w-modal-bg" id="result">
+  <div class="w-card" style="text-align:center">
+    <div class="stars-big" id="rStars">⭐⭐⭐</div>
+    <h2>จบแล้ว! 🎉</h2>
+    <p>ได้คะแนน <b id="rScore" style="font-size:28px">10/10</b></p>
+    <button class="w-btn" id="retryBtn">เล่นอีกครั้ง 🔄</button>
+  </div>
+</div>
+
+<div class="w-fallback" id="fallback">
+  <div class="big">🔢</div>
+  <h2>โหลดฉาก 3D ไม่ได้</h2>
+  <div>ต้องต่ออินเทอร์เน็ตนะ / This page needs internet</div>
+  <a class="w-btn" href="menu.html">ไปหน้าเมนู ▶</a>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script src="world-kit.js"></script>
 <script>
-(function() {
-  const cols = ["#ffb3d9","#ffe082","#a5f3c6","#bfdbfe","#ddd6fe","#fca5a5","#fed7aa","#fbcfe8"];
-  const wrap = document.getElementById("blobs");
-  for (let i = 0; i < 22; i++) {
-    const b = document.createElement("div");
-    b.className = "blob";
-    const s = 40 + Math.random() * 120;
-    b.style.cssText = `width:${s}px;height:${s}px;background:${cols[i % cols.length]};
-      left:${Math.random() * 100}%;top:${Math.random() * 100}%;
-      animation-duration:${8 + Math.random() * 14}s;animation-delay:${-Math.random() * 10}s;`;
-    wrap.appendChild(b);
-  }
-})();
+  setTimeout(function () { if (!window.__worldReady) document.getElementById('fallback').classList.add('show'); }, 10000);
 </script>
 
-<!-- Game logic -->
-<script>
+<script type="module">
+/* =========================================================
+   บวกลบสองหลัก (2-digit + and −, no carrying/borrowing)
+   Each number is shown as base-ten blocks: 🟦 tower = 10, 🟥 cube = 1.
+   After answering, the blocks act it out:
+     +  the right tray's blocks jump into the left tray
+     −  the right tray's blocks pair up with blocks on the left and both fly away
+   10 questions per round.
+   ========================================================= */
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const kit = WorldKit(THREE, OrbitControls);
+const { box } = kit;
+const stage = kit.createStage({ canvas: document.getElementById('world') });
+const { scene, camera, controls } = stage;
+controls.minDistance = 8; controls.maxDistance = 42;
+controls.minPolarAngle = .35; controls.maxPolarAngle = 1.4;
+kit.bindSoundButton(document.getElementById('soundBtn'));
+kit.bindFadeLinks();
+const fx = kit.createConfetti(scene);
+const floaters = kit.createFloaters(scene, { count: 16, radius: 15, spread: 10, y0: -2 });
+
+const captionEl = document.getElementById('caption');
+let captionTimer = null;
+function caption(text, say = true, ms = 4500) {
+  captionEl.textContent = text; captionEl.classList.add('show');
+  clearTimeout(captionTimer); captionTimer = setTimeout(() => captionEl.classList.remove('show'), ms);
+  if (say) kit.speak(text.replace(/[^฀-๿0-9 ]/g, ' '));
+}
+
+/* =========================================================
+   Problems (same rules as before: no carrying, no borrowing)
+   ========================================================= */
 const TOTAL = 10;
-
-let mode = 'add';
-let level = 1;
-let score = 0;
-let qIndex = 0;
-let answered = false;
-let correctAnswer = 0;
-
-// Number ranges per difficulty level
-// aMin/aMax = first number, bMin/bMax = second number
 const RANGES = [
-  { aMin: 20, aMax: 39, bMin: 11, bMax: 18 },   // Easy   ⭐
-  { aMin: 30, aMax: 65, bMin: 11, bMax: 30 },   // Medium ⭐⭐
-  { aMin: 42, aMax: 86, bMin: 11, bMax: 42 },   // Hard   ⭐⭐⭐
+  { aMin: 20, aMax: 39, bMin: 11, bMax: 18 },   // ⭐ easy
+  { aMin: 30, aMax: 65, bMin: 11, bMax: 30 },   // ⭐⭐ medium
+  { aMin: 42, aMax: 86, bMin: 11, bMax: 42 },   // ⭐⭐⭐ hard
 ];
+let mode = 'add', level = 1, score = 0, qIndex = 0, Q = null, answered = false;
 
 function genProblem() {
   const r = RANGES[level - 1];
-  let a, b, op;
-  let iters = 0;
-
-  // Decide operator
-  if (mode === 'add') op = '+';
-  else if (mode === 'sub') op = '-';
-  else op = Math.random() < 0.5 ? '+' : '-';
-
-  while (true) {
-    iters++;
-    if (iters > 400) { op = '+'; } // safety fallback to addition
-
-    a = r.aMin + Math.floor(Math.random() * (r.aMax - r.aMin + 1));
-    b = r.bMin + Math.floor(Math.random() * (r.bMax - r.bMin + 1));
-
-    const aOnes = a % 10, aTens = Math.floor(a / 10);
-    const bOnes = b % 10, bTens = Math.floor(b / 10);
-
+  let op = mode === 'add' ? '+' : mode === 'sub' ? '-' : (Math.random() < .5 ? '+' : '-');
+  for (let tries = 0; ; tries++) {
+    if (tries > 400) op = '+';
+    const a = r.aMin + Math.floor(Math.random() * (r.aMax - r.aMin + 1));
+    const b = r.bMin + Math.floor(Math.random() * (r.bMax - r.bMin + 1));
     if (op === '+') {
-      // No carrying: ones sum ≤ 9, tens sum ≤ 9
-      if (aOnes + bOnes > 9) continue;
-      if (aTens + bTens > 9) continue;
-      correctAnswer = a + b;
-    } else {
-      // No borrowing: a > b, aOnes ≥ bOnes, aTens ≥ bTens, result ≥ 10
-      if (a <= b) continue;
-      if (aOnes < bOnes) continue;
-      if (aTens < bTens) continue;
-      correctAnswer = a - b;
-      if (correctAnswer < 10) continue;
+      if (a % 10 + b % 10 > 9 || Math.floor(a / 10) + Math.floor(b / 10) > 9) continue;
+      return { a, b, op, answer: a + b };
     }
-    break;
+    if (a <= b || a % 10 < b % 10 || a - b < 10) continue;
+    return { a, b, op, answer: a - b };
   }
-
-  return { a, b, op };
 }
-
-function renderBlocks(n) {
-  const tens = Math.floor(n / 10);
-  const ones = n % 10;
-  return '🟦'.repeat(tens) + '🔴'.repeat(ones);
-}
-
 function genChoices(answer) {
   const s = new Set([answer]);
-  const offsets = [10, -10, 1, -1, 11, -11, 9, -9, 2, -2, 20, -20, 3, -3, 5, -5];
-
-  // Shuffle
-  for (let i = offsets.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [offsets[i], offsets[j]] = [offsets[j], offsets[i]];
-  }
-
+  const offsets = [10, -10, 1, -1, 11, -11, 9, -9, 2, -2, 20, -20].sort(() => Math.random() - .5);
   for (const off of offsets) {
     const w = answer + off;
-    if (w >= 10 && w <= 99 && !s.has(w)) s.add(w);
+    if (w >= 10 && w <= 99) s.add(w);
     if (s.size === 4) break;
   }
-
-  // Pad if still < 4
-  let extra = 1;
-  while (s.size < 4 && extra < 60) {
-    const up = answer + extra, down = answer - extra;
-    if (up <= 99 && !s.has(up)) s.add(up);
-    if (s.size < 4 && down >= 10 && !s.has(down)) s.add(down);
-    extra++;
-  }
-
-  return [...s].sort(() => Math.random() - 0.5);
+  return [...s].sort(() => Math.random() - .5);
 }
 
+/* =========================================================
+   Scene: two trays of blocks with a big sign between them
+   ========================================================= */
+box(scene, 18, .4, 10, '#8fd16a', 0, -.2, 0);
+box(scene, 18, 1.2, 10, '#d39a5c', 0, -1, 0);
+box(scene, 16, 1, 8, '#b87e47', 0, -2.1, 0);
+box(scene, 11, .8, 6, '#9b6a3c', 0, -3, 0);
+const TRAY = { a: -4.2, b: 4.2, w: 6, d: 3.6 };
+[TRAY.a, TRAY.b].forEach(x => {
+  box(scene, TRAY.w, .2, TRAY.d, '#f2e6d0', x, .1, 0);
+  box(scene, TRAY.w, .45, .2, '#c98a5a', x, .22, TRAY.d / 2);
+  box(scene, TRAY.w, .45, .2, '#c98a5a', x, .22, -TRAY.d / 2);
+  box(scene, .2, .45, TRAY.d, '#c98a5a', x - TRAY.w / 2, .22, 0);
+  box(scene, .2, .45, TRAY.d, '#c98a5a', x + TRAY.w / 2, .22, 0);
+});
+// sign between the trays (shows + or −)
+const signPost = new THREE.Group();
+signPost.position.set(0, 0, -.4);
+scene.add(signPost);
+box(signPost, .2, 2.2, .2, '#8b5a3c', 0, 1.1, 0);
+const plusBar = [box(signPost, 1.3, .35, .3, '#f59e0b', 0, 2.8, 0), box(signPost, .35, 1.3, .3, '#f59e0b', 0, 2.8, 0)];
+const summer = kit.makeSummer();
+summer.g.position.set(0, 0, -2.6);
+scene.add(summer.g);
+
+const UNIT = .42;   // block size
+const blueMats = [kit.mat('#3b82f6'), kit.mat('#2563eb')];
+const redMat = kit.mat('#ef4444');
+const cubeGeo = new THREE.BoxGeometry(UNIT * .94, UNIT * .94, UNIT * .94);
+function makeTen() {
+  const g = new THREE.Group();
+  for (let i = 0; i < 10; i++) {
+    const m = new THREE.Mesh(cubeGeo, blueMats[i % 2]);
+    m.position.y = UNIT / 2 + i * UNIT; m.castShadow = true; g.add(m);
+  }
+  return g;
+}
+function makeOne() {
+  const g = new THREE.Group();
+  const m = new THREE.Mesh(cubeGeo, redMat);
+  m.position.y = UNIT / 2; m.castShadow = true; g.add(m);
+  return g;
+}
+// k-th ten tower / k-th one cube position inside a tray
+function tenPos(trayX, k) { return new THREE.Vector3(trayX - 2.4 + k * .58, .2, -.8); }
+function onePos(trayX, k) { return new THREE.Vector3(trayX - 2.4 + (k % 5) * .58, .2, .55 + Math.floor(k / 5) * .58); }
+
+let blocks = [], labels = [], moves = [];
+function clearBlocks() {
+  blocks.forEach(b => scene.remove(b.g)); labels.forEach(l => scene.remove(l));
+  blocks = []; labels = []; moves = [];
+}
+function fill(trayKey, n) {
+  const x = TRAY[trayKey], tens = Math.floor(n / 10), ones = n % 10;
+  for (let k = 0; k < tens; k++) { const g = makeTen(); g.position.copy(tenPos(x, k)); scene.add(g); blocks.push({ g, tray: trayKey, kind: 'ten', k }); }
+  for (let k = 0; k < ones; k++) { const g = makeOne(); g.position.copy(onePos(x, k)); scene.add(g); blocks.push({ g, tray: trayKey, kind: 'one', k }); }
+  const l = kit.labelSprite(String(n), 1.1); l.position.set(x, 5.4, 0); scene.add(l); labels.push(l);
+  // pop-in
+  blocks.filter(b => b.tray === trayKey).forEach((b, i) => { b.g.scale.setScalar(.01); moves.push({ g: b.g, grow: true, t: -i * .04 }); });
+}
+
+/* =========================================================
+   Questions
+   ========================================================= */
+const choicesEl = document.getElementById('choices'), nextBtn = document.getElementById('nextBtn');
 function loadQuestion() {
   answered = false;
-  document.getElementById('feedback').textContent = '';
-  document.getElementById('feedback').className = 'feedback';
-  document.getElementById('next-btn').classList.remove('show');
-  document.getElementById('result').classList.remove('show');
-  document.getElementById('game-wrap').style.display = '';
-
-  const { a, b, op } = genProblem();
-
-  document.getElementById('blocks-a').textContent = renderBlocks(a);
-  document.getElementById('num-a').textContent = a;
-  document.getElementById('op-display').textContent = op;
-  document.getElementById('blocks-b').textContent = renderBlocks(b);
-  document.getElementById('num-b').textContent = b;
-  document.getElementById('q-display').textContent = `${qIndex + 1}/10`;
-  document.getElementById('prog-fill').style.width = `${(qIndex / TOTAL) * 100}%`;
-
-  const choices = genChoices(correctAnswer);
-  const container = document.getElementById('choices');
-  container.innerHTML = '';
-  choices.forEach(val => {
-    const btn = document.createElement('button');
-    btn.className = 'choice-btn';
-    btn.textContent = val;
-    btn.onclick = () => handleChoice(btn, val);
-    container.appendChild(btn);
+  Q = genProblem();
+  clearBlocks();
+  fill('a', Q.a); fill('b', Q.b);
+  plusBar[1].visible = Q.op === '+';
+  document.getElementById('na').textContent = Q.a;
+  document.getElementById('nb').textContent = Q.b;
+  document.getElementById('op').textContent = Q.op === '+' ? '+' : '−';
+  const ans = document.getElementById('ans'); ans.textContent = '?'; ans.className = '';
+  document.getElementById('qnum').textContent = qIndex + 1;
+  nextBtn.style.display = 'none';
+  choicesEl.innerHTML = '';
+  genChoices(Q.answer).forEach(v => {
+    const b = document.createElement('button');
+    b.className = 'w-btn white choice'; b.textContent = v;
+    b.onclick = () => choose(b, v);
+    choicesEl.appendChild(b);
   });
+  caption(`${Q.a} ${Q.op === '+' ? 'บวก' : 'ลบ'} ${Q.b} ได้เท่าไหร่?`);
 }
 
-function handleChoice(btn, val) {
+function choose(btn, v) {
   if (answered) return;
   answered = true;
+  const ok = v === Q.answer;
+  [...choicesEl.children].forEach(b => {
+    b.disabled = true;
+    if (+b.textContent === Q.answer) b.classList.add('right');
+  });
+  if (!ok) btn.classList.add('wrong');
+  if (ok) { score++; document.getElementById('score').textContent = score; }
+  actItOut(() => {
+    const ans = document.getElementById('ans'); ans.textContent = Q.answer; ans.className = 'ok';
+    const l = kit.labelSprite(`= ${Q.answer}`, 1.1); l.position.set(TRAY.a, 5.4, 0);
+    scene.remove(labels[0]); labels[0] = l; scene.add(l);
+    if (ok) { caption(`ถูกต้อง! ${Q.answer} เก่งมาก! 🎉`); fx.burst(TRAY.a, 4, 0); kit.cheer(); cheerT = 2; }
+    else caption(`คำตอบคือ ${Q.answer} ดูบล็อกสิ ลองข้อต่อไปนะ 💪`);
+    if (qIndex < TOTAL - 1) nextBtn.style.display = 'inline-flex';
+    else setTimeout(showResult, 1800);
+  });
+  if (!ok) caption('ดูบล็อกนะ... 👀', false, 2000);
+}
 
-  const allBtns = document.querySelectorAll('.choice-btn');
-  allBtns.forEach(b => b.disabled = true);
-
-  const fb = document.getElementById('feedback');
-  if (val === correctAnswer) {
-    btn.classList.add('correct');
-    fb.textContent = '🎉 เก่งมาก! ถูกต้องเลย!';
-    fb.className = 'feedback correct';
-    score++;
-    document.getElementById('score-display').textContent = score;
+// Blocks act out the sum: + moves the right tray into the left; − cancels pairs
+function actItOut(done) {
+  const A = blocks.filter(b => b.tray === 'a'), B = blocks.filter(b => b.tray === 'b');
+  let delay = 0;
+  if (Q.op === '+') {
+    const aT = Math.floor(Q.a / 10), aO = Q.a % 10;
+    B.forEach(b => {
+      const to = b.kind === 'ten' ? tenPos(TRAY.a, aT + b.k) : onePos(TRAY.a, aO + b.k);
+      moves.push({ g: b.g, from: b.g.position.clone(), to, t: -delay, arc: 3 });
+      b.tray = 'a'; delay += .12;
+    });
+    scene.remove(labels[1]);
   } else {
-    btn.classList.add('wrong');
-    allBtns.forEach(b => { if (+b.textContent === correctAnswer) b.classList.add('correct'); });
-    fb.textContent = '💪 ลองใหม่นะ! คำตอบคือ ' + correctAnswer;
-    fb.className = 'feedback wrong';
+    // pair each block on the right with a matching block on the left; both float away
+    ['ten', 'one'].forEach(kind => {
+      const left = A.filter(b => b.kind === kind).reverse(), right = B.filter(b => b.kind === kind);
+      right.forEach((rb, i) => {
+        [rb, left[i]].forEach(b => moves.push({ g: b.g, from: b.g.position.clone(), to: b.g.position.clone().add(new THREE.Vector3(0, 7, 0)), t: -delay, vanish: true }));
+        delay += .15;
+      });
+    });
+    scene.remove(labels[1]);
   }
-
-  if (qIndex < TOTAL - 1) {
-    document.getElementById('next-btn').classList.add('show');
-  } else {
-    setTimeout(showResult, 1200);
-  }
+  setTimeout(done, (delay + 1) * 1000);
 }
 
 function showResult() {
-  document.getElementById('game-wrap').style.display = 'none';
-  const result = document.getElementById('result');
-  result.classList.add('show');
-  document.getElementById('prog-fill').style.width = '100%';
-
   const pct = score / TOTAL;
-  let emoji, stars;
-  if (pct === 1)       { emoji = '🏆'; stars = '⭐⭐⭐'; }
-  else if (pct >= 0.7) { emoji = '🎉'; stars = '⭐⭐'; }
-  else if (pct >= 0.5) { emoji = '😊'; stars = '⭐'; }
-  else                 { emoji = '💪'; stars = ''; }
-
-  document.getElementById('result-emoji').textContent = emoji;
-  document.getElementById('result-stars').textContent = stars;
-  document.getElementById('result-score').textContent = `${score}/10`;
+  document.getElementById('rStars').textContent = pct === 1 ? '🏆⭐⭐⭐' : pct >= .7 ? '⭐⭐' : pct >= .5 ? '⭐' : '💪';
+  document.getElementById('rScore').textContent = `${score}/10`;
+  document.getElementById('result').classList.add('show');
+  kit.speak(`จบแล้ว ได้ ${score} คะแนน`);
+  if (pct >= .7) { fx.burst(0, 5, 0); kit.cheer(); }
 }
-
 function resetGame() {
-  score = 0;
-  qIndex = 0;
-  document.getElementById('score-display').textContent = '0';
-  document.getElementById('prog-fill').style.width = '0%';
+  score = 0; qIndex = 0;
+  document.getElementById('score').textContent = 0;
   document.getElementById('result').classList.remove('show');
-  document.getElementById('game-wrap').style.display = '';
   loadQuestion();
 }
-
-document.getElementById('next-btn').onclick = () => {
-  qIndex++;
-  loadQuestion();
+nextBtn.onclick = () => { qIndex++; loadQuestion(); };
+document.getElementById('retryBtn').onclick = resetGame;
+document.querySelectorAll('.w-mode').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.w-mode').forEach(x => x.classList.toggle('on', x === b));
+  mode = b.dataset.mode; resetGame();
+});
+const levelBtn = document.getElementById('levelBtn');
+levelBtn.onclick = () => {
+  level = level % 3 + 1;
+  levelBtn.textContent = '⭐'.repeat(level);
+  kit.speak(['ง่าย', 'กลาง', 'ยาก'][level - 1]);
+  resetGame();
 };
 
-document.getElementById('retry-btn').onclick = resetGame;
-
-// Mode buttons
-document.querySelectorAll('#mode-wrap .sel-btn').forEach(btn => {
-  btn.onclick = () => {
-    document.querySelectorAll('#mode-wrap .sel-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    mode = btn.dataset.mode;
-    resetGame();
-  };
-});
-
-// Level buttons
-document.querySelectorAll('#level-wrap .sel-btn').forEach(btn => {
-  btn.onclick = () => {
-    document.querySelectorAll('#level-wrap .sel-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    level = +btn.dataset.level;
-    resetGame();
-  };
-});
-
-// Init
+/* =========================================================
+   Loop
+   ========================================================= */
+const portrait = innerWidth < innerHeight;
+camera.position.set(0, 12, 24); controls.target.set(0, 1.5, 0);
+kit.flyTo(stage, portrait ? new THREE.Vector3(0, 19, 37) : new THREE.Vector3(0, 9.5, 17), new THREE.Vector3(0, portrait ? 1 : 1.8, .5), 1000);
+let cheerT = 0;
 loadQuestion();
-</script>
 
+stage.start((dt, time) => {
+  for (let i = moves.length - 1; i >= 0; i--) {
+    const m = moves[i];
+    m.t += dt * 1.6;
+    if (m.t < 0) continue;
+    const t = Math.min(1, m.t);
+    if (m.grow) m.g.scale.setScalar(.01 + .99 * t + Math.sin(t * Math.PI) * .25);
+    else {
+      m.g.position.lerpVectors(m.from, m.to, t);
+      if (m.arc) m.g.position.y += Math.sin(t * Math.PI) * m.arc;
+      if (m.vanish) { m.g.scale.setScalar(1 - t); m.g.rotation.y = t * 4; }
+    }
+    if (t >= 1) {
+      if (m.arc) kit.tones([700 + Math.random() * 200], .03, 'triangle', .06);
+      moves.splice(i, 1);
+    }
+  }
+  plusBar.forEach(p => { p.rotation.y = Math.sin(time * 1.5) * .3; });
+  cheerT -= dt;
+  kit.poseSummer(summer, time, cheerT > 0 ? 'cheer' : 'idle');
+  floaters.update(dt, time);
+  fx.update(dt);
+});
+window.__worldReady = true;
+</script>
 </body>
 </html>

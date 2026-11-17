@@ -1,292 +1,346 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pay & Shop — Summer's World</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Mali:wght@500;700&family=Noto+Sans+Thai:wght@400;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root { --pink: #FF6B9D; --blue: #4ECDC4; --yellow: #FFD93D; --dark: #2D3047; --cream: #FFF8E8; --green: #95E06C; }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Fredoka', 'Mali', 'Noto Sans Thai', sans-serif; min-height: 100vh; overflow-x: hidden; background: radial-gradient(circle at 15% 25%, #FFD93D 0%, transparent 45%), radial-gradient(circle at 85% 75%, #FF6B9D 0%, transparent 45%), radial-gradient(circle at 50% 50%, #4ECDC4 0%, transparent 60%), linear-gradient(135deg, #FFE066 0%, #FF9F1C 50%, #4ECDC4 100%); }
-
-    .stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
-    .star { position: absolute; animation: twinkle 3s ease-in-out infinite; }
-    @keyframes twinkle { 0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.5; } 50% { transform: scale(1.4) rotate(180deg); opacity: 1; } }
-
-    .page { position: relative; z-index: 1; max-width: 560px; margin: 0 auto; padding: 28px 16px 80px; }
-
-    .site-nav { position: sticky; top: 0; z-index: 100; background: var(--cream); border-bottom: 4px solid var(--dark); box-shadow: 0 4px 0 var(--dark); padding: 10px 16px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-    .nav-brand { font-family: 'Bungee', cursive; font-size: 15px; color: var(--dark); text-shadow: 2px 2px 0 var(--pink); white-space: nowrap; flex-shrink: 0; text-decoration: none; }
-    .nav-links { display: flex; gap: 6px; flex-wrap: wrap; }
-    .nav-link { text-decoration: none; font-family: 'Fredoka', 'Noto Sans Thai', sans-serif; font-size: 13px; font-weight: 600; padding: 5px 13px; border-radius: 12px; border: 2.5px solid var(--dark); color: var(--dark); background: white; transition: all .12s; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; box-shadow: 2px 2px 0 var(--dark); }
-    .nav-link:hover { background: var(--yellow); transform: translate(-1px,-1px); box-shadow: 3px 3px 0 var(--dark); }
-    .nav-link:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 var(--dark); }
-    .nav-link.active { background: var(--pink); color: white; }
-    @media (max-width: 420px) { .nav-brand { font-size: 13px; } .nav-link { font-size: 11px; padding: 4px 10px; } }
-
-    .hero { text-align: center; margin-bottom: 28px; }
-    .hero-emoji { font-size: 76px; display: block; margin-bottom: 6px; animation: heroBounce 2.5s ease-in-out infinite; filter: drop-shadow(0 6px 16px rgba(13,148,136,.25)); }
-    @keyframes heroBounce { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-12px) scale(1.06)} }
-    .hero-title { font-family: 'Prompt','Noto Sans Thai',sans-serif; font-size: clamp(30px,8vw,48px); font-weight: 900; line-height: 1.1; background: linear-gradient(135deg,#0d9488,#0891b2,#0ea5e9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    .hero-sub { font-size: 15px; color: #78716c; margin-top: 6px; font-weight: 600; }
-
-    .progress-row { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
-    .progress-label { font-size: 13px; font-weight: 700; color: #0d9488; white-space: nowrap; }
-    .progress-bar { flex: 1; height: 10px; background: #ccfbf1; border-radius: 999px; overflow: hidden; }
-    .progress-fill { height: 100%; background: linear-gradient(90deg,#0d9488,#14b8a6); border-radius: 999px; transition: width .5s ease; }
-    .score-badge { background: #0d9488; color: #fff; border-radius: 999px; padding: 4px 14px; font-size: 13px; font-weight: 900; white-space: nowrap; }
-
-    .shop-card { background: #fff; border-radius: 28px; padding: 28px 20px 24px; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,.1); margin-bottom: 16px; }
-    .shop-label { font-size: 12px; font-weight: 800; color: #0d9488; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px; }
-    .item-emoji { font-size: 80px; display: block; margin-bottom: 8px; animation: itemBounce .5s cubic-bezier(.34,1.56,.64,1); }
-    @keyframes itemBounce { from{transform:scale(0.5);opacity:0} to{transform:scale(1);opacity:1} }
-    .item-name { font-family: 'Prompt','Noto Sans Thai',sans-serif; font-size: 26px; font-weight: 900; color: #1c1917; margin-bottom: 10px; }
-    .price-tag { display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg,#0d9488,#14b8a6); color: #fff; border-radius: 999px; padding: 8px 24px; font-size: 22px; font-weight: 900; font-family: 'Prompt',sans-serif; box-shadow: 0 4px 14px rgba(13,148,136,.35); }
-
-    .wallet-box { background: #fff; border-radius: 22px; padding: 18px 18px 16px; box-shadow: 0 4px 20px rgba(0,0,0,.08); margin-bottom: 16px; }
-    .wallet-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-    .wallet-title { font-family: 'Prompt','Noto Sans Thai',sans-serif; font-size: 16px; font-weight: 900; color: #1c1917; }
-    .wallet-total { font-family: 'Nunito',sans-serif; font-size: 22px; font-weight: 900; color: #0d9488; }
-    .wallet-coins { min-height: 48px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-    .wallet-empty { font-size: 13px; color: #a8a29e; font-weight: 600; font-style: italic; }
-
-    .mini-coin { width: 40px; height: 40px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; animation: coinPop .3s cubic-bezier(.34,1.56,.64,1); cursor: pointer; transition: transform .15s; font-family: 'Prompt',sans-serif; }
-    .mini-coin:hover { transform: scale(1.1); }
-    @keyframes coinPop { from{transform:scale(0) rotate(-180deg);opacity:0} to{transform:scale(1) rotate(0deg);opacity:1} }
-    .mc1  { background: radial-gradient(circle at 35% 30%,#f4f4f4,#aaa); color: #555; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
-    .mc2  { background: radial-gradient(circle at 35% 30%,#e8e8e8,#999); color: #444; border: 2px solid #ccc; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
-    .mc5  { background: radial-gradient(circle at 35% 30%,#f0f0f0,#b5b5b5); color: #4a3500; border: 3px solid #d4a017; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
-    .mc10 { background: radial-gradient(circle at 35% 30%,#fef08a,#d97706); color: #7c2d12; border: 3px solid #c0c0c0; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
-
-    .coin-section-label { font-size: 14px; font-weight: 800; color: #78716c; margin-bottom: 10px; }
-    .coin-btns { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 16px; }
-    .coin-btn { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 6px 12px; border: none; border-radius: 18px; background: #fff; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,.1); transition: transform .15s, box-shadow .15s; }
-    .coin-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 22px rgba(0,0,0,.15); }
-    .coin-btn:active { transform: scale(.93); }
-    .coin-btn-visual { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Prompt',sans-serif; font-size: 17px; font-weight: 900; }
-    .cbv1  { background: radial-gradient(circle at 35% 30%,#f4f4f4,#aaa); color: #555; box-shadow: 0 3px 10px rgba(0,0,0,.2),inset 0 1px 3px rgba(255,255,255,.7); }
-    .cbv2  { background: radial-gradient(circle at 35% 30%,#e8e8e8,#999); color: #444; border: 3px solid #ccc; box-shadow: 0 3px 10px rgba(0,0,0,.2),inset 0 1px 3px rgba(255,255,255,.7); }
-    .cbv5  { background: radial-gradient(circle at 35% 30%,#f0f0f0,#b5b5b5); color: #4a3500; border: 4px solid #d4a017; box-shadow: 0 3px 10px rgba(0,0,0,.2),inset 0 1px 3px rgba(255,255,255,.7); }
-    .cbv10 { background: radial-gradient(circle at 35% 30%,#fef08a,#d97706); color: #7c2d12; border: 4px solid #c0c0c0; box-shadow: 0 3px 10px rgba(0,0,0,.2),inset 0 1px 3px rgba(255,255,255,.5); }
-    .coin-btn-label { font-size: 13px; font-weight: 900; color: #44403c; }
-
-    .action-row { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; margin-bottom: 14px; }
-    .clear-btn { padding: 16px; border: 2px solid #d4d4d4; border-radius: 16px; background: #fafaf9; font-family: 'Prompt','Noto Sans Thai',sans-serif; font-size: 16px; font-weight: 800; color: #78716c; cursor: pointer; transition: all .15s; }
-    .clear-btn:hover { background: #f5f5f4; border-color: #a8a29e; }
-    .pay-btn { padding: 16px; border: none; border-radius: 16px; background: linear-gradient(135deg,#0d9488,#14b8a6); font-family: 'Prompt','Noto Sans Thai',sans-serif; font-size: 20px; font-weight: 900; color: #fff; cursor: pointer; transition: transform .15s, box-shadow .15s; box-shadow: 0 4px 16px rgba(13,148,136,.4); }
-    .pay-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(13,148,136,.45); }
-
-    .feedback-box { border-radius: 18px; padding: 16px 20px; text-align: center; font-size: 18px; font-weight: 900; min-height: 60px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all .3s; }
-    .fb-hidden { opacity: 0; }
-    .fb-exact { background: #fef9c3; border: 2px solid #fde047; color: #713f12; }
-    .fb-over  { background: #dcfce7; border: 2px solid #86efac; color: #14532d; }
-    .fb-under { background: #fff7ed; border: 2px solid #fed7aa; color: #7c2d12; }
-    .fb-empty { background: #f1f5f9; border: 2px solid #e2e8f0; color: #64748b; }
-
-    .next-btn { display: block; width: 100%; margin-top: 12px; padding: 16px; border: none; border-radius: 16px; background: linear-gradient(135deg,#0d9488,#14b8a6); font-family: 'Prompt','Noto Sans Thai',sans-serif; font-size: 20px; font-weight: 900; color: #fff; cursor: pointer; box-shadow: 0 4px 16px rgba(13,148,136,.4); transition: transform .15s; }
-    .next-btn:hover { transform: scale(1.02); }
-
-    .result-screen { text-align: center; padding: 20px 0 10px; }
-    .result-emoji { font-size: 80px; display: block; margin-bottom: 10px; animation: heroBounce 2s ease-in-out infinite; }
-    .result-title { font-family: 'Prompt',sans-serif; font-size: 28px; font-weight: 900; color: #1c1917; margin-bottom: 8px; }
-    .result-score { font-size: 54px; font-weight: 900; color: #0d9488; font-family: 'Nunito',sans-serif; margin-bottom: 6px; }
-    .result-sub { font-size: 16px; color: #78716c; margin-bottom: 28px; line-height: 1.6; }
-    .restart-btn { padding: 16px 44px; border: none; border-radius: 999px; background: linear-gradient(135deg,#0d9488,#14b8a6); font-family: 'Prompt','Noto Sans Thai',sans-serif; font-size: 20px; font-weight: 900; color: #fff; cursor: pointer; box-shadow: 0 4px 18px rgba(13,148,136,.4); transition: transform .2s; }
-    .restart-btn:hover { transform: scale(1.06); }
-
-    @media (max-width: 520px) {
-      .page { padding: 20px 12px 60px; }
-      .coin-btns { gap: 8px; }
-      .coin-btn-visual { width: 48px; height: 48px; font-size: 14px; }
-      .item-emoji { font-size: 64px; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🛒 จ่ายเงิน — Summer's World</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="world-theme.css">
+<style>
+  .info { font-weight: 800; }
+  .info b { color: var(--orange-dark); }
+  .coin-btn {
+    width: 72px; height: 72px; border-radius: 50%; border: 5px solid var(--rim); background: var(--face);
+    box-shadow: 0 6px 0 rgba(0,0,0,.2); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-family: 'Noto Sans Thai', sans-serif; font-weight: 900; font-size: 24px; color: var(--ink); line-height: 1;
+  }
+  .coin-btn small { font-size: 12px; font-weight: 700; }
+  .coin-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,.2); }
+  .coin-btn:disabled { opacity: .5; }
+  .total { font-weight: 800; font-size: 20px; }
+  .total b { font-size: 26px; color: var(--orange-dark); }
+  .big-em { font-size: 56px; text-align: center; }
+  @media (max-width: 480px) { .coin-btn { width: 64px; height: 64px; font-size: 20px; } }
+</style>
 </head>
 <body>
+<div class="w-fade-in"></div>
+<canvas class="w-canvas" id="world"></canvas>
 
-<div class="stars" id="stars"></div>
-
-<nav class="site-nav">
-  <a class="nav-brand" href="index.html">☀️ SUMMER</a>
-  <div class="nav-links">
-    <a class="nav-link" href="24_question.html">🎲 Questions</a>
-    <a class="nav-link" href="robot_game.html">🤖 Robot</a>
-    <a class="nav-link" href="knowledge.html">📚 Learn</a>
-    <a class="nav-link" href="sa_ra.html">🗣️ Sa-ra</a>
-    <a class="nav-link" href="clock_game.html">🕐 Clock</a>
-    <a class="nav-link" href="thai_money.html">🪙 Coins</a>
-    <a class="nav-link active" href="pay_money.html">🛒 Pay</a>
-    <a class="nav-link" href="color_mix.html">🎨 Colors</a>
-    <a class="nav-link" href="gravity.html">🚀 Gravity</a>
-    <a class="nav-link" href="farm_kid.html">🌾 Farm Quiz</a>
-    <a class="nav-link" href="satit_exam.html">📝 Satit Drill</a>
-    <a class="nav-link" href="math_2digit.html">🔢 Math</a>
-    <a class="nav-link" href="school_dashboard.html">🏫 Schools</a>
+<div class="w-top">
+  <a class="w-pill w-back" href="index.html" data-fade title="กลับเกาะ Back to island">🏝️ <span>กลับเกาะ</span></a>
+  <div class="w-pill w-title">🛒 จ่ายเงิน <span class="en">· PAY &amp; SHOP</span></div>
+  <div class="w-icons">
+    <button class="w-pill w-icon" id="soundBtn" title="เปิด/ปิดเสียง Sound">🔊</button>
   </div>
-</nav>
-
-<div class="page">
-
-  <div class="hero">
-    <span class="hero-emoji">🛒</span>
-    <h1 class="hero-title">Pay & Shop</h1>
-    <p class="hero-sub">Pay at the shop</p>
-  </div>
-
-  <div class="progress-row">
-    <span class="progress-label" id="roundLabel">Round 1/5</span>
-    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
-    <span class="score-badge" id="scoreBadge">⭐ 0</span>
-  </div>
-
-  <div id="gameArea">
-    <div class="shop-card">
-      <div class="shop-label">🏪 Shop</div>
-      <span class="item-emoji" id="itemEmoji">🍭</span>
-      <div class="item-name" id="itemName">Candy</div>
-      <div class="price-tag">💰 <span id="itemPrice">3</span> Baht</div>
-    </div>
-
-    <div class="wallet-box">
-      <div class="wallet-header">
-        <div class="wallet-title">👛 Wallet</div>
-        <div class="wallet-total">Total <span id="walletTotal">0</span> Baht</div>
-      </div>
-      <div class="wallet-coins" id="walletCoins">
-        <span class="wallet-empty">Tap coins below to add them</span>
-      </div>
-    </div>
-
-    <div class="coin-section-label">Choose coins to pay 👇</div>
-    <div class="coin-btns">
-      <button class="coin-btn" onclick="addCoin(1)">
-        <div class="coin-btn-visual cbv1">๑</div>
-        <div class="coin-btn-label">1 Baht</div>
-      </button>
-      <button class="coin-btn" onclick="addCoin(2)">
-        <div class="coin-btn-visual cbv2">๒</div>
-        <div class="coin-btn-label">2 Baht</div>
-      </button>
-      <button class="coin-btn" onclick="addCoin(5)">
-        <div class="coin-btn-visual cbv5">๕</div>
-        <div class="coin-btn-label">5 Baht</div>
-      </button>
-      <button class="coin-btn" onclick="addCoin(10)">
-        <div class="coin-btn-visual cbv10">๑๐</div>
-        <div class="coin-btn-label">10 Baht</div>
-      </button>
-    </div>
-
-    <div class="action-row">
-      <button class="clear-btn" onclick="clearWallet()">🗑️ Clear</button>
-      <button class="pay-btn" onclick="pay()">💳 Pay Now!</button>
-    </div>
-
-    <div class="feedback-box fb-hidden" id="feedback"></div>
-  </div>
-
 </div>
 
+<div class="w-caption" id="caption"></div>
+
+<div class="w-dock">
+  <div class="w-controls">
+    <div class="w-pill info">⭐ <b id="score">0</b> · รอบ <b id="round">1</b>/5</div>
+    <div class="w-pill total">👛 <b id="total">0</b> บาท</div>
+  </div>
+  <div class="w-controls" id="coinBtns"></div>
+  <div class="w-controls">
+    <button class="w-btn white" id="clearBtn">🗑️ เอาออก</button>
+    <button class="w-btn" id="payBtn">💳 จ่ายเงิน!</button>
+    <button class="w-btn" id="nextBtn" style="display:none">ของชิ้นต่อไป ▶</button>
+  </div>
+</div>
+
+<div class="w-modal-bg" id="result">
+  <div class="w-card" style="text-align:center">
+    <div class="big-em" id="rEm">🥇</div>
+    <h2 id="rTitle">นักช้อปตัวจริง!</h2>
+    <p>ซื้อของสำเร็จ <b id="rScore" style="font-size:28px">5 / 5</b> รอบ</p>
+    <button class="w-btn" id="retryBtn">เล่นอีกครั้ง 🔄</button>
+  </div>
+</div>
+
+<div class="w-fallback" id="fallback">
+  <div class="big">🛒</div>
+  <h2>โหลดฉาก 3D ไม่ได้</h2>
+  <div>ต้องต่ออินเทอร์เน็ตนะ / This page needs internet</div>
+  <a class="w-btn" href="menu.html">ไปหน้าเมนู ▶</a>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script src="world-kit.js"></script>
 <script>
-  (function() {
-    const emojis = ['⭐','✨','🌟','💫','⚡','🌈'];
-    const container = document.getElementById("stars");
-    for (let i = 0; i < 18; i++) {
-      const s = document.createElement('div');
-      s.className = 'star';
-      s.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-      s.style.left = Math.random() * 100 + '%';
-      s.style.top = Math.random() * 100 + '%';
-      s.style.animationDelay = Math.random() * 3 + 's';
-      s.style.fontSize = (14 + Math.random() * 16) + 'px';
-      container.appendChild(s);
-    }
-  })();
-
-  const ITEMS = [
-    {emoji:'🍭',name:'Candy',price:3},{emoji:'🍪',name:'Cookie',price:5},{emoji:'🧃',name:'Juice',price:7},
-    {emoji:'🍡',name:'Sweet Dumpling',price:2},{emoji:'🌭',name:'Sausage',price:10},{emoji:'🍿',name:'Popcorn',price:8},
-    {emoji:'🥤',name:'Cold Drink',price:6},{emoji:'🍬',name:'Sweet',price:4},{emoji:'🍦',name:'Ice Cream',price:9},{emoji:'🧁',name:'Cupcake',price:6}
-  ];
-  const COIN_CLASS = {1:'mc1',2:'mc2',5:'mc5',10:'mc10'};
-  const COIN_THAI  = {1:'๑',2:'๒',5:'๕',10:'๑๐'};
-  const TOTAL_ROUNDS = 5;
-  let wallet=[], currentItem=null, round=0, score=0, paid=false, itemPool=[];
-
-  function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
-
-  function startGame(){round=0;score=0;paid=false;itemPool=shuffle([...ITEMS]);nextRound();}
-
-  function nextRound(){
-    if(round>=TOTAL_ROUNDS){showResult();return;}
-    paid=false; wallet=[]; currentItem=itemPool[round%itemPool.length]; round++;
-    document.getElementById('roundLabel').textContent=`Round ${round}/${TOTAL_ROUNDS}`;
-    document.getElementById('progressFill').style.width=`${((round-1)/TOTAL_ROUNDS)*100}%`;
-    document.getElementById('scoreBadge').textContent=`⭐ ${score}`;
-    document.getElementById('itemEmoji').textContent=currentItem.emoji;
-    document.getElementById('itemName').textContent=currentItem.name;
-    document.getElementById('itemPrice').textContent=currentItem.price;
-    const el=document.getElementById('itemEmoji');
-    el.style.animation='none'; requestAnimationFrame(()=>{el.style.animation='';});
-    renderWallet(); hideFeedback();
-  }
-
-  function addCoin(val){if(paid||wallet.length>=12)return;wallet.push(val);renderWallet();hideFeedback();}
-  function clearWallet(){if(paid)return;wallet=[];renderWallet();hideFeedback();}
-
-  function renderWallet(){
-    const total=wallet.reduce((s,v)=>s+v,0);
-    document.getElementById('walletTotal').textContent=total;
-    const container=document.getElementById('walletCoins');
-    if(wallet.length===0){container.innerHTML='<span class="wallet-empty">Tap coins below to add them</span>';}
-    else{container.innerHTML=wallet.map((v,i)=>`<div class="mini-coin ${COIN_CLASS[v]}" onclick="removeCoin(${i})">${COIN_THAI[v]}</div>`).join('');}
-  }
-
-  function removeCoin(idx){if(paid)return;wallet.splice(idx,1);renderWallet();hideFeedback();}
-
-  function pay(){
-    if(paid)return;
-    const total=wallet.reduce((s,v)=>s+v,0);
-    const price=currentItem.price;
-    const fb=document.getElementById('feedback');
-    if(wallet.length===0){showFeedback('fb-empty','😊 Choose some coins first!');return;}
-    if(total<price){showFeedback('fb-under',`😊 Not enough yet - add ${price-total} more baht.`);return;}
-    paid=true; score++;
-    if(total===price){showFeedback('fb-exact','🎯 Exact payment! Great job! 🌟');}
-    else{showFeedback('fb-over',`✅ Payment accepted! Change: ${total-price} baht 😊`);}
-    const btn=document.createElement('button');
-    btn.className='next-btn';
-    btn.textContent=round<TOTAL_ROUNDS?'Next Item →':'See Result 🏆';
-    btn.onclick=()=>{btn.remove();nextRound();};
-    fb.insertAdjacentElement('afterend',btn);
-  }
-
-  function showFeedback(cls,msg){const fb=document.getElementById('feedback');fb.className=`feedback-box ${cls}`;fb.textContent=msg;}
-  function hideFeedback(){const fb=document.getElementById('feedback');fb.className='feedback-box fb-hidden';fb.textContent='';}
-
-  function showResult(){
-    document.getElementById('progressFill').style.width='100%';
-    document.getElementById('scoreBadge').textContent=`⭐ ${score}`;
-    let emoji='🥇',title='Amazing shopper!',sub='Summer is doing great with money!';
-    if(score<=2){emoji='😊';title='Keep practicing!';sub='Try again and get even better!';}
-    else if(score<=3){emoji='⭐';title='Great progress!';sub='Summer is improving a lot!';}
-    document.getElementById('gameArea').innerHTML=`
-      <div style="background:#fff;border-radius:28px;padding:32px 20px;box-shadow:0 8px 32px rgba(0,0,0,.1);">
-        <div class="result-screen">
-          <span class="result-emoji">${emoji}</span>
-          <div class="result-title">${title}</div>
-          <div class="result-score">${score} / ${TOTAL_ROUNDS}</div>
-          <div class="result-sub">Summer completed ${score} out of ${TOTAL_ROUNDS} shopping rounds 🛒<br>Practice often to become a money pro!</div>
-          <button class="restart-btn" onclick="startGame()">🔄 Play Again</button>
-        </div>
-      </div>`;
-  }
-
-  startGame();
+  setTimeout(function () { if (!window.__worldReady) document.getElementById('fallback').classList.add('show'); }, 10000);
 </script>
 
+<script type="module">
+/* =========================================================
+   จ่ายเงิน (Pay at the shop) — 5 rounds
+   An item sits on the market stall with a price tag. Tap coin buttons → coins
+   drop onto the counter. Tap a coin on the counter to take it back.
+   Pay: exact → 🎯 / too much → the shopkeeper slides the change back / too little → how much more.
+   ========================================================= */
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const kit = WorldKit(THREE, OrbitControls);
+const { box } = kit;
+const stage = kit.createStage({ canvas: document.getElementById('world') });
+const { scene, camera, controls } = stage;
+controls.minDistance = 6; controls.maxDistance = 30;
+controls.minPolarAngle = .4; controls.maxPolarAngle = 1.4;
+kit.bindSoundButton(document.getElementById('soundBtn'));
+kit.bindFadeLinks();
+const fx = kit.createConfetti(scene);
+const floaters = kit.createFloaters(scene, { count: 16, radius: 14, spread: 10, y0: -2 });
+
+const captionEl = document.getElementById('caption');
+let captionTimer = null;
+function caption(text, say = true, ms = 4500) {
+  captionEl.textContent = text; captionEl.classList.add('show');
+  clearTimeout(captionTimer); captionTimer = setTimeout(() => captionEl.classList.remove('show'), ms);
+  if (say) kit.speak(text.replace(/[^฀-๿0-9 ]/g, ' '));
+}
+
+const ITEMS = [
+  { emoji: '🍭', th: 'ลูกอม',      price: 3 },  { emoji: '🍪', th: 'คุกกี้',    price: 5 },
+  { emoji: '🧃', th: 'น้ำผลไม้',   price: 7 },  { emoji: '🍡', th: 'ขนมเสียบไม้', price: 2 },
+  { emoji: '🌭', th: 'ไส้กรอก',    price: 10 }, { emoji: '🍿', th: 'ป๊อปคอร์น', price: 8 },
+  { emoji: '🥤', th: 'น้ำเย็น',     price: 6 },  { emoji: '🍬', th: 'ขนมหวาน',  price: 4 },
+  { emoji: '🍦', th: 'ไอศกรีม',    price: 9 },  { emoji: '🧁', th: 'คัพเค้ก',   price: 6 },
+];
+const VALUES = [1, 2, 5, 10];
+const TOTAL_ROUNDS = 5;
+
+/* =========================================================
+   The market stall
+   ========================================================= */
+box(scene, 16, .4, 11, '#8fd16a', 0, -.2, 0);
+box(scene, 16, 1.2, 11, '#d39a5c', 0, -1, 0);
+box(scene, 14, 1, 9, '#b87e47', 0, -2.1, 0);
+box(scene, 10, .8, 6, '#9b6a3c', 0, -3, 0);
+const COUNTER_Y = 2;
+box(scene, 8, COUNTER_Y, 2.4, '#c98a5a', 0, COUNTER_Y / 2, 0);               // counter
+box(scene, 8.4, .25, 2.8, '#f2e6d0', 0, COUNTER_Y + .12, 0);
+for (let x = -3.5; x <= 3.6; x += 1) box(scene, .5, COUNTER_Y - .3, .06, '#b87e47', x, COUNTER_Y / 2, 1.22, false);
+[-3.9, 3.9].forEach(x => box(scene, .3, 5.4, .3, '#8b5a3c', x, 2.7, -1));      // posts
+for (let i = 0; i < 8; i++) box(scene, 1.05, .35, 3.4, i % 2 ? '#ffffff' : '#e63946', -3.7 + i * 1.06, 5.5, -.2);   // striped awning
+for (let i = 0; i < 8; i++) box(scene, 1.05, .5, .12, i % 2 ? '#ffffff' : '#e63946', -3.7 + i * 1.06, 5.2, 1.5);
+// shopkeeper (a friendly voxel cat) behind the counter
+const keeper = new THREE.Group();
+box(keeper, 1.4, 1.6, 1, '#f4a261', 0, 2.6, 0);
+box(keeper, 1.2, 1, 1, '#f4a261', 0, 3.9, 0);
+[-.38, .38].forEach(x => box(keeper, .3, .35, .3, '#f4a261', x, 4.55, 0));
+[-.28, .28].forEach(x => box(keeper, .14, .14, .05, '#2b2118', x, 4, .52, false));
+box(keeper, .2, .1, .05, '#ff8fab', 0, 3.75, .52, false);
+box(keeper, 1.45, .4, 1.05, '#ffffff', 0, 2.2, 0);                              // apron
+keeper.position.set(0, 0, -1.9);
+scene.add(keeper);
+const summer = kit.makeSummer();
+summer.g.position.set(-2.4, 0, 3); summer.g.rotation.y = .3;
+scene.add(summer.g);
+
+// Item on a little plate + price tag
+let itemSprite = null, priceTag = null;
+box(scene, 1.6, .12, 1.6, '#ffffff', 2, COUNTER_Y + .3, -.2);
+function showItem(item) {
+  [itemSprite, priceTag].forEach(s => s && scene.remove(s));
+  itemSprite = kit.emojiSprite(item.emoji, null, 2);
+  itemSprite.position.set(2, COUNTER_Y + 1.4, -.2);
+  itemSprite.userData.pop = 0;
+  priceTag = kit.labelSprite(`${item.th} ${item.price} บาท`, .62);
+  priceTag.position.set(2, COUNTER_Y + 2.8, -.2);
+  scene.add(itemSprite, priceTag);
+}
+
+/* =========================================================
+   Coins on the counter
+   ========================================================= */
+const PAY_AREA = { x: -2, z: .5 };
+let wallet = [];          // [{ v, m }]
+let moving = [];          // coins animating
+function coinSpot(i) {     // coins sit in a 4-wide grid on the counter
+  return new THREE.Vector3(PAY_AREA.x - 1.5 + (i % 4) * 1, COUNTER_Y + .32, PAY_AREA.z - .7 + Math.floor(i / 4) * .9);
+}
+function layout() {
+  wallet.forEach((c, i) => moving.push({ m: c.m, from: c.m.position.clone(), to: coinSpot(i), t: 0, arc: .3 }));
+  const total = sum();
+  document.getElementById('total').textContent = total;
+}
+const sum = () => wallet.reduce((s, c) => s + c.v, 0);
+
+let item = null, round = 0, score = 0, paid = false, pool = [];
+function addCoin(v) {
+  if (paid || wallet.length >= 12) return;
+  const m = kit.makeCoin(v, 1);
+  const spot = coinSpot(wallet.length);
+  m.position.set(spot.x, spot.y + 4, spot.z);
+  scene.add(m);
+  wallet.push({ v, m });
+  moving.push({ m, from: m.position.clone(), to: spot, t: 0, drop: true });
+  document.getElementById('total').textContent = sum();
+  kit.speak(`${v} บาท`);
+}
+function removeCoin(m) {
+  if (paid) return;
+  const i = wallet.findIndex(c => c.m === m);
+  if (i < 0) return;
+  scene.remove(m); wallet.splice(i, 1);
+  kit.tones([500, 380], .05, 'triangle', .1);
+  layout();
+}
+function clearWallet() {
+  if (paid) return;
+  wallet.forEach(c => scene.remove(c.m)); wallet = [];
+  layout();
+}
+
+function pay() {
+  if (paid) return;
+  const total = sum(), price = item.price;
+  if (!wallet.length) { caption('เลือกเหรียญก่อนนะ 😊'); return; }
+  if (total < price) { caption(`ยังไม่พอ ขาดอีก ${price - total} บาท 😊`); keeperT = -1; return; }
+  paid = true; score++;
+  document.getElementById('score').textContent = score;
+  // coins slide across to the shopkeeper
+  wallet.forEach((c, i) => moving.push({ m: c.m, from: c.m.position.clone(), to: new THREE.Vector3(0, COUNTER_Y + .3, -1.3), t: -i * .08, arc: 1, vanish: true }));
+  wallet = [];
+  document.getElementById('total').textContent = 0;
+  if (total === price) {
+    caption(`จ่ายพอดีเป๊ะ! เก่งมาก 🎯`);
+  } else {
+    const change = total - price;
+    caption(`จ่าย ${total} บาท ได้เงินทอน ${change} บาท 😊`, true, 6000);
+    // the change comes back as coins (biggest first)
+    let left = change, k = 0;
+    [10, 5, 2, 1].forEach(v => { while (left >= v) { left -= v; const delay = .8 + k * .25, idx = k++; setTimeout(() => giveChange(v, idx), delay * 1000); } });
+  }
+  fx.burst(2, COUNTER_Y + 2, -.2); kit.cheer(); cheerT = 2.5; keeperT = 2;
+  // Summer gets the item: it floats over to him
+  moving.push({ sprite: itemSprite, from: itemSprite.position.clone(), to: new THREE.Vector3(-2.4, 3.2, 3), t: -.6 });
+  document.getElementById('payBtn').style.display = 'none';
+  document.getElementById('clearBtn').style.display = 'none';
+  document.getElementById('nextBtn').style.display = '';
+  document.getElementById('nextBtn').textContent = round < TOTAL_ROUNDS ? 'ของชิ้นต่อไป ▶' : 'ดูผล 🏆';
+}
+let changeCoins = [];
+function giveChange(v, i) {
+  const m = kit.makeCoin(v, 1);
+  m.position.set(0, COUNTER_Y + .3, -1.3);
+  scene.add(m); changeCoins.push(m);
+  const to = new THREE.Vector3(.2 + i * 1.1, COUNTER_Y + .32, 1);   // change lands on the right, away from the item Summer is holding
+  moving.push({ m, from: m.position.clone(), to, t: 0, arc: 1 });
+  kit.tones([1400, 1700], .05, 'sine', .1);
+  const l = kit.labelSprite('ทอน', .35); l.position.set(to.x, to.y + .6, to.z); scene.add(l); changeCoins.push(l);
+}
+
+function startGame() {
+  round = 0; score = 0; pool = [...ITEMS].sort(() => Math.random() - .5);
+  document.getElementById('score').textContent = 0;
+  document.getElementById('result').classList.remove('show');
+  nextRound();
+}
+function nextRound() {
+  if (round >= TOTAL_ROUNDS) { showResult(); return; }
+  paid = false;
+  wallet.forEach(c => scene.remove(c.m)); wallet = [];
+  changeCoins.forEach(m => scene.remove(m)); changeCoins = [];
+  item = pool[round % pool.length]; round++;
+  document.getElementById('round').textContent = round;
+  document.getElementById('total').textContent = 0;
+  document.getElementById('payBtn').style.display = '';
+  document.getElementById('clearBtn').style.display = '';
+  document.getElementById('nextBtn').style.display = 'none';
+  showItem(item);
+  caption(`${item.th} ราคา ${item.price} บาท เลือกเหรียญจ่ายเลย 👇`);
+}
+function showResult() {
+  const [em, title] = score >= 5 ? ['🥇', 'นักช้อปตัวจริง!'] : score >= 3 ? ['⭐', 'เก่งขึ้นเยอะเลย!'] : ['😊', 'ฝึกอีกนิดนะ!'];
+  document.getElementById('rEm').textContent = em;
+  document.getElementById('rTitle').textContent = title;
+  document.getElementById('rScore').textContent = `${score} / ${TOTAL_ROUNDS}`;
+  document.getElementById('result').classList.add('show');
+  kit.speak(title);
+}
+
+// Coin buttons look like the real coins
+const coinBtns = document.getElementById('coinBtns');
+VALUES.forEach(v => {
+  const C = kit.COINS[v], b = document.createElement('button');
+  b.className = 'coin-btn'; b.title = `${v} บาท`;
+  b.style.setProperty('--face', C.face); b.style.setProperty('--rim', C.rim); b.style.setProperty('--ink', C.ink);
+  b.innerHTML = `${C.thai}<small>${v} บาท</small>`;
+  b.onclick = () => addCoin(v);
+  coinBtns.appendChild(b);
+});
+document.getElementById('clearBtn').onclick = clearWallet;
+document.getElementById('payBtn').onclick = pay;
+document.getElementById('nextBtn').onclick = nextRound;
+document.getElementById('retryBtn').onclick = startGame;
+
+// Tap a coin on the counter to take it back
+const raycaster = new THREE.Raycaster(), ndc = new THREE.Vector2();
+const canvas = stage.renderer.domElement;
+let press = null, cheerT = 0, keeperT = 0;
+canvas.addEventListener('pointerdown', e => { press = { x: e.clientX, y: e.clientY, t: performance.now() }; });
+canvas.addEventListener('pointerup', e => {
+  if (!press) return;
+  const tap = Math.hypot(e.clientX - press.x, e.clientY - press.y) < 10 && performance.now() - press.t < 500;
+  press = null;
+  if (!tap) return;
+  ndc.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
+  raycaster.setFromCamera(ndc, camera);
+  const hit = raycaster.intersectObjects(wallet.map(c => c.m))[0];
+  if (hit) removeCoin(hit.object);
+});
+
+const portrait = innerWidth < innerHeight;
+camera.position.set(0, 10, 22); controls.target.set(0, 2.5, 0);
+kit.flyTo(stage, portrait ? new THREE.Vector3(0, 11, 22) : new THREE.Vector3(0, 7.5, 12.5), new THREE.Vector3(0, portrait ? 2.6 : 2.6, 0), 1000);
+startGame();
+
+stage.start((dt, time) => {
+  for (let i = moving.length - 1; i >= 0; i--) {
+    const a = moving[i];
+    a.t += dt * (a.drop ? 2.2 : 1.8);
+    if (a.t < 0) continue;
+    const t = Math.min(1, a.t);
+    const obj = a.m || a.sprite;
+    if (a.drop) {   // falling coin with a little bounce
+      const e = t < .7 ? (t / .7) ** 2 : 1 - Math.sin((t - .7) / .3 * Math.PI) * .08;
+      obj.position.lerpVectors(a.from, a.to, e);
+      obj.rotation.x = (1 - t) * 6;
+    } else {
+      obj.position.lerpVectors(a.from, a.to, t);
+      if (a.arc) obj.position.y += Math.sin(t * Math.PI) * a.arc;
+      if (a.vanish) obj.scale.setScalar(1 - t * .9);
+    }
+    if (t >= 1) {
+      if (a.drop) { kit.tones([1300 + Math.random() * 300], .03, 'sine', .08); obj.rotation.x = 0; }
+      if (a.vanish) scene.remove(obj);
+      moving.splice(i, 1);
+    }
+  }
+  if (itemSprite && itemSprite.userData.pop < 1) {
+    itemSprite.userData.pop = Math.min(1, itemSprite.userData.pop + dt * 3);
+    itemSprite.scale.setScalar(2 * (itemSprite.userData.pop + Math.sin(itemSprite.userData.pop * Math.PI) * .2));
+  }
+  // shopkeeper: happy hop after paying, head shake when it's not enough
+  keeperT += keeperT > 0 ? -dt : dt;
+  keeper.position.y = keeperT > 0 ? Math.abs(Math.sin(time * 8)) * .3 : 0;
+  keeper.rotation.y = keeperT < 0 ? Math.sin(time * 20) * .2 : 0;
+  cheerT -= dt;
+  kit.poseSummer(summer, time, cheerT > 0 ? 'cheer' : 'idle');
+  floaters.update(dt, time);
+  fx.update(dt);
+});
+window.__worldReady = true;
+</script>
 </body>
 </html>

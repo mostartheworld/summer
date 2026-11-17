@@ -7,6 +7,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;600;700;900&display=swap" rel="stylesheet">
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
 <style>
 :root{--cream:#FFF8E8;--dark:#2D3047;--pink:#FF6B9D;--yellow:#FFD93D;--sat:#7c3aed}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -152,24 +158,6 @@ body{min-height:100vh;font-family:'Fredoka','Noto Sans Thai',sans-serif;backgrou
 </head>
 <body>
 
-<nav class="site-nav">
-  <a class="nav-brand" href="index.html">☀️ SUMMER</a>
-  <div class="nav-links">
-    <a class="nav-link" href="24_question.html">🎲 คำถาม</a>
-    <a class="nav-link" href="robot_game.html">🤖 Robot</a>
-    <a class="nav-link" href="knowledge.html">📚 Learn</a>
-    <a class="nav-link" href="sa_ra.html">🗣️ Sa-ra</a>
-    <a class="nav-link" href="clock_game.html">🕐 Clock</a>
-    <a class="nav-link" href="thai_money.html">🪙 Coins</a>
-    <a class="nav-link" href="pay_money.html">🛒 Pay</a>
-    <a class="nav-link" href="color_mix.html">🎨 Colors</a>
-    <a class="nav-link" href="gravity.html">🚀 Gravity</a>
-    <a class="nav-link" href="farm_kid.html">🌾 Farm Quiz</a>
-    <a class="nav-link active" href="satit_exam.html">📝 Satit Drill</a>
-    <a class="nav-link" href="math_2digit.html">🔢 Math</a>
-    <a class="nav-link" href="school_dashboard.html">🏫 Schools</a>
-  </div>
-</nav>
 
 <div class="blobs" id="blobs"></div>
 
@@ -966,6 +954,7 @@ function pickMCQ(btn,isOk,shuffled){
   if(!isOk)btn.classList.add('wrong');
   showFeedback(isOk);
   showNextBtn();
+  if(window.Satit3D) Satit3D.explain(curQs[curQ]);   // count the blocks / fold the box
 }
 
 /* ── Pattern tap-to-fill ── */
@@ -1057,7 +1046,8 @@ function renderBlocks(q){
   document.getElementById('qImage').className='q-image';
   const bw=document.getElementById('blockWrap');
   bw.style.display='flex';
-  bw.innerHTML=drawBlocks(q.pos);
+  if(window.Satit3D) Satit3D.blocks(bw,q.pos);   // 3D blocks you can turn around (see bottom of file)
+  else bw.innerHTML=drawBlocks(q.pos);
   document.getElementById('qText').textContent=q.q;
   document.getElementById('qTextEn').textContent=q.en||'';
   buildMCQChoices(q.ch);
@@ -1160,7 +1150,12 @@ function renderCubeNet(q){
   const imgEl=document.getElementById('qImage');
   imgEl.className='q-image visible';
   imgEl.style.fontSize='0';
-  imgEl.innerHTML=`<div style="display:flex;justify-content:center">${drawCubeNet(q.layout,q.hl)}</div>`;
+  if(window.Satit3D){   // 3D net that can fold into a box (see bottom of file)
+    imgEl.className='q-image';
+    const bw=document.getElementById('blockWrap');
+    bw.style.display='flex';
+    Satit3D.cubenet(bw,q.layout,q.hl);
+  } else imgEl.innerHTML=`<div style="display:flex;justify-content:center">${drawCubeNet(q.layout,q.hl)}</div>`;
   document.getElementById('qText').textContent=q.q;
   document.getElementById('qTextEn').textContent=q.en||'';
   buildMCQChoices(q.ch);
@@ -1306,6 +1301,11 @@ function setupCanvasEvents(d){
       }
     }
   }
+  if(window.Satit3D){   // 3D board: Satit3D turns taps/drags into the same {x,y} dot coordinates
+    c.style.display='none';
+    Satit3D.drawing(c.parentNode,d,check);
+    return;
+  }
   c.addEventListener('mousedown',e=>{pressing=true;check(getPos(e));});
   c.addEventListener('mousemove',e=>{if(pressing)check(getPos(e));});
   c.addEventListener('mouseup',()=>pressing=false);
@@ -1340,5 +1340,408 @@ showView('cat');
   }
 })();
 </script>
+<script src="world-kit.js"></script>
+<!-- ══════════════════════════════════════════
+     3D viewer for "มองรูปทรง" — blocks + cube nets
+     Loads Three.js; if it can't (offline), the SVG drawings above are used instead.
+     Satit3D.blocks(el, pos)          : blocks to turn around (pos uses x→right, y→depth, z→up)
+     Satit3D.cubenet(el, layout, hl)  : flat net; "📦 พับกล่อง" folds it into a cube
+     Satit3D.explain(q)               : after answering — count the blocks 1,2,3… / fold the net
+     Satit3D.drawing(el, d, check)    : ✏️ connect-the-dots board; finished pictures become 3D objects
+═══════════════════════════════════════════ -->
+<style>
+.s3d{position:relative;width:min(100%,360px);height:270px;border-radius:20px;background:linear-gradient(#e9f6ff,#fff8e8);overflow:hidden;touch-action:none}
+.s3d canvas{display:block;width:100%;height:100%}
+.s3d-hint{position:absolute;left:8px;top:8px;background:#fff;border-radius:999px;padding:4px 10px;font:700 13px 'Noto Sans Thai',sans-serif;color:#8a7760;box-shadow:0 2px 0 rgba(0,0,0,.08)}
+.s3d-count{position:absolute;right:10px;top:6px;font:700 34px Fredoka,sans-serif;color:#7c3aed;text-shadow:0 2px 0 #fff}
+.s3d-btn{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);min-height:48px;padding:0 18px;border:none;border-radius:999px;background:#f59e0b;color:#fff;font:700 17px 'Noto Sans Thai',sans-serif;box-shadow:0 4px 0 #c77c00;cursor:pointer}
+.s3d-btn:active{transform:translate(-50%,3px);box-shadow:0 1px 0 #c77c00}
+</style>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+const kit = WorldKit(THREE, OrbitControls);
+
+// One renderer, reused for every question (moved into whichever box shows the question)
+const wrap = document.createElement('div'); wrap.className = 's3d';
+const canvas = document.createElement('canvas'); wrap.appendChild(canvas);
+const hint = document.createElement('div'); hint.className = 's3d-hint'; hint.textContent = '👆 ลากหมุนดูได้'; wrap.appendChild(hint);
+const countEl = document.createElement('div'); countEl.className = 's3d-count'; wrap.appendChild(countEl);
+const foldBtn = document.createElement('button'); foldBtn.className = 's3d-btn'; wrap.appendChild(foldBtn);
+
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+const scene = new THREE.Scene();
+scene.add(new THREE.HemisphereLight(0xfff4d6, 0xb0a080, 1.3));
+const sun = new THREE.DirectionalLight(0xffffff, 1.6);
+sun.position.set(6, 12, 8); sun.castShadow = true;
+Object.assign(sun.shadow.camera, { left: -8, right: 8, top: 8, bottom: -8 });
+scene.add(sun);
+const camera = new THREE.PerspectiveCamera(35, 1, .1, 100);
+const controls = new OrbitControls(camera, canvas);
+controls.enablePan = false; controls.enableDamping = true; controls.enableZoom = false;
+controls.minPolarAngle = .2; controls.maxPolarAngle = 1.5;
+controls.autoRotateSpeed = 1.2;
+controls.addEventListener('start', () => { controls.autoRotate = false; hint.style.opacity = 0; });
+const floor = new THREE.Mesh(new THREE.CircleGeometry(5, 40), new THREE.MeshLambertMaterial({ color: '#cfe9b0' }));
+floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true;
+scene.add(floor);
+
+let root = null, mode = null, cubes = [], counting = null, net = null;
+function reset(el) {
+  if (root) scene.remove(root);
+  root = new THREE.Group(); scene.add(root);
+  cubes = []; counting = null; net = null;
+  countEl.textContent = ''; foldBtn.style.display = 'none'; hint.style.opacity = 1;
+  el.innerHTML = ''; el.appendChild(wrap);
+  const w = wrap.clientWidth || 340, h = wrap.clientHeight || 270;
+  renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+  controls.autoRotate = true;
+}
+// Point the camera at the shape; wantDist is eased toward in the loop (so folding can zoom in)
+let wantDist = 10;
+function frame(size, height, topDown = false) {
+  wantDist = Math.max(size, height, 2) * 1.75 + 2.2;
+  const dir = topDown ? new THREE.Vector3(.35, 1, .75) : new THREE.Vector3(.7, .62, .8);
+  camera.position.copy(dir.normalize().multiplyScalar(wantDist)).add(new THREE.Vector3(0, height / 2, 0));
+  controls.target.set(0, height / 2, 0);
+  controls.update();
+}
+
+/* ── Blocks ── */
+const PALETTE = ['#FF6B9D', '#4ECDC4', '#FFD93D', '#A06CD5', '#FF9F1C', '#95E06C'];
+const cubeGeo = new THREE.BoxGeometry(.96, .96, .96);
+const edgeGeo = new THREE.EdgesGeometry(cubeGeo);
+function blocks(el, pos) {
+  reset(el); mode = 'blocks';
+  const xs = pos.map(p => p.x), ys = pos.map(p => p.y), zs = pos.map(p => p.z);
+  const cx = (Math.min(...xs) + Math.max(...xs)) / 2, cz = (Math.min(...ys) + Math.max(...ys)) / 2;
+  pos.forEach(p => {
+    const m = new THREE.Mesh(cubeGeo, new THREE.MeshLambertMaterial({ color: PALETTE[(p.x + p.y * 3) % PALETTE.length] }));
+    m.position.set(p.x - cx, p.z + .5, p.y - cz);
+    m.castShadow = m.receiveShadow = true;
+    m.add(new THREE.LineSegments(edgeGeo, new THREE.LineBasicMaterial({ color: '#111827' })));
+    root.add(m);
+    cubes.push({ m, p, y0: m.position.y });
+  });
+  const size = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)) + 1;
+  frame(size, Math.max(...zs) + 1);
+}
+// After answering: light the blocks up one by one, bottom layer first, with a number on each
+function countUp() {
+  const order = [...cubes].sort((a, b) => a.p.z - b.p.z || a.p.y - b.p.y || a.p.x - b.p.x);
+  counting = { order, i: 0, t: .3 };
+  controls.autoRotate = true;
+}
+function numberSprite(n) {
+  const s = kit.labelSprite(String(n), .5); s.position.y = .8; return s;
+}
+
+/* ── Cube net ── */
+const FACE = { red: '#ef4444', blue: '#3b82f6', green: '#16a34a', yellow: '#fbbf24', purple: '#7c3aed', pink: '#f472b6' };
+const starTex = (() => {
+  const c = document.createElement('canvas'); c.width = c.height = 128;
+  const g = c.getContext('2d'); g.fillStyle = '#fff'; g.font = '900 96px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('★', 64, 70);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+})();
+const tileGeo = new THREE.BoxGeometry(.98, .06, .98);
+function tile(color, star) {
+  const base = new THREE.MeshLambertMaterial({ color: FACE[color] || '#ccc' });
+  const mats = [base, base, base, base, base, base];
+  const m = new THREE.Mesh(tileGeo, mats); m.castShadow = true;
+  if (star) {   // ★ on both sides so it shows on the outside of the folded cube too
+    [.035, -.035].forEach(y => {
+      const s = new THREE.Mesh(new THREE.PlaneGeometry(.8, .8), new THREE.MeshBasicMaterial({ map: starTex, transparent: true }));
+      s.rotation.x = y > 0 ? -Math.PI / 2 : Math.PI / 2; s.position.y = y; m.add(s);
+    });
+  }
+  m.add(new THREE.LineSegments(new THREE.EdgesGeometry(tileGeo), new THREE.LineBasicMaterial({ color: '#334155' })));
+  return m;
+}
+function cubenet(el, layout, hl) {
+  reset(el); mode = 'net';
+  // cells of the net; the hinge tree grows from the first cell of the middle row
+  const cells = [];
+  layout.forEach((row, r) => row.forEach((c, k) => { if (c) cells.push({ r, k, c }); }));
+  const at = (r, k) => cells.find(x => x.r === r && x.k === k);
+  const start = cells.find(x => x.r === 1) || cells[0];
+  const rs = cells.map(x => x.r), ks = cells.map(x => x.k);
+  const midR = (Math.min(...rs) + Math.max(...rs)) / 2, midK = (Math.min(...ks) + Math.max(...ks)) / 2;
+  const holder = new THREE.Group();   // centres the flat net; moved to the cube centre when folded
+  holder.position.set(start.k - midK, .05, start.r - midR);
+  root.add(holder);
+  start.node = new THREE.Group(); holder.add(start.node);
+  start.node.add(tile(start.c, start.c === hl));
+  const hinges = [], seen = new Set([start]), queue = [start];
+  while (queue.length) {
+    const p = queue.shift();
+    [[0, 1], [0, -1], [1, 0], [-1, 0]].forEach(([dr, dk]) => {
+      const c = at(p.r + dr, p.k + dk);
+      if (!c || seen.has(c)) return;
+      seen.add(c); queue.push(c);
+      const pivot = new THREE.Group(); pivot.position.set(dk * .5, 0, dr * .5);   // on the shared edge
+      p.node.add(pivot);
+      c.node = new THREE.Group(); c.node.position.set(dk * .5, 0, dr * .5); pivot.add(c.node);
+      c.node.add(tile(c.c, c.c === hl));
+      // folding = turning 90° about the shared edge so the face swings up
+      hinges.push({ pivot, axis: dk ? 'z' : 'x', sign: dk ? dk : -dr });
+    });
+  }
+  net = { hinges, holder, flat: holder.position.clone(), folded: false, t: 0, hl, cells };
+  foldBtn.textContent = '📦 พับกล่อง';   // the button appears after answering (no peeking first)
+  frame(Math.max(Math.max(...ks) - Math.min(...ks), Math.max(...rs) - Math.min(...rs)) * .8 + 1, 0, true);   // look down on the flat net
+  net.flatDist = wantDist;
+  controls.autoRotate = false;
+}
+function toggleFold() {
+  if (!net) return;
+  net.folded = !net.folded;
+  foldBtn.textContent = net.folded ? '📄 คลี่ออก' : '📦 พับกล่อง';
+  wantDist = net.folded ? 4.2 : net.flatDist;   // zoom in on the little box
+  controls.target.set(0, net.folded ? .5 : 0, 0);
+  kit.tones(net.folded ? [392, 523] : [523, 392], .08, 'triangle', .12);
+  controls.autoRotate = net.folded;
+}
+foldBtn.onclick = toggleFold;
+
+function explain(q) {
+  if (q.type === 'blocks' && mode === 'blocks') countUp();
+  if (q.type === 'cubenet' && mode === 'net') { foldBtn.style.display = ''; if (!net.folded) setTimeout(toggleFold, 600); }
+}
+
+
+/* ── ✏️ Connect-the-dots on a 3D board ──
+   Same dot data as DRAWINGS (280×220 picture coordinates, 28 px = 1 unit).
+   Summer runs to each dot you reach; a line of blocks follows.
+   When the picture is done it stands up and becomes a 3D object. */
+const dw = document.createElement('div'); dw.className = 's3d'; dw.style.height = '300px';
+const dCanvas = document.createElement('canvas'); dw.appendChild(dCanvas);
+const dHint = document.createElement('div'); dHint.className = 's3d-hint'; dHint.textContent = '✏️ ลากนิ้วผ่านจุด 1 → 2 → 3'; dw.appendChild(dHint);
+const dRenderer = new THREE.WebGLRenderer({ canvas: dCanvas, antialias: true, alpha: true });
+dRenderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+dRenderer.shadowMap.enabled = true;
+const dScene = new THREE.Scene();
+dScene.add(new THREE.HemisphereLight(0xfff4d6, 0xb0a080, 1.3));
+const dSun = new THREE.DirectionalLight(0xffffff, 1.5);
+dSun.position.set(4, 14, 8); dSun.castShadow = true;
+Object.assign(dSun.shadow.camera, { left: -9, right: 9, top: 9, bottom: -9 });
+dScene.add(dSun);
+const dCam = new THREE.PerspectiveCamera(40, 1, .1, 100);
+const PX = 28;
+const toWorld = (p, y = 0) => new THREE.Vector3((p.x - 140) / PX, y, (p.y - 110) / PX);
+// board (fixed camera: dragging draws, it doesn't turn the view)
+const board = new THREE.Group(); dScene.add(board);
+const boardTop = new THREE.Mesh(new THREE.BoxGeometry(11, .3, 8.8), new THREE.MeshLambertMaterial({ color: '#fffdf5' }));
+boardTop.position.y = -.15; boardTop.receiveShadow = true; board.add(boardTop);
+const boardEdge = new THREE.Mesh(new THREE.BoxGeometry(11.6, .3, 9.4), new THREE.MeshLambertMaterial({ color: '#c4b5fd' }));
+boardEdge.position.y = -.3; board.add(boardEdge);
+const grass = new THREE.Mesh(new THREE.BoxGeometry(16, .4, 13), new THREE.MeshLambertMaterial({ color: '#a3d97a' }));
+grass.position.y = -.65; grass.receiveShadow = true; board.add(grass);
+const drawPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+const dSummer = kit.makeSummer(); dSummer.g.scale.setScalar(.55); dScene.add(dSummer.g);
+
+let D = null;   // current drawing state
+let dCamTop = null;   // overhead camera for drawing; it swings to the front when the picture is done
+function clearDrawing() {
+  if (!D) return;
+  [D.dotsG, D.pathG, D.trophy].forEach(g => g && dScene.remove(g));
+  D = null;
+}
+function drawing(holder, d, check) {
+  clearDrawing();
+  holder.querySelectorAll('.s3d').forEach(el => el.remove());
+  holder.appendChild(dw);
+  const w = dw.clientWidth || 340, h = dw.clientHeight || 300;
+  dRenderer.setSize(w, h, false); dCam.aspect = w / h;
+  // portrait boxes need the camera further back to fit the board
+  const dist = w < h * 1.1 ? 15 : 12;
+  dCam.position.set(0, dist * .85, dist * .62); dCam.lookAt(0, -.4, .4); dCam.updateProjectionMatrix();
+  dCamTop = { pos: dCam.position.clone(), look: new THREE.Vector3(0, -.4, .4), dist };
+  dHint.style.opacity = 1;
+  D = { d, check, shown: 0, dotsG: new THREE.Group(), pathG: new THREE.Group(), trophy: null, doneT: -1, posts: [], summerTo: null };
+  d.dots.forEach((p, i) => {
+    const post = new THREE.Group();
+    const m = new THREE.Mesh(new THREE.CylinderGeometry(.32, .36, .4, 20), new THREE.MeshLambertMaterial({ color: '#e9d5ff' }));
+    m.position.y = .2; m.castShadow = true; post.add(m);
+    const l = kit.labelSprite(String(i + 1), .55); l.position.y = 1; post.add(l);
+    post.position.copy(toWorld(p));
+    D.dotsG.add(post); D.posts.push({ post, m });
+  });
+  dScene.add(D.dotsG, D.pathG);
+  dSummer.g.position.copy(toWorld(d.dots[0])).add(new THREE.Vector3(-.6, 0, .6));
+  dSummer.g.rotation.y = 0; dSummer.g.visible = true;
+  D.summerTo = dSummer.g.position.clone();
+}
+// pointer → board point → picture coordinates → page's check()
+const dRay = new THREE.Raycaster(), dNdc = new THREE.Vector2(), hitPt = new THREE.Vector3();
+let drawing_ = false;
+function feed(e) {
+  if (!D) return;
+  const r = dCanvas.getBoundingClientRect();
+  dNdc.set((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+  dRay.setFromCamera(dNdc, dCam);
+  if (!dRay.ray.intersectPlane(drawPlane, hitPt)) return;
+  D.check({ x: hitPt.x * PX + 140, y: hitPt.z * PX + 110 });
+  if (Math.random() < .5) sparkle(hitPt);
+}
+dCanvas.style.touchAction = 'none';
+dCanvas.addEventListener('pointerdown', e => { drawing_ = true; dCanvas.setPointerCapture(e.pointerId); dHint.style.opacity = 0; feed(e); });
+dCanvas.addEventListener('pointermove', e => { if (drawing_) feed(e); });
+['pointerup', 'pointercancel'].forEach(ev => dCanvas.addEventListener(ev, () => { drawing_ = false; }));
+
+const sparks = [];
+function sparkle(p) {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(.12, .12, .12), new THREE.MeshBasicMaterial({ color: ['#fbbf24', '#f472b6', '#a78bfa'][Math.floor(Math.random() * 3)] }));
+  m.position.copy(p).add(new THREE.Vector3(0, .2, 0)); dScene.add(m);
+  sparks.push({ m, life: .5, vy: 1.5 + Math.random() });
+}
+const PATH_MAT = new THREE.MeshLambertMaterial({ color: '#7c3aed' });
+function segment(parent, a, b, height, depth, mat, flat = true) {
+  // a block bar from a to b (flat on the board, or standing in the XY plane for the trophy)
+  const len = a.distanceTo(b);
+  const m = new THREE.Mesh(new THREE.BoxGeometry(len + depth * .5, height, depth), mat);
+  m.position.copy(a).add(b).multiplyScalar(.5);
+  if (flat) m.rotation.y = -Math.atan2(b.z - a.z, b.x - a.x);
+  else m.rotation.z = Math.atan2(b.y - a.y, b.x - a.x);
+  m.castShadow = true; parent.add(m);
+  return m;
+}
+// does the closed outline cross itself? (the star does → build it from bars instead)
+function selfCrossing(pts) {
+  const n = pts.length, cross = (p, q, r) => (q.x - p.x) * (r.y - p.y) - (q.y - p.y) * (r.x - p.x);
+  for (let i = 0; i < n; i++) for (let j = i + 2; j < n; j++) {
+    if (i === 0 && j === n - 1) continue;
+    const a = pts[i], b = pts[(i + 1) % n], c = pts[j], e = pts[(j + 1) % n];
+    if (cross(a, b, c) * cross(a, b, e) < 0 && cross(c, e, a) * cross(c, e, b) < 0) return true;
+  }
+  return false;
+}
+const TROPHY_COLORS = ['#f472b6', '#f59e0b', '#3b82f6', '#22c55e', '#a855f7', '#ef4444', '#fbbf24', '#06b6d4'];
+function buildTrophy(d) {
+  // picture coordinates → standing XY plane (picture "up" = world up)
+  const pts = d.dots.map(p => new THREE.Vector2((p.x - 140) / PX, -(p.y - 110) / PX));
+  const mat = new THREE.MeshLambertMaterial({ color: TROPHY_COLORS[DRAWINGS.indexOf(d) % TROPHY_COLORS.length] });
+  const g = new THREE.Group();
+  if (d.closed && !selfCrossing(pts)) {
+    const geo = new THREE.ExtrudeGeometry(new THREE.Shape(pts), { depth: .9, bevelEnabled: true, bevelSize: .08, bevelThickness: .08, bevelSegments: 1 });
+    geo.translate(0, 0, -.45);
+    const m = new THREE.Mesh(geo, mat); m.castShadow = true; g.add(m);
+  } else {
+    const v = pts.map(p => new THREE.Vector3(p.x, p.y, 0));
+    const n = d.closed ? v.length : v.length - 1;
+    for (let i = 0; i < n; i++) segment(g, v[i], v[(i + 1) % v.length], .45, .9, mat, false);
+    v.forEach(p => { const c = new THREE.Mesh(new THREE.BoxGeometry(.55, .55, .95), mat); c.position.copy(p); g.add(c); });
+  }
+  // centre it so it spins around its middle
+  const box = new THREE.Box3().setFromObject(g), c = box.getCenter(new THREE.Vector3());
+  g.children.forEach(ch => ch.position.sub(c));
+  // shrink so the standing picture fits the camera view (about 3.4 units at its biggest)
+  const size = box.getSize(new THREE.Vector3()), k = Math.min(1, 3.4 / Math.max(size.x, size.y));
+  const holder = new THREE.Group(); holder.add(g); holder.scale.setScalar(k);
+  holder.position.z = .6;
+  holder.userData.half = size.y * k / 2;
+  return holder;
+}
+
+function drawTick(dt, time) {
+  if (!D || !dw.isConnected || dw.offsetParent === null) return;
+  const d = D.d, got = typeof cvCollected === 'number' ? cvCollected : 0;   // cvCollected lives in the page script
+  while (D.shown < got) {
+    const i = D.shown++;
+    D.posts[i].m.material.color.set('#7c3aed');
+    if (i > 0) segment(D.pathG, toWorld(d.dots[i - 1], .15), toWorld(d.dots[i], .15), .22, .26, PATH_MAT);
+    kit.tones([500 + i * 60], .04, 'triangle', .1);
+    D.summerTo = toWorld(d.dots[i]).add(new THREE.Vector3(0, .4, 0));
+    if (D.shown === d.dots.length) {
+      if (d.closed) segment(D.pathG, toWorld(d.dots[i], .15), toWorld(d.dots[0], .15), .22, .26, PATH_MAT);
+      D.doneT = 0;
+    }
+  }
+  // the next dot to reach pulses
+  D.posts.forEach((p, i) => { p.post.scale.setScalar(i === D.shown && D.doneT < 0 ? 1 + Math.sin(time * 6) * .15 : 1); });
+  // Summer hops toward the newest dot
+  const sp = dSummer.g.position, moving = sp.distanceTo(D.summerTo) > .05;
+  if (moving) {
+    const dir = D.summerTo.clone().sub(sp);
+    dSummer.g.rotation.y = Math.atan2(dir.x, dir.z);
+    sp.add(dir.multiplyScalar(Math.min(1, dt * 6)));
+  }
+  kit.poseSummer(dSummer, time, D.doneT > 1.4 ? 'cheer' : moving ? 'walk' : 'idle');
+  // finished: the picture stands up and becomes a 3D thing
+  if (D.doneT >= 0) {
+    D.doneT += dt;
+    if (D.doneT > .5 && !D.trophy) {
+      D.trophy = buildTrophy(d);
+      D.trophy.rotation.x = -Math.PI / 2;
+      dScene.add(D.trophy);
+      kit.tones([523, 659, 784, 1047], .09);
+      kit.speak(d.name + ' เก่งมาก');
+    }
+    if (D.trophy) {
+      const t = Math.min(1, (D.doneT - .5) / 1.2), e = 1 - Math.pow(1 - t, 3);
+      D.trophy.rotation.x = -Math.PI / 2 * (1 - e);
+      D.trophy.position.y = .2 + e * (D.trophy.userData.half + .3);
+      D.trophy.rotation.y = t >= 1 ? Math.sin((D.doneT - 1.7) * 1.2) * .5 : 0;   // gentle sway, always facing us
+      // camera swings from overhead to the front so the standing picture reads as a house/star/arrow
+      const look = dCamTop.look.clone().lerp(new THREE.Vector3(0, 1.9, .6), e);
+      dCam.position.lerpVectors(dCamTop.pos, new THREE.Vector3(0, 3, dCamTop.dist * .75), e);
+      dCam.lookAt(look);
+      D.pathG.visible = D.dotsG.visible = t < .3;
+      dSummer.g.position.lerp(new THREE.Vector3(-2.6, 0, 2.2), Math.min(1, dt * 3));
+      dSummer.g.rotation.y = .5;
+    }
+  }
+  for (let i = sparks.length - 1; i >= 0; i--) {
+    const s = sparks[i]; s.life -= dt; s.m.position.y += s.vy * dt;
+    if (s.life <= 0) { dScene.remove(s.m); sparks.splice(i, 1); }
+  }
+  dRenderer.render(dScene, dCam);
+}
+
+const clock = new THREE.Clock();
+function loop() {
+  requestAnimationFrame(loop);
+  const dt = Math.min(clock.getDelta(), .05), time = clock.elapsedTime;
+  drawTick(dt, time);
+  if (!wrap.isConnected || wrap.offsetParent === null) return;   // nothing to draw while hidden
+  if (counting && counting.i < counting.order.length) {
+    counting.t -= dt;
+    if (counting.t <= 0) {
+      const c = counting.order[counting.i++];
+      c.m.add(numberSprite(counting.i)); c.bump = 1;
+      c.m.material.emissive = new THREE.Color('#ffffff'); c.m.material.emissiveIntensity = .25;
+      countEl.textContent = counting.i;
+      kit.tones([400 + counting.i * 40], .03, 'triangle', .1);
+      counting.t = .38;
+      if (counting.i === counting.order.length) setTimeout(() => kit.speak(`ทั้งหมด ${counting.i} กล่อง`), 300);
+    }
+  }
+  cubes.forEach(c => { if (c.bump > 0) { c.bump = Math.max(0, c.bump - dt * 4); c.m.position.y = c.y0 + Math.sin(c.bump * Math.PI) * .25; } });
+  if (net) {
+    net.t += ((net.folded ? 1 : 0) - net.t) * Math.min(1, dt * 3);
+    const a = net.t * Math.PI / 2;
+    net.hinges.forEach(h => { h.pivot.rotation[h.axis] = h.sign * a; });
+    // lift the folded cube a little so it sits on the floor, centred under the camera
+    net.holder.position.lerpVectors(net.flat, new THREE.Vector3(0, .05, 0), net.t);
+  }
+  // ease the camera distance toward wantDist
+  const off = camera.position.clone().sub(controls.target);
+  off.setLength(off.length() + (wantDist - off.length()) * Math.min(1, dt * 3));
+  camera.position.copy(controls.target).add(off);
+  controls.update();
+  renderer.render(scene, camera);
+}
+loop();
+// screen position of dot i on the drawing board (used by the automated tests)
+function dotScreen(i) {
+  const v = toWorld(D.d.dots[i]).project(dCam), r = dCanvas.getBoundingClientRect();
+  return { x: r.left + (v.x + 1) / 2 * r.width, y: r.top + (1 - v.y) / 2 * r.height };
+}
+window.Satit3D = { blocks, cubenet, explain, drawing, dotScreen };
+</script>
+
+<!-- Island look: top bar back to the island + 3D backdrop (see world-shell.js) -->
+<script src="world-shell.js" data-emoji="📝" data-title="ตะลุยสาธิต"></script>
 </body>
 </html>
