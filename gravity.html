@@ -2,426 +2,594 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>🚀 แรงโน้มถ่วง — Summer's World</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;600;700;900&display=swap" rel="stylesheet">
-<style>
-  :root { --cream:#FFF8E8; --dark:#2D3047; --pink:#FF6B9D; --yellow:#FFD93D; }
-  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-
-  body { min-height:100vh; font-family:'Fredoka','Noto Sans Thai',sans-serif; background:#fff9f0; overflow-x:hidden; }
-
-  /* BACKGROUND */
-  .blobs { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
-  .blob { position:absolute; border-radius:50%; animation:blob-float ease-in-out infinite; opacity:.18; }
-  @keyframes blob-float { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(20px,-28px) scale(1.05)} }
-
-  /* NAV */
-  .site-nav { position:sticky; top:0; z-index:100; background:var(--cream); border-bottom:4px solid var(--dark); box-shadow:0 4px 0 var(--dark); padding:10px 16px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-  .nav-brand { font-family:'Bungee',cursive; font-size:15px; color:var(--dark); text-shadow:2px 2px 0 var(--pink); white-space:nowrap; flex-shrink:0; text-decoration:none; }
-  .nav-links { display:flex; gap:6px; flex-wrap:wrap; }
-  .nav-link { text-decoration:none; font-family:'Fredoka','Noto Sans Thai',sans-serif; font-size:13px; font-weight:600; padding:5px 13px; border-radius:12px; border:2.5px solid var(--dark); color:var(--dark); background:white; transition:all .12s; display:inline-flex; align-items:center; gap:4px; white-space:nowrap; box-shadow:2px 2px 0 var(--dark); }
-  .nav-link:hover { background:var(--yellow); transform:translate(-1px,-1px); box-shadow:3px 3px 0 var(--dark); }
-  .nav-link:active { transform:translate(1px,1px); box-shadow:1px 1px 0 var(--dark); }
-  .nav-link.active { background:var(--pink); color:white; }
-  @media(max-width:420px){ .nav-brand{font-size:13px} .nav-link{font-size:11px;padding:4px 10px} }
-
-  /* PAGE */
-  .page { position:relative; z-index:1; max-width:520px; margin:0 auto; padding:24px 16px 60px; }
-
-  /* HERO */
-  .hero { text-align:center; margin-bottom:28px; }
-  .hero-emoji { font-size:72px; display:block; animation:hero-float 3s ease-in-out infinite; }
-  @keyframes hero-float { 0%,100%{transform:translateY(0) rotate(-3deg)} 50%{transform:translateY(-14px) rotate(3deg)} }
-  .hero-title { font-family:'Bungee',cursive; font-size:clamp(26px,8vw,40px); color:var(--dark); margin:10px 0 6px; }
-  .hero-sub { color:#6b5e78; font-size:16px; font-weight:500; line-height:1.55; }
-
-  /* CARDS */
-  .card { background:white; border-radius:24px; padding:22px 18px; margin-bottom:20px; border:3px solid var(--dark); box-shadow:4px 4px 0 var(--dark); }
-  .card-title { font-family:'Bungee',cursive; font-size:17px; color:var(--dark); margin-bottom:6px; display:flex; align-items:center; gap:8px; }
-  .card-sub { color:#7c6d88; font-size:14px; font-weight:500; margin-bottom:16px; line-height:1.5; }
-
-  /* ── SECTION 1: DROP TEST ── */
-  .drop-stage { background:linear-gradient(to bottom, #e0f0ff 0%, #c8e0ff 100%); border-radius:16px; padding:18px 12px 52px; position:relative; overflow:hidden; margin-bottom:12px; min-height:160px; }
-  .drop-objects { display:flex; gap:16px; justify-content:center; flex-wrap:wrap; }
-  .drop-obj { display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; user-select:none; transition:transform .12s; }
-  .drop-obj:hover { transform:scale(1.12) translateY(-4px); }
-  .drop-obj:active { transform:scale(.9); }
-  .drop-obj .obj-em { font-size:46px; line-height:1; }
-  .drop-obj .obj-lbl { font-size:11px; font-weight:700; color:#3a5a8a; }
-  .drop-obj.falling { animation:obj-fall forwards; pointer-events:none; }
-  @keyframes obj-fall {
-    0%   { transform:translateY(0) rotate(0deg); opacity:1; }
-    70%  { transform:translateY(85px) rotate(15deg); opacity:1; }
-    85%  { transform:translateY(82px) rotate(0deg) scaleY(.6) scaleX(1.3); }
-    100% { transform:translateY(85px) scaleY(0); opacity:0; }
-  }
-  .drop-ground { position:absolute; bottom:0; left:0; right:0; height:44px; background:linear-gradient(135deg,#6b4c1e,#9a7040); display:flex; align-items:center; justify-content:center; gap:6px; }
-  .drop-ground span { font-size:13px; font-weight:800; color:#ffe8a0; letter-spacing:.5px; }
-  .drop-feedback { text-align:center; font-size:15px; font-weight:700; color:#3a2d6a; min-height:26px; padding-top:4px; }
-
-  /* ── SECTION 2: ROCKET LAUNCH ── */
-  .space-scene { background:linear-gradient(to bottom,#030310 0%,#080830 45%,#1a0a3a 75%,#2d1b69 100%); border-radius:20px; position:relative; height:380px; overflow:hidden; margin-bottom:16px; }
-
-  .ss-stars { position:absolute; inset:0; }
-  .ss-star { position:absolute; background:#fff; border-radius:50%; animation:star-twinkle ease-in-out infinite; }
-  @keyframes star-twinkle { 0%,100%{opacity:.2} 50%{opacity:1} }
-
-  .moon-zone { position:absolute; top:18px; left:50%; transform:translateX(-50%); text-align:center; z-index:2; }
-  .moon-zone .mz-em { font-size:54px; display:block; }
-  .moon-zone .mz-lbl { color:rgba(255,255,255,.65); font-size:11px; font-weight:700; letter-spacing:1px; margin-top:2px; }
-  .moon-zone .mz-tag { display:inline-block; background:rgba(255,217,61,.2); border:1px solid rgba(255,217,61,.5); color:#ffd93d; border-radius:999px; padding:2px 10px; font-size:10px; font-weight:700; margin-top:4px; }
-
-  .earth-zone { position:absolute; bottom:0; left:0; right:0; height:72px; background:linear-gradient(to top,#1a6b3a,#2d9a55 60%,transparent); display:flex; align-items:flex-end; justify-content:center; gap:6px; padding-bottom:8px; z-index:2; }
-  .earth-zone .ez-em { font-size:36px; }
-  .earth-zone .ez-lbl { font-size:11px; font-weight:700; color:rgba(255,255,255,.75); align-self:center; }
-
-  .rocket-wrap { position:absolute; bottom:62px; left:50%; transform:translateX(-50%); z-index:3; text-align:center; transition:none; }
-  .rocket-em { font-size:50px; display:block; filter:drop-shadow(0 0 14px rgba(255,140,40,.6)); }
-  .rocket-flame { font-size:22px; margin-top:-6px; display:none; animation:flame .14s ease-in-out infinite alternate; }
-  @keyframes flame { from{transform:scaleY(1)} to{transform:scaleY(1.35)} }
-
-  .rocket-wrap.launching .rocket-em { animation:r-fly 3.2s cubic-bezier(.2,0,.5,1) forwards; }
-  .rocket-wrap.launching .rocket-flame { display:block; }
-  @keyframes r-fly {
-    0%   { transform:translateY(0); }
-    4%   { transform:translateY(8px); }
-    100% { transform:translateY(-295px); }
-  }
-
-  .gravity-msg { position:absolute; left:14px; right:14px; top:48%; transform:translateY(-50%); text-align:center; color:rgba(255,255,255,.0); font-size:13px; font-weight:700; line-height:1.6; transition:color .3s; pointer-events:none; }
-  .gravity-msg.show { animation:msg-fade 3s ease forwards; }
-  @keyframes msg-fade { 0%{color:rgba(255,255,255,0)} 15%{color:rgba(255,255,255,.8)} 80%{color:rgba(255,255,255,.8)} 100%{color:rgba(255,255,255,0)} }
-
-  .arrived-banner { position:absolute; top:92px; left:50%; transform:translateX(-50%) scale(0); background:#ffd93d; color:#2D3047; border-radius:16px; padding:8px 22px; font-weight:800; font-size:14px; white-space:nowrap; z-index:5; box-shadow:0 4px 16px rgba(0,0,0,.35); transition:transform .4s cubic-bezier(.34,1.56,.64,1); }
-  .arrived-banner.show { transform:translateX(-50%) scale(1); }
-
-  /* fuel */
-  .fuel-row { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
-  .fuel-row .fr-icon { font-size:26px; }
-  .fuel-row .fr-lbl { font-size:13px; font-weight:700; color:#6b5e78; white-space:nowrap; }
-  .fuel-bar { flex:1; height:18px; background:#e8e0f0; border-radius:999px; overflow:hidden; border:2px solid var(--dark); }
-  .fuel-fill { height:100%; background:linear-gradient(90deg,#ff6b2b,#ffd93d); width:0%; transition:width .45s cubic-bezier(.34,1.2,.64,1); border-radius:999px; }
-  .fuel-pct { font-size:13px; font-weight:800; color:var(--dark); width:34px; text-align:right; }
-
-  /* launch buttons */
-  .launch-btns { display:flex; gap:10px; }
-  .btn-fuel { flex:1; background:linear-gradient(135deg,#ff6b2b,#ffd93d); color:white; border:3px solid var(--dark); border-radius:16px; padding:14px 10px; font-size:16px; font-weight:800; cursor:pointer; font-family:inherit; box-shadow:4px 4px 0 var(--dark); transition:all .12s; display:flex; align-items:center; justify-content:center; gap:6px; }
-  .btn-fuel:hover:not(:disabled) { transform:translate(-2px,-2px); box-shadow:6px 6px 0 var(--dark); }
-  .btn-fuel:active:not(:disabled) { transform:translate(1px,1px); box-shadow:2px 2px 0 var(--dark); }
-  .btn-fuel:disabled { opacity:.35; cursor:not-allowed; }
-
-  .btn-launch { flex:1; background:linear-gradient(135deg,#312e81,#7c3aed); color:white; border:3px solid var(--dark); border-radius:16px; padding:14px 10px; font-size:16px; font-weight:800; cursor:pointer; font-family:inherit; box-shadow:4px 4px 0 var(--dark); transition:all .12s; align-items:center; justify-content:center; gap:6px; display:none; }
-  .btn-launch.show { display:flex; animation:pop-btn .4s cubic-bezier(.34,1.56,.64,1) both; }
-  @keyframes pop-btn { from{transform:scale(0)} to{transform:scale(1)} }
-  .btn-launch:hover:not(:disabled) { transform:translate(-2px,-2px); box-shadow:6px 6px 0 var(--dark); }
-  .btn-launch:active:not(:disabled) { transform:translate(1px,1px); box-shadow:2px 2px 0 var(--dark); }
-  .btn-launch:disabled { opacity:.5; cursor:not-allowed; }
-
-  .btn-retry { display:none; margin-top:10px; background:white; color:#7c6d88; border:2px solid #e8e0f0; border-radius:12px; padding:9px 18px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; transition:all .15s; }
-  .btn-retry.show { display:block; }
-  .btn-retry:hover { border-color:#c084fc; color:#7c3aed; }
-
-  /* ── SECTION 3: MOON FACTS ── */
-  .fact-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; }
-  .fact-box { background:linear-gradient(135deg,#312e81,#4c1d95); border-radius:16px; padding:16px 12px; text-align:center; color:white; }
-  .fact-box .fb-num { font-family:'Bungee',cursive; font-size:28px; color:#ffd93d; line-height:1; }
-  .fact-box .fb-lbl { font-size:12px; font-weight:600; opacity:.85; margin-top:5px; line-height:1.45; }
-
-  /* bounce compare */
-  .bounce-row { display:flex; gap:12px; }
-  .bounce-col { flex:1; border-radius:16px; padding:16px 10px; text-align:center; border:2.5px solid #e0d4f8; background:#f8f4ff; }
-  .bounce-col.is-moon { background:#070720; border-color:#4c1d95; }
-  .bc-planet { font-size:30px; }
-  .bc-plabel { font-size:11px; font-weight:700; color:#6b5e78; margin:4px 0 14px; }
-  .is-moon .bc-plabel { color:rgba(255,255,255,.6); }
-  .bc-figure { font-size:34px; display:inline-block; }
-  .bc-figure.jump-earth { animation:j-earth 1.6s ease-in-out infinite; }
-  .bc-figure.jump-moon  { animation:j-moon  1.6s ease-in-out infinite; }
-  @keyframes j-earth { 0%,100%{transform:translateY(0)} 38%{transform:translateY(-18px)} }
-  @keyframes j-moon  { 0%,100%{transform:translateY(0)} 38%{transform:translateY(-72px)} }
-  .bc-note { font-size:12px; font-weight:700; color:#5a56e0; margin-top:10px; }
-  .is-moon .bc-note { color:#ffd93d; }
-</style>
+<link rel="stylesheet" href="world-theme.css">
 </head>
 <body>
+<div class="w-fade-in"></div>
+<canvas class="w-canvas" id="world"></canvas>
 
-<nav class="site-nav">
-  <a class="nav-brand" href="index.html">☀️ SUMMER</a>
-  <div class="nav-links">
-    <a class="nav-link" href="24_question.html">🎲 Questions</a>
-    <a class="nav-link" href="robot_game.html">🤖 Robot</a>
-    <a class="nav-link" href="knowledge.html">📚 Learn</a>
-    <a class="nav-link" href="sa_ra.html">🗣️ Sa-ra</a>
-    <a class="nav-link" href="clock_game.html">🕐 Clock</a>
-    <a class="nav-link" href="thai_money.html">🪙 Coins</a>
-    <a class="nav-link" href="pay_money.html">🛒 Pay</a>
-    <a class="nav-link" href="color_mix.html">🎨 Colors</a>
-    <a class="nav-link active" href="gravity.html">🚀 Gravity</a>
-    <a class="nav-link" href="farm_kid.html">🌾 Farm Quiz</a>
-    <a class="nav-link" href="satit_exam.html">📝 Satit Drill</a>
-    <a class="nav-link" href="math_2digit.html">🔢 Math</a>
-    <a class="nav-link" href="school_dashboard.html">🏫 Schools</a>
+<div class="w-top">
+  <a class="w-pill w-back" href="index.html" data-fade title="กลับเกาะ Back to island">🏝️ <span>กลับเกาะ</span></a>
+  <div class="w-pill w-title">🚀 แรงโน้มถ่วง <span class="en">· GRAVITY</span></div>
+  <div class="w-icons">
+    <button class="w-pill w-icon" id="infoBtn" title="รู้ไหม? Facts">💡</button>
+    <button class="w-pill w-icon" id="soundBtn" title="เปิด/ปิดเสียง Sound">🔊</button>
   </div>
-</nav>
-
-<div class="blobs" id="blobs"></div>
-
-<div class="page">
-
-  <!-- Hero -->
-  <div class="hero">
-    <span class="hero-emoji">🚀</span>
-    <h1 class="hero-title">แรงโน้มถ่วง</h1>
-    <p class="hero-sub">ทำไมแอปเปิ้ลถึงตกลงมา?<br>แล้วจรวด Artemis ไปดวงจันทร์ได้ยังไง? 🌕</p>
-  </div>
-
-  <!-- New: Science Knowledge Section (Option B) -->
-  <div class="card">
-    <div class="card-title">🌍 วิทยาศาสตร์แรงโน้มถ่วง</div>
-    <div class="card-sub">ก่อนเล่นเกม มาอ่านความรู้กันก่อนนะ Summer 💕<br>ใช้คำง่ายๆ เหมาะสำหรับเด็ก 5 ขวบเลยค่ะ</div>
-
-    <div style="background:#f0f4ff; border-radius:16px; padding:18px; margin:16px 0; border:3px solid #312e81;">
-      <div style="font-size:42px; text-align:center; margin-bottom:12px;">🍎</div>
-      <p style="font-weight:700; color:#312e81; margin-bottom:12px; text-align:center; font-size:15px;">
-        เรื่องของนิวตันกับแอปเปิ้ล
-      </p>
-      <p style="line-height:1.5; color:#334155; font-size:14px;">
-        นานมากแล้ว... นิวตันนั่งอยู่ใต้ต้นไม้<br>
-        มีแอปเปิ้ล 🍎 ตกลงมาโดนหัวเขา!<br><br>
-        เขาก็คิดว่า "ทำไมแอปเปิ้ลถึงตกลงมา?<br>
-        ทำไมมันไม่ลอยขึ้นฟ้า?"<br><br>
-        เขาค้นพบว่า <strong>โลกมีแรงดึงดูด</strong><br>
-        ที่เรียกว่า <strong>"แรงโน้มถ่วง"</strong> 💫
-      </p>
-    </div>
-
-    <div class="fact-grid" style="margin-top:8px;">
-      <div class="fact-box">
-        <div class="fb-num">🌍</div>
-        <div class="fb-lbl">โลกดึง<br>ทุกอย่างลงมา</div>
-      </div>
-      <div class="fact-box">
-        <div class="fb-num">🏠</div>
-        <div class="fb-lbl">ยิ่งอยู่ใกล้พื้น<br>ยิ่งถูกดึงแรง</div>
-      </div>
-      <div class="fact-box">
-        <div class="fb-num">🌕</div>
-        <div class="fb-lbl">ดวงจันทร์<br>แรงน้อยกว่า 6 เท่า</div>
-      </div>
-      <div class="fact-box">
-        <div class="fb-num">🪐</div>
-        <div class="fb-lbl">ดาวพฤหัส<br>ดึงแรงมากกว่าโลก</div>
-      </div>
-    </div>
-
-    <div style="margin-top:18px; padding:14px; background:#fffbeb; border-radius:16px; border:2px dashed #d97706; font-size:13px; line-height:1.55; color:#44403c;">
-      <strong>รู้ไหม?</strong> ถ้าโลกไม่มีแรงโน้มถ่วงเลย<br>
-      เราจะลอยไปลอยมาเหมือนอยู่ในอวกาศเลยค่ะ 🪐<br>
-      ไม่มีใครเดินได้!
-    </div>
-  </div>
-
-  <!-- Card 1: What is Gravity (Original - unchanged) -->
-  <div class="card">
-    <div class="card-title">🌍 แรงโน้มถ่วงคืออะไร?</div>
-    <div class="card-sub">โลกดึงทุกอย่างลงมาหาตัวเอง เหมือนมีมือยักษ์ที่มองไม่เห็นจับอยู่!<br>แตะของแต่ละอย่างแล้วดูสิ 👇</div>
-
-    <div class="drop-stage">
-      <div class="drop-objects" id="dropObjs">
-        <div class="drop-obj" data-dur="0.85s" data-ease="ease-in" data-note="แอปเปิ้ลหนัก ตกเร็วมาก! แรงโน้มถ่วงดึงลงมาเลย 🍎" onclick="dropIt(this)">
-          <span class="obj-em">🍎</span><span class="obj-lbl">แอปเปิ้ล</span>
-        </div>
-        <div class="drop-obj" data-dur="2.8s" data-ease="ease" data-note="ขนนกเบามาก อากาศต้านไว้ เลยตกช้ากว่าเยอะเลย 🪶" onclick="dropIt(this)">
-          <span class="obj-em">🪶</span><span class="obj-lbl">ขนนก</span>
-        </div>
-        <div class="drop-obj" data-dur="0.7s" data-ease="ease-in" data-note="ลูกบอลแน่นหนัก ตกเร็วที่สุด! ⚽" onclick="dropIt(this)">
-          <span class="obj-em">⚽</span><span class="obj-lbl">ลูกบอล</span>
-        </div>
-        <div class="drop-obj" data-dur="3.8s" data-ease="ease-out" data-note="ลูกโป่งมีแก๊สเบา พยายามต้านแรงโน้มถ่วง ตกช้ามากเลย! 🎈" onclick="dropIt(this)">
-          <span class="obj-em">🎈</span><span class="obj-lbl">ลูกโป่ง</span>
-        </div>
-      </div>
-      <div class="drop-ground"><span>🟫 พื้นโลก · GROUND</span></div>
-    </div>
-    <div class="drop-feedback" id="dropFb">👆 แตะของเพื่อทดลองทิ้ง!</div>
-  </div>
-
-  <!-- Card 2: Rocket Launch -->
-  <div class="card">
-    <div class="card-title">🚀 ปล่อยจรวด Artemis!</div>
-    <div class="card-sub">เติมเชื้อเพลิงให้เต็ม แล้วปล่อยจรวดหนีแรงโน้มถ่วงไปดวงจันทร์!</div>
-
-    <div class="space-scene" id="spaceScene">
-      <div class="ss-stars" id="ssStars"></div>
-
-      <div class="moon-zone">
-        <span class="mz-em">🌕</span>
-        <div class="mz-lbl">ดวงจันทร์ · MOON</div>
-        <div class="mz-tag">แรงโน้มถ่วง = 1/6 ของโลก</div>
-      </div>
-
-      <div class="gravity-msg" id="gravMsg">
-        ⬇️ แรงโน้มถ่วงพยายามดึงจรวดกลับลงมา...<br>แต่จรวดเร็วเกินไป! 💪🔥
-      </div>
-
-      <div class="arrived-banner" id="arrivedBanner">🌕 ถึงดวงจันทร์แล้ว! 🎉</div>
-
-      <div class="rocket-wrap" id="rocketWrap">
-        <span class="rocket-em">🚀</span>
-        <span class="rocket-flame">🔥</span>
-      </div>
-
-      <div class="earth-zone">
-        <span class="ez-em">🌍</span>
-        <span class="ez-lbl">โลก · EARTH</span>
-      </div>
-    </div>
-
-    <div class="fuel-row">
-      <span class="fr-icon">⛽</span>
-      <span class="fr-lbl">เชื้อเพลิง</span>
-      <div class="fuel-bar"><div class="fuel-fill" id="fuelFill"></div></div>
-      <span class="fuel-pct" id="fuelPct">0%</span>
-    </div>
-
-    <div class="launch-btns">
-      <button class="btn-fuel" id="btnFuel" onclick="addFuel()">⛽ เติมเชื้อเพลิง!</button>
-      <button class="btn-launch" id="btnLaunch" onclick="launchRocket()">🚀 ปล่อยจรวด!</button>
-    </div>
-    <button class="btn-retry" id="btnRetry" onclick="resetLaunch()">🔄 ลองใหม่อีกครั้ง</button>
-  </div>
-
-  <!-- Card 3: Moon Facts -->
-  <div class="card">
-    <div class="card-title">🌕 บนดวงจันทร์เป็นยังไง?</div>
-    <div class="card-sub">แรงโน้มถ่วงบนดวงจันทร์น้อยกว่าโลกมาก — กระโดดได้สูงกว่า 6 เท่า!</div>
-
-    <div class="fact-grid">
-      <div class="fact-box">
-        <div class="fb-num">1/6</div>
-        <div class="fb-lbl">แรงโน้มถ่วงน้อยกว่า<br>โลก 6 เท่า</div>
-      </div>
-      <div class="fact-box">
-        <div class="fb-num">3 วัน</div>
-        <div class="fb-lbl">เวลาเดินทางจากโลก<br>ถึงดวงจันทร์</div>
-      </div>
-      <div class="fact-box">
-        <div class="fb-num">384,000</div>
-        <div class="fb-lbl">กิโลเมตร<br>จากโลกถึงดวงจันทร์</div>
-      </div>
-      <div class="fact-box">
-        <div class="fb-num">11 กม/วิ</div>
-        <div class="fb-lbl">ความเร็วที่ต้องใช้<br>หนีแรงโน้มถ่วงโลก</div>
-      </div>
-    </div>
-
-    <div style="font-size:14px;font-weight:700;color:#6b5e78;text-align:center;margin-bottom:12px;">
-      🦘 กระโดดบนโลก vs บนดวงจันทร์
-    </div>
-    <div class="bounce-row">
-      <div class="bounce-col">
-        <div class="bc-planet">🌍</div>
-        <div class="bc-plabel">โลก · Earth</div>
-        <div class="bc-figure jump-earth">🧒</div>
-        <div class="bc-note">สูงประมาณ 50 ซม.</div>
-      </div>
-      <div class="bounce-col is-moon">
-        <div class="bc-planet">🌕</div>
-        <div class="bc-plabel">ดวงจันทร์ · Moon</div>
-        <div class="bc-figure jump-moon">🧒</div>
-        <div class="bc-note">สูงถึง 3 เมตร! 🤩</div>
-      </div>
-    </div>
-  </div>
-
 </div>
 
+<div class="w-caption" id="caption"></div>
+<div class="w-banner" id="banner">🌕 ถึงดวงจันทร์แล้ว! 🎉</div>
+
+<div class="w-dock">
+  <!-- Drop test controls -->
+  <div class="w-controls" data-mode="drop">
+    <div class="w-seg">
+      <button id="earthBtn" class="on">🌍 โลก</button>
+      <button id="moonBtn">🌕 ดวงจันทร์</button>
+    </div>
+    <button class="w-btn" id="dropAllBtn">ปล่อยพร้อมกัน! ⬇️</button>
+    <button class="w-btn white" id="resetDropBtn" title="เก็บของขึ้นไปใหม่ Reset">↺</button>
+  </div>
+  <!-- Rocket controls -->
+  <div class="w-controls" data-mode="rocket">
+    <div class="w-meter">⛽ <div class="bar"><div class="fill" id="fuelFill"></div></div> <span id="fuelPct">0%</span></div>
+    <button class="w-btn white" id="fuelBtn">⛽ กดค้างเติม</button>
+    <button class="w-btn" id="launchBtn" disabled>🚀 ปล่อย!</button>
+    <button class="w-btn white" id="rocketResetBtn" style="display:none">↺ ลองใหม่</button>
+  </div>
+  <!-- Jump controls -->
+  <div class="w-controls" data-mode="jump">
+    <button class="w-btn big" id="jumpBtn">🦘 กระโดด!</button>
+  </div>
+  <div class="w-modes">
+    <button class="w-mode on" data-go="drop"><span class="em">🍎</span>ทิ้งของ</button>
+    <button class="w-mode" data-go="rocket"><span class="em">🚀</span>ปล่อยจรวด</button>
+    <button class="w-mode" data-go="jump"><span class="em">🦘</span>กระโดด</button>
+  </div>
+</div>
+
+<div class="w-modal-bg" id="infoModal">
+  <div class="w-card">
+    <h2>💡 รู้ไหม?</h2>
+    <p>นานมาแล้ว <b>นิวตัน</b> นั่งใต้ต้นไม้ แล้วแอปเปิ้ล 🍎 ตกลงมา<br>
+      เขาเลยรู้ว่า <b>โลกดึงทุกอย่างลงมา</b> เรียกว่า <b>"แรงโน้มถ่วง"</b></p>
+    <div class="w-facts">
+      <div class="w-fact"><span class="em">🌍</span>โลกดึงทุกอย่างลงพื้น</div>
+      <div class="w-fact"><span class="em">🌬️</span>ขนนกตกช้า เพราะอากาศต้าน</div>
+      <div class="w-fact"><span class="em">🌕</span>ดวงจันทร์ดึงน้อยกว่าโลก 6 เท่า</div>
+      <div class="w-fact"><span class="em">🚀</span>จรวดต้องเร็วมาก ถึงจะหนีแรงดึงได้</div>
+    </div>
+    <p style="font-size:15px;color:var(--muted)">สำหรับพ่อแม่: บนดวงจันทร์ไม่มีอากาศ ค้อนกับขนนกจึงตกถึงพื้นพร้อมกัน (นักบินอวกาศ Apollo 15 ลองให้ดูจริงในปี 1971) · โลก→ดวงจันทร์ 384,000 กม. ใช้เวลาเดินทาง ~3 วัน · ต้องเร็ว ~11 กม./วินาที ถึงจะหนีแรงโน้มถ่วงโลกได้</p>
+    <button class="w-btn" id="infoClose">เข้าใจแล้ว! 👍</button>
+  </div>
+</div>
+
+<div class="w-fallback" id="fallback">
+  <div class="big">🚀</div>
+  <h2>โหลดฉาก 3D ไม่ได้</h2>
+  <div>ต้องต่ออินเทอร์เน็ตนะ / This page needs internet</div>
+  <a class="w-btn" href="menu.html">ไปหน้าเมนู ▶</a>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script src="world-kit.js"></script>
 <script>
-  /* BLOBS */
-  (function(){
-    const cols = ["#c7d2fe","#ddd6fe","#bfdbfe","#fde8d8","#fce7f3","#d1fae5"];
-    const wrap = document.getElementById("blobs");
-    for(let i=0;i<16;i++){
-      const b=document.createElement("div"); b.className="blob";
-      const s=50+Math.random()*110;
-      b.style.cssText=`width:${s}px;height:${s}px;background:${cols[i%cols.length]};left:${Math.random()*100}%;top:${Math.random()*100}%;animation-duration:${9+Math.random()*12}s;animation-delay:${-Math.random()*8}s;`;
-      wrap.appendChild(b);
-    }
-  })();
-
-  /* SPACE STARS */
-  (function(){
-    const wrap = document.getElementById("ssStars");
-    for(let i=0;i<45;i++){
-      const s=document.createElement("div"); s.className="ss-star";
-      const sz=0.8+Math.random()*2.4;
-      s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${8+Math.random()*68}%;animation-duration:${2+Math.random()*4}s;animation-delay:${-Math.random()*4}s;`;
-      wrap.appendChild(s);
-    }
-  })();
-
-  /* DROP TEST */
-  function dropIt(el) {
-    if (el.classList.contains('falling')) return;
-    el.style.animationDuration = el.dataset.dur || '1.3s';
-    el.style.animationTimingFunction = el.dataset.ease || 'ease-in';
-    el.classList.add('falling');
-    document.getElementById('dropFb').textContent = '💡 ' + el.dataset.note;
-    el.addEventListener('animationend', () => {
-      el.classList.remove('falling');
-    }, { once: true });
-  }
-
-  /* ROCKET LAUNCH */
-  let fuel = 0;
-  const FUEL_MAX = 5;
-  let launched = false;
-
-  function addFuel() {
-    if (launched || fuel >= FUEL_MAX) return;
-    fuel++;
-    const pct = (fuel / FUEL_MAX) * 100;
-    document.getElementById('fuelFill').style.width = pct + '%';
-    document.getElementById('fuelPct').textContent = Math.round(pct) + '%';
-    if (fuel >= FUEL_MAX) {
-      document.getElementById('btnFuel').disabled = true;
-      document.getElementById('btnLaunch').classList.add('show');
-    }
-  }
-
-  function launchRocket() {
-    if (launched) return;
-    launched = true;
-    document.getElementById('btnLaunch').disabled = true;
-    document.getElementById('rocketWrap').classList.add('launching');
-    const msg = document.getElementById('gravMsg');
-    msg.classList.add('show');
-    setTimeout(() => {
-      document.getElementById('arrivedBanner').classList.add('show');
-      document.getElementById('btnRetry').classList.add('show');
-    }, 3400);
-  }
-
-  function resetLaunch() {
-    fuel = 0;
-    launched = false;
-    document.getElementById('fuelFill').style.width = '0%';
-    document.getElementById('fuelPct').textContent = '0%';
-    document.getElementById('btnFuel').disabled = false;
-    const btnL = document.getElementById('btnLaunch');
-    btnL.classList.remove('show');
-    btnL.disabled = false;
-    const rw = document.getElementById('rocketWrap');
-    rw.classList.remove('launching');
-    void rw.offsetWidth;
-    document.getElementById('gravMsg').classList.remove('show');
-    document.getElementById('arrivedBanner').classList.remove('show');
-    document.getElementById('btnRetry').classList.remove('show');
-  }
+  setTimeout(function () { if (!window.__worldReady) document.getElementById('fallback').classList.add('show'); }, 10000);
 </script>
 
+<script type="module">
+/* =========================================================
+   แรงโน้มถ่วง (Gravity) — 3 hands-on experiments in one 3D scene
+   🍎 drop   (x = 0)   : drop things from a tower, on Earth vs Moon
+   🚀 rocket (x = 40)  : fill fuel, launch — not enough fuel → gravity pulls it back
+   🦘 jump   (x = -40) : Summer jumps on Earth and on the Moon side by side
+   1 unit ≈ 1 metre; Earth g = 9.8, Moon g = 1.62
+   ========================================================= */
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const kit = WorldKit(THREE, OrbitControls);
+const { box } = kit;
+const stage = kit.createStage({ canvas: document.getElementById('world') });
+const { scene, camera, controls, sun } = stage;
+controls.minDistance = 7; controls.maxDistance = 32;
+controls.minPolarAngle = .3; controls.maxPolarAngle = 1.45;
+kit.bindSoundButton(document.getElementById('soundBtn'));
+kit.bindFadeLinks();
+const fx = kit.createConfetti(scene);
+const stars = kit.createStars(scene, 700, 120);
+stars.visible = false;
+
+const G_EARTH = 9.8, G_MOON = 1.62;
+const SKY_EARTH = new THREE.Color('#bfe6ff'), SKY_SPACE = new THREE.Color('#0b0d24'), SKY_WARM = new THREE.Color('#ffe9b3');
+scene.background = SKY_EARTH.clone();
+
+// ── Caption (+ speech) ──
+const captionEl = document.getElementById('caption');
+let captionTimer = null;
+function caption(text, say = true, ms = 4500) {
+  captionEl.textContent = text; captionEl.classList.add('show');
+  clearTimeout(captionTimer); captionTimer = setTimeout(() => captionEl.classList.remove('show'), ms);
+  if (say) kit.speak(text.replace(/[^฀-๿0-9 ]/g, ' '));   // read only the Thai words
+}
+
+// ── Shared ground pieces ──
+function grassBlock(parent, w, d, x, z) {
+  box(parent, w, .4, d, '#8fd16a', x, -.2, z);
+  box(parent, w, 1.2, d, '#d39a5c', x, -1, z);
+  box(parent, w - 1.5, 1, d - 1.5, '#b87e47', x, -2.1, z);
+}
+function moonBlock(parent, w, d, x, z, y = 0) {
+  box(parent, w, .4, d, '#d3d6df', x, y - .2, z);
+  box(parent, w, 1.4, d, '#a9adbb', x, y - 1.1, z);
+  const r = Math.random;
+  for (let i = 0; i < Math.round(w * d / 8); i++) {
+    const cx = x + (r() - .5) * (w - 1.5), cz = z + (r() - .5) * (d - 1.5), s = .5 + r() * .9;
+    box(parent, s, .06, s, '#b9bdc9', cx, y + .03, cz, false);
+    box(parent, s * .6, .07, s * .6, '#a3a8b6', cx, y + .04, cz, false);
+  }
+}
+
+/* =========================================================
+   🍎 DROP TEST
+   ========================================================= */
+const dropArea = new THREE.Group();
+scene.add(dropArea);
+const earthGround = new THREE.Group(), moonGround = new THREE.Group();
+grassBlock(earthGround, 14, 10, 0, 0);
+for (let i = 0; i < 9; i++) box(earthGround, .14, .14, .14, ['#ff8fbf', '#ffd166', '#ffffff'][i % 3], -6 + (i * 1.47) % 12, .07, -4 + (i * 2.3) % 8, false);
+moonBlock(moonGround, 14, 10, 0, 0);
+moonGround.visible = false;
+dropArea.add(earthGround, moonGround);
+
+// Striped tower with a platform and a crane arm the objects hang from
+{
+  box(dropArea, 2.4, 6, 2.4, '#f2e6d0', 0, 3, -1.2);
+  for (let y = .6; y < 6; y += 1.2) box(dropArea, 2.46, .3, 2.46, '#e3793a', 0, y, -1.2);
+  box(dropArea, 5.2, .3, 2.8, '#c98a5a', 0, 6.15, -.4);
+  [-2.5, 2.5].forEach(x => box(dropArea, .12, .6, 2.8, '#8b5a3c', x, 6.6, -.4));
+  [-2.7, 2.7].forEach(x => box(dropArea, .3, 1.8, .3, '#8b5a3c', x, 7, .8));
+  box(dropArea, 6, .25, .25, '#8b5a3c', 0, 7.75, 2.2);
+  [-2.7, 2.7].forEach(x => box(dropArea, .25, .25, 1.6, '#8b5a3c', x, 7.75, 1.5));
+  // height marks on the tower
+  for (let m = 1; m <= 6; m++) {
+    const l = kit.labelSprite(`${m} ม.`, .38); l.position.set(-1.7, m, .2); dropArea.add(l);
+  }
+}
+const towerSummer = kit.makeSummer();
+towerSummer.g.position.set(0, 6.3, .5);
+dropArea.add(towerSummer.g);
+
+function makeApple() { const g = new THREE.Group(); box(g, .5, .46, .5, '#e63946', 0, 0, 0); box(g, .36, .1, .36, '#e63946', 0, .26, 0); box(g, .06, .16, .06, '#6b4423', 0, .36, 0); box(g, .18, .06, .1, '#5fb36a', .1, .38, 0); return g; }
+function makeFeather() { const g = new THREE.Group(); box(g, .9, .04, .3, '#ffffff', 0, 0, 0); box(g, .6, .045, .18, '#e8eef5', .15, 0, 0); box(g, 1.05, .05, .03, '#c9a46a', .05, 0, 0); return g; }
+function makeBall() {
+  const g = new THREE.Group();
+  const s = new THREE.Mesh(new THREE.SphereGeometry(.3, 16, 12), kit.mat('#ffffff')); s.castShadow = true; g.add(s);
+  [[0, 1, 0], [1, 0, 0], [-1, 0, 0], [0, 0, 1], [0, 0, -1], [0, -1, 0]].forEach(([x, y, z]) => box(g, .14, .14, .14, '#2b2118', x * .28, y * .28, z * .28, false));
+  return g;
+}
+function makeBalloon() {
+  const g = new THREE.Group();
+  const s = new THREE.Mesh(new THREE.SphereGeometry(.38, 16, 12), kit.mat('#ff5d8f')); s.scale.y = 1.15; s.position.y = .5; s.castShadow = true; g.add(s);
+  box(g, .1, .08, .1, '#ff5d8f', 0, .08, 0); box(g, .02, .5, .02, '#ffffff', 0, -.22, 0, false);
+  return g;
+}
+// All objects start with their lowest point at 6 m, so the race is fair.
+// r = distance from the object's origin to its lowest point; k = air drag; b = how much the air holds it up; e = bounciness
+const DROP = [
+  { name: 'แอปเปิ้ล', make: makeApple,   x: -2.25, hangY: 6.25, r: .25, k: .05, b: 0,  e: .15, note: 'แอปเปิ้ลตกเร็วมาก! 🍎' },
+  { name: 'ขนนก',    make: makeFeather, x: -.75,  hangY: 6.03, r: .03, k: 6,   b: 0,  e: 0,   note: 'ขนนกโดนอากาศต้าน เลยลอยช้าๆ 🪶' },
+  { name: 'ลูกบอล',  make: makeBall,    x: .75,   hangY: 6.3,  r: .3,  k: .03, b: 0,  e: .55, note: 'ลูกบอลตกเร็ว แล้วเด้งดึ๋ง! ⚽' },
+  { name: 'ลูกโป่ง', make: makeBalloon, x: 2.25,  hangY: 6.5,  r: .5,  k: 1.5, b: .8, e: .3,  note: 'ลูกโป่งโดนอากาศพยุงไว้ ตกช้ามาก 🎈' },
+];
+const MEDALS = ['🥇', '🥈', '🥉', '4️⃣'];
+DROP.forEach(o => {
+  o.g = o.make();
+  o.g.traverse(m => { m.userData.dropObj = o; });
+  o.string = box(dropArea, .02, 1, .02, '#ffffff', o.x, 0, 2.2, false);
+  o.medal = null;
+  dropArea.add(o.g);
+});
+let planet = 'earth', landedCount = 0, lastLand = { time: -1, rank: 0 }, roundSummaryDone = false;
+
+function hangAll() {
+  DROP.forEach(o => {
+    Object.assign(o, { y: o.hangY, vy: 0, t: 0, dropped: false, landed: false, resting: false });
+    o.g.position.set(o.x, o.y, 2.2); o.g.rotation.set(0, 0, 0);
+    const top = o.y + (o.make === makeBalloon ? 1 : .35);
+    o.string.visible = true; o.string.scale.y = 7.62 - top; o.string.position.y = (7.62 + top) / 2;
+    if (o.medal) { dropArea.remove(o.medal); o.medal = null; }
+  });
+  landedCount = 0; lastLand = { time: -1, rank: 0 }; roundSummaryDone = false;
+}
+hangAll();
+
+function drop(o) {
+  if (o.dropped) return;
+  o.dropped = true; o.string.visible = false;
+  kit.tones([440], .05, 'sine', .12);
+}
+function dropAll() {
+  if (DROP.some(o => o.dropped)) hangAll();
+  DROP.forEach(drop);
+  caption('3 2 1 ปล่อย! ดูสิ อะไรถึงพื้นก่อน? 👀');
+}
+
+function updateDrop(dt, time) {
+  const g = planet === 'moon' ? G_MOON : G_EARTH, air = planet === 'earth';
+  DROP.forEach(o => {
+    if (!o.dropped) { o.g.rotation.y = Math.sin(time + o.x) * .3; return; }
+    if (o.resting) return;
+    const k = air ? o.k : 0, b = air ? o.b : 0;
+    o.vy += (-g * (1 - b) - k * o.vy) * dt;
+    o.y += o.vy * dt; o.t += dt;
+    if (o.make === makeFeather && air) {        // feathers flutter side to side
+      o.g.position.x = o.x + Math.sin(o.t * 3) * .5;
+      o.g.rotation.z = Math.sin(o.t * 3) * .5;
+    }
+    if (o.y <= o.r) {
+      o.y = o.r;
+      if (!o.landed) {
+        o.landed = true; landedCount++;
+        // objects that land within a blink of each other share the same medal
+        const now = performance.now();
+        const rank = now - lastLand.time < 90 ? lastLand.rank : landedCount;
+        lastLand = { time: now, rank };
+        o.medal = kit.emojiSprite(MEDALS[rank - 1], null, .7);
+        o.medal.position.set(o.g.position.x, 1.4, 2.2);
+        dropArea.add(o.medal);
+        kit.tones([300 + 120 * (4 - rank)], .05, 'square', .1);
+        if (!DROP.every(d => d.dropped)) caption(planet === 'moon' ? 'บนดวงจันทร์ ตกช้าๆ เพราะแรงดึงน้อย 🌕' : o.note);
+      }
+      if (Math.abs(o.vy) > .8 && o.e > 0) o.vy = -o.vy * o.e;
+      else { o.vy = 0; o.resting = true; o.g.rotation.z = 0; }
+    }
+    o.g.position.y = o.y;
+  });
+  // Everything dropped together and landed → explain the result
+  if (!roundSummaryDone && DROP.every(o => o.dropped && o.resting)) {
+    roundSummaryDone = true;
+    caption(planet === 'moon'
+      ? 'บนดวงจันทร์ไม่มีอากาศ ทุกอย่างตกพร้อมกันเลย! 🌕'
+      : 'แอปเปิ้ลกับลูกบอลถึงก่อน! ขนนกกับลูกโป่งโดนอากาศต้าน 🌬️', true, 6500);
+    fx.burst(0, 7, -.4);
+  }
+  kit.poseSummer(towerSummer, time, roundSummaryDone ? 'cheer' : 'idle');
+}
+
+function setPlanet(p) {
+  planet = p;
+  document.getElementById('earthBtn').classList.toggle('on', p === 'earth');
+  document.getElementById('moonBtn').classList.toggle('on', p === 'moon');
+  earthGround.visible = p === 'earth'; moonGround.visible = p === 'moon';
+  scene.background.copy(p === 'moon' ? SKY_SPACE : SKY_EARTH);
+  stars.visible = p === 'moon';
+  hangAll();
+  caption(p === 'moon' ? 'มาดวงจันทร์แล้ว! ที่นี่ไม่มีอากาศเลย 🌕' : 'กลับมาที่โลกแล้ว 🌍');
+}
+
+/* =========================================================
+   🚀 ROCKET
+   ========================================================= */
+const RX = 40;
+const rocketArea = new THREE.Group();
+scene.add(rocketArea);
+grassBlock(rocketArea, 12, 10, RX, 0);
+box(rocketArea, 3.2, .3, 3.2, '#9aa3b2', RX, .15, 0);                      // launch pad
+box(rocketArea, .5, 7, .5, '#e63946', RX + 2.4, 3.5, -.8);                  // gantry
+for (let y = 1.5; y < 7; y += 1.5) box(rocketArea, 1.4, .18, .18, '#e63946', RX + 1.7, y, -.8);
+
+function makeRocket() {
+  const g = new THREE.Group();
+  box(g, .7, .3, .7, '#4b5563', 0, .2, 0);                                   // nozzle
+  box(g, 1.1, 3, 1.1, '#f8fafc', 0, 1.85, 0);                                // body
+  [.6, 3.1].forEach(y => box(g, 1.16, .28, 1.16, '#e63946', 0, y, 0));
+  box(g, .5, .5, .06, '#7dd3fc', 0, 2.5, .56, false);                        // window
+  box(g, .62, .62, .04, '#e63946', 0, 2.5, .55, false);
+  box(g, .85, .5, .85, '#e63946', 0, 3.6, 0);                                // stepped nose
+  box(g, .55, .4, .55, '#e63946', 0, 4.05, 0);
+  box(g, .25, .35, .25, '#ffd23f', 0, 4.4, 0);
+  [[.7, 0], [-.7, 0], [0, .7], [0, -.7]].forEach(([x, z]) => box(g, x ? .3 : .1, 1, z ? .3 : .1, '#e63946', x, .7, z));
+  const tag = kit.labelSprite('ARTEMIS', .4); tag.position.set(0, 1.5, .8); g.add(tag);
+  // flame (shown while engines burn)
+  const flame = new THREE.Group();
+  box(flame, .5, .9, .5, '#ff9f1c', 0, -.4, 0, false);
+  box(flame, .3, .6, .3, '#ffd23f', 0, -.35, 0, false);
+  g.add(flame);
+  // parachute (only when there isn't enough fuel)
+  const chute = new THREE.Group();
+  [[2.4, '#ff5d8f', 0], [1.8, '#ffffff', .3], [1.1, '#ff5d8f', .55]].forEach(([w, c, y]) => box(chute, w, .3, w, c, 0, 6.3 + y, 0, false));
+  [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([x, z]) => {
+    const s = box(chute, .03, 1.9, .03, '#ffffff', x * .5, 5.3, z * .5, false);
+    s.rotation.set(z * .2, 0, -x * .2);
+  });
+  chute.visible = false;
+  g.add(chute);
+  return { g, flame, chute };
+}
+const rocket = makeRocket();
+rocket.g.position.set(RX, .3, 0);
+rocketArea.add(rocket.g);
+const rocketSummer = kit.makeSummer();
+rocketSummer.g.position.set(RX - 2.4, 0, 1.6); rocketSummer.g.rotation.y = .5;
+rocketArea.add(rocketSummer.g);
+
+// Moon landing site, far above the launch pad
+const MOON_Y = 200;
+const moonArea = new THREE.Group();
+moonArea.visible = false;
+scene.add(moonArea);
+moonBlock(moonArea, 14, 12, RX, 0, MOON_Y);
+const earthBall = new THREE.Mesh(new THREE.SphereGeometry(3, 24, 16), new THREE.MeshLambertMaterial({ color: '#4fa3e0' }));
+earthBall.position.set(RX - 14, MOON_Y + 12, -30);
+moonArea.add(earthBall);
+for (let i = 0; i < 7; i++) {   // green continents on the Earth
+  const c = box(moonArea, .9 + Math.random(), .5, .9 + Math.random(), '#5fb36a', 0, 0, 0, false);
+  c.position.copy(earthBall.position).add(new THREE.Vector3().randomDirection().multiplyScalar(2.85));
+  c.lookAt(earthBall.position);
+}
+const moonSummer = kit.makeSummer();
+moonSummer.g.position.set(RX - 2, MOON_Y, 1.5); moonSummer.g.rotation.y = .4; moonSummer.g.visible = false;
+moonArea.add(moonSummer.g);
+const flag = new THREE.Group();
+box(flag, .06, 1.8, .06, '#e5e7eb', 0, .9, 0);
+[['#e63946', 0], ['#ffffff', 1], ['#1d3fa8', 2], ['#1d3fa8', 3], ['#ffffff', 4], ['#e63946', 5]]
+  .forEach(([c, i]) => box(flag, .9, .12, .03, c, .48, 1.72 - i * .12, 0, false));  // 🇹🇭 stripes
+flag.position.set(RX - 3.2, MOON_Y, .4); flag.scale.y = .01; flag.visible = false;
+moonArea.add(flag);
+
+// Flame + smoke particles
+const puffs = [];
+function puff(x, y, z, color, size, vx, vy, vz, life) {
+  const m = box(scene, size, size, size, color, x, y, z, false);
+  puffs.push({ m, vx, vy, vz, life, max: life, size });
+}
+
+const R = { state: 'ground', fuel: 0, y: 0, vy: 0, burn: 0, full: false, filling: false, groundY: .3, timer: 0 };
+const fuelFill = document.getElementById('fuelFill'), fuelPct = document.getElementById('fuelPct');
+const launchBtn = document.getElementById('launchBtn'), fuelBtn = document.getElementById('fuelBtn'), rocketResetBtn = document.getElementById('rocketResetBtn');
+function showFuelControls(on) {
+  [document.querySelector('.w-meter'), fuelBtn, launchBtn].forEach(el => { el.style.display = on ? '' : 'none'; });
+}
+function showFuel() {
+  fuelFill.style.width = R.fuel + '%'; fuelPct.textContent = Math.round(R.fuel) + '%';
+  launchBtn.disabled = R.state !== 'ground' || R.fuel < 5;
+}
+const fillStart = e => { e.preventDefault(); if (R.state !== 'ground') return; R.filling = true; fuelBtn.classList.add('held'); };
+const fillStop = () => { R.filling = false; fuelBtn.classList.remove('held'); };
+fuelBtn.addEventListener('pointerdown', fillStart);
+['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => fuelBtn.addEventListener(ev, fillStop));
+
+function launch() {
+  if (R.state !== 'ground' || R.fuel < 5) return;
+  R.full = R.fuel >= 99.5;
+  R.state = 'flying'; R.burn = R.fuel / 100 * 2.4; R.vy = 0; R.timer = 0;
+  showFuel(); fuelBtn.disabled = true;
+  kit.tones([196, 262, 330], .25, 'sawtooth', .08);
+  caption(R.full ? '3 2 1 ปล่อย! น้ำมันเต็ม ไปดวงจันทร์กัน! 🚀' : '3 2 1 ปล่อย! 🚀');
+}
+function resetRocket() {
+  Object.assign(R, { state: 'ground', fuel: 0, y: 0, vy: 0, burn: 0, full: false, groundY: .3 });
+  rocket.g.position.set(RX, R.groundY, 0); rocket.g.rotation.set(0, 0, 0);
+  rocket.chute.visible = false; rocket.flame.visible = false;
+  moonArea.visible = false; moonSummer.g.visible = false; flag.visible = false; flag.scale.y = .01;
+  document.getElementById('banner').classList.remove('show');
+  rocketResetBtn.style.display = 'none'; fuelBtn.disabled = false;
+  showFuelControls(true);
+  scene.background.copy(SKY_EARTH); stars.visible = false;
+  showFuel();
+  kit.flyTo(stage, new THREE.Vector3(RX + 10, 7, 17), new THREE.Vector3(RX, 3.2, 0));
+}
+function arriveOnMoon() {
+  // quick flash, then the rocket comes down onto the Moon
+  const flash = document.createElement('div'); flash.className = 'w-fade-in'; document.body.appendChild(flash);
+  setTimeout(() => flash.remove(), 700);
+  R.state = 'landing'; R.groundY = MOON_Y; R.y = 10; R.vy = -3;
+  moonArea.visible = true;
+  scene.background.copy(SKY_SPACE); stars.visible = true;
+  showFuelControls(false);
+  camera.position.set(RX + 10, MOON_Y + 6, 15); controls.target.set(RX, MOON_Y + 3, 0);
+}
+
+function updateRocket(dt, time) {
+  if (R.filling && R.state === 'ground') {
+    R.fuel = Math.min(100, R.fuel + 42 * dt);
+    if (R.fuel >= 100) { fillStop(); caption('น้ำมันเต็มแล้ว! กดปล่อยเลย 🚀'); }
+    showFuel();
+  }
+  let thrusting = false;
+  if (R.state === 'flying') {
+    R.timer += dt;
+    thrusting = R.full || R.burn > 0;
+    R.burn -= dt;
+    const a = thrusting ? (R.full ? 12 : 18 - G_EARTH) : -G_EARTH;
+    R.vy += a * dt;
+    if (!R.full && R.vy < -2) { rocket.chute.visible = true; R.vy = Math.max(R.vy, -2.6); }   // parachute slows the fall
+    R.y += R.vy * dt;
+    if (!R.full && R.burn < 0 && R.vy < 0 && !R.toldFall) {
+      R.toldFall = true;
+      caption('น้ำมันหมด! แรงโน้มถ่วงดึงจรวดกลับลงมา ⬇️');
+    }
+    if (!R.full && R.y <= 0) {
+      R.y = 0; R.vy = 0; R.state = 'landed'; R.toldFall = false;
+      rocket.chute.visible = false;
+      rocketResetBtn.style.display = '';
+      caption('น้ำมันไม่พอ เลยหนีแรงโน้มถ่วงไม่ได้ เติมให้เต็มแล้วลองใหม่นะ 💪', true, 7000);
+    }
+    if (R.full && R.y > 60) arriveOnMoon();
+    else {
+      // sky gets darker as the rocket climbs
+      const k = Math.min(1, R.y / 50);
+      scene.background.copy(SKY_EARTH).lerp(SKY_SPACE, k);
+      stars.visible = k > .4;
+      // camera follows the rocket up
+      const dy = R.groundY + R.y + 2.5 - controls.target.y;
+      controls.target.y += dy * Math.min(1, dt * 5); camera.position.y += dy * Math.min(1, dt * 5);
+      if (R.timer < 1.2) for (let i = 0; i < 2; i++) puff(RX + (Math.random() - .5) * 3, .5, (Math.random() - .5) * 3, '#ffffff', .4 + Math.random() * .4, (Math.random() - .5) * 3, .5, (Math.random() - .5) * 3, 1.2);
+    }
+  } else if (R.state === 'landing') {
+    thrusting = true;   // retro rockets on the way down
+    R.y = Math.max(0, R.y + R.vy * dt);
+    if (R.y <= 0) {
+      R.state = 'moon';
+      moonSummer.g.visible = true; flag.visible = true;
+      document.getElementById('banner').classList.add('show');
+      fx.burst(RX, MOON_Y + 3, 0); fx.burst(RX - 2, MOON_Y + 2, 1.5, ['#e63946', '#ffffff', '#1d3fa8']);
+      kit.cheer();
+      caption('ถึงดวงจันทร์แล้ว! Summer เก่งมาก! 🌕🎉', true, 7000);
+      rocketResetBtn.style.display = '';
+    }
+  }
+  if (flag.visible && flag.scale.y < 1) flag.scale.y = Math.min(1, flag.scale.y + dt * 1.5);
+  rocket.flame.visible = thrusting;
+  if (thrusting) {
+    rocket.flame.scale.set(1, .8 + Math.random() * .5, 1);
+    puff(RX + (Math.random() - .5) * .4, R.groundY + R.y - .2, (Math.random() - .5) * .4,
+      Math.random() < .5 ? '#ff9f1c' : '#ffd23f', .2, (Math.random() - .5) * 1.5, -4 - Math.random() * 3, (Math.random() - .5) * 1.5, .5);
+  }
+  rocket.g.position.y = R.groundY + R.y;
+  rocket.g.rotation.z = R.state === 'flying' && thrusting ? Math.sin(time * 30) * .01 : 0;
+  kit.poseSummer(rocketSummer, time, R.state === 'flying' ? 'cheer' : 'idle');
+  kit.poseSummer(moonSummer, time, 'cheer');
+  moonSummer.body.position.y += Math.abs(Math.sin(time * 2)) * .5;   // floaty moon hops
+}
+
+/* =========================================================
+   🦘 JUMP — same push, but the Moon pulls 6× less
+   ========================================================= */
+const JX = -40;
+const jumpArea = new THREE.Group();
+scene.add(jumpArea);
+const JUMP_V = Math.sqrt(2 * G_EARTH * .5);   // a push that gives 50 cm on Earth
+function backdrop(x, color) { box(jumpArea, 4.2, 8, .3, color, x, 3.6, -2.4, false); }
+grassBlock(jumpArea, 4.4, 4.4, JX - 2.6, 0);
+backdrop(JX - 2.6, '#bfe6ff');
+box(jumpArea, .9, .9, .1, '#ffd23f', JX - 1.4, 6.4, -2.2, false);                   // sun
+[[-3.6, 5.6], [-2.9, 6.6]].forEach(([x, y]) => box(jumpArea, 1, .4, .1, '#ffffff', JX + x, y, -2.2, false));
+moonBlock(jumpArea, 4.4, 4.4, JX + 2.6, 0);
+backdrop(JX + 2.6, '#1a1d3d');
+for (let i = 0; i < 14; i++) box(jumpArea, .08, .08, .05, '#ffffff', JX + 2.6 + (Math.random() - .5) * 3.8, 1 + Math.random() * 6.4, -2.22, false);
+box(jumpArea, .9, .9, .1, '#e5e7eb', JX + 3.8, 6.4, -2.2, false);                    // moon
+const labE = kit.labelSprite('🌍 โลก', .6); labE.position.set(JX - 2.6, 8.2, -2); jumpArea.add(labE);
+const labM = kit.labelSprite('🌕 ดวงจันทร์', .6); labM.position.set(JX + 2.6, 8.2, -2); jumpArea.add(labM);
+// measuring poles (red/white every 50 cm)
+[JX - 1, JX + 4.2].forEach(px => {
+  for (let i = 0; i < 8; i++) box(jumpArea, .16, .5, .16, i % 2 ? '#ffffff' : '#e63946', px, .25 + i * .5, 0, false);
+});
+const jumpers = [
+  { s: kit.makeSummer(), x: JX - 2.6, g: G_EARTH, text: 'สูง 50 ซม.' },
+  { s: kit.makeSummer(), x: JX + 2.6, g: G_MOON,  text: 'สูง 3 เมตร! 🤩' },
+].map(j => {
+  j.s.g.position.set(j.x, 0, 0); jumpArea.add(j.s.g);
+  j.peak = kit.labelSprite(j.text, .5); j.peak.visible = false; jumpArea.add(j.peak);
+  return Object.assign(j, { y: 0, vy: 0, air: false, peakShown: false });
+});
+function jump() {
+  if (jumpers.some(j => j.air)) return;
+  jumpers.forEach(j => { j.vy = JUMP_V; j.air = true; j.peakShown = false; j.peak.visible = false; });
+  kit.tones([392, 523], .08, 'square', .1);
+  caption('กระโดดแรงเท่ากันนะ ดูสิใครลอยสูงกว่า? 👀', true, 3000);
+}
+function updateJump(dt, time) {
+  jumpers.forEach(j => {
+    if (j.air) {
+      j.vy -= j.g * dt; j.y += j.vy * dt;
+      if (!j.peakShown && j.vy <= 0) {
+        j.peakShown = true; j.peak.visible = true;
+        j.peak.position.set(j.x + (j.g === G_MOON ? 1.6 : -1.6), j.y + 1, .3);
+      }
+      if (j.y <= 0) {
+        j.y = 0; j.vy = 0; j.air = false;
+        if (j.g === G_MOON) {
+          caption('บนดวงจันทร์กระโดดได้สูงกว่าบนโลก 6 เท่า! 🦘', true, 6000);
+          fx.burst(j.x, 2, 0);
+        }
+      }
+    }
+    j.s.g.position.y = j.y;
+    kit.poseSummer(j.s, time, j.air ? 'cheer' : 'idle');
+  });
+}
+
+/* =========================================================
+   Modes, input, main loop
+   ========================================================= */
+const MODES = {
+  drop:   { area: dropArea,   pos: [8, 8.5, 20],      target: [0, 3, 1.5],  intro: 'แตะของที่ห้อยอยู่ เพื่อปล่อยลงมา 👆' },
+  rocket: { area: rocketArea, pos: [RX + 10, 7, 17],  target: [RX, 3.2, 0],   intro: 'กดค้างเติมน้ำมัน แล้วปล่อยจรวด! ⛽' },
+  jump:   { area: jumpArea,   pos: [JX, 4.5, 14],     target: [JX, 2.4, 0], intro: 'กดปุ่มกระโดด! 🦘' },
+};
+let mode = null;
+function setMode(m) {
+  if (mode === 'rocket' && R.state !== 'ground') resetRocket();
+  mode = m;
+  Object.entries(MODES).forEach(([k, v]) => { v.area.visible = k === m; });
+  document.querySelectorAll('.w-mode').forEach(b => b.classList.toggle('on', b.dataset.go === m));
+  document.querySelectorAll('.w-controls').forEach(c => { c.style.display = c.dataset.mode === m ? '' : 'none'; });
+  const M = MODES[m];
+  kit.flyTo(stage, new THREE.Vector3(...M.pos), new THREE.Vector3(...M.target));
+  sun.target.position.set(M.target[0], 0, 0); sun.position.set(M.target[0] + 18, 32, 14);
+  if (m === 'drop') { scene.background.copy(planet === 'moon' ? SKY_SPACE : SKY_EARTH); stars.visible = planet === 'moon'; }
+  else if (m === 'jump') { scene.background.copy(SKY_WARM); stars.visible = false; }
+  else { scene.background.copy(SKY_EARTH); stars.visible = false; }
+  caption(M.intro);
+}
+document.querySelectorAll('.w-mode').forEach(b => b.addEventListener('click', () => setMode(b.dataset.go)));
+document.getElementById('earthBtn').onclick = () => setPlanet('earth');
+document.getElementById('moonBtn').onclick = () => setPlanet('moon');
+document.getElementById('dropAllBtn').onclick = dropAll;
+document.getElementById('resetDropBtn').onclick = () => { hangAll(); caption('เก็บของขึ้นไปแล้ว ลองใหม่! 👆', false); };
+launchBtn.onclick = launch;
+rocketResetBtn.onclick = resetRocket;
+document.getElementById('jumpBtn').onclick = jump;
+const infoModal = document.getElementById('infoModal');
+document.getElementById('infoBtn').onclick = () => infoModal.classList.add('show');
+document.getElementById('infoClose').onclick = () => infoModal.classList.remove('show');
+
+// Tap a hanging object to drop it (a drag rotates the camera instead)
+const raycaster = new THREE.Raycaster(), ndc = new THREE.Vector2();
+const canvas = stage.renderer.domElement;
+let press = null;
+canvas.addEventListener('pointerdown', e => { press = { x: e.clientX, y: e.clientY, t: performance.now() }; });
+canvas.addEventListener('pointerup', e => {
+  if (!press) return;
+  const tap = Math.hypot(e.clientX - press.x, e.clientY - press.y) < 10 && performance.now() - press.t < 500;
+  press = null;
+  if (!tap || mode !== 'drop') return;
+  ndc.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
+  raycaster.setFromCamera(ndc, camera);
+  const hit = raycaster.intersectObjects(DROP.map(o => o.g), true)[0];
+  if (hit) drop(hit.object.userData.dropObj);
+  else if (raycaster.intersectObject(towerSummer.g, true).length) { fx.burst(0, 8, -.6, ['#ff8fbf']); caption('ฮิฮิ 😊', false, 1200); }
+});
+
+camera.position.set(8, 8.5, 20); controls.target.set(0, 3, 1.5);
+setMode('drop');
+showFuel();
+stage.start((dt, time) => {
+  if (mode === 'drop') updateDrop(dt, time);
+  if (mode === 'rocket') updateRocket(dt, time);
+  if (mode === 'jump') updateJump(dt, time);
+  fx.update(dt);
+  stars.position.copy(camera.position);   // the star dome travels with the camera
+  for (let i = puffs.length - 1; i >= 0; i--) {
+    const p = puffs[i];
+    p.m.position.x += p.vx * dt; p.m.position.y += p.vy * dt; p.m.position.z += p.vz * dt;
+    p.life -= dt; p.m.scale.setScalar(p.size * (.4 + p.life / p.max));
+    if (p.life <= 0) { scene.remove(p.m); puffs.splice(i, 1); }
+  }
+});
+window.__worldReady = true;
+</script>
 </body>
 </html>

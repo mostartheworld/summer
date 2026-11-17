@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌟 Summer's World — Menu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  :root {
+    --dark: #12132a;
+    --dark2: #1e1f3a;
+    --cream: #FFF8E8;
+    --yellow: #FFD93D;
+    --pink: #FF6B9D;
+    --blue: #4ECDC4;
+    --purple: #A06CD5;
+    --green: #95E06C;
+    --orange: #FF9F1C;
+  }
+
+  html, body {
+    min-height: 100vh;
+    font-family: 'Fredoka', 'Noto Sans Thai', sans-serif;
+    background: var(--dark);
+    overflow-x: hidden;
+    padding-bottom: 88px;
+  }
+
+  /* ── ANIMATED BACKGROUND ── */
+  .bg-canvas {
+    position: fixed; inset: 0; z-index: 0;
+    background: radial-gradient(ellipse at 20% 20%, #2d1b69 0%, transparent 55%),
+                radial-gradient(ellipse at 80% 80%, #1a3a5c 0%, transparent 55%),
+                radial-gradient(ellipse at 50% 50%, #1f2037 0%, transparent 70%),
+                linear-gradient(135deg, #12132a 0%, #1e1f3a 100%);
+    overflow: hidden;
+  }
+  .blob {
+    position: absolute; border-radius: 50%;
+    animation: float-blob ease-in-out infinite;
+    opacity: 0.12; filter: blur(70px);
+  }
+  @keyframes float-blob {
+    0%,100% { transform: translate(0,0) scale(1); }
+    33%      { transform: translate(40px,-50px) scale(1.12); }
+    66%      { transform: translate(-30px,25px) scale(.9); }
+  }
+
+  /* ── STARS ── */
+  .stars { position: fixed; inset: 0; pointer-events: none; z-index: 1; }
+  .star {
+    position: absolute;
+    animation: twinkle ease-in-out infinite;
+  }
+  @keyframes twinkle {
+    0%,100% { opacity: 0.3; transform: scale(1); }
+    50%      { opacity: 1;   transform: scale(1.6); }
+  }
+
+  /* ── PAGE ── */
+  .page { position: relative; z-index: 2; max-width: 560px; margin: 0 auto; padding-bottom: 32px; }
+
+  /* ── HERO ── */
+  .hero {
+    text-align: center;
+    padding: 44px 20px 36px;
+    position: relative;
+  }
+  .hero-glow {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at center 30%, rgba(255,215,61,.13) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  .sun-wrap {
+    position: relative; display: inline-block;
+    margin-bottom: 16px;
+  }
+  .sun {
+    font-size: 84px; display: block; line-height: 1;
+    animation: spin-slow 12s linear infinite;
+    filter: drop-shadow(0 0 28px rgba(255,215,61,.8)) drop-shadow(0 0 60px rgba(255,160,0,.4));
+  }
+  @keyframes spin-slow { to { transform: rotate(360deg); } }
+  .sun-ring {
+    position: absolute; inset: -10px;
+    border: 3px dashed rgba(255,215,61,.35);
+    border-radius: 50%;
+    animation: spin-slow 22s linear infinite reverse;
+  }
+  .sun-ring2 {
+    position: absolute; inset: -22px;
+    border: 1.5px solid rgba(255,215,61,.15);
+    border-radius: 50%;
+    animation: spin-slow 30s linear infinite;
+  }
+
+  .greeting {
+    font-size: 15px; font-weight: 600;
+    color: rgba(255,255,255,.55);
+    letter-spacing: 1px; margin-bottom: 8px;
+  }
+  h1 {
+    font-family: 'Bungee', cursive;
+    font-size: clamp(32px, 9vw, 56px);
+    color: white;
+    text-shadow: 0 0 50px rgba(255,215,61,.45), 4px 4px 0 var(--pink);
+    letter-spacing: 3px; line-height: 1.1;
+    margin-bottom: 12px;
+  }
+  .tagline {
+    font-size: 16px; color: rgba(255,255,255,.7); font-weight: 600;
+    margin-bottom: 22px;
+  }
+  .badge-row { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+  .badge {
+    background: rgba(255,255,255,.1);
+    color: rgba(255,255,255,.85);
+    border: 1.5px solid rgba(255,255,255,.2);
+    padding: 5px 14px; border-radius: 20px;
+    font-family: 'Bungee', cursive; font-size: 11px; letter-spacing: 1.5px;
+    backdrop-filter: blur(10px);
+  }
+
+  /* ── SECTION TITLE ── */
+  .section-wrap { padding: 0 16px; margin: 20px 0 12px; }
+  .section-title {
+    font-family: 'Bungee', cursive;
+    font-size: 11px; letter-spacing: 3px;
+    color: rgba(255,255,255,.45);
+    text-transform: uppercase;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-title::after {
+    content: ''; flex: 1; height: 1px;
+    background: rgba(255,255,255,.12);
+  }
+
+  /* ── CARD GRID ── */
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 16px; }
+
+  /* ── CARD ── */
+  /* Which pages are already in the new island style (2026-11 revamp) */
+  .done-badge {
+    position: absolute; top: 10px; right: 10px; z-index: 2;
+    font-size: 12px; font-weight: 800; padding: 3px 9px; border-radius: 999px;
+    background: #fff; color: #c77c00; box-shadow: 0 2px 0 rgba(0,0,0,.12);
+  }
+  .done-badge.shell { color: #2b8a5a; }
+  .done-legend { font-size: 14px; font-weight: 700; color: #fff; opacity: .85; padding: 0 16px; margin-top: 4px; }
+  .card {
+    text-decoration: none; border-radius: 22px;
+    padding: 20px 16px 42px;
+    display: flex; flex-direction: column;
+    position: relative; overflow: hidden;
+    border: 1.5px solid rgba(255,255,255,.18);
+    transition: transform .15s ease, box-shadow .15s ease;
+    animation: card-in .5s ease both;
+  }
+  @keyframes card-in {
+    from { opacity: 0; transform: translateY(24px) scale(.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .card::before {
+    content: ''; position: absolute; inset: 0;
+    background: rgba(255,255,255,.06);
+    opacity: 0; transition: opacity .15s;
+  }
+  .card:hover  { transform: translateY(-4px) scale(1.02); box-shadow: 0 20px 50px rgba(0,0,0,.4); }
+  .card:hover::before { opacity: 1; }
+  .card:active { transform: scale(.96); box-shadow: 0 4px 12px rgba(0,0,0,.2); }
+
+  /* color themes */
+  .c-pink   { background: linear-gradient(145deg, #e84d8a 0%, #ff9f4d 100%); }
+  .c-gold   { background: linear-gradient(145deg, #e6a117 0%, #ffd93d 100%); }
+  .c-purple { background: linear-gradient(145deg, #5a56e0 0%, #c855f7 100%); }
+  .c-teal   { background: linear-gradient(145deg, #0a8a7e 0%, #2dd4bf 100%); }
+  .c-coin   { background: linear-gradient(145deg, #c97c0a 0%, #fbbf24 100%); }
+  .c-green   { background: linear-gradient(145deg, #15803d 0%, #4ade80 100%); }
+  .c-rainbow { background: linear-gradient(145deg, #FF2A2A 0%, #FF9F1C 45%, #1A40FF 100%); }
+  .c-space  { background: linear-gradient(145deg, #312e81 0%, #7c3aed 60%, #06b6d4 100%); }
+  .c-farm   { background: linear-gradient(145deg, #15803d 0%, #22c55e 60%, #86efac 100%); }
+  .c-satit  { background: linear-gradient(145deg, #1d4ed8 0%, #60a5fa 55%, #22c55e 120%); }
+  .c-sara   { background: linear-gradient(145deg, #f97316 0%, #fb7185 55%, #fde047 120%); }
+  .c-clock  { background: linear-gradient(145deg, #2563eb 0%, #7c3aed 55%, #ec4899 100%); }
+  .c-math   { background: linear-gradient(145deg, #f97316 0%, #eab308 100%); }
+
+  .card-icon {
+    font-size: 46px; line-height: 1; margin-bottom: 10px;
+    filter: drop-shadow(0 6px 10px rgba(0,0,0,.25));
+    animation: card-bounce 2.8s ease-in-out infinite;
+  }
+  @keyframes card-bounce {
+    0%,100% { transform: translateY(0) rotate(0deg); }
+    50%      { transform: translateY(-6px) rotate(4deg); }
+  }
+  .card:nth-child(1) .card-icon { animation-delay:  .0s; }
+  .card:nth-child(2) .card-icon { animation-delay:  .4s; }
+  .card:nth-child(3) .card-icon { animation-delay:  .8s; }
+  .card:nth-child(4) .card-icon { animation-delay: 1.2s; }
+  .card:nth-child(5) .card-icon { animation-delay: 1.6s; }
+  .card:nth-child(6) .card-icon { animation-delay: 2.0s; }
+  .card:nth-child(7) .card-icon { animation-delay: 2.4s; }
+  .card:nth-child(8) .card-icon { animation-delay: 2.8s; }
+  .card:nth-child(9) .card-icon { animation-delay: 3.2s; }
+
+  .card-name-th { font-size: 17px; color: white; font-weight: 700; line-height: 1.25; margin-bottom: 2px; }
+  .card-name-en { font-family: 'Bungee', cursive; font-size: 9.5px; color: rgba(255,255,255,.65); letter-spacing: 1.5px; margin-bottom: 6px; }
+  .card-desc    { font-size: 11.5px; color: rgba(255,255,255,.82); line-height: 1.45; -webkit-text-stroke: 0.5px rgba(0,0,0,.5); paint-order: stroke fill; }
+
+  .card-arrow {
+    position: absolute; bottom: 14px; right: 16px;
+    font-size: 22px; color: rgba(255,255,255,.45);
+    transition: transform .15s;
+  }
+  .card:hover .card-arrow { transform: translate(3px, 0); color: rgba(255,255,255,.7); }
+
+  /* Wide card — spans full width, horizontal layout */
+  .card-wide {
+    grid-column: 1 / -1;
+    flex-direction: row; align-items: center; gap: 18px;
+    padding: 18px 20px;
+  }
+  .card-wide .card-icon { font-size: 48px; margin-bottom: 0; flex-shrink: 0; }
+  .card-wide .card-info { flex: 1; }
+  .card-wide .card-name-th { font-size: 18px; }
+  .card-wide .card-desc  { font-size: 12px; }
+  .card-wide .card-arrow { position: static; margin-left: auto; flex-shrink: 0; }
+
+  /* stagger entrance */
+  .card:nth-child(1) { animation-delay: .06s; }
+  .card:nth-child(2) { animation-delay: .12s; }
+  .card:nth-child(3) { animation-delay: .18s; }
+  .card:nth-child(4) { animation-delay: .24s; }
+  .card:nth-child(5) { animation-delay: .30s; }
+  .card:nth-child(6) { animation-delay: .36s; }
+  .card:nth-child(7) { animation-delay: .42s; }
+  .card:nth-child(8) { animation-delay: .48s; }
+  .card:nth-child(9) { animation-delay: .54s; }
+
+  /* ── FILTER TABS ── */
+  .filter-btn {
+    font-family: 'Fredoka', 'Noto Sans Thai', sans-serif;
+    font-size: 13px; font-weight: 700;
+    color: rgba(255,255,255,.65);
+    background: rgba(255,255,255,.08);
+    border: 1.5px solid rgba(255,255,255,.15);
+    border-radius: 20px;
+    padding: 8px 16px; min-height: 40px;
+    cursor: pointer;
+    transition: background .15s, color .15s, border-color .15s;
+  }
+  .filter-btn:active { transform: scale(.96); }
+  .filter-btn.active {
+    background: var(--yellow);
+    color: var(--dark);
+    border-color: var(--yellow);
+  }
+
+  /* ── BOTTOM NAV ── */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(18,19,42,.92);
+    backdrop-filter: blur(24px) saturate(180%);
+    border-top: 1px solid rgba(255,255,255,.08);
+    padding: 6px 10px env(safe-area-inset-bottom, 8px);
+    display: flex; align-items: flex-end; gap: 6px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .bottom-nav::-webkit-scrollbar { display: none; }
+  .nav-item {
+    text-decoration: none;
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    padding: 6px 10px 4px; border-radius: 14px;
+    transition: background .15s, transform .15s;
+    color: rgba(255,255,255,.38);
+    min-width: 52px; min-height: 56px; justify-content: center;
+    flex: 0 0 auto;
+  }
+  .nav-item:hover { background: rgba(255,255,255,.08); color: rgba(255,255,255,.8); transform: translateY(-2px); }
+  .nav-item:active { transform: scale(.92); }
+  .nav-icon  { font-size: 22px; line-height: 1; }
+  .nav-label { font-size: 9px; font-weight: 700; letter-spacing: .3px; white-space: nowrap; }
+
+  .nav-item.is-home {
+    color: var(--yellow);
+  }
+  .nav-item.is-home .nav-icon {
+    font-size: 28px;
+    filter: drop-shadow(0 0 8px rgba(255,215,61,.6));
+  }
+  .nav-pill {
+    background: rgba(255,215,61,.15);
+    border-radius: 14px;
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    text-align: center; padding: 28px 16px 8px;
+    color: rgba(255,255,255,.25); font-size: 12px; font-weight: 600;
+  }
+  .heart { display: inline-block; animation: heartbeat 1.2s ease-in-out infinite; }
+  @keyframes heartbeat { 0%,100%{transform:scale(1)} 50%{transform:scale(1.35)} }
+
+  @media (max-width: 380px) {
+    .grid { gap: 10px; padding: 0 12px; }
+    h1 { font-size: 30px; }
+    .sun { font-size: 68px; }
+    .nav-item { min-width: 46px; padding: 6px 6px 4px; }
+    .nav-label { font-size: 8px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-canvas" id="bgCanvas"></div>
+<div class="stars" id="stars"></div>
+
+<div class="page">
+
+  <!-- ── HERO ── -->
+  <div class="hero">
+    <div class="hero-glow"></div>
+    <div class="sun-wrap">
+      <div class="sun">☀️</div>
+      <div class="sun-ring"></div>
+      <div class="sun-ring2"></div>
+    </div>
+    <div class="greeting" id="greeting">Hello!</div>
+    <h1>SUMMER'S<br>WORLD</h1>
+    <div class="tagline">Fun learning adventures for Summer 🌈</div>
+    <div class="badge-row">
+      <div class="badge">🎮 GAMES</div>
+      <div class="badge">📚 LEARN</div>
+      <div class="badge">🔬 STEM</div>
+    </div>
+  </div>
+
+  <!-- ── FILTER TABS ── -->
+  <div class="section-wrap" style="margin-bottom: 8px;">
+    <div class="filter-tabs" style="display:flex; gap:8px; padding:0 16px; flex-wrap:wrap;">
+      <button onclick="filterCards('all')" class="filter-btn active" id="filter-all">ทั้งหมด</button>
+      <button onclick="filterCards('game')" class="filter-btn" id="filter-game">🎮 Games</button>
+      <button onclick="filterCards('learn')" class="filter-btn" id="filter-learn">📚 Learn</button>
+      <button onclick="filterCards('parent')" class="filter-btn" id="filter-parent">👨‍👩‍👧 Parent</button>
+    </div>
+  </div>
+
+  <!-- ── KIDS SECTION ── -->
+  <div class="section-wrap">
+    <div class="section-title">🎮 Summer's Activities</div>
+    <div class="done-legend">✨ 3D ใหม่ = ทำใหม่เป็นฉาก 3D แล้ว · 🏝️ ธีมเกาะ = เนื้อหาเดิม + ธีมเกาะ 3D</div>
+  </div>
+  <div class="grid" id="activity-grid">
+
+    <a href="index.html" class="card c-farm card-wide" data-cat="game">
+      <div class="card-icon">🗺️</div>
+      <div class="card-info">
+        <div class="card-name-th">กลับไปแผนที่โลกของ Summer</div>
+        <div class="card-name-en">WORLD MAP</div>
+        <div class="card-desc">เดินสำรวจเมือง เข้าไปเล่นตามบ้านต่างๆ เก็บดาว ⭐</div>
+      </div>
+      <div class="card-arrow">→</div>
+    </a>
+
+    <a href="24_question.html" class="card c-pink" data-cat="learn">
+      <span class="done-badge shell">🏝️ ธีมเกาะ</span>
+      <div class="card-icon">🎲</div>
+      <div class="card-name-th">Talk Time with Parents</div>
+      <div class="card-name-en">24 QUESTIONS</div>
+      <div class="card-desc">Pick fun prompts for dinner chat or bedtime talk.</div>
+      <div class="card-arrow">→</div>
+    </a>
+
+    <a href="robot_game.html" class="card c-gold" data-cat="game">
+      <span class="done-badge full">✨ 3D ใหม่</span>
+      <div class="card-icon">🤖</div>
+      <div class="card-name-th">Robot Builder</div>
+      <div class="card-name-en">ROBOT BUILDER</div>
+      <div class="card-desc">แตะชิ้นส่วนให้บินไปต่อเป็นหุ่น ครบ 5 ชิ้นหุ่นตื่นมาเต้น!</div>
+      <div class="card-arrow">→</div>
+    </a>
+
+    <a href="knowledge.html" class="card c-purple" data-cat="learn">
+      <span class="done-badge shell">🏝️ ธีมเกาะ</span>
+      <div class="card-icon">📚</div>
+      <div class="card-name-th">Knowledge Playground</div>
+      <div class="card-name-en">KNOWLEDGE</div>
+      <div class="card-desc">Thai-English vocabulary in 6 themes plus fun math.</div>
+      <div class="card-arrow">→</div>
+    </a>
+
+    <a href="sa_ra.html" class="card c-sara" data-cat="learn">
+      <span class="done-badge shell">🏝️ ธีมเกาะ</span>
+      <div class="card-icon">🗣️</div>
+      <div class="card-name-th">สระ</div>
+      <div class="card-name-en">Sa-ra</div>
+      <div class="card-desc">ฝึกอ่านคำง่ายๆ เช่น กา มา ตา แบบสนุกๆ</div>
+      <div class="card-arrow">→</div>
+    </a>
+
+    <a href="clock_game.html" class="card c-clock" data-cat="game">
+      <span class="done-badge full">✨ 3D ใหม่</span>
+      <div class="card-icon">🕐</div>
+      <div class="card-name-th">นาฬิกา</div>
+      <div class="card-name-en">CLOCK GAME</div>
+      <div class="card-desc">หอนาฬิกา 3D เข็มหมุนได้ ตอบถูกนกกาเหว่าโผล่!</div>
+      <div class="card-arrow">→</div>
+    </a>
+
+    <a href="thai_money.html" class="card c-coin" data-cat="learn">
+      <span class="done-badge full">✨ 3D ใหม่</span>
+      <div class="card-icon">🪙</div>
+      <div class="card-name-th">Thai Coins</div>
+      <div class="card-name-en">THAI COINS</div>
+      <div class="card-desc">ดูเหรียญ 1-2-5-10 บาทยักษ์ แตะฟังชื่อ แล้วเล่นทายเหรียญ</div>
+      <div class="card-arrow">→</div>
+    </a>
+
+    <a href="chinese.html" class="card c-pink" data-cat="learn">
+      <span class="done-badge shell">🏝️ ธีมเกาะ</span>
+      <div class="card-icon">🀄️</div>
+      <div class="card-name-th">ภาษาจีน</div>
+      <div class="card-name-en">CHINESE</div>
+      <div class="card-desc">เรียนตัวอักษรจีนแบบดั้งเดิม + กดฟังเสียงได้เลย</div>
+      <div class="card-arrow">→</div>
+    </a>
+
+    <a href="color_mix.html" class="card c-rainbow" data-cat="game">
+      <span class="done-badge full">✨ 3D ใหม่</span>
+      <div class="card-icon">🎨</div>
+      <div class="card-name-th">Color Mixing</div>
+      <div class="card-name-en">COLOR MIXING</div>
+      <div class="card-desc">หยดสีลงหม้อ คนสี แล้วสาดลงผ้าใบ เก็บสีใหม่ใส่โหล</div>
+      <div class="card-arrow">→</div>
+    </a>
+
+    <a href="gravity.html" class="card c-space" data-cat="learn">
+      <span class="done-badge full">✨ 3D ใหม่</span>
+      <div class="card-icon">🚀</div>
+      <div class="card-name-th">แรงโน้มถ่วง</div>
+      <div class="card-name-en">GRAVITY</div>
+      <div class="card-desc">ทิ้งของ โลก vs ดวงจันทร์ · ปล่อยจรวด · กระโดดบนดวงจันทร์</div>
+      <div class="card-arrow">→</div>
+    </a>
+
+    <a href="farm_kid.html" class="card c-farm" data-cat="game">
+      <span class="done-badge shell">🏝️ ธีมเกาะ</span>
+      <div class="card-icon">🌾</div>
+      <div class="card-name-th">ฟาร์มฝึกคิด</div>
+      <div class="card-name-en">FARM QUIZ</div>
+      <div class="card-desc">ฝึกคิดสนุกๆ ผ่านโจทย์พื้นฐานแบบเป็นมิตร</div>
+      <div class="card-arrow">→</div>
+    </a>
+
+    <a href="satit_exam.html" class="card c-purple" data-cat="learn">
+      <span class="done-badge full">🧊 รูปทรง+ลากเส้น 3D</span>
+      <div class="card-icon">📝</div>
+      <div class="card-name-th">ตะลุยสาธิต</div>
+      <div class="card-name-en">SATIT DRILL</div>
+      <div class="card-desc">ลุยโจทย์จริงหลายหมวด แบบท้าทายขึ้นทีละขั้น</div>
+      <div class="card-arrow">→</div>
+    </a>
+
+    <a href="pay_money.html" class="card c-teal" data-cat="game">
+      <span class="done-badge full">✨ 3D ใหม่</span>
+      <div class="card-icon">🛒</div>
+      <div class="card-name-th">Pay & Shop</div>
+      <div class="card-name-en">PAY & SHOP</div>
+      <div class="card-desc">หยอดเหรียญจ่ายที่ร้าน ได้เงินทอนกลับมาจริงๆ</div>
+      <div class="card-arrow">→</div>
+    </a>
+
+    <a href="math_2digit.html" class="card c-math" data-cat="learn">
+      <span class="done-badge full">✨ 3D ใหม่</span>
+      <div class="card-icon">🔢</div>
+      <div class="card-name-th">บวกลบสองหลัก</div>
+      <div class="card-name-en">MATH GAME</div>
+      <div class="card-desc">บล็อกสิบ 🟦 บล็อกหนึ่ง 🟥 รวมกัน/หักออกให้เห็นจริง 3 ระดับ</div>
+      <div class="card-arrow">→</div>
+    </a>
+
+  </div>
+
+  <!-- ── PARENT SECTION ── -->
+  <div class="section-wrap">
+    <div class="section-title">👨‍👩‍👧 Parent Tools</div>
+  </div>
+  <div class="grid">
+
+    <a href="school_dashboard.html" class="card c-green card-wide" data-cat="parent">
+      <div class="card-icon">🏫</div>
+      <div class="card-info">
+        <div class="card-name-th">Primary 1 School Comparison</div>
+        <div class="card-name-en">SCHOOL DASHBOARD · เปรียบเทียบโรงเรียน ป.1</div>
+        <div class="card-desc">Charts, tuition, and side-by-side comparison of 4 schools.</div>
+      </div>
+      <div class="card-arrow">→</div>
+    </a>
+
+    <a href="prepare-for-my-child-rp-viva-interview.html" class="card c-purple card-wide" data-cat="parent">
+      <div class="card-icon">🎭</div>
+      <div class="card-info">
+        <div class="card-name-th">เตรียมลูกสอบ RP / Viva / สัมภาษณ์</div>
+        <div class="card-name-en">PRE ACP • เตรียมสอบอัสสัมชัญ</div>
+        <div class="card-desc">คู่มือคุณแม่เตรียมลูกสอบ Role Play, Viva, Interview (จากภาพกลุ่มผู้ปกครองทั้งหมด)</div>
+      </div>
+      <div class="card-arrow">→</div>
+    </a>
+
+  </div>
+
+  <div class="footer">
+    Made with love <span class="heart">❤️</span> for Summer · 2025
+  </div>
+
+</div>
+
+<!-- ── BOTTOM NAV ── -->
+<nav class="bottom-nav">
+  <a href="index.html" class="nav-item is-home nav-pill">
+    <span class="nav-icon">🗺️</span>
+    <span class="nav-label">Map</span>
+  </a>
+  <a href="24_question.html" class="nav-item">
+    <span class="nav-icon">🎲</span>
+    <span class="nav-label">Questions</span>
+  </a>
+  <a href="robot_game.html" class="nav-item">
+    <span class="nav-icon">🤖</span>
+    <span class="nav-label">Robot</span>
+  </a>
+  <a href="knowledge.html" class="nav-item">
+    <span class="nav-icon">📚</span>
+    <span class="nav-label">Learn</span>
+  </a>
+  <a href="sa_ra.html" class="nav-item">
+    <span class="nav-icon">🗣️</span>
+    <span class="nav-label">Sa-ra</span>
+  </a>
+  <a href="clock_game.html" class="nav-item">
+    <span class="nav-icon">🕐</span>
+    <span class="nav-label">Clock</span>
+  </a>
+  <a href="thai_money.html" class="nav-item">
+    <span class="nav-icon">🪙</span>
+    <span class="nav-label">Coins</span>
+  </a>
+  <a href="pay_money.html" class="nav-item">
+    <span class="nav-icon">🛒</span>
+    <span class="nav-label">Pay</span>
+  </a>
+  <a href="color_mix.html" class="nav-item">
+    <span class="nav-icon">🎨</span>
+    <span class="nav-label">Colors</span>
+  </a>
+  <a href="gravity.html" class="nav-item">
+    <span class="nav-icon">🚀</span>
+    <span class="nav-label">Gravity</span>
+  </a>
+  <a href="farm_kid.html" class="nav-item">
+    <span class="nav-icon">🌾</span>
+    <span class="nav-label">Farm</span>
+  </a>
+  <a href="satit_exam.html" class="nav-item">
+    <span class="nav-icon">📝</span>
+    <span class="nav-label">Drill</span>
+  </a>
+  <a href="math_2digit.html" class="nav-item">
+    <span class="nav-icon">🔢</span>
+    <span class="nav-label">Math</span>
+  </a>
+  <a href="school_dashboard.html" class="nav-item">
+    <span class="nav-icon">🏫</span>
+    <span class="nav-label">Schools</span>
+  </a>
+</nav>
+
+<script>
+  // Filter tabs
+  function filterCards(cat) {
+    document.querySelectorAll('.filter-btn').forEach(function(btn) {
+      btn.classList.toggle('active', btn.id === 'filter-' + cat);
+    });
+    document.querySelectorAll('.card[data-cat]').forEach(function(card) {
+      card.style.display = (cat === 'all' || card.dataset.cat === cat) ? '' : 'none';
+    });
+  }
+
+  // Time-based greeting (English-first)
+  const h = new Date().getHours();
+  document.getElementById('greeting').textContent =
+    h < 12 ? '☀️ Good morning!' :
+    h < 17 ? '🌤️ Good afternoon!' :
+    h < 20 ? '🌆 Good evening!' :
+             '🌙 Good night!';
+
+  // Background blobs
+  const canvas = document.getElementById('bgCanvas');
+  const blobColors = ['#FF6B9D','#FFD93D','#4ECDC4','#A06CD5','#95E06C','#FF9F1C','#6366f1','#ec4899'];
+  for (let i = 0; i < 10; i++) {
+    const b = document.createElement('div');
+    b.className = 'blob';
+    const s = 180 + Math.random() * 320;
+    b.style.cssText =
+      `width:${s}px;height:${s}px;background:${blobColors[i % blobColors.length]};` +
+      `left:${Math.random()*110-5}%;top:${Math.random()*110-5}%;` +
+      `animation-duration:${16+Math.random()*20}s;animation-delay:${-Math.random()*18}s;`;
+    canvas.appendChild(b);
+  }
+
+  // Stars
+  const starsEl = document.getElementById('stars');
+  const emojis = ['⭐','✨','🌟','💫','⚡','🌠'];
+  for (let i = 0; i < 22; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    s.style.cssText =
+      `left:${Math.random()*100}%;top:${Math.random()*100}%;` +
+      `animation-delay:${(Math.random()*4).toFixed(2)}s;` +
+      `animation-duration:${(2+Math.random()*3).toFixed(2)}s;` +
+      `font-size:${12+Math.random()*14}px;`;
+    starsEl.appendChild(s);
+  }
+</script>
+
+</body>
+</html>
