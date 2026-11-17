@@ -31,6 +31,7 @@
 | `clock_game.html` | ✨3D หอนาฬิกา (นกกาเหว่าออกมาเมื่อตอบถูก) — อ่านเข็มนาฬิกา เต็มชั่วโมง/ครึ่งชั่วโมง 3 โหมด 10 ข้อ/รอบ | ✅ Ready |
 | `math_2digit.html` | ✨3D บวกลบสองหลัก — base-10 blocks ย้าย/หายให้เห็น (🟦=10 🔴=1) visual aid, 3 โหมด (บวก/ลบ/ผสม), 3 ระดับ, 10 ข้อ/รอบ | ✅ Ready |
 | `chinese.html` | ภาษาจีน — เรียนตัวอักษรจีนแบบดั้งเดิม (Traditional Chinese) + กดฟังเสียงอ่านได้ (click-to-speak) | ✅ Ready |
+| `mrbeast_lab.html` | Beast Lab Scanner — แคตตาล็อก MrBeast Lab Swarms 486 ตัว (ข้อมูล `mrbeast/catalog.json` + ภาพ `mrbeast/img/`), ค้นหา/กรอง, เดาจากสีรูปถ่าย, ติ๊กตัวที่มีแล้ว | ✅ Ready |
 
 ## For parents
 
