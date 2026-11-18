@@ -300,18 +300,18 @@ const SPAWN = { x: 18.5, y: 15.5 };
 // Buildings are 3×2 tiles; the door is the tile just below the middle (x+1, y+2)
 const PLACES = [
   { id: 'satit',   href: 'satit_exam.html',  emoji: '📝', th: 'โรงเรียนสาธิต', en: 'EXAM SCHOOL',   desc: 'ลุยโจทย์ฝึกสอบหลายหมวด',       x: 4,  y: 3,  color: '#8ec5f5', roof: '#3f7cc9' },
-  { id: 'library', href: 'knowledge.html',   emoji: '📚', th: 'ห้องสมุด',      en: 'LIBRARY',       desc: 'คำศัพท์ไทย-อังกฤษ 6 หมวด',     x: 10, y: 3,  color: '#d2b4f5', roof: '#8a5cc9' },
+  { id: 'library', href: 'knowledge.html',   emoji: '📚', th: 'ห้องสมุด',      en: 'LIBRARY',       desc: 'คำศัพท์ไทย-อังกฤษ เก็บดาว',     x: 10, y: 3,  color: '#d2b4f5', roof: '#8a5cc9' },
   { id: 'sara',    href: 'sa_ra.html',       emoji: '🗣️', th: 'บ้านสระ',       en: 'VOWEL HOUSE',   desc: 'ฝึกอ่าน กา มา ตา',             x: 16, y: 3,  color: '#ffc58f', roof: '#e3793a' },
-  { id: 'chinese', href: 'chinese.html',     emoji: '🏮', th: 'ศาลาจีน',       en: 'CHINESE',       desc: 'ตัวอักษรจีน กดฟังเสียงได้',     x: 22, y: 3,  color: '#ffaaa2', roof: '#c9433a' },
-  { id: 'gravity', href: 'gravity.html',     emoji: '🚀', th: 'ฐานจรวด',       en: 'ROCKET BASE',   desc: 'แรงโน้มถ่วง บินไปดวงจันทร์',    x: 28, y: 3,  color: '#b0b5f5', roof: '#4a4fa8' },
+  { id: 'chinese', href: 'chinese.html',     emoji: '🏮', th: 'ศาลาจีน',       en: 'CHINESE',       desc: 'แตะโคมไฟ ฟังเสียงจีน',     x: 22, y: 3,  color: '#ffaaa2', roof: '#c9433a' },
+  { id: 'gravity', href: 'gravity.html',     emoji: '🚀', th: 'ฐานจรวด',       en: 'ROCKET BASE',   desc: 'จรวด ดูดาว ระบบสุริยะ',    x: 28, y: 3,  color: '#b0b5f5', roof: '#4a4fa8' },
   { id: 'clock',   href: 'clock_game.html',  emoji: '🕐', th: 'หอนาฬิกา',      en: 'CLOCK TOWER',   desc: 'อ่านเวลาจากเข็มนาฬิกา',        x: 4,  y: 10, color: '#c5b0f5', roof: '#6d4fc0' },
   { id: 'math',    href: 'math_2digit.html', emoji: '🔢', th: 'บ้านตัวเลข',    en: 'NUMBER HOUSE',  desc: 'บวกลบเลขสองหลัก',             x: 28, y: 10, color: '#ffe080', roof: '#d19a1a' },
   { id: 'talk',    href: '24_question.html', emoji: '🎲', th: 'ลานปิกนิก',     en: 'PICNIC TALK',   desc: 'คุยเล่นกับพ่อแม่ 24 คำถาม',     x: 22, y: 16, color: '#ffbfd8', roof: '#d6538a' },
   { id: 'coins',   href: 'thai_money.html',  emoji: '🪙', th: 'ธนาคารเหรียญ',  en: 'COIN BANK',     desc: 'รู้จักเหรียญ 1 2 5 10 บาท',     x: 4,  y: 19, color: '#ffdc96', roof: '#b8781a' },
   { id: 'shop',    href: 'pay_money.html',   emoji: '🛒', th: 'ร้านค้า',        en: 'SHOP',          desc: 'จ่ายเงิน รับเงินทอน',           x: 10, y: 21, color: '#9fe8da', roof: '#2a9a86' },
   { id: 'farm',    href: 'farm_kid.html',    emoji: '🌾', th: 'ฟาร์มฝึกคิด',   en: 'FARM',          desc: 'โจทย์ฝึกคิดสนุกๆ',             x: 16, y: 21, color: '#f5dea8', roof: '#b5452e' },
-  { id: 'robot',   href: 'robot_game.html',  emoji: '🤖', th: 'โรงงานหุ่นยนต์', en: 'ROBOT FACTORY', desc: 'ประกอบหุ่นยนต์ของตัวเอง',       x: 22, y: 21, color: '#d2dbe6', roof: '#5a6b80' },
-  { id: 'art',     href: 'color_mix.html',   emoji: '🎨', th: 'บ้านศิลปะ',     en: 'ART HOUSE',     desc: 'ผสมสีให้เกิดสีใหม่',            x: 28, y: 19, color: '#ffbcc8', roof: '#d6456a' },
+  { id: 'robot',   href: 'robot_game.html',  emoji: '🤖', th: 'โรงงานหุ่นยนต์', en: 'ROBOT FACTORY', desc: 'ประกอบหุ่น Noob ถึง God',       x: 22, y: 21, color: '#d2dbe6', roof: '#5a6b80' },
+  { id: 'art',     href: 'color_mix.html',   emoji: '🎨', th: 'บ้านศิลปะ',     en: 'ART HOUSE',     desc: 'ผสมสี 4 โหมด',            x: 28, y: 19, color: '#ffbcc8', roof: '#d6456a' },
 ];
 PLACES.forEach(p => { p.w = 3; p.h = 2; p.door = { x: p.x + 1, y: p.y + 2 }; });
 

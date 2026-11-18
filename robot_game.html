@@ -9,10 +9,28 @@
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;600;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="world-theme.css">
 <style>
-  .part-btn { min-width: 0; flex: 1 1 0; padding: 0 8px; font-size: 16px; flex-direction: column; gap: 0; min-height: 64px; line-height: 1.15; }
-  .part-btn .em { font-size: 24px; }
+  /* part buttons: a grid so 12 parts still fit on a phone (2 rows of 6) */
+  #partBtns { display: grid; gap: 6px; }
+  .part-btn { min-width: 0; padding: 0 2px; font-size: 13px; flex-direction: column; gap: 0; min-height: 58px; line-height: 1.1; }
+  .part-btn .em { font-size: 22px; }
   .part-btn:disabled { opacity: .45; }
+  #partBtns.done { display: none; }               /* all parts on → hide the buttons, show the robot */
+  .lvl-btn { padding: 0 16px; }
+  .lv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 6px 0 12px; }
+  .lv-grid button { min-height: 96px; height: auto; width: 100%; border-radius: 22px; flex-direction: column; gap: 2px; font-size: 17px; padding: 8px 4px; white-space: nowrap; }
+  .lv-grid button .em { font-size: 30px; }
+  .lv-grid button small { font-size: 13px; opacity: .75; }
+  .lv-grid button.on { outline: 4px solid var(--orange); }
+  @media (max-width: 520px) {
+    #countPill { display: none; }
+    .w-dock .w-controls { gap: 6px; flex-wrap: nowrap; }
+    .w-dock .w-controls .w-btn, .lvl-btn { padding: 0 12px; }
+    .w-seg button { padding: 0 10px; }
+    .w-dock .w-controls button { white-space: nowrap; }
+    #newBtn { font-size: 26px; } #newBtn .lbl { display: none; }
+  }
   .count { font-weight: 900; color: var(--orange-dark); }
+  .w-seg button { min-width: 0; padding: 0 14px; font-size: 16px; }
   .lesson-em { font-size: 64px; text-align: center; line-height: 1.1; }
   .w-card .en-sub { text-align: center; color: var(--muted); font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; }
   .w-card .fact { background: #fff8e6; border-radius: 16px; padding: 12px; font-weight: 700; text-align: center; }
@@ -35,10 +53,23 @@
 
 <div class="w-dock">
   <div class="w-controls">
-    <div class="w-pill">🔩 <span class="count" id="count">0</span>/5</div>
-    <button class="w-btn" id="newBtn">🎲 หุ่นใหม่</button>
+    <button class="w-btn white lvl-btn" id="levelBtn" title="เลือกระดับ Level">🐣 Noob ▾</button>
+    <div class="w-pill" id="countPill">🔩 <span class="count" id="count">0</span>/<span id="total">5</span></div>
+    <div class="w-seg" title="แตะชิ้นส่วนบนตัวหุ่นแล้วจะ… / Tapping a part on the robot will…">
+      <button id="tapColor" class="on">🎨 สี</button>
+      <button id="tapStyle">🔀 แบบ</button>
+    </div>
+    <button class="w-btn" id="newBtn" title="หุ่นใหม่ New robot">🎲<span class="lbl"> ใหม่</span></button>
   </div>
-  <div class="w-controls" id="partBtns"></div>
+  <div id="partBtns"></div>
+</div>
+
+<div class="w-modal-bg" id="levelPick">
+  <div class="w-card">
+    <h2 style="text-align:center">เลือกระดับ · LEVEL</h2>
+    <p style="text-align:center">ยิ่งเก่ง ชิ้นส่วนยิ่งเยอะ!</p>
+    <div class="lv-grid" id="levels"></div>
+  </div>
 </div>
 
 <div class="w-modal-bg" id="lesson">
@@ -73,9 +104,11 @@
 <script type="module">
 /* =========================================================
    สร้างหุ่นยนต์ (Robot builder)
-   5 parts wait on pedestals. Tap a part (or its button) → it flies onto the robot
-   and a short science card explains it. All 5 → the robot wakes up and dances.
-   Tap a part already on the robot to swap it for another style.
+   Parts wait on pedestals. Tap a part (or its button) → it flies onto the robot
+   and a short science card explains it (first time only). All parts → the robot wakes up and dances.
+   4 levels add more parts: Noob 5 · Pro 7 · Hacker 9 · God 12.
+   Every part gets a random colour; tap a part on the robot for a new random colour
+   (or, with 🔀, the next style).
    ========================================================= */
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -84,12 +117,12 @@ const kit = WorldKit(THREE, OrbitControls);
 const { box } = kit;
 const stage = kit.createStage({ canvas: document.getElementById('world') });
 const { scene, camera, controls } = stage;
-controls.minDistance = 8; controls.maxDistance = 36;
+controls.minDistance = 8; controls.maxDistance = 44;
 controls.minPolarAngle = .4; controls.maxPolarAngle = 1.45;
 kit.bindSoundButton(document.getElementById('soundBtn'));
 kit.bindFadeLinks();
 const fx = kit.createConfetti(scene);
-const floaters = kit.createFloaters(scene, { count: 18, radius: 14, spread: 10, y0: -2 });
+const floaters = kit.createFloaters(scene, { count: 18, radius: 15, spread: 10, y0: -2 });
 
 // ── Caption (+ speech) ──
 const captionEl = document.getElementById('caption');
@@ -100,24 +133,44 @@ function caption(text, say = true, ms = 4500) {
   if (say) kit.speak(text.replace(/[^฀-๿0-9 ]/g, ' '));
 }
 
+// A random colour code — bright enough for a toy (any hue, never grey or too dark)
+function randomColor() {
+  return '#' + new THREE.Color().setHSL(Math.random(), .55 + Math.random() * .4, .5 + Math.random() * .17).getHexString();
+}
+
 /* =========================================================
-   Parts — each slot has 3 styles
+   Parts — each has 3 styles. `at` = where its origin sits on the robot.
    ========================================================= */
 const INK = '#2D3047';
 const PARTS = {
-  head:   { th: 'หัว',     emoji: '🙂', at: [0, 3.7, 0],   lesson: { em: '🔋', th: 'ไฟฟ้า!',      en: 'ELECTRICITY', desc: 'ในหัวหุ่นยนต์มีสมองกล ใช้ไฟฟ้าในการคิด', fact: '⚡ สมองหุ่นยนต์ใช้ไฟฟ้า · A robot brain runs on electricity' } },
-  body:   { th: 'ตัว',     emoji: '👕', at: [0, 1.7, 0],   lesson: { em: '⚙️', th: 'เฟือง!',      en: 'GEARS',       desc: 'ในตัวหุ่นมีเฟืองหมุนช่วยกัน ทำให้หุ่นขยับได้', fact: '⚙️ เฟืองช่วยให้เครื่องจักรขยับ · Gears help machines move' } },
-  armL:   { th: 'แขนซ้าย', emoji: '💪', at: [-1.45, 3.4, 0], lesson: { em: '💪', th: 'คาน!',        en: 'LEVERS',      desc: 'แขนหุ่นทำงานเหมือนคาน แบบเดียวกับแขนเราตอนยกของ', fact: '💪 แขนคือคาน เครื่องกลอย่างง่าย · Arms are levers' } },
-  armR:   { th: 'แขนขวา',  emoji: '🦾', at: [1.45, 3.4, 0],  lesson: { em: '🦾', th: 'มอเตอร์!',     en: 'MOTORS',      desc: 'มอเตอร์หมุนได้ ช่วยให้แขนหุ่นยนต์โบกมือได้', fact: '🔄 มอเตอร์หมุนแล้วทำให้ของขยับ · Motors spin to make things move' } },
-  legs:   { th: 'ขา',      emoji: '🦿', at: [0, 0, 0],     lesson: { em: '🦿', th: 'การเคลื่อนที่!', en: 'MOVEMENT',   desc: 'ขาหรือล้อช่วยให้หุ่นยนต์ไปที่ต่างๆ ได้', fact: '🛞 ล้อช่วยลดแรงเสียดทาน · Wheels reduce friction' } },
+  head:    { th: 'หัว',     emoji: '🙂', at: [0, 3.7, 0],      ped: .45, lesson: { em: '🔋', th: 'ไฟฟ้า!',      en: 'ELECTRICITY', desc: 'ในหัวหุ่นยนต์มีสมองกล ใช้ไฟฟ้าในการคิด', fact: '⚡ สมองหุ่นยนต์ใช้ไฟฟ้า · A robot brain runs on electricity' } },
+  body:    { th: 'ตัว',     emoji: '👕', at: [0, 1.7, 0],      ped: .45, lesson: { em: '⚙️', th: 'เฟือง!',      en: 'GEARS',       desc: 'ในตัวหุ่นมีเฟืองหมุนช่วยกัน ทำให้หุ่นขยับได้', fact: '⚙️ เฟืองช่วยให้เครื่องจักรขยับ · Gears help machines move' } },
+  armL:    { th: 'แขนซ้าย', emoji: '💪', at: [-1.45, 3.4, 0],  ped: .6,  lesson: { em: '💪', th: 'คาน!',        en: 'LEVERS',      desc: 'แขนหุ่นทำงานเหมือนคาน แบบเดียวกับแขนเราตอนยกของ', fact: '💪 แขนคือคาน เครื่องกลอย่างง่าย · Arms are levers' } },
+  armR:    { th: 'แขนขวา',  emoji: '🦾', at: [1.45, 3.4, 0],   ped: .6,  lesson: { em: '🦾', th: 'มอเตอร์!',     en: 'MOTORS',      desc: 'มอเตอร์หมุนได้ ช่วยให้แขนหุ่นยนต์โบกมือได้', fact: '🔄 มอเตอร์หมุนแล้วทำให้ของขยับ · Motors spin to make things move' } },
+  legs:    { th: 'ขา',      emoji: '🦿', at: [0, 0, 0],        ped: .45, lesson: { em: '🦿', th: 'การเคลื่อนที่!', en: 'MOVEMENT',   desc: 'ขาหรือล้อช่วยให้หุ่นยนต์ไปที่ต่างๆ ได้', fact: '🛞 ล้อช่วยลดแรงเสียดทาน · Wheels reduce friction' } },
+  // Pro
+  hat:     { th: 'หมวก',    emoji: '🎩', at: null,             ped: .6,  lesson: { em: '📡', th: 'คลื่นวิทยุ!',  en: 'RADIO WAVES', desc: 'บนหมวกมีเสาอากาศ รับส่งข้อความผ่านอากาศได้ เหมือนวิทยุและโทรศัพท์', fact: '📻 คลื่นวิทยุมองไม่เห็น แต่เดินทางเร็วมาก · Radio waves are invisible and fast' } },
+  jetpack: { th: 'เป้จรวด', emoji: '🚀', at: [0, 2.6, -.8],    ped: .6,  lesson: { em: '🚀', th: 'แรงขับ!',     en: 'THRUST',      desc: 'เป้จรวดพ่นไฟลงข้างล่าง แล้วดันหุ่นยนต์ขึ้นข้างบน', fact: '🔥 พ่นลง ตัวพุ่งขึ้น · Push down, go up' } },
+  // Hacker
+  wings:   { th: 'ปีก',     emoji: '🦅', at: [0, 3.25, -.85],  ped: .4,  lesson: { em: '✈️', th: 'แรงยก!',      en: 'LIFT',        desc: 'ลมที่ไหลผ่านปีกช่วยยกให้ลอยขึ้น เหมือนเครื่องบินและนก', fact: '🕊️ ปีกช่วยให้ลอยได้ · Wings make lift' } },
+  screen:  { th: 'จอโค้ด',  emoji: '💻', at: [-3.1, 3.4, 1.1], ped: .6,  lesson: { em: '💻', th: 'โค้ด!',       en: 'CODING',      desc: 'หุ่นยนต์ทำตามคำสั่งทีละขั้น คำสั่งพวกนี้เรียกว่าโค้ด', fact: '▶ เดินหน้า → เลี้ยว → โบกมือ · Code = steps in order' } },
+  // God
+  halo:    { th: 'วงแหวน',  emoji: '☀️', at: [0, 7.3, 0],      ped: .55, lesson: { em: '☀️', th: 'พลังแสงอาทิตย์!', en: 'SOLAR POWER', desc: 'วงแหวนนี้เป็นแผงโซลาร์ เปลี่ยนแสงแดดเป็นไฟฟ้าให้หุ่นยนต์', fact: '🔆 แสงแดดกลายเป็นไฟฟ้า · Sunlight becomes electricity' } },
+  drone:   { th: 'โดรน',    emoji: '🚁', at: [3.1, 4.7, .9],   ped: .7,  lesson: { em: '🚁', th: 'ใบพัด!',      en: 'PROPELLERS',  desc: 'ใบพัดหมุนเร็วๆ ดันอากาศลงข้างล่าง โดรนเลยลอยได้', fact: '🌀 ใบพัดหมุน โดรนลอย · Spinning blades lift the drone' } },
+  orbit:   { th: 'ดาวบริวาร', emoji: '🪐', at: [0, 2.6, 0],    ped: 1,   lesson: { em: '🪐', th: 'วงโคจร!',     en: 'ORBIT',       desc: 'ดาวจิ๋วบินวนรอบหุ่นยนต์ เหมือนดวงจันทร์วนรอบโลก', fact: '🌍 ดวงจันทร์โคจรรอบโลก · The Moon orbits Earth' } },
 };
-const ORDER = ['head', 'body', 'armL', 'armR', 'legs'];
+const LEVELS = [
+  { id: 'noob',   th: 'มือใหม่',  en: 'Noob',   em: '🐣', parts: ['head', 'body', 'armL', 'armR', 'legs'] },
+  { id: 'pro',    th: 'โปร',     en: 'Pro',    em: '😎', parts: ['head', 'body', 'armL', 'armR', 'legs', 'hat', 'jetpack'] },
+  { id: 'hacker', th: 'แฮกเกอร์', en: 'Hacker', em: '💻', parts: ['head', 'body', 'armL', 'armR', 'legs', 'hat', 'jetpack', 'wings', 'screen'] },
+  { id: 'god',    th: 'เทพ',     en: 'God',    em: '⚡', parts: ['head', 'body', 'armL', 'armR', 'legs', 'hat', 'jetpack', 'wings', 'screen', 'halo', 'drone', 'orbit'] },
+];
+const HEAD_TOP = [1.7, 1.55, 2.05];   // top of each head style → where the hat sits
 const eyeMat = new THREE.MeshBasicMaterial({ color: '#ffffff' });   // eyes light up when the robot wakes
 
-// Every builder returns a group whose origin is where it attaches to the robot
-function makeHead(v) {
+// Every builder returns a group whose origin is where it attaches to the robot. c = its main colour.
+function makeHead(v, c) {
   const g = new THREE.Group();
-  const c = ['#FF6B9D', '#95E06C', '#FF9F1C'][v];
   box(g, .4, .3, .4, '#9aa3b2', 0, .15, 0);                                  // neck
   if (v === 0) {                                                               // square head, two antennas
     box(g, 1.7, 1.4, 1.5, c, 0, 1, 0);
@@ -139,9 +192,8 @@ function makeHead(v) {
   box(g, .6, .1, .06, INK, 0, .65, ez, false);                                 // mouth
   return g;
 }
-function makeBody(v) {
+function makeBody(v, c) {
   const g = new THREE.Group();
-  const c = ['#4ECDC4', '#A06CD5', '#FFD93D'][v];
   box(g, 2.4, 2, 1.6, c, 0, 1, 0);
   if (v === 0) {                                                               // dial + buttons
     box(g, .8, .8, .08, '#FFD93D', -.45, 1.1, .82, false); box(g, .25, .25, .1, INK, -.45, 1.1, .85, false);
@@ -163,9 +215,8 @@ function makeBody(v) {
   g.add(gear); g.userData.gear = gear;
   return g;
 }
-function makeArm(v, side) {
+function makeArm(v, c, side) {
   const g = new THREE.Group();                                                 // origin = shoulder; the arm hangs down
-  const c = ['#A06CD5', '#FF6B9D', '#4ECDC4'][v];
   box(g, .5, .5, .5, '#9aa3b2', 0, 0, 0);
   if (v === 0) {                                                               // two chunky segments
     box(g, .45, .9, .45, c, 0, -.6, 0); box(g, .55, .7, .55, c, 0, -1.35, 0);
@@ -181,9 +232,8 @@ function makeArm(v, side) {
   g.scale.x = side;
   return g;
 }
-function makeLegs(v) {
+function makeLegs(v, c) {
   const g = new THREE.Group();                                                 // origin = floor; top at y ≈ 1.7
-  const c = ['#2D9CDB', '#FF9F1C', '#95E06C'][v];
   box(g, 1.8, .3, 1.2, '#9aa3b2', 0, 1.55, 0);
   g.userData.wheels = [];
   if (v === 0) {                                                               // two legs with boots
@@ -204,21 +254,154 @@ function makeLegs(v) {
   }
   return g;
 }
-function makePart(id, v) {
-  if (id === 'head') return makeHead(v);
-  if (id === 'body') return makeBody(v);
-  if (id === 'armL') return makeArm(v, -1);
-  if (id === 'armR') return makeArm(v, 1);
-  return makeLegs(v);
+function makeHat(v, c) {
+  const g = new THREE.Group();                                                 // origin = bottom of the hat
+  if (v === 0) {                                                               // cap with a little radar dish
+    box(g, 1.5, .35, 1.4, c, 0, .17, 0); box(g, 1.5, .1, .55, c, 0, .05, .9);
+    box(g, .1, .45, .1, INK, 0, .55, 0); box(g, .75, .12, .75, '#FFD93D', 0, .82, 0); box(g, .12, .2, .12, '#FF6B9D', 0, .95, 0);
+  } else if (v === 1) {                                                        // propeller beanie (the propeller spins)
+    box(g, 1.4, .45, 1.4, c, 0, .22, 0); box(g, .9, .2, .9, c, 0, .55, 0); box(g, .1, .3, .1, INK, 0, .78, 0);
+    const prop = new THREE.Group();
+    box(prop, 1.7, .06, .22, '#FFD93D', 0, 0, 0); box(prop, .22, .06, 1.7, '#FF6B9D', 0, 0, 0);
+    prop.position.y = .95; g.add(prop); g.userData.spin = prop;
+  } else {                                                                     // crown with an antenna gem
+    box(g, 1.5, .4, 1.5, c, 0, .2, 0);
+    [[-.55, -.55], [.55, -.55], [-.55, .55], [.55, .55], [0, .6]].forEach(([x, z]) => box(g, .28, .45, .28, '#FFD93D', x, .6, z));
+    box(g, .3, .3, .1, '#4ECDC4', 0, .22, .78, false);
+  }
+  return g;
+}
+function makeJetpack(v, c) {
+  const g = new THREE.Group();                                                 // origin = robot's back; it sticks out behind (−z)
+  const tanks = v === 0 ? [-.38, .38] : v === 1 ? [0] : [-.55, 0, .55];
+  const w = v === 1 ? .9 : v === 0 ? .55 : .42;
+  box(g, 1.5, .9, .2, '#9aa3b2', 0, .1, -.1);                                  // straps plate
+  const flame = new THREE.Group();
+  tanks.forEach(x => {
+    box(g, w, 1.3, .6, c, x, 0, -.5);
+    box(g, w * .8, .2, .5, '#FFD93D', x, .55, -.5);
+    box(g, w * .7, .3, .45, INK, x, -.8, -.5);
+    box(flame, w * .6, .45, .35, '#FF9F1C', x, -1.15, -.5, false);
+    box(flame, w * .35, .35, .2, '#FFD93D', x, -1.45, -.5, false);
+  });
+  if (v === 1) [-.55, .55].forEach(x => box(g, .2, .6, .4, '#FF6B9D', x, -.5, -.5));   // fins
+  flame.visible = false;
+  g.add(flame); g.userData.flame = flame;
+  return g;
+}
+function makeWings(v, c) {
+  const g = new THREE.Group();                                                 // origin = robot's back; two wings hinge here
+  g.userData.sides = [];
+  [-1, 1].forEach(side => {
+    const w = new THREE.Group();
+    w.position.set(side * .35, 0, -.15);
+    if (v === 0) {                                                             // feathery bird wing, steps down
+      [[.7, 1.1], [1.25, .95], [1.8, .75], [2.3, .5]].forEach(([x, h], i) => box(w, .6, h, .16, i % 2 ? '#ffffff' : c, side * x, .25 - i * .08, 0));
+    } else if (v === 1) {                                                      // flat plane wing with a stripe
+      box(w, 2.4, .5, .16, c, side * 1.4, .1, 0); box(w, .5, .2, .18, '#FFD93D', side * 2.3, .1, 0);
+      box(w, 2, .1, .18, INK, side * 1.3, -.08, 0, false);
+    } else {                                                                   // butterfly wing
+      box(w, 1.4, 1.3, .14, c, side * 1, .5, 0); box(w, 1, .9, .14, c, side * .9, -.55, 0);
+      box(w, .4, .4, .16, '#FFD93D', side * 1.2, .55, 0, false); box(w, .3, .3, .16, '#ffffff', side * .9, -.5, 0, false);
+    }
+    g.add(w); g.userData.sides.push({ w, side });
+  });
+  return g;
+}
+// The hologram screen shows a tiny program (drawn into a canvas texture)
+function codeTexture(c) {
+  const cv = document.createElement('canvas'); cv.width = 256; cv.height = 176;
+  const x = cv.getContext('2d');
+  x.fillStyle = '#10223a'; x.fillRect(0, 0, 256, 176);
+  x.font = '700 26px "Fredoka","Noto Sans Thai",sans-serif';
+  ['▶ เดินหน้า 3', '↻ เลี้ยวขวา', '👋 โบกมือ', '💃 เต้น!'].forEach((t, i) => {
+    x.fillStyle = i % 2 ? '#7CFFB2' : c; x.fillText((i + 1) + ' ' + t, 14, 40 + i * 38);
+  });
+  const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+function makeScreen(v, c) {
+  const g = new THREE.Group();                                                 // origin = middle of a floating screen
+  const [w, h] = [[1.8, 1.25], [2.2, 1.25], [1.5, 1.5]][v];
+  box(g, w + .2, h + .2, .12, c, 0, 0, -.04);
+  const face = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: codeTexture(c) }));
+  face.position.z = .03; g.add(face);
+  box(g, .14, .8, .14, '#9aa3b2', 0, -h / 2 - .5, -.05);                       // little stand
+  box(g, .8, .12, .5, c, 0, -h / 2 - .95, 0);
+  g.rotation.y = .45;
+  return g;
+}
+function makeHalo(v, c) {
+  const g = new THREE.Group();                                                 // origin = centre of the ring (it spins)
+  const n = [12, 16, 8][v], r = [1.1, 1.25, 1][v];
+  for (let i = 0; i < n; i++) {
+    const a = i / n * Math.PI * 2;
+    const m = box(g, .42, .12, .42, i % 2 ? c : '#2b4c9b', Math.cos(a) * r, 0, Math.sin(a) * r, false);   // dark tiles = solar cells
+    m.rotation.y = -a;
+  }
+  if (v === 2) for (let i = 0; i < 4; i++) { const a = i / 4 * Math.PI * 2 + .4; box(g, .2, .4, .2, '#FFD93D', Math.cos(a) * r, .25, Math.sin(a) * r, false); }
+  return g;
+}
+function makeDrone(v, c) {
+  const g = new THREE.Group();                                                 // origin = centre of the drone
+  box(g, .8, .32, .8, c, 0, 0, 0); box(g, .3, .2, .1, INK, 0, -.05, .42, false);
+  box(g, .14, .14, .06, v === 1 ? '#FF6B9D' : '#4ef0ff', 0, -.05, .48, false);   // camera light
+  g.userData.rotors = [];
+  const arms = v === 2 ? 6 : 4;
+  for (let i = 0; i < arms; i++) {
+    const a = i / arms * Math.PI * 2 + Math.PI / 4;
+    const ax = Math.cos(a) * .7, az = Math.sin(a) * .7;
+    const arm = box(g, .7, .08, .1, '#9aa3b2', ax / 2, .05, az / 2, false); arm.rotation.y = -a;
+    const rotor = new THREE.Group();
+    box(rotor, .7, .04, .1, v === 1 ? '#FFD93D' : INK, 0, 0, 0, false); box(rotor, .1, .04, .7, v === 1 ? '#FFD93D' : INK, 0, 0, 0, false);
+    rotor.position.set(ax, .14, az); g.add(rotor); g.userData.rotors.push(rotor);
+  }
+  return g;
+}
+function makeOrbit(v, c) {
+  const g = new THREE.Group();                                                 // origin = robot's middle; little planets circle it
+  const ring = new THREE.Group(); g.add(ring);
+  const cols = [c, '#FFD93D', '#ffffff', '#FF9F1C'];
+  const sizes = [[.6, .45, .35], [.5, .5, .5, .5], [.8, .35]][v];
+  ring.userData.planets = sizes.map((s, i) => {
+    const p = new THREE.Group();
+    box(p, s, s, s, cols[i % cols.length], 0, 0, 0);
+    if (v === 2 && i === 0) box(p, s * 1.8, .08, s * 1.8, '#FFD93D', 0, 0, 0, false);   // a ringed planet
+    p.userData.a = i / sizes.length * Math.PI * 2;
+    ring.add(p); return p;
+  });
+  g.userData.ring = ring;
+  setOrbitRadius(g, .6);
+  return g;
+}
+function setOrbitRadius(g, r) {
+  g.userData.r = r;
+  g.userData.ring.userData.planets.forEach((p, i) => p.position.set(Math.cos(p.userData.a) * r, Math.sin(p.userData.a * 2) * r * .15, Math.sin(p.userData.a) * r));
+}
+function makePart(id, v, c) {
+  switch (id) {
+    case 'head': return makeHead(v, c);
+    case 'body': return makeBody(v, c);
+    case 'armL': return makeArm(v, c, -1);
+    case 'armR': return makeArm(v, c, 1);
+    case 'legs': return makeLegs(v, c);
+    case 'hat': return makeHat(v, c);
+    case 'jetpack': return makeJetpack(v, c);
+    case 'wings': return makeWings(v, c);
+    case 'screen': return makeScreen(v, c);
+    case 'halo': return makeHalo(v, c);
+    case 'drone': return makeDrone(v, c);
+    default: return makeOrbit(v, c);
+  }
 }
 
 /* =========================================================
    The workshop
    ========================================================= */
-box(scene, 16, .4, 12, '#8fd16a', 0, -.2, 0);
-box(scene, 16, 1.2, 12, '#d39a5c', 0, -1, 0);
-box(scene, 14, 1, 10, '#b87e47', 0, -2.1, 0);
-box(scene, 10, .8, 7, '#9b6a3c', 0, -3, 0);
+box(scene, 18, .4, 14, '#8fd16a', 0, -.2, 0);
+box(scene, 18, 1.2, 14, '#d39a5c', 0, -1, 0);
+box(scene, 16, 1, 12, '#b87e47', 0, -2.1, 0);
+box(scene, 11, .8, 8, '#9b6a3c', 0, -3, 0);
 // round-ish turntable the robot stands on
 const turntable = new THREE.Group();
 scene.add(turntable);
@@ -229,73 +412,138 @@ const robot = new THREE.Group();
 robot.position.y = .32;
 turntable.add(robot);
 // workshop props: tool wall + Summer
-box(scene, 7, 4.5, .4, '#e9dcc4', 0, 2.25, -4.6);
-box(scene, 7.4, .3, .6, '#c98a5a', 0, 4.6, -4.6);
+box(scene, 7, 4.5, .4, '#e9dcc4', 0, 2.25, -5.4);
+box(scene, 7.4, .3, .6, '#c98a5a', 0, 4.6, -5.4);
 [[-2.5, 3, '#e63946'], [-1.2, 3.3, '#2D9CDB'], [1.4, 2.9, '#FF9F1C'], [2.6, 3.2, '#95E06C']].forEach(([x, y, c]) => {
-  box(scene, .18, 1.2, .1, '#9aa3b2', x, y, -4.35); box(scene, .5, .35, .14, c, x, y + .7, -4.33);
+  box(scene, .18, 1.2, .1, '#9aa3b2', x, y, -5.15); box(scene, .5, .35, .14, c, x, y + .7, -5.13);
 });
-[-1.7, 1.7].forEach(x => { box(scene, .5, .5, .1, '#9aa3b2', x + .3, 1.5, -4.35); box(scene, .2, .7, .12, '#9aa3b2', x + .3, 1.5, -4.33); });
+[-1.7, 1.7].forEach(x => { box(scene, .5, .5, .1, '#9aa3b2', x + .3, 1.5, -5.15); box(scene, .2, .7, .12, '#9aa3b2', x + .3, 1.5, -5.13); });
 const summer = kit.makeSummer();
-summer.g.position.set(-4.6, 0, 1.2); summer.g.rotation.y = .9;
+summer.g.position.set(-6.8, 0, -2.8); summer.g.rotation.y = 1.1;
 scene.add(summer.g);
 
-// Ghost outlines show where each part goes
+// Ghost outlines show where each part goes: [w, h, d] around the slot (offset from `at`)
 const ghostMat = new THREE.MeshBasicMaterial({ color: '#ffffff', transparent: true, opacity: .35, depthWrite: false });
-const GHOST = { head: [1.7, 1.6, 1.5, 0, 4.6, 0], body: [2.4, 2, 1.6, 0, 2.7, 0], armL: [.55, 2, .55, -1.45, 2.5, 0], armR: [.55, 2, .55, 1.45, 2.5, 0], legs: [1.8, 1.7, 1.2, 0, .85, 0] };
+const GHOST = {
+  head: [1.7, 1.6, 1.5, 0, .9, 0], body: [2.4, 2, 1.6, 0, 1, 0], armL: [.55, 2, .55, 0, -.9, 0], armR: [.55, 2, .55, 0, -.9, 0],
+  legs: [1.8, 1.7, 1.2, 0, .85, 0], hat: [1.5, .7, 1.4, 0, .35, 0], jetpack: [1.2, 1.4, .7, 0, 0, -.45],
+  wings: [4.6, 1.1, .2, 0, .2, -.15], screen: [1.9, 1.3, .15, 0, 0, 0], halo: [2.4, .15, 2.4, 0, 0, 0],
+  drone: [1.4, .35, 1.4, 0, 0, 0], orbit: [.6, .6, .6, 3.4, 0, 0],
+};
 const ghosts = {};
-ORDER.forEach(id => {
-  const [w, h, d, x, y, z] = GHOST[id];
+Object.keys(PARTS).forEach(id => {
+  const [w, h, d] = GHOST[id];
   const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), ghostMat);
-  m.position.set(x, y, z);
+  m.visible = false;
   robot.add(m); ghosts[id] = m;
-});
-
-// Pedestals in front of the robot
-const PED = { head: [-4.4, 3.2], body: [-2.2, 4.2], armL: [0, 4.6], armR: [2.2, 4.2], legs: [4.4, 3.2] };
-const pedestals = {};
-ORDER.forEach(id => {
-  const [x, z] = PED[id];
-  box(scene, 1.4, .7, 1.4, '#f2e6d0', x, .35, z);
-  box(scene, 1.5, .12, 1.5, '#e3793a', x, .72, z);
-  const l = kit.labelSprite(PARTS[id].th, .45); l.position.set(x, 1.15, z + .9); scene.add(l);
-  pedestals[id] = new THREE.Vector3(x, .8, z);
 });
 
 /* =========================================================
    Game state
    ========================================================= */
-const S = { variant: {}, parts: {}, placed: new Set(), awake: false, flights: [] };
-const countEl = document.getElementById('count');
+const save = kit.loadSave();
+const S = {
+  level: LEVELS.find(l => l.id === save.robotLevel) || LEVELS[0],
+  variant: {}, color: {}, parts: {}, placed: new Set(), awake: false, flights: [],
+  tapMode: 'color', seen: new Set(),
+};
+const pedGroup = new THREE.Group(); scene.add(pedGroup);
+const pedestals = {};
+const countEl = document.getElementById('count'), totalEl = document.getElementById('total');
 const partBtns = document.getElementById('partBtns');
-ORDER.forEach(id => {
-  const b = document.createElement('button');
-  b.className = 'w-btn white part-btn'; b.dataset.id = id;
-  b.innerHTML = `<span class="em">${PARTS[id].emoji}</span>${PARTS[id].th}`;
-  b.onclick = () => place(id);
-  partBtns.appendChild(b);
-});
 
-// Where a part sits when it's on the robot / waiting on its pedestal
-function slotPos(id) { return new THREE.Vector3(...PARTS[id].at); }
-function partScaleOnPedestal(id) { return id === 'body' || id === 'legs' || id === 'head' ? .45 : .6; }
+// Where a part's origin sits on the robot (the hat depends on which head style is on)
+function slotPos(id) {
+  if (id === 'hat') return new THREE.Vector3(0, 3.7 + HEAD_TOP[S.variant.head ?? 0], 0);
+  return new THREE.Vector3(...PARTS[id].at);
+}
+function placeGhost(id) {
+  const [, , , gx, gy, gz] = GHOST[id];
+  ghosts[id].position.copy(slotPos(id)).add(new THREE.Vector3(gx, gy, gz));
+}
+
+// Level picker (a popup, so the dock stays small on phones)
+const levelsEl = document.getElementById('levels'), levelPick = document.getElementById('levelPick');
+const levelBtn = document.getElementById('levelBtn');
+LEVELS.forEach(L => {
+  const b = document.createElement('button');
+  b.className = 'w-btn white'; b.dataset.id = L.id;
+  b.innerHTML = `<span class="em">${L.em}</span>${L.en} · ${L.th}<small>${L.parts.length} ชิ้น</small>`;
+  b.onclick = () => {
+    levelPick.classList.remove('show');
+    if (S.level !== L) { S.level = L; kit.writeSave({ robotLevel: L.id }); kit.tones([330, 440, 554], .06); newRobot(); frameCamera(); }
+  };
+  levelsEl.appendChild(b);
+});
+levelBtn.onclick = () => levelPick.classList.add('show');
+levelPick.addEventListener('click', e => { if (e.target === levelPick) levelPick.classList.remove('show'); });
+
+// Pedestals stand on an arc in front of the robot; more parts → a wider arc
+function buildPedestals() {
+  pedGroup.clear();
+  Object.keys(pedestals).forEach(k => delete pedestals[k]);
+  const ids = S.level.parts, n = ids.length;
+  const R = n <= 5 ? 4.6 : 5.6, span = (n <= 5 ? 140 : 200) * Math.PI / 180;
+  const size = n <= 7 ? 1.4 : 1.15;
+  ids.forEach((id, i) => {
+    const a = -span / 2 + span * i / (n - 1);
+    const x = Math.sin(a) * R, z = Math.cos(a) * R + .3;
+    box(pedGroup, size, .7, size, '#f2e6d0', x, .35, z);
+    box(pedGroup, size + .1, .12, size + .1, '#e3793a', x, .72, z);
+    const l = kit.labelSprite(PARTS[id].th, .42);
+    l.position.set(x + Math.sin(a) * .9, 1.1, z + Math.cos(a) * .9); pedGroup.add(l);
+    pedestals[id] = new THREE.Vector3(x, .8, z);
+  });
+}
+function buildPartButtons() {
+  partBtns.innerHTML = '';
+  const n = S.level.parts.length;
+  partBtns.style.gridTemplateColumns = `repeat(${n <= 6 ? n : Math.ceil(n / 2)}, 1fr)`;
+  S.level.parts.forEach(id => {
+    const b = document.createElement('button');
+    b.className = 'w-btn white part-btn'; b.dataset.id = id;
+    b.innerHTML = `<span class="em">${PARTS[id].emoji}</span>${PARTS[id].th}`;
+    b.onclick = () => place(id);
+    partBtns.appendChild(b);
+  });
+}
+
+// Build a part with its current style + colour, tagged so taps find it
+function freshPart(id) {
+  const p = makePart(id, S.variant[id], S.color[id]);
+  p.traverse(m => { m.userData.partId = id; });
+  return p;
+}
+// Put a finished part in its slot on the robot
+function mount(id, p) {
+  robot.add(p);
+  p.position.copy(slotPos(id)); p.scale.setScalar(1);
+  if (id !== 'screen') p.rotation.set(0, 0, 0);
+  if (id === 'orbit') setOrbitRadius(p, 3.4);
+  if (id === 'jetpack' && S.awake) p.userData.flame.visible = true;
+}
 
 function newRobot() {
-  ORDER.forEach(id => { if (S.parts[id]) S.parts[id].parent.remove(S.parts[id]); });
-  S.placed.clear(); S.awake = false; S.flights = []; S.danceT = 0;
+  Object.values(S.parts).forEach(p => p.parent && p.parent.remove(p));
+  S.parts = {}; S.placed.clear(); S.awake = false; S.flights = []; S.danceT = 0;
   eyeMat.color.set('#ffffff');
   turntable.rotation.y = 0; robot.position.y = .32; robot.rotation.set(0, 0, 0);
-  ORDER.forEach(id => {
+  levelsEl.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.id === S.level.id));
+  levelBtn.textContent = `${S.level.em} ${S.level.en} ▾`;
+  partBtns.classList.remove('done');
+  buildPedestals(); buildPartButtons();
+  Object.keys(PARTS).forEach(id => { ghosts[id].visible = false; });
+  S.level.parts.forEach(id => {
     S.variant[id] = Math.floor(Math.random() * 3);
-    const p = makePart(id, S.variant[id]);
-    p.traverse(m => { m.userData.partId = id; });
-    p.position.copy(pedestals[id]); p.scale.setScalar(partScaleOnPedestal(id));
+    S.color[id] = randomColor();
+    const p = freshPart(id);
+    p.position.copy(pedestals[id]); p.scale.setScalar(PARTS[id].ped);
     scene.add(p);
     S.parts[id] = p;
-    ghosts[id].visible = true;
   });
-  document.querySelectorAll('.part-btn').forEach(b => { b.disabled = false; });
-  countEl.textContent = 0;
-  caption('แตะชิ้นส่วน แล้วมันจะบินไปต่อเป็นหุ่นยนต์! 🤖');
+  S.level.parts.forEach(id => { placeGhost(id); ghosts[id].visible = true; });
+  countEl.textContent = 0; totalEl.textContent = S.level.parts.length;
+  caption(`แตะชิ้นส่วน แล้วมันจะบินไปต่อเป็นหุ่นยนต์! มี ${S.level.parts.length} ชิ้น 🤖`);
 }
 
 function place(id) {
@@ -311,15 +559,15 @@ function place(id) {
 
 function attached(f) {
   const { id, p } = f;
-  scene.remove(p); robot.add(p);
-  p.position.copy(slotPos(id)); p.scale.setScalar(1); p.rotation.set(0, 0, 0);
+  scene.remove(p); mount(id, p);
   ghosts[id].visible = false;
   S.placed.add(id);
   countEl.textContent = S.placed.size;
   kit.tones([200, 150], .05, 'square', .12);   // clank!
   fx.burst(...robot.localToWorld(slotPos(id)).toArray(), ['#ffffff', '#FFD93D', '#9aa3b2'], 14);
-  if (S.placed.size === 5) setTimeout(wakeUp, 500);
-  else showLesson(id);
+  if (S.placed.size === S.level.parts.length) { partBtns.classList.add('done'); setTimeout(wakeUp, 500); }
+  else if (!S.seen.has(id)) { S.seen.add(id); showLesson(id); }        // the science card only the first time
+  else caption(`${PARTS[id].th} ${PARTS[id].lesson.th} ${PARTS[id].lesson.fact}`, false, 3000);
 }
 
 const lessonBg = document.getElementById('lesson');
@@ -339,24 +587,37 @@ lessonBg.addEventListener('click', e => { if (e.target === lessonBg) lessonBg.cl
 function wakeUp() {
   S.awake = true; S.danceT = 0;
   eyeMat.color.set('#4ef0ff');
+  if (S.parts.jetpack) S.parts.jetpack.userData.flame.visible = true;
   const banner = document.getElementById('banner');
+  banner.textContent = S.level.id === 'god' ? '⚡ หุ่นยนต์เทพตื่นแล้ว! 🎉' : '🤖 หุ่นยนต์ตื่นแล้ว! 🎉';
   banner.classList.add('show'); setTimeout(() => banner.classList.remove('show'), 3200);
   fx.burst(0, 5, 0); setTimeout(() => fx.burst(0, 4, 0, ['#4ECDC4', '#FFD93D', '#FF6B9D']), 300);
+  if (S.level.id === 'god') setTimeout(() => fx.burst(0, 7, 0, ['#FFD93D', '#ffffff', '#A06CD5'], 60), 700);
   kit.cheer();
-  caption('หุ่นยนต์ตื่นแล้ว! เก่งมาก Summer! แตะชิ้นส่วนบนตัวหุ่นเพื่อเปลี่ยนแบบได้นะ 🎉', true, 7000);
+  setTimeout(() => caption('เก่งมาก Summer! แตะตัวหุ่นเพื่อเปลี่ยนสีได้เรื่อยๆ เลย 🎨', true, 6000), 2600);
 }
 
-// Swap a part on the finished robot for its next style
-function swap(id) {
+// Tap a part on the robot: a brand-new random colour (🎨) or its next style (🔀)
+function restyle(id) {
   const old = S.parts[id];
-  S.variant[id] = (S.variant[id] + 1) % 3;
-  const p = makePart(id, S.variant[id]);
-  p.traverse(m => { m.userData.partId = id; });
-  p.position.copy(old.position);
-  robot.remove(old); robot.add(p); S.parts[id] = p;
+  if (S.tapMode === 'color') S.color[id] = randomColor();
+  else S.variant[id] = (S.variant[id] + 1) % 3;
+  const p = freshPart(id);
+  robot.remove(old); mount(id, p); S.parts[id] = p;
+  if (id === 'head' && S.placed.has('hat')) S.parts.hat.position.copy(slotPos('hat'));   // new head style → hat moves
+  if (id === 'head') placeGhost('hat');
   p.scale.setScalar(.6); S.flights.push({ pop: true, p, t: 0 });
-  kit.tones([523, 784], .05, 'triangle', .12);
+  kit.tones(S.tapMode === 'color' ? [659, 988] : [523, 784], .05, 'triangle', .12);
+  if (S.tapMode === 'color') caption(`🎨 สีใหม่! ${S.color[id].toUpperCase()}`, false, 1800);
 }
+const tapColorBtn = document.getElementById('tapColor'), tapStyleBtn = document.getElementById('tapStyle');
+function setTapMode(m) {
+  S.tapMode = m;
+  tapColorBtn.classList.toggle('on', m === 'color'); tapStyleBtn.classList.toggle('on', m === 'style');
+  caption(m === 'color' ? 'แตะชิ้นส่วนบนตัวหุ่น เพื่อสุ่มสีใหม่' : 'แตะชิ้นส่วนบนตัวหุ่น เพื่อเปลี่ยนแบบ', true, 3000);
+}
+tapColorBtn.onclick = () => setTapMode('color');
+tapStyleBtn.onclick = () => setTapMode('style');
 
 /* =========================================================
    Input + loop
@@ -373,23 +634,30 @@ canvas.addEventListener('pointerup', e => {
   if (!tap) return;
   ndc.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
   raycaster.setFromCamera(ndc, camera);
-  const hit = raycaster.intersectObjects(ORDER.map(id => S.parts[id]), true)[0];
+  const hit = raycaster.intersectObjects(Object.values(S.parts), true)[0];
   if (hit) {
     const id = hit.object.userData.partId;
     if (!S.placed.has(id)) place(id);
-    else if (S.placed.size === 5) swap(id);
+    else if (!S.flights.some(f => f.p === S.parts[id])) restyle(id);
     return;
   }
   if (raycaster.intersectObject(summer.g, true).length) { cheerT = 1.2; kit.tones([660, 880], .07); }
 });
 
+// More parts → the camera steps back a little so every pedestal fits
 const portrait = innerWidth < innerHeight;
+function frameCamera() {
+  const k = { noob: 0, pro: 1, hacker: 1.6, god: 2.4 }[S.level.id];
+  // the target sits below the robot so the scene shows above the button dock
+  const pos = portrait ? new THREE.Vector3(0, 15 + k * 1.2, 30 + k * 2.4) : new THREE.Vector3(1.5, 11 + k, 25 + k * 2);
+  kit.flyTo(stage, pos, new THREE.Vector3(0, portrait ? -.2 : 1.6, 1), 1200);
+}
 camera.position.set(0, 9, 20); controls.target.set(0, 2.5, 0);
-kit.flyTo(stage, portrait ? new THREE.Vector3(0, 14, 31) : new THREE.Vector3(2, 8.5, 19), new THREE.Vector3(0, portrait ? 1.6 : 2.4, 0), 1200);
 newRobot();
+frameCamera();
 
 stage.start((dt, time) => {
-  // parts flying to the robot (or popping after a swap)
+  // parts flying to the robot (or popping after a restyle)
   for (let i = S.flights.length - 1; i >= 0; i--) {
     const f = S.flights[i];
     if (f.pop) {
@@ -408,24 +676,35 @@ stage.start((dt, time) => {
     if (f.t >= 1) { S.flights.splice(i, 1); attached(f); }
   }
   // parts waiting on pedestals bob and turn
-  ORDER.forEach((id, i) => {
+  S.level.parts.forEach((id, i) => {
     const p = S.parts[id];
     if (p && p.parent === scene && !S.flights.some(f => f.p === p)) {
-      p.position.y = pedestals[id].y + Math.sin(time * 2 + i) * .12;
+      p.position.y = pedestals[id].y + (id === 'orbit' || id === 'halo' || id === 'drone' ? .5 : 0) + Math.sin(time * 2 + i) * .12;
       p.rotation.y = time * .8 + i;
     }
   });
   ghostMat.opacity = .2 + Math.sin(time * 3) * .12;
-  // awake robot: turn, bounce, wave, spin gears and wheels
+  // the extra parts are always a little alive: spinning, hovering, orbiting
+  const P = S.parts, speed = S.awake ? 2.5 : 1;
+  if (P.hat && P.hat.userData.spin) P.hat.userData.spin.rotation.y += dt * 8 * speed;
+  if (P.halo) P.halo.rotation.y += dt * .8 * speed;
+  if (P.drone) { P.drone.userData.rotors.forEach(r => { r.rotation.y += dt * 25; }); if (S.placed.has('drone')) P.drone.position.y = PARTS.drone.at[1] + Math.sin(time * 2) * .2; }
+  if (P.orbit) P.orbit.userData.ring.rotation.y += dt * .6 * speed;
+  if (P.screen && S.placed.has('screen')) P.screen.position.y = PARTS.screen.at[1] + Math.sin(time * 1.6 + 1) * .12;
+  if (P.wings) P.wings.userData.sides.forEach(({ w, side }) => { w.rotation.y = side * (S.awake ? Math.sin(time * 8) * .5 : Math.sin(time * 1.5) * .08); });
+  if (P.jetpack && P.jetpack.userData.flame.visible) P.jetpack.userData.flame.scale.y = .8 + Math.random() * .5;
+  // awake robot: turn, bounce, wave, spin gears and wheels (a jetpack lifts it off the turntable)
   if (S.awake) {
     S.danceT += dt;
     turntable.rotation.y += dt * .5;
-    robot.position.y = .32 + Math.abs(Math.sin(S.danceT * 4)) * .25;
-    S.parts.armL.rotation.z = -.4 - Math.abs(Math.sin(S.danceT * 4)) * .9;
-    S.parts.armR.rotation.z = .4 + Math.abs(Math.sin(S.danceT * 4 + 1)) * 1.4;
-    S.parts.head.rotation.z = Math.sin(S.danceT * 4) * .12;
-    S.parts.body.userData.gear.rotation.x += dt * 4;
-    (S.parts.legs.userData.wheels || []).forEach(w => { w.rotation.x += dt * 6; });
+    const lift = S.placed.has('jetpack') ? .8 + Math.sin(S.danceT * 2) * .3 : 0;
+    robot.position.y = .32 + lift + Math.abs(Math.sin(S.danceT * 4)) * .25;
+    P.armL.rotation.z = -.4 - Math.abs(Math.sin(S.danceT * 4)) * .9;
+    P.armR.rotation.z = .4 + Math.abs(Math.sin(S.danceT * 4 + 1)) * 1.4;
+    P.head.rotation.z = Math.sin(S.danceT * 4) * .12;
+    if (P.hat) P.hat.rotation.z = P.head.rotation.z;
+    P.body.userData.gear.rotation.x += dt * 4;
+    (P.legs.userData.wheels || []).forEach(w => { w.rotation.x += dt * 6; });
     eyeMat.color.setHSL(.5, 1, .55 + Math.sin(time * 6) * .15);
   }
   cheerT -= dt;
@@ -433,6 +712,9 @@ stage.start((dt, time) => {
   floaters.update(dt, time);
   fx.update(dt);
 });
+
+// test hooks
+window.__robot = { S, place, restyle, setTapMode, newRobot, pickLevel: id => levelsEl.querySelector(`[data-id="${id}"]`).click() };
 window.__worldReady = true;
 </script>
 </body>

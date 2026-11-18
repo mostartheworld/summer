@@ -1,420 +1,365 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>24 Conversation Questions</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🎲 24 คำถามชวนคุย — Summer's World</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Mali:wght@500;700&family=Noto+Sans+Thai:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="world-theme.css">
 <style>
-  :root {
-    --c1: #00c9b1; --c2: #ffb72b; --c3: #a855f7; --c4: #22c55e; --c5: #f43f8e;
-    --pink: #FF6B9D; --blue: #4ECDC4; --yellow: #FFD93D;
-    --dark: #2D3047; --cream: #FFF8E8; --green: #95E06C;
+  /* The question card sits above the dock */
+  .qcard {
+    position: fixed; left: 50%; bottom: 112px; transform: translateX(-50%) translateY(20px); z-index: 6;
+    width: min(560px, calc(100vw - 24px)); background: #fff; border-radius: 26px; padding: 16px 18px 14px;
+    box-shadow: 0 8px 0 #eee7da, 0 16px 0 #d8cfbf; opacity: 0; pointer-events: none; transition: all .3s;
   }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: 'Fredoka', 'Mali', 'Noto Sans Thai', sans-serif;
-    min-height: 100vh; overflow-x: hidden;
-    background:
-      radial-gradient(circle at 15% 25%, #FFD93D 0%, transparent 45%),
-      radial-gradient(circle at 85% 75%, #FF6B9D 0%, transparent 45%),
-      radial-gradient(circle at 50% 50%, #4ECDC4 0%, transparent 60%),
-      linear-gradient(135deg, #FFE066 0%, #FF9F1C 50%, #4ECDC4 100%);
-  }
-
-  .page { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; padding: 24px 16px 80px; }
-
-  .stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
-  .star { position: absolute; animation: twinkle 3s ease-in-out infinite; }
-  @keyframes twinkle {
-    0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.5; }
-    50%       { transform: scale(1.4) rotate(180deg); opacity: 1; }
-  }
-
-  header { text-align: center; padding: 8px 0 28px; }
-  .logo-emoji { font-size: 64px; display: block; animation: bounce 2s ease-in-out infinite; }
-  @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
-  h1 {
-    font-family: 'Prompt', 'Noto Sans Thai', sans-serif;
-    font-size: clamp(30px, 7vw, 52px); font-weight: 900;
-    background: linear-gradient(135deg, #ff6b9d, #ff8a5b, #ffd020, #22c55e, #00c9b1, #a855f7);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-    line-height: 1.2; margin: 12px 0 8px; letter-spacing: -0.5px;
-  }
-  .sub { font-size: clamp(14px,3vw,17px); color: #7c6d88; font-weight: 500; max-width: 560px; margin: 0 auto; line-height: 1.5; }
-  .deco-row { display: flex; justify-content: center; gap: 10px; margin: 14px 0 0; font-size: 22px; animation: shimmer 3s ease-in-out infinite; }
-  @keyframes shimmer { 0%,100%{opacity:1} 50%{opacity:.6} }
-
-  .picker {
-    background: linear-gradient(135deg, #ff6b9d 0%, #ff8a5b 45%, #ffd020 100%);
-    border-radius: 28px; padding: 26px 22px 22px; margin: 24px 0; text-align: center;
-    box-shadow: 0 8px 32px rgba(255,107,157,.35), 0 2px 8px rgba(0,0,0,.08);
-    position: relative; overflow: hidden;
-  }
-  .picker::before {
-    content: ""; position: absolute; inset: 0;
-    background: radial-gradient(circle at 15% 20%, rgba(255,255,255,.25), transparent 40%),
-                radial-gradient(circle at 85% 85%, rgba(255,255,255,.15), transparent 40%);
-    pointer-events: none;
-  }
-  .picker > * { position: relative; }
-
-  .picker-label { font-size: 13px; font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase; color: rgba(255,255,255,.95); }
-  .picker-display { min-height: 88px; display: flex; align-items: center; justify-content: center; margin: 14px auto 8px; max-width: 600px; }
-  .picker-placeholder { color: rgba(255,255,255,.9); font-size: clamp(15px,3vw,18px); font-weight: 600; }
-  .picker-live { color: #fff; font-size: clamp(19px,3.5vw,26px); font-weight: 800; line-height: 1.45; }
-  .picker-cat-tag { display: inline-block; background: rgba(255,255,255,.28); color: #fff; padding: 4px 14px; border-radius: 999px; font-size: 13px; font-weight: 700; margin-top: 8px; }
-  .picker-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 18px; }
-  .btn { border: none; cursor: pointer; font-family: inherit; font-weight: 800; border-radius: 999px; padding: 13px 24px; font-size: 15px; transition: transform .15s, box-shadow .15s; display: inline-flex; align-items: center; gap: 6px; }
-  .btn-white { background: #fff; color: #d4486f; box-shadow: 0 4px 16px rgba(0,0,0,.18); }
-  .btn-white:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 8px 24px rgba(0,0,0,.22); }
-  .btn-outline { background: rgba(255,255,255,.2); color: #fff; border: 2px solid rgba(255,255,255,.5); }
-  .btn-outline:hover { background: rgba(255,255,255,.32); transform: translateY(-1px); }
-  @keyframes pop { 0%{transform:scale(.88);opacity:0} 70%{transform:scale(1.04)} 100%{transform:scale(1);opacity:1} }
-  .picker-display.animate .picker-live { animation: pop .4s cubic-bezier(.34,1.56,.64,1); }
-
-  .prog-wrap { display: flex; align-items: center; gap: 12px; margin: 0 2px 22px; flex-wrap: wrap; }
-  .prog-label { font-size: 14px; font-weight: 700; color: #6b5e78; white-space: nowrap; }
-  .prog-label span { color: #2a2434; font-size: 18px; }
-  .prog-bar { flex: 1; height: 12px; background: #e8dff0; border-radius: 999px; overflow: hidden; min-width: 120px; }
-  .prog-fill { height: 100%; background: linear-gradient(90deg, #00c9b1, #a855f7); width: 0%; transition: width .5s cubic-bezier(.34,1.2,.64,1); border-radius: 999px; }
-  .btn-reset { background: #fff; border: 2px solid #e8dff0; color: #9b8aab; border-radius: 999px; padding: 7px 16px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all .15s; }
-  .btn-reset:hover { border-color: #c084fc; color: #7c3aed; background: #f5eeff; }
-
-  .tabs { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 12px; margin-bottom: 16px; scrollbar-width: thin; }
-  .tabs::-webkit-scrollbar { height: 4px; }
-  .tabs::-webkit-scrollbar-thumb { background: #d8cce8; border-radius: 4px; }
-  .tab { flex-shrink: 0; border: 2px solid #e8dff0; background: #fff; color: #7c6d88; padding: 9px 16px; border-radius: 999px; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; transition: all .18s; display: inline-flex; align-items: center; gap: 6px; }
-  .tab .cnt { background: #f0e8fb; color: #9b8aab; border-radius: 999px; padding: 1px 9px; font-size: 11px; font-weight: 800; }
-  .tab:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(160,120,220,.18); }
-  .tab.active { background: #2a2434; color: #fff; border-color: #2a2434; }
-  .tab.active .cnt { background: rgba(255,255,255,.2); color: #fff; }
-
-  .group { background: #fff; border-radius: 24px; padding: 22px 18px 18px; margin-bottom: 18px; box-shadow: 0 4px 18px rgba(120,80,160,.08), 0 1px 4px rgba(0,0,0,.04); border: 2px solid transparent; transition: transform .2s; }
-  .group:hover { transform: translateY(-2px); }
-  .group.cat-1 { border-color: #b2f0e8; }
-  .group.cat-2 { border-color: #fde9b0; }
-  .group.cat-3 { border-color: #e4d4fc; }
-  .group.cat-4 { border-color: #bbf5d2; }
-  .group.cat-5 { border-color: #fdb8d8; }
-
-  .group-head { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 2px dashed #f0e8fb; }
-  .group-icon { width: 52px; height: 52px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
-  .cat-1 .group-icon { background: #d4faf4; }
-  .cat-2 .group-icon { background: #fff3d0; }
-  .cat-3 .group-icon { background: #ede0fd; }
-  .cat-4 .group-icon { background: #dcfbea; }
-  .cat-5 .group-icon { background: #fde0ee; }
-  .group-title { font-family: 'Prompt','Noto Sans Thai',sans-serif; font-size: 19px; font-weight: 800; color: #2a2434; line-height: 1.2; }
-  .group-sub { font-size: 13px; color: #9b8aab; margin-top: 3px; font-weight: 500; }
-
-  .questions { display: grid; gap: 10px; }
-  .q { display: flex; align-items: flex-start; gap: 12px; padding: 14px; border-radius: 16px; background: #fdf8ff; border: 2px solid transparent; cursor: pointer; user-select: none; transition: all .18s cubic-bezier(.34,1.3,.64,1); }
-  .q:hover { border-color: #e0d4f8; background: #fff; transform: translateX(4px) scale(1.01); }
-  .q-num { flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; color: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.15); }
-  .cat-1 .q-num { background: var(--c1); }
-  .cat-2 .q-num { background: var(--c2); }
-  .cat-3 .q-num { background: var(--c3); }
-  .cat-4 .q-num { background: var(--c4); }
-  .cat-5 .q-num { background: var(--c5); }
-  .q-text { flex: 1; font-size: 15.5px; line-height: 1.6; font-weight: 600; color: #2a2434; }
-  .q-check { flex-shrink: 0; width: 26px; height: 26px; border-radius: 9px; border: 2.5px solid #d8cce8; display: flex; align-items: center; justify-content: center; transition: all .2s cubic-bezier(.34,1.56,.64,1); margin-top: 1px; }
-  .q.done { background: #f4f0e9; opacity: .6; }
-  .q.done .q-text { text-decoration: line-through; color: #a89bb8; }
-  .q.done .q-check { background: #7c3aed; border-color: #7c3aed; color: #fff; transform: scale(1.1); }
-  .q.done .q-check::after { content: "✓"; font-size: 15px; font-weight: 800; }
-
-  .tips { background: linear-gradient(135deg, #fffbe8, #fff0fb); border: 2px solid #fde3b0; border-radius: 22px; padding: 22px 20px 20px; margin-top: 10px; }
-  .tips h3 { font-family: 'Prompt','Noto Sans Thai',sans-serif; font-size: 18px; font-weight: 800; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; color: #2a2434; }
-  .tips ul { list-style: none; display: grid; gap: 11px; }
-  .tips li { display: flex; align-items: flex-start; gap: 10px; font-size: 15px; color: #4a3d5a; font-weight: 500; line-height: 1.55; }
-  .tips li .ico { font-size: 20px; flex-shrink: 0; }
-
-  @media (max-width: 600px) {
-    .page { padding: 16px 12px 60px; }
-    .picker { padding: 20px 14px; border-radius: 22px; }
-    .group { padding: 16px 14px 14px; border-radius: 20px; }
-    .q-text { font-size: 15px; }
-    .logo-emoji { font-size: 52px; }
-  }
-
-  .site-nav { position: sticky; top: 0; z-index: 100; background: var(--cream); border-bottom: 4px solid var(--dark); box-shadow: 0 4px 0 var(--dark); padding: 10px 16px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-  .nav-brand { font-family: 'Bungee', cursive; font-size: 15px; color: var(--dark); text-shadow: 2px 2px 0 var(--pink); white-space: nowrap; flex-shrink: 0; text-decoration: none; }
-  .nav-links { display: flex; gap: 6px; flex-wrap: wrap; }
-  .nav-link { text-decoration: none; font-family: 'Fredoka', 'Noto Sans Thai', sans-serif; font-size: 13px; font-weight: 600; padding: 5px 13px; border-radius: 12px; border: 2.5px solid var(--dark); color: var(--dark); background: white; transition: all .12s; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; box-shadow: 2px 2px 0 var(--dark); }
-  .nav-link:hover { background: var(--yellow); transform: translate(-1px,-1px); box-shadow: 3px 3px 0 var(--dark); }
-  .nav-link:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 var(--dark); }
-  .nav-link.active { background: var(--pink); color: white; }
-  @media (max-width: 420px) { .nav-brand { font-size: 13px; } .nav-link { font-size: 11px; padding: 4px 10px; } }
-
-  .lang-toggle { display: flex; gap: 6px; justify-content: center; margin: 12px 0 0; }
-  .lang-btn { border: 2.5px solid #e8dff0; background: #fff; color: #7c6d88; border-radius: 999px; padding: 7px 20px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all .15s; }
-  .lang-btn.active { background: #2a2434; color: #fff; border-color: #2a2434; }
-  .lang-btn:hover:not(.active) { border-color: #c084fc; color: #7c3aed; }
+  .qcard.show { opacity: 1; transform: translateX(-50%); pointer-events: auto; }
+  .qcard .tag { display: inline-block; border-radius: 999px; padding: 3px 12px; color: #fff; font-weight: 800; font-size: 14px; }
+  .qcard .text { font-size: 24px; font-weight: 800; line-height: 1.35; margin: 10px 2px 12px; }
+  .qcard .row { display: flex; gap: 8px; }
+  .qcard .row .w-btn { flex: 1 1 0; min-width: 0; padding: 0 8px; font-size: 17px; }
+  .qcard .w-btn.done { background: #2fb36a; box-shadow: 0 6px 0 #1f8a4f; }
+  .lang .w-seg button { min-width: 0; padding: 0 12px; font-size: 16px; }
+  .prog { font-weight: 800; }
+  .w-card ul { padding-left: 4px; list-style: none; }
+  .w-card li { margin: 8px 0; font-weight: 600; }
+  @media (max-width: 520px) { .qcard .text { font-size: 21px; } .qcard { bottom: 104px; } #prog { display: none; } }
 </style>
 </head>
 <body>
+<div class="w-fade-in"></div>
+<canvas class="w-canvas" id="world"></canvas>
 
-
-<div class="stars" id="stars"></div>
-
-<div class="page">
-
-  <header>
-    <span class="logo-emoji">🌟</span>
-    <h1>24 Conversation Questions</h1>
-    <p class="sub">Use during meals, shopping, or playtime. No right or wrong answers - just thinking, talking, and laughing.</p>
-    <div class="deco-row">⭐ 🌈 🎉 🦄 🎈 🌸 ⭐</div>
-    <div class="lang-toggle">
-      <button class="lang-btn active" id="btn-lang-en">🇬🇧 English</button>
-      <button class="lang-btn" id="btn-lang-th">🇹🇭 ภาษาไทย</button>
-    </div>
-  </header>
-
-  <section class="picker">
-    <div class="picker-label">🎲 Random Question</div>
-    <div class="picker-display" id="display">
-      <div class="picker-placeholder">Tap a button below to get a question ✨</div>
-    </div>
-    <div class="picker-actions">
-      <button class="btn btn-white" id="btn-random">🎲 Random Question!</button>
-      <button class="btn btn-outline" id="btn-unused">✨ Unused Only</button>
-    </div>
-  </section>
-
-  <div class="prog-wrap">
-    <div class="prog-label" id="prog-label">Completed <span id="done-count">0</span> / 24</div>
-    <div class="prog-bar"><div class="prog-fill" id="bar"></div></div>
-    <button class="btn-reset" id="btn-reset">🔄 Reset</button>
+<div class="w-top">
+  <a class="w-pill w-back" href="index.html" data-fade title="กลับเกาะ Back to island">🏝️ <span>กลับเกาะ</span></a>
+  <div class="w-pill w-title">🎲 24 คำถาม <span class="en">· LET'S TALK</span></div>
+  <div class="w-icons">
+    <div class="w-pill prog" id="prog">✅ 0/24</div>
+    <button class="w-pill w-icon" id="tipsBtn" title="เคล็ดลับ Tips">💡</button>
+    <button class="w-pill w-icon" id="soundBtn" title="เปิด/ปิดเสียง Sound">🔊</button>
   </div>
-
-  <div class="tabs" id="tabs"></div>
-  <div id="categories"></div>
-
-  <section class="tips">
-    <h3>💡 Tips for Fun Talks</h3>
-    <ul>
-      <li><span class="ico">🍽️</span> Use in real moments: meals, walks, shopping, or toy time.</li>
-      <li><span class="ico">🤔</span> Let your child <strong>"think first"</strong> before you help.</li>
-      <li><span class="ico">🎯</span> Focus on <strong>reasoning</strong> and <strong>confidence to speak</strong>.</li>
-      <li><span class="ico">☑️</span> Tap a question to mark it as <strong>"done"</strong>; progress saves automatically.</li>
-    </ul>
-  </section>
-
 </div>
 
+<div class="w-caption" id="caption"></div>
+<div class="w-banner" id="banner">🎉 คุยครบ 24 ข้อแล้ว!</div>
+
+<div class="qcard" id="qcard">
+  <span class="tag" id="qTag">🔍</span>
+  <div class="text" id="qText"></div>
+  <div class="row">
+    <button class="w-btn white" id="readBtn">🔊 อ่าน</button>
+    <button class="w-btn white" id="doneBtn">✅ คุยแล้ว</button>
+    <button class="w-btn" id="nextBtn">🎲 ข้อใหม่</button>
+  </div>
+</div>
+
+<div class="w-dock">
+  <div class="w-controls">
+    <button class="w-btn big" id="rollBtn">🎲 ทอยลูกเต๋า!</button>
+    <div class="lang"><div class="w-seg"><button id="thBtn">ไทย</button><button id="enBtn">EN</button></div></div>
+  </div>
+</div>
+
+<div class="w-modal-bg" id="tips">
+  <div class="w-card">
+    <h2 id="tipsTitle">💡 เคล็ดลับการคุยสนุก</h2>
+    <ul id="tipsList"></ul>
+    <div class="w-controls">
+      <button class="w-btn white" id="resetBtn">🔄 ล้างประวัติ</button>
+      <button class="w-btn" id="tipsOk">เข้าใจแล้ว 👍</button>
+    </div>
+  </div>
+</div>
+
+<div class="w-fallback" id="fallback">
+  <div class="big">🎲</div>
+  <h2>โหลดฉาก 3D ไม่ได้</h2>
+  <div>ต้องต่ออินเทอร์เน็ตนะ / This page needs internet</div>
+  <a class="w-btn" href="menu.html">ไปหน้าเมนู ▶</a>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script src="world-kit.js"></script>
 <script>
-  (function() {
-    const emojis = ['⭐','✨','🌟','💫','⚡','🌈'];
-    const wrap = document.getElementById("stars");
-    for (let i = 0; i < 18; i++) {
-      const s = document.createElement('div');
-      s.className = 'star';
-      s.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-      s.style.left = Math.random() * 100 + '%';
-      s.style.top = Math.random() * 100 + '%';
-      s.style.animationDelay = Math.random() * 3 + 's';
-      s.style.fontSize = (14 + Math.random() * 16) + 'px';
-      wrap.appendChild(s);
-    }
-  })();
-
-  const DATA = [
-    { id:1, icon:"🔍", color:"cat-1",
-      title:"Observe & Connect",        sub:"Spot details, compare, and group ideas",
-      titleTh:"สังเกตและเชื่อมโยง",      subTh:"จับรายละเอียด เปรียบเทียบ และจัดกลุ่ม",
-      questions:  ["Guess an object from clues (color / shape / use).","Find what is missing from nearby objects.","Match things that belong together.","Which one does not belong, and why?","How many ways can you use this object?"],
-      questionsTh:["ทายของจากคำใบ้ (สี / รูปร่าง / การใช้งาน)","หาสิ่งที่ขาดหายไปจากสิ่งของใกล้ตัว","จับคู่สิ่งของที่ไปด้วยกัน","อันไหนไม่เข้าพวก และทำไม?","ของชิ้นนี้ใช้ทำอะไรได้กี่วิธี?"] },
-    { id:2, icon:"🔢", color:"cat-2",
-      title:"Numbers & Real-Life Money", sub:"Count, compare, and calculate",
-      titleTh:"ตัวเลขและเงิน",            subTh:"นับ เปรียบเทียบ และคำนวณ",
-      questions:  ["Count nearby objects in a fun way.","Which is more, less, or equal?","If you have this much money, can you buy it?","If you buy 2 items, how much do you pay?","After paying, how much money is left?"],
-      questionsTh:["นับของใกล้ตัวในแบบสนุกๆ","อันไหนมากกว่า น้อยกว่า หรือเท่ากัน?","ถ้ามีเงินเท่านี้ ซื้อได้ไหม?","ถ้าซื้อ 2 อย่าง ต้องจ่ายเท่าไหร่?","จ่ายแล้วเหลือเงินเท่าไหร่?"] },
-    { id:3, icon:"🧠", color:"cat-3",
-      title:"Logic & Thinking",          sub:"Reasoning, choices, and prediction",
-      titleTh:"เหตุผลและการคิด",          subTh:"วิเคราะห์ เลือก และคาดเดา",
-      questions:  ["Why do you think that?","If this happens, what comes next?","Can we solve this another way?","Which choice is better, and why?","If we change one condition, what changes?"],
-      questionsTh:["ทำไมถึงคิดแบบนั้น?","ถ้าเกิดเรื่องนี้ขึ้น อะไรจะเกิดขึ้นต่อไป?","มีวิธีแก้อีกแบบไหม?","เลือกอันไหนดีกว่า และทำไม?","ถ้าเปลี่ยนเงื่อนไขหนึ่งอย่าง อะไรจะเปลี่ยน?"] },
-    { id:4, icon:"💰", color:"cat-4",
-      title:"Money & Decision Making",   sub:"Needs vs wants and trade-offs",
-      titleTh:"เงินและการตัดสินใจ",       subTh:"ความจำเป็น vs ความอยากได้",
-      questions:  ["Which one gives better value, and why?","If your money is limited, what would you choose?","Buy now or wait later - which is better?","Is this a need or a want?","How many days should you save for this?"],
-      questionsTh:["อันไหนคุ้มค่ากว่า และทำไม?","ถ้าเงินมีจำกัด จะเลือกอะไร?","ซื้อเดี๋ยวนี้หรือรอไว้ก่อน อันไหนดีกว่า?","อันนี้เป็นความจำเป็นหรือความอยากได้?","ต้องออมเงินกี่วันถึงจะซื้อได้?"] },
-    { id:5, icon:"💬", color:"cat-5",
-      title:"Language & Real World",     sub:"Storytelling, imagination, and empathy",
-      titleTh:"ภาษาและโลกจริง",          subTh:"เล่าเรื่อง จินตนาการ และเอาใจเขามาใส่ใจเรา",
-      questions:  ["Tell a story from something you saw today.","Continue the story that a parent starts.","How would another person feel in this situation?","What might happen if this thing did not exist?"],
-      questionsTh:["เล่าเรื่องจากสิ่งที่เห็นวันนี้","ต่อเรื่องที่พ่อแม่เริ่มไว้","ถ้าเป็นคนอื่น จะรู้สึกยังไงในสถานการณ์นี้?","ถ้าของสิ่งนี้ไม่มีอยู่ จะเกิดอะไรขึ้น?"] }
-  ];
-
-  const UI = {
-    en: {
-      h1: '24 Conversation Questions',
-      sub: 'Use during meals, shopping, or playtime. No right or wrong answers - just thinking, talking, and laughing.',
-      pickerLabel: '🎲 Random Question',
-      pickerPlaceholder: 'Tap a button below to get a question ✨',
-      btnRandom: '🎲 Random Question!',
-      btnUnused: '✨ Unused Only',
-      progLabel: n => `Completed <span id="done-count">${n}</span> / 24`,
-      btnReset: '🔄 Reset',
-      tabAll: 'All',
-      tipsTitle: '💡 Tips for Fun Talks',
-      tips: [
-        {ico:'🍽️', text:'Use in real moments: meals, walks, shopping, or toy time.'},
-        {ico:'🤔', text:'Let your child <strong>"think first"</strong> before you help.'},
-        {ico:'🎯', text:'Focus on <strong>reasoning</strong> and <strong>confidence to speak</strong>.'},
-        {ico:'☑️', text:'Tap a question to mark it as <strong>"done"</strong>; progress saves automatically.'}
-      ],
-      allDone: '🎉 You have completed every question!',
-      confirmReset: 'Clear all completed-question history?'
-    },
-    th: {
-      h1: '24 คำถามคุยเล่น',
-      sub: 'ใช้ระหว่างกินข้าว เดินซื้อของ หรือเล่น ไม่มีคำตอบถูกหรือผิด — แค่คิด คุย และหัวเราะ',
-      pickerLabel: '🎲 สุ่มคำถาม',
-      pickerPlaceholder: 'แตะปุ่มด้านล่างเพื่อรับคำถาม ✨',
-      btnRandom: '🎲 สุ่มคำถาม!',
-      btnUnused: '✨ เฉพาะที่ยังไม่ได้ถาม',
-      progLabel: n => `ถามไปแล้ว <span id="done-count">${n}</span> / 24`,
-      btnReset: '🔄 รีเซ็ต',
-      tabAll: 'ทั้งหมด',
-      tipsTitle: '💡 เคล็ดลับการคุยสนุก',
-      tips: [
-        {ico:'🍽️', text:'ใช้ในช่วงเวลาจริง เช่น กินข้าว เดิน ซื้อของ หรือเล่นด้วยกัน'},
-        {ico:'🤔', text:'ให้ลูก<strong>"คิดก่อน"</strong> แล้วค่อยช่วย'},
-        {ico:'🎯', text:'เน้น<strong>เหตุผล</strong>และ<strong>ความมั่นใจในการพูด</strong>'},
-        {ico:'☑️', text:'แตะคำถามเพื่อทำเครื่องหมาย<strong>"ถามแล้ว"</strong> ระบบจำให้อัตโนมัติ'}
-      ],
-      allDone: '🎉 ถามครบทุกข้อแล้ว!',
-      confirmReset: 'ล้างประวัติคำถามทั้งหมดใช่ไหม?'
-    }
-  };
-
-  let currentLang = localStorage.getItem('summer_24q_lang') || 'en';
-
-  function ui() { return UI[currentLang]; }
-  function qs(cat) { return currentLang === 'th' ? cat.questionsTh : cat.questions; }
-  function catTitle(cat) { return currentLang === 'th' ? cat.titleTh : cat.title; }
-  function catSub(cat) { return currentLang === 'th' ? cat.subTh : cat.sub; }
-  function buildFlat() {
-    const flat = [];
-    DATA.forEach(cat => qs(cat).forEach((q,i) => flat.push({id:`${cat.id}-${i+1}`, catTitle:catTitle(cat), catIcon:cat.icon, text:q})));
-    return flat;
-  }
-
-  const KEY = "summer_24q_done_v1";
-  let done = new Set();
-  try { done = new Set(JSON.parse(localStorage.getItem(KEY) || "[]")); } catch(e) {}
-  function save() { try { localStorage.setItem(KEY, JSON.stringify([...done])); } catch(e) {} }
-
-  function updateProgress() {
-    document.getElementById("prog-label").innerHTML = ui().progLabel(done.size);
-    document.getElementById("bar").style.width = (done.size / buildFlat().length * 100) + "%";
-    DATA.forEach(cat => {
-      const doneN = qs(cat).filter((_,i) => done.has(`${cat.id}-${i+1}`)).length;
-      const el = document.querySelector(`.tab[data-cat="${cat.id}"] .cnt`);
-      if (el) el.textContent = `${doneN}/${qs(cat).length}`;
-    });
-  }
-
-  function applyStaticLang() {
-    const u = ui();
-    document.querySelector('h1').textContent = u.h1;
-    document.querySelector('.sub').textContent = u.sub;
-    document.querySelector('.picker-label').textContent = u.pickerLabel;
-    document.getElementById('btn-random').textContent = u.btnRandom;
-    document.getElementById('btn-unused').textContent = u.btnUnused;
-    document.getElementById('btn-reset').textContent = u.btnReset;
-    document.querySelector('.tips h3').textContent = u.tipsTitle;
-    document.querySelector('.tips ul').innerHTML = u.tips.map(t => `<li><span class="ico">${t.ico}</span> ${t.text}</li>`).join('');
-    document.getElementById('btn-lang-en').classList.toggle('active', currentLang === 'en');
-    document.getElementById('btn-lang-th').classList.toggle('active', currentLang === 'th');
-    const display = document.getElementById('display');
-    if (display.querySelector('.picker-placeholder')) {
-      display.innerHTML = `<div class="picker-placeholder">${u.pickerPlaceholder}</div>`;
-    }
-  }
-
-  function renderTabs() {
-    const u = ui();
-    const wrap = document.getElementById("tabs");
-    const flat = buildFlat();
-    let html = `<button class="tab active" data-cat="all">${u.tabAll} <span class="cnt">${flat.length}</span></button>`;
-    DATA.forEach(cat => { html += `<button class="tab" data-cat="${cat.id}">${cat.icon} ${catTitle(cat)} <span class="cnt">0/${qs(cat).length}</span></button>`; });
-    wrap.innerHTML = html;
-    wrap.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => {
-      wrap.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
-      t.classList.add("active");
-      renderCategories(t.dataset.cat);
-    }));
-  }
-
-  function renderCategories(filter = "all") {
-    const root = document.getElementById("categories");
-    const show = filter === "all" ? DATA : DATA.filter(c => c.id == filter);
-    let num = 0;
-    root.innerHTML = show.map(cat => `
-      <section class="group ${cat.color}">
-        <div class="group-head">
-          <div class="group-icon">${cat.icon}</div>
-          <div><div class="group-title">${catTitle(cat)}</div><div class="group-sub">${catSub(cat)}</div></div>
-        </div>
-        <div class="questions">
-          ${qs(cat).map((q,i) => {
-            const id = `${cat.id}-${i+1}`; num++;
-            return `<div class="q${done.has(id)?' done':''}" data-id="${id}">
-              <div class="q-num">${num}</div>
-              <div class="q-text">${q}</div>
-              <div class="q-check"></div>
-            </div>`;
-          }).join("")}
-        </div>
-      </section>`).join("");
-    root.querySelectorAll(".q").forEach(el => el.addEventListener("click", () => {
-      const id = el.dataset.id;
-      done.has(id) ? done.delete(id) : done.add(id);
-      el.classList.toggle("done");
-      save(); updateProgress();
-    }));
-  }
-
-  function showRandom(unusedOnly) {
-    const flat = buildFlat();
-    const pool = unusedOnly ? flat.filter(q => !done.has(q.id)) : flat;
-    const display = document.getElementById("display");
-    if (!pool.length) { display.innerHTML = `<div class="picker-placeholder">${ui().allDone}</div>`; return; }
-    const pick = pool[Math.floor(Math.random() * pool.length)];
-    display.classList.remove("animate"); void display.offsetWidth; display.classList.add("animate");
-    display.innerHTML = `<div><div class="picker-live">${pick.text}</div><span class="picker-cat-tag">${pick.catIcon} ${pick.catTitle}</span></div>`;
-  }
-
-  function renderAll() {
-    applyStaticLang();
-    const activeTab = document.querySelector(".tab.active")?.dataset.cat || "all";
-    renderTabs();
-    const restored = document.querySelector(`.tab[data-cat="${activeTab}"]`);
-    if (restored) { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); restored.classList.add('active'); }
-    renderCategories(activeTab);
-    updateProgress();
-  }
-
-  document.getElementById("btn-random").addEventListener("click", () => showRandom(false));
-  document.getElementById("btn-unused").addEventListener("click", () => showRandom(true));
-  document.getElementById("btn-reset").addEventListener("click", () => {
-    if (confirm(ui().confirmReset)) { done.clear(); save(); renderAll(); }
-  });
-  document.getElementById("btn-lang-en").addEventListener("click", () => { currentLang = 'en'; localStorage.setItem('summer_24q_lang', 'en'); renderAll(); });
-  document.getElementById("btn-lang-th").addEventListener("click", () => { currentLang = 'th'; localStorage.setItem('summer_24q_lang', 'th'); renderAll(); });
-
-  renderAll();
+  setTimeout(function () { if (!window.__worldReady) document.getElementById('fallback').classList.add('show'); }, 10000);
 </script>
 
-<!-- Island look: top bar back to the island + 3D backdrop (see world-shell.js) -->
-<script src="world-kit.js"></script>
-<script src="world-shell.js" data-emoji="🎲" data-title="24 คำถามชวนคุย"></script>
+<script type="module">
+/* =========================================================
+   24 คำถามชวนคุย (24 conversation questions) — a picnic on the island
+   For a parent and Summer to talk together (no right or wrong answers).
+   Roll the big die → it lands, one of the 5 treasure chests opens and a question pops out.
+   Or tap a chest to get a question from that topic. ✅ marks a question as talked about.
+   Saved in localStorage: "summer_24q_done_v1" (done ids) + "summer_24q_lang" (th / en) — same keys as the old page.
+   ========================================================= */
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const kit = WorldKit(THREE, OrbitControls);
+const { box } = kit;
+const stage = kit.createStage({ canvas: document.getElementById('world') });
+const { scene, camera, controls } = stage;
+controls.minDistance = 8; controls.maxDistance = 34;
+controls.minPolarAngle = .4; controls.maxPolarAngle = 1.4;
+kit.bindSoundButton(document.getElementById('soundBtn'));
+kit.bindFadeLinks();
+const fx = kit.createConfetti(scene);
+const floaters = kit.createFloaters(scene, { count: 16, radius: 15, spread: 10, y0: -2 });
+
+const DATA = [
+  { id: 1, icon: '🔍', color: '#3aa0e0', title: 'Observe & Connect', titleTh: 'สังเกตและเชื่อมโยง',
+    questions: ['Guess an object from clues (color / shape / use).', 'Find what is missing from nearby objects.', 'Match things that belong together.', 'Which one does not belong, and why?', 'How many ways can you use this object?'],
+    questionsTh: ['ทายของจากคำใบ้ (สี / รูปร่าง / การใช้งาน)', 'หาสิ่งที่ขาดหายไปจากสิ่งของใกล้ตัว', 'จับคู่สิ่งของที่ไปด้วยกัน', 'อันไหนไม่เข้าพวก และทำไม?', 'ของชิ้นนี้ใช้ทำอะไรได้กี่วิธี?'] },
+  { id: 2, icon: '🔢', color: '#2fb36a', title: 'Numbers & Real-Life Money', titleTh: 'ตัวเลขและเงิน',
+    questions: ['Count nearby objects in a fun way.', 'Which is more, less, or equal?', 'If you have this much money, can you buy it?', 'If you buy 2 items, how much do you pay?', 'After paying, how much money is left?'],
+    questionsTh: ['นับของใกล้ตัวในแบบสนุกๆ', 'อันไหนมากกว่า น้อยกว่า หรือเท่ากัน?', 'ถ้ามีเงินเท่านี้ ซื้อได้ไหม?', 'ถ้าซื้อ 2 อย่าง ต้องจ่ายเท่าไหร่?', 'จ่ายแล้วเหลือเงินเท่าไหร่?'] },
+  { id: 3, icon: '🧠', color: '#8a5ce0', title: 'Logic & Thinking', titleTh: 'เหตุผลและการคิด',
+    questions: ['Why do you think that?', 'If this happens, what comes next?', 'Can we solve this another way?', 'Which choice is better, and why?', 'If we change one condition, what changes?'],
+    questionsTh: ['ทำไมถึงคิดแบบนั้น?', 'ถ้าเกิดเรื่องนี้ขึ้น อะไรจะเกิดขึ้นต่อไป?', 'มีวิธีแก้อีกแบบไหม?', 'เลือกอันไหนดีกว่า และทำไม?', 'ถ้าเปลี่ยนเงื่อนไขหนึ่งอย่าง อะไรจะเปลี่ยน?'] },
+  { id: 4, icon: '💰', color: '#f2a20d', title: 'Money & Decision Making', titleTh: 'เงินและการตัดสินใจ',
+    questions: ['Which one gives better value, and why?', 'If your money is limited, what would you choose?', 'Buy now or wait later - which is better?', 'Is this a need or a want?', 'How many days should you save for this?'],
+    questionsTh: ['อันไหนคุ้มค่ากว่า และทำไม?', 'ถ้าเงินมีจำกัด จะเลือกอะไร?', 'ซื้อเดี๋ยวนี้หรือรอไว้ก่อน อันไหนดีกว่า?', 'อันนี้เป็นความจำเป็นหรือความอยากได้?', 'ต้องออมเงินกี่วันถึงจะซื้อได้?'] },
+  { id: 5, icon: '💬', color: '#e0457a', title: 'Language & Real World', titleTh: 'ภาษาและโลกจริง',
+    questions: ['Tell a story from something you saw today.', 'Continue the story that a parent starts.', 'How would another person feel in this situation?', 'What might happen if this thing did not exist?'],
+    questionsTh: ['เล่าเรื่องจากสิ่งที่เห็นวันนี้', 'ต่อเรื่องที่พ่อแม่เริ่มไว้', 'ถ้าเป็นคนอื่น จะรู้สึกยังไงในสถานการณ์นี้?', 'ถ้าของสิ่งนี้ไม่มีอยู่ จะเกิดอะไรขึ้น?'] },
+];
+const TOTAL = DATA.reduce((s, c) => s + c.questions.length, 0);
+const UI = {
+  th: { roll: '🎲 ทอยลูกเต๋า!', read: '🔊 อ่าน', done: '✅ คุยแล้ว', undone: '↩️ ยังไม่ได้คุย', next: '🎲 ข้อใหม่', tipsTitle: '💡 เคล็ดลับการคุยสนุก', reset: '🔄 ล้างประวัติ', ok: 'เข้าใจแล้ว 👍',
+        hello: 'ทอยลูกเต๋า หรือแตะหีบสมบัติ แล้วมาคุยกัน! ไม่มีถูกไม่มีผิด 🎲', allDone: 'คุยครบทุกข้อแล้ว! 🎉', resetAsk: 'กดอีกครั้งเพื่อล้างประวัติ',
+        tips: ['🍽️ ใช้ในช่วงเวลาจริง เช่น กินข้าว เดิน ซื้อของ หรือเล่นด้วยกัน', '🤔 ให้ลูก "คิดก่อน" แล้วค่อยช่วย', '🎯 เน้นเหตุผลและความมั่นใจในการพูด ไม่มีคำตอบถูกหรือผิด', '✅ กด "คุยแล้ว" ระบบจะจำให้อัตโนมัติ'] },
+  en: { roll: '🎲 Roll the die!', read: '🔊 Read', done: '✅ Talked', undone: '↩️ Not yet', next: '🎲 Next', tipsTitle: '💡 Tips for Fun Talks', reset: '🔄 Reset', ok: 'Got it 👍',
+        hello: 'Roll the die or tap a chest — then talk together! No right or wrong answers 🎲', allDone: 'You talked about every question! 🎉', resetAsk: 'Tap again to clear history',
+        tips: ['🍽️ Use real moments: meals, walks, shopping, or toy time.', '🤔 Let your child "think first" before you help.', '🎯 Focus on reasoning and confidence to speak — no right or wrong answers.', '✅ Tap "Talked" to mark a question; progress saves automatically.'] },
+};
+
+// ── Saved state (same keys as the old page) ──
+const KEY = 'summer_24q_done_v1';
+let done = new Set(), lang = 'th';
+try { done = new Set(JSON.parse(localStorage.getItem(KEY) || '[]')); lang = localStorage.getItem('summer_24q_lang') || 'th'; } catch (e) {}
+function saveDone() { try { localStorage.setItem(KEY, JSON.stringify([...done])); } catch (e) {} }
+const qsOf = cat => lang === 'th' ? cat.questionsTh : cat.questions;
+const titleOf = cat => lang === 'th' ? cat.titleTh : cat.title;
+
+function say(text) {
+  if (lang === 'th') { kit.speak(text.replace(/[^฀-๿0-9 ?]/g, ' ')); return; }
+  if (!kit.soundOn() || !('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text.replace(/[^\w\s',.?!-]/g, ' ')); u.lang = 'en-US'; u.rate = .9;
+  speechSynthesis.speak(u);
+}
+const captionEl = document.getElementById('caption');
+let captionTimer = null;
+function caption(text, speak = true, ms = 4500) {
+  captionEl.textContent = text; captionEl.classList.add('show');
+  clearTimeout(captionTimer); captionTimer = setTimeout(() => captionEl.classList.remove('show'), ms);
+  if (speak) say(text);
+}
+
+/* =========================================================
+   The picnic
+   ========================================================= */
+box(scene, 20, .4, 14, '#8fd16a', 0, -.2, 0);
+box(scene, 20, 1.2, 14, '#d39a5c', 0, -1, 0);
+box(scene, 18, 1, 12, '#b87e47', 0, -2.1, 0);
+box(scene, 12, .8, 8, '#9b6a3c', 0, -3, 0);
+// checked picnic blanket
+for (let i = 0; i < 6; i++) for (let j = 0; j < 5; j++) box(scene, 1.2, .06, 1.2, (i + j) % 2 ? '#ffffff' : '#ef5a5a', -3 + i * 1.2, .03, -1.2 + j * 1.2, false);
+// a tree with a swing on the left, flowers around
+box(scene, .8, 4.6, .8, '#8b5a3c', -7.6, 2.3, -3.6); box(scene, 4.4, 2.6, 4.4, '#4f9a4a', -7.6, 5.4, -3.6); box(scene, 3, 1.4, 3, '#5fb36a', -7.6, 7.1, -3.6);
+for (let i = 0; i < 16; i++) box(scene, .16, .16, .16, ['#ff8fbf', '#ffd166', '#ffffff', '#9ad7ff'][i % 4], -8.5 + (i * 3.7) % 17, .08, -5.5 + (i * 2.3) % 11, false);
+const summer = kit.makeSummer();
+summer.g.position.set(-3, 0, 2.2); summer.g.rotation.y = .5; summer.g.scale.setScalar(1.35);
+scene.add(summer.g);
+
+// ── The big die (pips on all 6 faces) ──
+const die = new THREE.Group(), dieBody = new THREE.Group();
+die.add(dieBody); scene.add(die);
+box(dieBody, 1.8, 1.8, 1.8, '#ffffff', 0, 0, 0);
+const PIPS = { 1: [[0, 0]], 2: [[-1, -1], [1, 1]], 3: [[-1, -1], [0, 0], [1, 1]], 4: [[-1, -1], [1, -1], [-1, 1], [1, 1]], 5: [[-1, -1], [1, -1], [0, 0], [-1, 1], [1, 1]], 6: [[-1, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [1, 1]] };
+[[1, 'z', 1], [6, 'z', -1], [2, 'x', 1], [5, 'x', -1], [3, 'y', 1], [4, 'y', -1]].forEach(([n, axis, sgn]) => {
+  PIPS[n].forEach(([a, b]) => {
+    const p = [a * .5, b * .5], pos = axis === 'z' ? [p[0], p[1], sgn * .9] : axis === 'x' ? [sgn * .9, p[1], p[0]] : [p[0], sgn * .9, p[1]];
+    const sz = axis === 'z' ? [.3, .3, .06] : axis === 'x' ? [.06, .3, .3] : [.3, .06, .3];
+    box(dieBody, ...sz, n === 1 ? '#e0453a' : '#2b2118', ...pos, false);
+  });
+});
+die.position.set(0, .9, .2);
+const DIE = { t: -1, cat: null };
+
+// ── 5 treasure chests in a half circle, one per topic ──
+const chests = DATA.map((cat, i) => {
+  const a = (-.95 + i / (DATA.length - 1) * 1.9), R = 5.3;
+  const g = new THREE.Group();
+  g.position.set(Math.sin(a) * R, 0, -Math.cos(a) * R + 1.4);
+  g.rotation.y = -a;
+  box(g, 1.8, 1, 1.2, cat.color, 0, .5, 0);
+  box(g, 1.86, .14, 1.26, '#f4c430', 0, .9, 0);
+  box(g, .3, .36, .1, '#f4c430', 0, .65, .62, false);                        // lock
+  const lid = new THREE.Group(); lid.position.set(0, 1, -.6); g.add(lid);
+  box(lid, 1.8, .45, 1.2, kit.shade(cat.color, .85), 0, .22, .6);
+  box(lid, 1.86, .1, 1.26, '#f4c430', 0, .45, .6);
+  const icon = kit.emojiSprite(cat.icon, cat.color, 1.3); icon.position.y = 2.3; g.add(icon);
+  scene.add(g);
+  const c = { g, lid, icon, cat, open: 0, want: 0, label: null };
+  g.traverse(m => { m.userData.chest = c; });
+  return c;
+});
+function labelChest(c) {
+  if (c.label) c.g.remove(c.label);
+  const n = qsOf(c.cat).filter((_, i) => done.has(`${c.cat.id}-${i + 1}`)).length;
+  c.label = kit.labelSprite(`${titleOf(c.cat)} ${n}/${qsOf(c.cat).length}`, .42);
+  c.label.position.set(0, 3.25, 0); c.g.add(c.label);
+}
+
+/* =========================================================
+   Questions
+   ========================================================= */
+const qcard = document.getElementById('qcard'), qTag = document.getElementById('qTag'), qText = document.getElementById('qText');
+const doneBtn = document.getElementById('doneBtn');
+let current = null;   // { cat, i, id }
+function pickQuestion(cat) {
+  // prefer questions not talked about yet (from this topic, or from all topics)
+  const pool = [];
+  (cat ? [cat] : DATA).forEach(c => qsOf(c).forEach((_, i) => { const id = `${c.id}-${i + 1}`; if (!done.has(id) && (!current || current.id !== id)) pool.push({ cat: c, i, id }); }));
+  if (!pool.length) (cat ? [cat] : DATA).forEach(c => qsOf(c).forEach((_, i) => pool.push({ cat: c, i, id: `${c.id}-${i + 1}` })));
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+function showQuestion(q) {
+  current = q;
+  chests.forEach(c => { c.want = c.cat === q.cat ? 1 : 0; });
+  const C = chests.find(c => c.cat === q.cat);
+  fx.burst(...C.g.position.clone().add(new THREE.Vector3(0, 1.6, 0)).toArray(), [q.cat.color, '#f4c430', '#ffffff'], 16);
+  qTag.textContent = `${q.cat.icon} ${titleOf(q.cat)}`; qTag.style.background = q.cat.color;
+  qText.textContent = qsOf(q.cat)[q.i];
+  paintDone();
+  qcard.classList.add('show');
+  say(qText.textContent);
+  kit.tones([523, 659, 784], .06, 'triangle', .1);
+  cheerT = 1.4;
+}
+function paintDone() {
+  const on = current && done.has(current.id);
+  doneBtn.classList.toggle('done', !!on);
+  doneBtn.textContent = on ? UI[lang].undone : UI[lang].done;
+}
+function roll(cat) {
+  if (DIE.t >= 0) return;
+  qcard.classList.remove('show');
+  DIE.t = 0; DIE.q = pickQuestion(cat || null);
+  chests.forEach(c => { c.want = 0; });
+  kit.tones([300, 360, 420, 480], .04, 'square', .08);
+}
+function showProgress() {
+  document.getElementById('prog').textContent = `✅ ${done.size}/${TOTAL}`;
+  chests.forEach(labelChest);
+}
+
+doneBtn.onclick = () => {
+  if (!current) return;
+  if (done.has(current.id)) done.delete(current.id);
+  else {
+    done.add(current.id);
+    kit.cheer(); fx.burst(0, 3, 1); cheerT = 2;
+    if (done.size === TOTAL) { const b = document.getElementById('banner'); b.classList.add('show'); setTimeout(() => b.classList.remove('show'), 3500); }
+  }
+  saveDone(); paintDone(); showProgress();
+};
+document.getElementById('readBtn').onclick = () => current && say(qText.textContent);
+document.getElementById('nextBtn').onclick = () => roll();
+document.getElementById('rollBtn').onclick = () => roll();
+
+// ── Language + tips ──
+function applyLang() {
+  const U = UI[lang];
+  document.getElementById('rollBtn').textContent = U.roll;
+  document.getElementById('readBtn').textContent = U.read;
+  document.getElementById('nextBtn').textContent = U.next;
+  document.getElementById('tipsTitle').textContent = U.tipsTitle;
+  document.getElementById('tipsList').innerHTML = U.tips.map(t => `<li>${t}</li>`).join('');
+  document.getElementById('resetBtn').textContent = U.reset;
+  document.getElementById('tipsOk').textContent = U.ok;
+  document.getElementById('thBtn').classList.toggle('on', lang === 'th');
+  document.getElementById('enBtn').classList.toggle('on', lang === 'en');
+  if (current) { qTag.textContent = `${current.cat.icon} ${titleOf(current.cat)}`; qText.textContent = qsOf(current.cat)[current.i]; }
+  paintDone(); showProgress();
+}
+function setLang(l) { lang = l; try { localStorage.setItem('summer_24q_lang', l); } catch (e) {} applyLang(); }
+document.getElementById('thBtn').onclick = () => setLang('th');
+document.getElementById('enBtn').onclick = () => setLang('en');
+const tips = document.getElementById('tips');
+document.getElementById('tipsBtn').onclick = () => tips.classList.add('show');
+document.getElementById('tipsOk').onclick = () => tips.classList.remove('show');
+let resetArmed = false;
+document.getElementById('resetBtn').onclick = () => {
+  if (!resetArmed) { resetArmed = true; document.getElementById('resetBtn').textContent = UI[lang].resetAsk; return; }
+  resetArmed = false; done.clear(); saveDone(); paintDone(); showProgress(); tips.classList.remove('show');
+  document.getElementById('resetBtn').textContent = UI[lang].reset;
+};
+
+/* =========================================================
+   Taps + loop
+   ========================================================= */
+const raycaster = new THREE.Raycaster(), ndc = new THREE.Vector2();
+const canvas = stage.renderer.domElement;
+let press = null, cheerT = 0;
+canvas.addEventListener('pointerdown', e => { press = { x: e.clientX, y: e.clientY, t: performance.now() }; });
+canvas.addEventListener('pointerup', e => {
+  if (!press) return;
+  const tap = Math.hypot(e.clientX - press.x, e.clientY - press.y) < 10 && performance.now() - press.t < 500;
+  press = null;
+  if (!tap) return;
+  ndc.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
+  raycaster.setFromCamera(ndc, camera);
+  const hit = raycaster.intersectObjects(chests.map(c => c.g), true)[0];
+  if (hit) { roll(hit.object.userData.chest.cat); return; }
+  if (raycaster.intersectObject(die, true).length) { roll(); return; }
+  if (raycaster.intersectObject(summer.g, true).length) { cheerT = 1.2; kit.tones([660, 880], .07); }
+});
+
+const portrait = innerWidth < innerHeight;
+camera.position.set(0, 12, 22); controls.target.set(0, 1, 0);
+kit.flyTo(stage, portrait ? new THREE.Vector3(0, 19, 25) : new THREE.Vector3(0, 10.5, 17), new THREE.Vector3(0, portrait ? -1.6 : .6, -.6), 1200);
+applyLang();
+setTimeout(() => caption(UI[lang].hello, true, 6000), 700);
+
+stage.start((dt, time) => {
+  // die: hop, tumble, land — then the chest opens with the question
+  if (DIE.t >= 0) {
+    DIE.t += dt;
+    const k = Math.min(1, DIE.t / 1.3);
+    die.position.y = .9 + Math.sin(k * Math.PI) * 3.2;
+    dieBody.rotation.x += dt * 14 * (1 - k); dieBody.rotation.z += dt * 10 * (1 - k);
+    if (k >= 1) {
+      // settle flat on a face
+      dieBody.rotation.x = Math.round(dieBody.rotation.x / (Math.PI / 2)) * Math.PI / 2;
+      dieBody.rotation.z = Math.round(dieBody.rotation.z / (Math.PI / 2)) * Math.PI / 2;
+      die.position.y = .9; DIE.t = -1;
+      kit.tones([200, 150], .05, 'square', .1);
+      showQuestion(DIE.q);
+    }
+  } else die.rotation.y += dt * .3;
+  chests.forEach((c, i) => {
+    c.open += (c.want - c.open) * Math.min(1, dt * 6);
+    c.lid.rotation.x = -c.open * 1.9;
+    c.icon.position.y = 2.3 + Math.sin(time * 2 + i) * .12 + c.open * .6;
+  });
+  cheerT -= dt;
+  kit.poseSummer(summer, time, cheerT > 0 ? 'cheer' : 'idle');
+  floaters.update(dt, time);
+  fx.update(dt);
+});
+
+// test hooks
+window.__q24 = { roll, setLang, get current() { return current; }, get done() { return done.size; }, markDone: () => doneBtn.click() };
+window.__worldReady = true;
+</script>
 </body>
 </html>

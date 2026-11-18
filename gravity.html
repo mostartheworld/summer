@@ -8,6 +8,11 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;600;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="world-theme.css">
+<style>
+  .w-mode { font-size: 13px; }
+  @media (max-width: 480px) { .w-mode { font-size: 12px; } .w-mode .em { font-size: 22px; } }
+  .w-dock .w-pill.stop { min-width: 120px; justify-content: center; font-weight: 800; }
+</style>
 </head>
 <body>
 <div class="w-fade-in"></div>
@@ -15,7 +20,7 @@
 
 <div class="w-top">
   <a class="w-pill w-back" href="index.html" data-fade title="กลับเกาะ Back to island">🏝️ <span>กลับเกาะ</span></a>
-  <div class="w-pill w-title">🚀 แรงโน้มถ่วง <span class="en">· GRAVITY</span></div>
+  <div class="w-pill w-title">🚀 อวกาศ <span class="en">· GRAVITY &amp; SPACE</span></div>
   <div class="w-icons">
     <button class="w-pill w-icon" id="infoBtn" title="รู้ไหม? Facts">💡</button>
     <button class="w-pill w-icon" id="soundBtn" title="เปิด/ปิดเสียง Sound">🔊</button>
@@ -46,10 +51,28 @@
   <div class="w-controls" data-mode="jump">
     <button class="w-btn big" id="jumpBtn">🦘 กระโดด!</button>
   </div>
+  <!-- Planetarium controls -->
+  <div class="w-controls" data-mode="sky">
+    <div class="w-seg">
+      <button id="dayBtn">☀️ กลางวัน</button>
+      <button id="nightBtn" class="on">🌙 กลางคืน</button>
+    </div>
+    <button class="w-btn" id="constBtn">⭐ กลุ่มดาว</button>
+    <button class="w-btn white" id="meteorBtn" title="ดาวตก Shooting star">🌠</button>
+  </div>
+  <!-- Solar system tour controls -->
+  <div class="w-controls" data-mode="solar">
+    <button class="w-btn white" id="prevBtn" title="ก่อนหน้า Previous">◀</button>
+    <div class="w-pill stop" id="stopPill">☀️ ดวงอาทิตย์</div>
+    <button class="w-btn white" id="nextBtn" title="ถัดไป Next">▶</button>
+    <button class="w-btn" id="tourBtn">⏸ หยุด</button>
+  </div>
   <div class="w-modes">
     <button class="w-mode on" data-go="drop"><span class="em">🍎</span>ทิ้งของ</button>
-    <button class="w-mode" data-go="rocket"><span class="em">🚀</span>ปล่อยจรวด</button>
+    <button class="w-mode" data-go="rocket"><span class="em">🚀</span>จรวด</button>
     <button class="w-mode" data-go="jump"><span class="em">🦘</span>กระโดด</button>
+    <button class="w-mode" data-go="sky"><span class="em">🔭</span>ดูดาว</button>
+    <button class="w-mode" data-go="solar"><span class="em">🪐</span>ระบบสุริยะ</button>
   </div>
 </div>
 
@@ -63,6 +86,8 @@
       <div class="w-fact"><span class="em">🌬️</span>ขนนกตกช้า เพราะอากาศต้าน</div>
       <div class="w-fact"><span class="em">🌕</span>ดวงจันทร์ดึงน้อยกว่าโลก 6 เท่า</div>
       <div class="w-fact"><span class="em">🚀</span>จรวดต้องเร็วมาก ถึงจะหนีแรงดึงได้</div>
+      <div class="w-fact"><span class="em">☀️</span>ดวงอาทิตย์ดึงดาวเคราะห์ 8 ดวง ให้โคจรรอบตัว</div>
+      <div class="w-fact"><span class="em">⭐</span>กลางวันก็มีดาว แต่แสงอาทิตย์สว่างกว่าเลยมองไม่เห็น</div>
     </div>
     <p style="font-size:15px;color:var(--muted)">สำหรับพ่อแม่: บนดวงจันทร์ไม่มีอากาศ ค้อนกับขนนกจึงตกถึงพื้นพร้อมกัน (นักบินอวกาศ Apollo 15 ลองให้ดูจริงในปี 1971) · โลก→ดวงจันทร์ 384,000 กม. ใช้เวลาเดินทาง ~3 วัน · ต้องเร็ว ~11 กม./วินาที ถึงจะหนีแรงโน้มถ่วงโลกได้</p>
     <button class="w-btn" id="infoClose">เข้าใจแล้ว! 👍</button>
@@ -93,6 +118,8 @@
    🍎 drop   (x = 0)   : drop things from a tower, on Earth vs Moon
    🚀 rocket (x = 40)  : fill fuel, launch — not enough fuel → gravity pulls it back
    🦘 jump   (x = -40) : Summer jumps on Earth and on the Moon side by side
+   🔭 sky    (x = 80)  : planetarium — day turns to night, look up, tap star groups (Thai names)
+   🪐 solar  (x = 200) : the Sun in the middle; a tour flies out planet by planet, nearest → farthest
    1 unit ≈ 1 metre; Earth g = 9.8, Moon g = 1.62
    ========================================================= */
 import * as THREE from 'three';
@@ -522,13 +549,430 @@ function updateJump(dt, time) {
 }
 
 /* =========================================================
+   🔭 SKY — a planetarium. The camera stands on the grass and looks up;
+   dragging turns your head (the camera orbits a point 1 m in front of it).
+   ========================================================= */
+const SX = 80, SKY_R = 80;
+const EYE = new THREE.Vector3(SX, 1.7, 3);
+const skyArea = new THREE.Group();
+scene.add(skyArea);
+grassBlock(skyArea, 14, 12, SX, 0);
+const skySummer = kit.makeSummer();
+skySummer.g.position.set(SX - 1.4, 0, 1.2); skySummer.g.rotation.y = .4;
+skyArea.add(skySummer.g);
+{ // a little telescope on a tripod
+  const t = new THREE.Group();
+  [[-.35, .2], [.35, .2], [0, -.4]].forEach(([x, z]) => { const l = box(t, .08, 1.3, .08, '#5b6272', x * .6, .6, z * .6); l.rotation.set(z * .35, 0, -x * .35); });
+  const tube = new THREE.Group(); tube.position.y = 1.25; tube.rotation.x = .8; t.add(tube);
+  box(tube, .3, .3, 1.4, '#e8eef5', 0, 0, -.2); box(tube, .4, .4, .2, '#1d3fa8', 0, 0, -.95); box(tube, .16, .16, .3, '#2b2118', 0, 0, .6);
+  t.position.set(SX + 1.4, 0, 1); t.rotation.y = -.3; skyArea.add(t);
+}
+[[-5, -3.5], [5.5, -4], [-6, 3]].forEach(([x, z]) => {   // a few voxel trees
+  box(skyArea, .5, 1.6, .5, '#8b5a3c', SX + x, .8, z); box(skyArea, 2, 1.6, 2, '#4f9a4a', SX + x, 2.2, z); box(skyArea, 1.2, .9, 1.2, '#5fb36a', SX + x, 3.3, z);
+});
+// az = degrees from "straight ahead" (−z) turning right, alt = degrees above the horizon
+function skyDir(az, alt) {
+  const a = THREE.MathUtils.degToRad(az), b = THREE.MathUtils.degToRad(alt);
+  return new THREE.Vector3(Math.sin(a) * Math.cos(b), Math.sin(b), -Math.cos(a) * Math.cos(b));
+}
+const skyDome = new THREE.Group();
+skyDome.position.copy(EYE);
+skyArea.add(skyDome);
+// Background stars: 3 layers (small/medium/bright) that twinkle at different speeds
+const starLayers = [[1100, 1.6, .55], [380, 2.6, .8], [90, 3.8, 1]].map(([n, size, op], li) => {
+  const pos = new Float32Array(n * 3), col = new Float32Array(n * 3);
+  const tints = ['#ffffff', '#cfe0ff', '#fff1c9', '#ffd2c2'];
+  for (let i = 0; i < n; i++) {
+    const v = skyDir(Math.random() * 360, Math.asin(Math.random()) * 180 / Math.PI * .97 + 1).multiplyScalar(SKY_R);
+    pos.set([v.x, v.y, v.z], i * 3);
+    const c = new THREE.Color(tints[(i + li) % 4]); col.set([c.r, c.g, c.b], i * 3);
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+  const pts = new THREE.Points(geo, new THREE.PointsMaterial({ size, sizeAttenuation: false, vertexColors: true, transparent: true, opacity: 0, depthWrite: false, fog: false }));
+  pts.userData.max = op;
+  skyDome.add(pts);
+  return pts;
+});
+// The Milky Way: a soft band of faint stars across the sky
+{
+  const n = 1500, pos = new Float32Array(n * 3);
+  const tilt = new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(.5, .3, 1.1));
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * Math.PI * 2, spread = (Math.random() + Math.random() + Math.random() - 1.5) * .16;
+    const v = new THREE.Vector3(Math.cos(a), spread, Math.sin(a)).normalize().applyMatrix4(tilt);
+    if (v.y < .02) v.y = -v.y + .02;
+    v.normalize().multiplyScalar(SKY_R + 1);
+    pos.set([v.x, v.y, v.z], i * 3);
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  const band = new THREE.Points(geo, new THREE.PointsMaterial({ color: '#c9d4ff', size: 1.4, sizeAttenuation: false, transparent: true, opacity: 0, depthWrite: false }));
+  band.userData.max = .45;
+  skyDome.add(band); starLayers.push(band);
+}
+// Round glowing dot texture for the bright named stars, the Sun and the Moon glow
+function glowTexture(inner, outer) {
+  const c = document.createElement('canvas'); c.width = c.height = 64;
+  const g = c.getContext('2d'), grd = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+  grd.addColorStop(0, inner); grd.addColorStop(.25, inner); grd.addColorStop(1, outer);
+  g.fillStyle = grd; g.fillRect(0, 0, 64, 64);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+const starTex = glowTexture('rgba(255,255,255,1)', 'rgba(255,255,255,0)');
+function glowSprite(color, size, tex = starTex) {
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, color, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+  s.scale.setScalar(size);
+  return s;
+}
+// The Sun (daytime) and the Moon (night)
+// fluffy voxel clouds for daytime
+const cloudMat = new THREE.MeshBasicMaterial({ color: '#ffffff', transparent: true, depthWrite: false });
+const skyClouds = new THREE.Group();
+skyDome.add(skyClouds);
+[[-30, 30], [10, 55], [50, 26], [-60, 50], [85, 45], [-5, 22]].forEach(([az, alt], i) => {
+  const c = new THREE.Group();
+  [[0, 0, 7, 2.4], [-3.5, -.4, 4, 1.8], [3.8, -.3, 4.5, 2], [1, 1.4, 4, 1.8]].forEach(([x, y, w, h]) => {
+    const m = new THREE.Mesh(kit.UNIT, cloudMat); m.scale.set(w, h, 2.5); m.position.set(x, y, 0); c.add(m);
+  });
+  c.position.copy(skyDir(az, alt).multiplyScalar(SKY_R - 10)); c.lookAt(new THREE.Vector3());
+  c.scale.setScalar(.9 + (i % 3) * .2);
+  skyClouds.add(c);
+});
+const skySun = glowSprite('#fff3b0', 16, glowTexture('rgba(255,255,255,1)', 'rgba(255,220,120,0)'));
+skyDome.add(skySun);
+const skyMoon = new THREE.Group();
+{
+  const m = new THREE.Mesh(new THREE.SphereGeometry(2.4, 24, 16), new THREE.MeshBasicMaterial({ color: '#f4f1e1' }));
+  skyMoon.add(m, glowSprite('#fffbe6', 11));
+  [[.6, .7, .7], [-.8, -.3, .5], [.2, -.9, .4]].forEach(([x, y, r]) => {   // craters
+    const c = new THREE.Mesh(new THREE.CircleGeometry(r, 16), new THREE.MeshBasicMaterial({ color: '#d8d3bd' }));
+    c.position.set(x, y, 2.38); skyMoon.add(c);
+  });
+  skyMoon.position.copy(skyDir(-120, 32).multiplyScalar(SKY_R - 6));
+  skyMoon.lookAt(new THREE.Vector3());
+  skyDome.add(skyMoon);
+}
+// Star groups — Thai folk names first. dx/dy are degrees around the group's centre.
+const CONSTELLATIONS = [
+  { th: 'ดาวไถ', en: 'Orion', az: 0, alt: 44, color: '#9fd3ff',
+    say: 'ดาวไถ คนไทยเห็นเป็นคันไถนา ฝรั่งเห็นเป็นนายพราน มีดาว 3 ดวงเรียงกันตรงเข็มขัด',
+    stars: [[-5, 9, 1.4, '#ffb27a'], [5, 8, 1], [2, 0, 1], [0, -.6, 1], [-2, -1.2, 1], [-4, -9, 1], [5, -8, 1.4, '#bcd6ff'], [-.3, -3.6, .7], [-.6, -6, .7]],
+    lines: [[0, 1], [0, 4], [1, 2], [2, 3], [3, 4], [4, 5], [2, 6], [5, 6], [3, 7], [7, 8]] },
+  { th: 'ดาวลูกไก่', en: 'Pleiades', az: -40, alt: 64, color: '#ffe08a',
+    say: 'ดาวลูกไก่ นิทานไทยเล่าว่า เป็นแม่ไก่กับลูกไก่ ที่บินตามกันขึ้นไปอยู่บนฟ้า',
+    stars: [[0, 0, .9], [4, 2, .9], [6.8, -.5, .8], [3.4, -3.4, .8], [8.8, 2.9, .7], [-2.9, 2.9, .7], [1.4, 5.4, .7]],
+    lines: [[5, 0], [0, 1], [1, 4], [0, 3], [3, 2], [2, 1], [1, 6]] },
+  { th: 'ดาวจระเข้', en: 'Big Dipper', az: 62, alt: 40, color: '#a6f0c6',
+    say: 'ดาวจระเข้ ฝรั่งเห็นเป็นกระบวยตักน้ำ ลากเส้นจากดาว 2 ดวงตรงปลาย จะเจอดาวเหนือ ใช้บอกทิศเหนือได้',
+    stars: [[-12, 3, 1.1], [-12, -2.5, 1], [-5.5, -3.5, .9], [-4.5, 1, .9], [1, 2, 1], [6.5, 1, 1], [12, -2.5, 1], [-14, -20, 1.2, '#fff6d0']],
+    lines: [[0, 1], [1, 2], [2, 3], [3, 0], [3, 4], [4, 5], [5, 6], [1, 0], [0, 7]] },
+  { th: 'ดาวแมงป่อง', en: 'Scorpius', az: -78, alt: 34, color: '#ffb0a0',
+    say: 'ดาวแมงป่อง มีดาวสีแดงตรงหัวใจ หางงอขึ้นเหมือนแมงป่องจริงๆ',
+    stars: [[-8, 7, .9], [-9, 3.5, .9], [-8, 0, .8], [-4.5, 1.2, .8], [0, 0, 1.4, '#ff7a5a'], [2.2, -3, .8], [4, -6.5, .8], [4, -10.5, .9], [1.8, -13.5, .9], [-1.2, -14, .9], [-3, -12.2, 1]],
+    lines: [[0, 1], [1, 2], [1, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10]] },
+];
+const lineMats = [];
+CONSTELLATIONS.forEach(cst => {
+  const pts = cst.stars.map(([dx, dy, mag, col]) => {
+    dx *= .9; dy *= .9;
+    const alt = cst.alt + dy, az = cst.az + dx / Math.cos(THREE.MathUtils.degToRad(alt));
+    const p = skyDir(az, alt).multiplyScalar(SKY_R - 2);
+    const s = glowSprite(col || '#ffffff', 2.6 * mag);
+    s.position.copy(p); s.material.opacity = 0; s.userData.base = 2.6 * mag; s.userData.cst = cst;
+    skyDome.add(s);
+    return s;
+  });
+  cst.sprites = pts;
+  const seg = [];
+  cst.lines.forEach(([a, b]) => seg.push(pts[a].position, pts[b].position));
+  const mat = new THREE.LineBasicMaterial({ color: cst.color, transparent: true, opacity: 0, depthWrite: false });
+  cst.lineObj = new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(seg), mat);
+  skyDome.add(cst.lineObj); lineMats.push(mat);
+  cst.label = kit.labelSprite(`${cst.th} · ${cst.en}`, 3.2, { bg: '#1b2350', fg: '#ffffff' });
+  const top = Math.max(...cst.stars.map(s => s[1])) * .9;
+  cst.label.position.copy(skyDir(cst.az, cst.alt + top + 5).multiplyScalar(SKY_R - 4));
+  cst.label.material.opacity = 0;
+  skyDome.add(cst.label);
+  // a big invisible ball around the group makes it easy to tap
+  const hit = new THREE.Mesh(new THREE.SphereGeometry(13, 8, 6), new THREE.MeshBasicMaterial({ visible: false }));
+  hit.position.copy(skyDir(cst.az, cst.alt - 2).multiplyScalar(SKY_R - 4)); hit.userData.cst = cst;
+  skyDome.add(hit); cst.hit = hit;
+  cst.show = 0;   // 0 → 1 while its lines are drawn
+});
+const SKY = { night: 0, want: 1, cst: -1, meteors: [], nextMeteor: 4 };
+const SKY_DAY = new THREE.Color('#8fd3ff'), SKY_DUSK = new THREE.Color('#ff9a6b'), SKY_NIGHT = new THREE.Color('#070a1f');
+
+function lookAtSky(az, alt, ms = 1600) {
+  kit.flyTo(stage, EYE.clone(), EYE.clone().add(skyDir(az, alt)), ms);
+}
+function showConstellation(i) {
+  SKY.cst = i;
+  const c = CONSTELLATIONS[i];
+  if (SKY.want < 1) setNight(true);
+  lookAtSky(c.az, c.alt + 2);
+  caption(c.say, true, 8000);
+  kit.tones([523, 659, 784], .07, 'sine', .1);
+}
+function setNight(on) {
+  SKY.want = on ? 1 : 0;
+  document.getElementById('dayBtn').classList.toggle('on', !on);
+  document.getElementById('nightBtn').classList.toggle('on', on);
+  caption(on ? 'มืดแล้ว ดาวออกมาเต็มฟ้าเลย! ลองแตะกลุ่มดาวดูนะ ✨'
+             : 'กลางวันดาวก็ยังอยู่นะ แต่ดวงอาทิตย์สว่างมาก เลยมองไม่เห็นดาว ☀️', true, 6500);
+}
+function shootingStar() {
+  const az = -60 + Math.random() * 120, alt = 35 + Math.random() * 35;
+  const from = skyDir(az, alt).multiplyScalar(SKY_R - 3), dir = skyDir(az + 25, alt - 14).multiplyScalar(SKY_R - 3).sub(from);
+  const geo = new THREE.BufferGeometry().setFromPoints([from, from.clone()]);
+  const line = new THREE.Line(geo, new THREE.LineBasicMaterial({ color: '#ffffff', transparent: true, opacity: 1, depthWrite: false }));
+  skyDome.add(line);
+  SKY.meteors.push({ line, from, dir, t: 0 });
+}
+function enterSky() {
+  stars.visible = false;
+  SKY.night = 0; SKY.want = 1; SKY.cst = -1;
+  document.getElementById('dayBtn').classList.remove('on'); document.getElementById('nightBtn').classList.add('on');
+  // start looking at the grass, then tilt up while the sun goes down
+  kit.flyTo(stage, new THREE.Vector3(SX + 3, 6, 15), new THREE.Vector3(SX, 1.5, 0), 900);
+  setTimeout(() => { if (mode === 'sky') lookAtSky(0, 42, 2600); }, 1000);
+  caption('ดวงอาทิตย์กำลังตก… มองขึ้นไปบนฟ้ากัน 🌅', true, 4000);
+  setTimeout(() => { if (mode === 'sky' && SKY.want === 1) caption('มืดแล้ว ดาวออกมาเต็มฟ้าเลย! แตะกลุ่มดาว หรือกดปุ่ม ⭐ นะ ✨', true, 6500); }, 4300);
+}
+function updateSky(dt, time) {
+  SKY.night += Math.sign(SKY.want - SKY.night) * Math.min(Math.abs(SKY.want - SKY.night), dt / 3.5);
+  const n = SKY.night;
+  // day → sunset → night
+  if (n < .5) scene.background.copy(SKY_DAY).lerp(SKY_DUSK, n * 2);
+  else scene.background.copy(SKY_DUSK).lerp(SKY_NIGHT, (n - .5) * 2);
+  stage.hemi.intensity = 1.25 * (1 - .78 * n); sun.intensity = 1.7 * (1 - .9 * n);
+  skySun.position.copy(skyDir(25 + 45 * n, 40 - 52 * n).multiplyScalar(SKY_R - 8));   // the sun sets to the right
+  cloudMat.opacity = Math.max(0, 1 - n * 1.6);
+  skyClouds.visible = n < .65;
+  skySun.visible = n < .95;
+  skyMoon.visible = n > .25;
+  skyMoon.children[1].material.opacity = n;
+  const starsOn = Math.max(0, (n - .45) / .55);
+  starLayers.forEach((L, i) => { L.material.opacity = L.userData.max * starsOn * (.82 + Math.sin(time * (1.3 + i * .9) + i) * .18); });
+  CONSTELLATIONS.forEach((c, ci) => {
+    c.show += ((SKY.cst === ci ? 1 : 0) - c.show) * Math.min(1, dt * 3);
+    c.sprites.forEach((s, i) => {
+      s.material.opacity = starsOn;
+      s.scale.setScalar(s.userData.base * (1 + Math.sin(time * 3 + i * 1.7 + ci) * .12 + c.show * .25));
+    });
+    c.lineObj.material.opacity = c.show * starsOn * .9;
+    c.label.material.opacity = c.show * starsOn;
+  });
+  // shooting stars: now and then at night (or when the 🌠 button is pressed)
+  SKY.nextMeteor -= dt;
+  if (n > .9 && SKY.nextMeteor <= 0) { shootingStar(); SKY.nextMeteor = 5 + Math.random() * 6; }
+  for (let i = SKY.meteors.length - 1; i >= 0; i--) {
+    const m = SKY.meteors[i];
+    m.t += dt * 1.4;
+    const head = m.from.clone().addScaledVector(m.dir, Math.min(1, m.t)), tail = m.from.clone().addScaledVector(m.dir, Math.max(0, m.t - .35));
+    m.line.geometry.setFromPoints([tail, head]);
+    m.line.material.opacity = (1 - Math.max(0, m.t - 1) / .35) * Math.max(starsOn, .3);
+    if (m.t > 1.35) { skyDome.remove(m.line); m.line.geometry.dispose(); SKY.meteors.splice(i, 1); }
+  }
+  kit.poseSummer(skySummer, time, SKY.cst >= 0 ? 'cheer' : 'idle');
+}
+
+/* =========================================================
+   🪐 SOLAR — the Sun in the middle, 8 planets around it (sizes and distances
+   squeezed so they all fit). A tour flies from the nearest planet to the farthest.
+   ========================================================= */
+const PX = 200;
+const solarArea = new THREE.Group();
+solarArea.position.set(PX, 0, 0);
+scene.add(solarArea);
+// far-away stars all around (a full sphere, unlike the drop-test stars)
+{
+  const n = 1600, pos = new Float32Array(n * 3);
+  for (let i = 0; i < n; i++) { const v = new THREE.Vector3().randomDirection().multiplyScalar(420 + Math.random() * 40); pos.set([v.x, v.y, v.z], i * 3); }
+  const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  solarArea.add(new THREE.Points(geo, new THREE.PointsMaterial({ color: '#ffffff', size: 1.8, sizeAttenuation: false })));
+}
+// Planet skins are painted on a canvas (bands, spots, continents)
+function paintTexture(w, h, draw) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  draw(c.getContext('2d'), w, h);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+const rnd = (a, b) => a + Math.random() * (b - a);
+function blobs(g, w, h, color, n, rmin, rmax) { g.fillStyle = color; for (let i = 0; i < n; i++) { g.beginPath(); g.ellipse(rnd(0, w), rnd(h * .15, h * .85), rnd(rmin, rmax) * 1.6, rnd(rmin, rmax), 0, 0, Math.PI * 2); g.fill(); } }
+function bands(g, w, h, colors) { const bh = h / colors.length; colors.forEach((c, i) => { g.fillStyle = c; g.fillRect(0, i * bh, w, bh + 1); }); }
+const SKINS = {
+  sun:     (g, w, h) => { g.fillStyle = '#ffb000'; g.fillRect(0, 0, w, h); blobs(g, w, h, 'rgba(255,120,0,.55)', 40, 6, 16); blobs(g, w, h, 'rgba(255,230,120,.6)', 30, 4, 12); },
+  mercury: (g, w, h) => { g.fillStyle = '#a29d97'; g.fillRect(0, 0, w, h); blobs(g, w, h, '#86817b', 30, 3, 9); blobs(g, w, h, '#bdb8b1', 20, 2, 6); },
+  venus:   (g, w, h) => { bands(g, w, h, ['#e9c98d', '#f2dcaa', '#e3bd7c', '#f4e1b4', '#e6c286', '#f0d6a0']); blobs(g, w, h, 'rgba(255,245,215,.35)', 20, 6, 18); },
+  earth:   (g, w, h) => { g.fillStyle = '#2f7fd6'; g.fillRect(0, 0, w, h); blobs(g, w, h, '#4caf50', 7, 8, 15); blobs(g, w, h, '#8bc34a', 4, 4, 8); g.fillStyle = '#ffffff'; g.fillRect(0, 0, w, h * .07); g.fillRect(0, h * .93, w, h * .07); blobs(g, w, h, 'rgba(255,255,255,.55)', 16, 4, 10); },
+  mars:    (g, w, h) => { g.fillStyle = '#c8573e'; g.fillRect(0, 0, w, h); blobs(g, w, h, '#93402c', 14, 6, 18); blobs(g, w, h, '#de7a52', 10, 5, 12); g.fillStyle = '#fff4ee'; g.fillRect(0, 0, w, h * .06); g.fillRect(0, h * .95, w, h * .05); },
+  jupiter: (g, w, h) => { bands(g, w, h, ['#e8d8bd', '#c99a6b', '#efe2cb', '#b0794e', '#e3cfae', '#a86a42', '#efe2cb', '#c99a6b', '#e8d8bd']); g.fillStyle = '#c4553b'; g.beginPath(); g.ellipse(w * .62, h * .64, 11, 5.5, 0, 0, Math.PI * 2); g.fill(); },
+  saturn:  (g, w, h) => { bands(g, w, h, ['#efe0b4', '#dcc48c', '#f2e6c2', '#d2b77c', '#efe0b4', '#e2cc98']); },
+  uranus:  (g, w, h) => { bands(g, w, h, ['#a6e6ea', '#9adfe4', '#b2ecef', '#9adfe4', '#a6e6ea']); },
+  neptune: (g, w, h) => { bands(g, w, h, ['#3d72e3', '#3366d6', '#4a80ec', '#2f5bc4', '#3d72e3']); g.fillStyle = '#1d3b8f'; g.beginPath(); g.ellipse(w * .4, h * .58, 14, 7, 0, 0, Math.PI * 2); g.fill(); },
+};
+function ringTexture(colors) {
+  return paintTexture(256, 256, (g, w) => {
+    colors.forEach(([r0, r1, col]) => { g.beginPath(); g.arc(w / 2, w / 2, r1 * w / 2, 0, Math.PI * 2); g.arc(w / 2, w / 2, r0 * w / 2, 0, Math.PI * 2, true); g.fillStyle = col; g.fill(); });
+  });
+}
+// The planets in order from the Sun. day = the Thai weekday named after it.
+const PLANETS = [
+  { id: 'mercury', th: 'ดาวพุธ',       en: 'Mercury', r: .55, orbit: 11, say: 'ดาวพุธ อยู่ใกล้ดวงอาทิตย์ที่สุด เล็กที่สุด และวิ่งรอบดวงอาทิตย์เร็วที่สุด ชื่อวันพุธมาจากดาวดวงนี้' },
+  { id: 'venus',   th: 'ดาวศุกร์',      en: 'Venus',   r: .95, orbit: 15, say: 'ดาวศุกร์ ร้อนที่สุดในระบบสุริยะ และสว่างมาก ตอนเช้ามืดเรียกว่าดาวประกายพรึก' },
+  { id: 'earth',   th: 'โลก',          en: 'Earth',   r: 1,   orbit: 19.5, say: 'โลก บ้านของเรา มีน้ำ มีอากาศ มีต้นไม้ สัตว์ และคน มีดวงจันทร์ 1 ดวง' },
+  { id: 'mars',    th: 'ดาวอังคาร',     en: 'Mars',    r: .75, orbit: 24, say: 'ดาวอังคาร ดาวสีแดง เพราะดินมีสนิมเหล็ก ตอนนี้มีหุ่นยนต์รถสำรวจวิ่งอยู่บนนั้น' },
+  { id: 'jupiter', th: 'ดาวพฤหัสบดี',   en: 'Jupiter', r: 2.6, orbit: 33, say: 'ดาวพฤหัสบดี ใหญ่ที่สุด ใส่โลกได้เป็นพันใบ จุดแดงคือพายุยักษ์' },
+  { id: 'saturn',  th: 'ดาวเสาร์',      en: 'Saturn',  r: 2.2, orbit: 43, say: 'ดาวเสาร์ มีวงแหวนสวยที่สุด วงแหวนทำจากน้ำแข็งกับก้อนหิน' },
+  { id: 'uranus',  th: 'ดาวยูเรนัส',     en: 'Uranus',  r: 1.5, orbit: 52, say: 'ดาวยูเรนัส สีฟ้าอมเขียว หนาวมาก และหมุนตัวแบบนอนตะแคง' },
+  { id: 'neptune', th: 'ดาวเนปจูน',     en: 'Neptune', r: 1.45, orbit: 60, say: 'ดาวเนปจูน อยู่ไกลที่สุด สีน้ำเงินเข้ม มีลมแรงที่สุดในระบบสุริยะ' },
+];
+const SUN_R = 5.5;
+const sunBall = new THREE.Mesh(new THREE.SphereGeometry(SUN_R, 40, 28), new THREE.MeshBasicMaterial({ map: paintTexture(256, 128, SKINS.sun) }));
+solarArea.add(sunBall);
+solarArea.add(glowSprite('#ffcf5a', SUN_R * 4.2, glowTexture('rgba(255,236,160,.9)', 'rgba(255,170,40,0)')));
+const sunLabel = kit.labelSprite('ดวงอาทิตย์ · Sun', 2.4, { bg: '#ffb000', fg: '#ffffff' });
+sunLabel.position.set(0, SUN_R + 2.5, 0); solarArea.add(sunLabel);
+sunBall.userData.stop = 0;
+const sunLight = new THREE.PointLight('#fff2d6', 2.6, 0, 0);
+sunLight.visible = false;
+solarArea.add(sunLight);
+PLANETS.forEach((P, i) => {
+  P.pivot = new THREE.Group(); solarArea.add(P.pivot);
+  P.ball = new THREE.Mesh(new THREE.SphereGeometry(P.r, 32, 20), new THREE.MeshLambertMaterial({ map: paintTexture(256, 128, SKINS[P.id]) }));
+  P.ball.userData.stop = i + 1;
+  P.pivot.add(P.ball);
+  if (P.id === 'saturn' || P.id === 'uranus') {
+    const ring = new THREE.Mesh(new THREE.RingGeometry(P.r * 1.35, P.r * (P.id === 'saturn' ? 2.3 : 1.8), 64),
+      new THREE.MeshLambertMaterial({ map: P.id === 'saturn' ? ringTexture([[.59, .7, '#cdb27a'], [.72, .86, '#efe0b4'], [.89, 1, '#d8c08e']]) : ringTexture([[.75, .8, '#cfeff2'], [.92, .96, '#cfeff2']]),
+        side: THREE.DoubleSide, transparent: true }));
+    ring.rotation.x = -Math.PI / 2 + (P.id === 'saturn' ? .45 : 0); ring.rotation.y = P.id === 'uranus' ? 1.5 : 0;
+    ring.userData.stop = i + 1;
+    P.pivot.add(ring);
+  }
+  if (P.id === 'earth') {   // the Moon goes round the Earth
+    P.moon = new THREE.Mesh(new THREE.SphereGeometry(.28, 16, 12), new THREE.MeshLambertMaterial({ color: '#d9d6cc' }));
+    P.pivot.add(P.moon);
+  }
+  if (P.id === 'uranus') P.ball.rotation.z = 1.7;
+  P.label = kit.labelSprite(`${P.th} · ${P.en}`, 2, { bg: '#1b2350', fg: '#ffffff' });
+  P.pivot.add(P.label);
+  // faint orbit ring
+  const pts = [];
+  for (let k = 0; k <= 128; k++) { const a = k / 128 * Math.PI * 2; pts.push(new THREE.Vector3(Math.cos(a) * P.orbit, 0, Math.sin(a) * P.orbit)); }
+  solarArea.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: '#8fa3ff', transparent: true, opacity: .28 })));
+  P.angle = 2.2 + i * 1.1;
+  P.speed = .08 * Math.pow(19.5 / P.orbit, 1.5);   // inner planets go round faster (like the real ones)
+});
+const STOPS = [{ th: 'ดวงอาทิตย์', en: 'Sun', say: 'นี่คือดวงอาทิตย์ อยู่ตรงกลางระบบสุริยะ เป็นดาวฤกษ์ที่ร้อนมาก ให้แสงสว่างและความอบอุ่น ดาวเคราะห์ 8 ดวงวิ่งวนรอบมัน' }, ...PLANETS];
+const SOL = { stop: -1, auto: true, wait: 0, fly: 1, flyFrom: null, flyOff: null, offset: new THREE.Vector3() };
+const stopPill = document.getElementById('stopPill'), tourBtn = document.getElementById('tourBtn');
+function stopWorldPos(i, out = new THREE.Vector3()) {
+  return i === 0 ? out.copy(solarArea.position) : PLANETS[i - 1].ball.getWorldPosition(out);
+}
+function goStop(i, say = true) {
+  SOL.stop = THREE.MathUtils.clamp(i, 0, STOPS.length - 1);
+  const S = STOPS[SOL.stop];
+  stopPill.textContent = SOL.stop === 0 ? '☀️ ดวงอาทิตย์' : `${SOL.stop}/8 ${S.th}`;
+  // where the camera should sit: a bit towards the Sun and to the side, so we see the lit face
+  const p = stopWorldPos(SOL.stop), size = SOL.stop === 0 ? SUN_R : S.r;
+  const d = size * (SOL.stop === 0 ? 5 : 7.5) + 4;
+  let off;
+  if (SOL.stop === 0) off = new THREE.Vector3(0, .45, 1).normalize().multiplyScalar(d);
+  else {
+    const out = p.clone().sub(solarArea.position).setY(0).normalize(), side = new THREE.Vector3(-out.z, 0, out.x);
+    off = out.multiplyScalar(-.55).add(side.multiplyScalar(.75)).add(new THREE.Vector3(0, .6, 0)).normalize().multiplyScalar(d);   // from above, so rings show
+  }
+  SOL.fly = 0; SOL.flyFrom = { cam: camera.position.clone(), tgt: controls.target.clone() }; SOL.flyOff = off;
+  SOL.wait = 9;
+  if (say) caption(SOL.stop === 0 ? S.say : `ดวงที่ ${SOL.stop} ${S.say}`, true, 9000);
+  kit.tones([440, 660], .06, 'sine', .1);
+}
+function setTour(on) {
+  SOL.auto = on;
+  tourBtn.textContent = on ? '⏸ หยุด' : '▶ ทัวร์';
+}
+function enterSolar() {
+  scene.background.copy(SKY_SPACE); stars.visible = false;
+  stage.hemi.intensity = .35; sun.intensity = 0; sunLight.visible = true;
+  // start with the whole solar system, then the tour begins at the Sun
+  SOL.stop = -1; SOL.fly = 1; setTour(true);
+  kit.flyTo(stage, new THREE.Vector3(PX + 6, portraitView() ? 170 : 62, portraitView() ? 190 : 92), new THREE.Vector3(PX, 0, 0), 1200);
+  stopPill.textContent = '🪐 ระบบสุริยะ';
+  caption('นี่คือระบบสุริยะ! ดวงอาทิตย์อยู่ตรงกลาง มีดาวเคราะห์ 8 ดวงวิ่งวนรอบ ไปดูทีละดวงกัน 🚀', true, 6000);
+  SOL.wait = 6.5;
+}
+function portraitView() { return innerWidth < innerHeight; }
+function updateSolar(dt, time) {
+  sunBall.rotation.y += dt * .05;
+  const sh = THREE.MathUtils.clamp(camera.position.distanceTo(solarArea.position) * .028, .8, 2.8);
+  sunLabel.scale.set(sh * sunLabel.scale.x / sunLabel.scale.y, sh, 1); sunLabel.position.y = SUN_R + sh * .6 + .4;
+  PLANETS.forEach(P => {
+    P.angle += P.speed * dt;
+    P.pivot.position.set(Math.cos(P.angle) * P.orbit, 0, Math.sin(P.angle) * P.orbit);
+    P.ball.rotation.y += dt * (P.id === 'jupiter' || P.id === 'saturn' ? .9 : .4);
+    if (P.moon) P.moon.position.set(Math.cos(time * .9) * 1.9, .2, Math.sin(time * .9) * 1.9);
+    // labels float above each planet and keep a readable size from any distance
+    const dist = camera.position.distanceTo(P.ball.getWorldPosition(new THREE.Vector3()));
+    const h = THREE.MathUtils.clamp(dist * .028, .45, 2.6);
+    P.label.scale.set(h * P.label.scale.x / P.label.scale.y, h, 1);
+    P.label.position.set(0, P.r + h * .7 + .3, 0);
+  });
+  // camera: fly in, then ride along with the planet (dragging still turns around it)
+  if (SOL.stop >= 0) {
+    const p = stopWorldPos(SOL.stop);
+    if (SOL.fly < 1) {
+      SOL.fly = Math.min(1, SOL.fly + dt / 2.2);
+      const e = SOL.fly * SOL.fly * (3 - 2 * SOL.fly);
+      controls.target.lerpVectors(SOL.flyFrom.tgt, p, e);
+      camera.position.lerpVectors(SOL.flyFrom.cam, p.clone().add(SOL.flyOff), e);
+      SOL.offset.copy(camera.position).sub(controls.target);
+    } else {
+      SOL.offset.copy(camera.position).sub(controls.target);
+      controls.target.copy(p); camera.position.copy(p).add(SOL.offset);
+    }
+  }
+  // the tour moves on by itself
+  if (SOL.auto && SOL.fly >= 1) {
+    SOL.wait -= dt;
+    if (SOL.wait <= 0) {
+      if (SOL.stop < STOPS.length - 1) goStop(SOL.stop + 1);
+      else {
+        setTour(false);
+        caption('ครบ 8 ดวงแล้ว! จากดาวพุธที่ใกล้ที่สุด ถึงดาวเนปจูนที่ไกลที่สุด เก่งมาก 🎉', true, 7000);
+        kit.cheer(); fx.burst(...stopWorldPos(SOL.stop).add(new THREE.Vector3(0, 2, 0)).toArray());
+      }
+    }
+  }
+}
+
+/* =========================================================
    Modes, input, main loop
    ========================================================= */
 const MODES = {
   drop:   { area: dropArea,   pos: [8, 8.5, 20],      target: [0, 3, 1.5],  intro: 'แตะของที่ห้อยอยู่ เพื่อปล่อยลงมา 👆' },
   rocket: { area: rocketArea, pos: [RX + 10, 7, 17],  target: [RX, 3.2, 0],   intro: 'กดค้างเติมน้ำมัน แล้วปล่อยจรวด! ⛽' },
   jump:   { area: jumpArea,   pos: [JX, 4.5, 14],     target: [JX, 2.4, 0], intro: 'กดปุ่มกระโดด! 🦘' },
+  sky:    { area: skyArea,    enter: enterSky },
+  solar:  { area: solarArea,  enter: enterSolar },
 };
+// The sky and the solar system change the lights and how the camera may turn — put them back afterwards
+function cameraLimits(m) {
+  controls.enableZoom = m !== 'sky';
+  // sky: no zoom, so once the camera stands 1 m behind its target, dragging just turns your head
+  if (m === 'sky') Object.assign(controls, { minDistance: .3, maxDistance: 40, minPolarAngle: .1, maxPolarAngle: Math.PI - .1 });
+  else if (m === 'solar') Object.assign(controls, { minDistance: 2, maxDistance: 300, minPolarAngle: .05, maxPolarAngle: Math.PI - .05 });
+  else Object.assign(controls, { minDistance: 7, maxDistance: 32, minPolarAngle: .3, maxPolarAngle: 1.45 });
+  // a wide view under the night sky, like lying on the grass; normal lens everywhere else
+  const portrait = innerWidth < innerHeight;
+  camera.fov = m === 'sky' ? (portrait ? 72 : 58) : (portrait ? 45 : 35);
+  camera.updateProjectionMatrix();
+}
+addEventListener('resize', () => cameraLimits(mode));
 let mode = null;
 function setMode(m) {
   if (mode === 'rocket' && R.state !== 'ground') resetRocket();
@@ -537,8 +981,12 @@ function setMode(m) {
   document.querySelectorAll('.w-mode').forEach(b => b.classList.toggle('on', b.dataset.go === m));
   document.querySelectorAll('.w-controls').forEach(c => { c.style.display = c.dataset.mode === m ? '' : 'none'; });
   const M = MODES[m];
+  cameraLimits(m);
+  stage.hemi.intensity = 1.25; sun.intensity = 1.7; sunLight.visible = false;
+  const ax = M.pos ? M.target[0] : m === 'sky' ? SX : PX;
+  sun.target.position.set(ax, 0, 0); sun.position.set(ax + 18, 32, 14);
+  if (M.enter) { M.enter(); return; }
   kit.flyTo(stage, new THREE.Vector3(...M.pos), new THREE.Vector3(...M.target));
-  sun.target.position.set(M.target[0], 0, 0); sun.position.set(M.target[0] + 18, 32, 14);
   if (m === 'drop') { scene.background.copy(planet === 'moon' ? SKY_SPACE : SKY_EARTH); stars.visible = planet === 'moon'; }
   else if (m === 'jump') { scene.background.copy(SKY_WARM); stars.visible = false; }
   else { scene.background.copy(SKY_EARTH); stars.visible = false; }
@@ -552,6 +1000,20 @@ document.getElementById('resetDropBtn').onclick = () => { hangAll(); caption('�
 launchBtn.onclick = launch;
 rocketResetBtn.onclick = resetRocket;
 document.getElementById('jumpBtn').onclick = jump;
+document.getElementById('dayBtn').onclick = () => { SKY.cst = -1; setNight(false); lookAtSky(28, 32); };
+document.getElementById('nightBtn').onclick = () => setNight(true);
+document.getElementById('constBtn').onclick = () => showConstellation((SKY.cst + 1) % CONSTELLATIONS.length);
+document.getElementById('meteorBtn').onclick = () => {
+  if (SKY.night < .6) { caption('ดาวตกต้องดูตอนกลางคืนนะ กด 🌙 ก่อน', true, 3500); return; }
+  shootingStar(); caption('ดาวตก! จริงๆ คือก้อนหินเล็กๆ ที่ลุกเป็นไฟตอนตกเข้ามาในอากาศ 🌠', true, 5500);
+};
+document.getElementById('prevBtn').onclick = () => { setTour(false); goStop(Math.max(0, SOL.stop - 1)); };
+document.getElementById('nextBtn').onclick = () => { setTour(false); goStop(SOL.stop + 1); };
+tourBtn.onclick = () => {
+  if (SOL.auto) { setTour(false); caption('หยุดทัวร์แล้ว กด ◀ ▶ หรือแตะดาวเคราะห์ได้เลย', true, 4000); return; }
+  setTour(true);
+  goStop(SOL.stop >= STOPS.length - 1 ? 0 : SOL.stop + 1);
+};
 const infoModal = document.getElementById('infoModal');
 document.getElementById('infoBtn').onclick = () => infoModal.classList.add('show');
 document.getElementById('infoClose').onclick = () => infoModal.classList.remove('show');
@@ -565,21 +1027,35 @@ canvas.addEventListener('pointerup', e => {
   if (!press) return;
   const tap = Math.hypot(e.clientX - press.x, e.clientY - press.y) < 10 && performance.now() - press.t < 500;
   press = null;
-  if (!tap || mode !== 'drop') return;
+  if (!tap) return;
   ndc.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
   raycaster.setFromCamera(ndc, camera);
+  if (mode === 'sky') {
+    const h = raycaster.intersectObjects(CONSTELLATIONS.map(c => c.hit))[0];
+    if (h && SKY.night > .6) showConstellation(CONSTELLATIONS.indexOf(h.object.userData.cst));
+    return;
+  }
+  if (mode === 'solar') {
+    const h = raycaster.intersectObjects([sunBall, ...PLANETS.map(P => P.pivot)], true).find(x => x.object.userData.stop !== undefined);
+    if (h) { setTour(false); goStop(h.object.userData.stop); }
+    return;
+  }
+  if (mode !== 'drop') return;
   const hit = raycaster.intersectObjects(DROP.map(o => o.g), true)[0];
   if (hit) drop(hit.object.userData.dropObj);
   else if (raycaster.intersectObject(towerSummer.g, true).length) { fx.burst(0, 8, -.6, ['#ff8fbf']); caption('ฮิฮิ 😊', false, 1200); }
 });
 
 camera.position.set(8, 8.5, 20); controls.target.set(0, 3, 1.5);
+camera.far = 1200; camera.updateProjectionMatrix();   // the solar system's star sphere is far away
 setMode('drop');
 showFuel();
 stage.start((dt, time) => {
   if (mode === 'drop') updateDrop(dt, time);
   if (mode === 'rocket') updateRocket(dt, time);
   if (mode === 'jump') updateJump(dt, time);
+  if (mode === 'sky') updateSky(dt, time);
+  if (mode === 'solar') updateSolar(dt, time);
   fx.update(dt);
   stars.position.copy(camera.position);   // the star dome travels with the camera
   for (let i = puffs.length - 1; i >= 0; i--) {
@@ -589,6 +1065,8 @@ stage.start((dt, time) => {
     if (p.life <= 0) { scene.remove(p.m); puffs.splice(i, 1); }
   }
 });
+// test hooks
+window.__space = { setMode, showConstellation, setNight, goStop, setTour, SKY, SOL, shootingStar };
 window.__worldReady = true;
 </script>
 </body>
