@@ -2,184 +2,116 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>🌾 ฟาร์มฝึกคิด — Summer's World</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="world-theme.css">
 <style>
-  :root { --cream:#FFF8E8; --dark:#2D3047; --pink:#FF6B9D; --yellow:#FFD93D; --farm:#22c55e; }
-  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  body { min-height:100vh; font-family:'Fredoka','Noto Sans Thai',sans-serif; background:#fff9f0; overflow-x:hidden; }
-
-  /* BACKGROUND */
-  .blobs { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
-  .blob  { position:absolute; border-radius:50%; animation:blob-float ease-in-out infinite; opacity:.18; }
-  @keyframes blob-float { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(20px,-28px) scale(1.05)} }
-
-  /* NAV */
-  .site-nav { position:sticky; top:0; z-index:100; background:var(--cream); border-bottom:4px solid var(--dark); box-shadow:0 4px 0 var(--dark); padding:10px 16px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-  .nav-brand { font-family:'Bungee',cursive; font-size:15px; color:var(--dark); text-shadow:2px 2px 0 var(--pink); white-space:nowrap; flex-shrink:0; text-decoration:none; }
-  .nav-links { display:flex; gap:6px; flex-wrap:wrap; }
-  .nav-link  { text-decoration:none; font-family:'Fredoka','Noto Sans Thai',sans-serif; font-size:13px; font-weight:600; padding:5px 13px; border-radius:12px; border:2.5px solid var(--dark); color:var(--dark); background:white; transition:all .12s; display:inline-flex; align-items:center; gap:4px; white-space:nowrap; box-shadow:2px 2px 0 var(--dark); }
-  .nav-link:hover  { background:var(--yellow); transform:translate(-1px,-1px); box-shadow:3px 3px 0 var(--dark); }
-  .nav-link.active { background:var(--farm); color:white; border-color:var(--farm); }
-  @media(max-width:420px){ .nav-brand{font-size:13px} .nav-link{font-size:11px;padding:4px 10px} }
-
-  /* PAGE */
-  .page { position:relative; z-index:1; max-width:520px; margin:0 auto; padding:24px 16px 60px; }
-  .home-link-wrap { margin-bottom:14px; }
-  .home-link { display:inline-flex; align-items:center; gap:8px; text-decoration:none; background:white; color:var(--dark); border:2.5px solid var(--dark); border-radius:999px; padding:10px 16px; font-size:15px; font-weight:800; box-shadow:2px 2px 0 var(--dark); }
-  .home-link:hover { background:var(--yellow); }
-
-  /* HERO */
-  .hero { text-align:center; margin-bottom:32px; }
-  .hero-emoji { font-size:88px; display:block; animation:hero-float 3s ease-in-out infinite; }
-  @keyframes hero-float { 0%,100%{transform:translateY(0) rotate(-3deg)} 50%{transform:translateY(-16px) rotate(3deg)} }
-  .hero-title { font-family:'Bungee',cursive; font-size:clamp(24px,8vw,40px); color:var(--dark); margin:12px 0 8px; line-height:1.1; }
-  .hero-sub   { color:#6b5e78; font-size:17px; font-weight:600; line-height:1.6; }
-  .hero-badge { display:inline-block; background:linear-gradient(135deg,#15803d,var(--farm)); color:white; font-family:'Bungee',cursive; font-size:10px; letter-spacing:1.5px; padding:5px 14px; border-radius:20px; border:2.5px solid var(--dark); margin-top:10px; box-shadow:2px 2px 0 var(--dark); }
-
-  /* CATEGORY GRID */
-  .cat-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:24px; }
-  .cat-btn  { border:3px solid var(--dark); border-radius:22px; padding:22px 14px; text-align:center; cursor:pointer; box-shadow:4px 4px 0 var(--dark); transition:all .12s; font-family:'Fredoka','Noto Sans Thai',sans-serif; background:white; }
-  .cat-btn:hover  { transform:translate(-2px,-2px); box-shadow:6px 6px 0 var(--dark); }
-  .cat-btn:active { transform:translate(1px,1px);   box-shadow:2px 2px 0 var(--dark); }
-  .cat-btn .cat-em    { font-size:52px; display:block; margin-bottom:10px; }
-  .cat-btn .cat-name  { font-size:16px; font-weight:700; color:var(--dark); line-height:1.4; }
-  .cat-btn .cat-en    { font-size:11px; font-weight:600; color:#888; margin-top:3px; }
-  .cat-btn .cat-score { font-size:13px; font-weight:700; margin-top:9px; color:#666; }
-  .cat-btn.done       { outline:4px solid var(--farm); outline-offset:2px; }
-  .cat-btn.done .cat-score { color:var(--farm); }
-
-  .cat-btn.cc1 { background:linear-gradient(145deg,#ecfdf5,#bbf7d0); }
-  .cat-btn.cc2 { background:linear-gradient(145deg,#fef9c3,#fde68a); }
-  .cat-btn.cc3 { background:linear-gradient(145deg,#eff6ff,#bfdbfe); }
-  .cat-btn.cc4 { background:linear-gradient(145deg,#fdf4ff,#e9d5ff); }
-  .cat-btn.cc5 { background:linear-gradient(145deg,#fff7ed,#fed7aa); grid-column:1/-1; }
-
-  /* QUIZ PANEL */
-  .quiz-panel { display:none; }
-  .quiz-panel.show { display:block; }
-
-  .quiz-header { display:flex; align-items:center; gap:10px; margin-bottom:18px; }
-  .quiz-back   { background:white; border:2.5px solid var(--dark); border-radius:999px; padding:10px 18px; font-size:15px; font-weight:700; color:var(--dark); cursor:pointer; font-family:inherit; box-shadow:2px 2px 0 var(--dark); transition:all .12s; }
-  .quiz-back:hover { background:var(--yellow); }
-  .quiz-cat-label { font-size:18px; font-weight:700; color:var(--dark); }
-
-  .progress-row  { display:flex; align-items:center; gap:10px; margin-bottom:20px; }
-  .progress-bar  { flex:1; height:16px; background:#e8e0f0; border-radius:999px; border:2px solid var(--dark); overflow:hidden; }
-  .progress-fill { height:100%; background:linear-gradient(90deg,#22c55e,#86efac); border-radius:999px; transition:width .4s cubic-bezier(.34,1.2,.64,1); }
-  .progress-text { font-size:15px; font-weight:800; color:var(--dark); white-space:nowrap; }
-
-  .question-card { background:white; border:3px solid var(--dark); border-radius:24px; padding:28px 20px; box-shadow:4px 4px 0 var(--dark); margin-bottom:16px; text-align:center; }
-  .q-image   { display:none; font-size:80px; line-height:1.2; margin-bottom:10px; }
-  .q-image.visible { display:block; }
-  .q-text    { font-size:22px; font-weight:700; color:var(--dark); line-height:1.5; margin-bottom:4px; }
-  .q-text-en { font-size:13px; color:#aaa; font-weight:600; }
-
-  /* CHOICES — 1 column, full-width, big touch target */
-  .choices    { display:grid; grid-template-columns:1fr; gap:12px; margin-bottom:12px; }
-  .choice-btn { border:3px solid var(--dark); border-radius:20px; padding:16px 20px; display:flex; align-items:center; gap:16px; cursor:pointer; font-family:'Fredoka','Noto Sans Thai',sans-serif; background:white; box-shadow:3px 3px 0 var(--dark); transition:all .12s; text-align:left; min-height:76px; }
-  .choice-btn:hover:not(:disabled) { background:#fffde7; transform:translate(-1px,-1px); box-shadow:4px 4px 0 var(--dark); }
-  .choice-btn:active:not(:disabled){ transform:translate(1px,1px); box-shadow:1px 1px 0 var(--dark); }
-  .choice-btn:disabled { cursor:default; }
-  .ch-em  { font-size:44px; flex-shrink:0; line-height:1; }
-  .ch-lbl { font-size:20px; font-weight:700; color:var(--dark); line-height:1.3; }
-  .choice-btn.correct { background:#dcfce7; border-color:#22c55e; box-shadow:3px 3px 0 #22c55e; animation:pop-correct .3s ease; }
-  .choice-btn.wrong   { background:#fee2e2; border-color:#ef4444; box-shadow:3px 3px 0 #ef4444; }
-  @keyframes pop-correct { 0%{transform:scale(1)} 40%{transform:scale(1.04)} 100%{transform:scale(1)} }
-
-  .feedback-box { border-radius:16px; padding:16px 20px; text-align:center; font-size:20px; font-weight:700; margin-bottom:14px; min-height:64px; display:flex; align-items:center; justify-content:center; }
-  .feedback-box.correct { background:#dcfce7; color:#15803d; }
-  .feedback-box.wrong   { background:#fef9c3; color:#92400e; }
-  .feedback-box.idle    { background:transparent; visibility:hidden; }
-
-  .btn-next { width:100%; padding:18px; font-family:'Fredoka','Noto Sans Thai',sans-serif; font-size:20px; font-weight:800; border:3px solid var(--dark); border-radius:18px; background:linear-gradient(135deg,#16a34a,#22c55e); color:white; cursor:pointer; box-shadow:4px 4px 0 var(--dark); transition:all .12s; display:none; }
-  .btn-next.show { display:block; animation:pop-btn .35s cubic-bezier(.34,1.56,.64,1) both; }
-  .btn-next:hover  { transform:translate(-2px,-2px); box-shadow:6px 6px 0 var(--dark); }
-  .btn-next:active { transform:translate(1px,1px);  box-shadow:2px 2px 0 var(--dark); }
-  @keyframes pop-btn { from{transform:scale(0)} to{transform:scale(1)} }
-
-  /* SCORE PANEL */
-  .score-panel { display:none; }
-  .score-panel.show { display:block; }
-  .score-card  { background:white; border:3px solid var(--dark); border-radius:28px; padding:36px 24px; box-shadow:4px 4px 0 var(--dark); text-align:center; }
-  .score-stars { font-size:60px; margin-bottom:16px; animation:star-pop .6s cubic-bezier(.34,1.56,.64,1); }
-  @keyframes star-pop { from{transform:scale(0) rotate(-20deg)} to{transform:scale(1) rotate(0)} }
-  .score-num   { font-family:'Bungee',cursive; font-size:clamp(64px,20vw,96px); color:var(--dark); line-height:1; }
-  .score-denom { font-size:28px; color:#888; font-weight:700; }
-  .score-msg   { font-size:26px; font-weight:800; color:var(--dark); margin:14px 0 6px; }
-  .score-sub   { font-size:16px; color:#7c6d88; font-weight:600; }
-  .score-btns  { display:flex; gap:12px; margin-top:26px; }
-  .btn-retry { flex:1; padding:16px; font-family:'Fredoka','Noto Sans Thai',sans-serif; font-size:17px; font-weight:800; border:3px solid var(--dark); border-radius:16px; background:var(--yellow); color:var(--dark); cursor:pointer; box-shadow:3px 3px 0 var(--dark); transition:all .12s; }
-  .btn-cats  { flex:1; padding:16px; font-family:'Fredoka','Noto Sans Thai',sans-serif; font-size:17px; font-weight:800; border:3px solid var(--dark); border-radius:16px; background:linear-gradient(135deg,#16a34a,#22c55e); color:white; cursor:pointer; box-shadow:3px 3px 0 var(--dark); transition:all .12s; }
-  .btn-retry:hover,.btn-cats:hover { transform:translate(-1px,-1px); box-shadow:5px 5px 0 var(--dark); }
-
-  /* CONFETTI */
-  .confetti-piece { position:fixed; top:-20px; pointer-events:none; z-index:999; border-radius:2px; animation:confetti-fall linear forwards; }
-  @keyframes confetti-fall { 0%{transform:translateY(0) rotate(0deg);opacity:1} 100%{transform:translateY(110vh) rotate(900deg);opacity:0} }
+  /* Question card under the title */
+  .qbox {
+    position: fixed; top: 84px; left: 50%; transform: translateX(-50%); z-index: 5;
+    width: min(620px, calc(100vw - 24px)); background: #fff; border-radius: 22px; padding: 10px 18px 12px;
+    box-shadow: 0 6px 0 rgba(0,0,0,.08); text-align: center; display: none;
+  }
+  .qbox.show { display: block; }
+  .qbox .prog { font-size: 14px; font-weight: 800; color: var(--orange-dark); }
+  .qbox .q { font-size: 22px; font-weight: 900; line-height: 1.35; color: var(--ink); }
+  .qbox .en { font-size: 14px; font-weight: 600; color: var(--muted); }
+  .w-caption { top: auto; bottom: 330px; }
+  /* Station picker (home view) */
+  .cats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; background: #fff; border-radius: 26px; padding: 8px; box-shadow: 0 8px 0 #eee7da, 0 16px 0 #d8cfbf; }
+  .cats button {
+    min-height: 84px; border: none; border-radius: 20px; background: #fff8ec; cursor: pointer; padding: 6px 2px;
+    font-family: inherit; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  }
+  .cats button:active { transform: translateY(3px); }
+  .cats .em { font-size: 30px; line-height: 1; }
+  .cats .nm { font-size: 13px; font-weight: 800; color: var(--ink); line-height: 1.15; }
+  .cats .st { font-size: 11px; letter-spacing: -1px; }
+  /* Answers */
+  #choices { flex-direction: column; align-items: stretch; }
+  .choice { justify-content: flex-start; gap: 12px; min-height: 64px; font-size: 20px; text-align: left; padding: 6px 18px; line-height: 1.25; }
+  .choice .e { font-size: 32px; flex: none; }
+  .choice.right { background: #22c55e; color: #fff; box-shadow: 0 6px 0 #15803d; }
+  .choice.wrong { background: #ef4444; color: #fff; box-shadow: 0 6px 0 #b91c1c; }
+  #quizDock, #nextBtn { display: none; }
+  .stars-big { font-size: 46px; text-align: center; }
+  .row2 { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .row2 .w-btn { margin: 14px 0 0 !important; display: inline-flex !important; }
+  @media (max-width: 480px) {
+    .cats { grid-template-columns: repeat(3, 1fr); }
+    .qbox .q { font-size: 18px; }
+    .choice { font-size: 17px; min-height: 58px; }
+    .choice .e { font-size: 26px; }
+  }
 </style>
 </head>
 <body>
+<div class="w-fade-in"></div>
+<canvas class="w-canvas" id="world"></canvas>
 
-
-<div class="blobs" id="blobs"></div>
-
-<div class="page">
-  <div class="home-link-wrap">
-    <a class="home-link" href="index.html">← กลับหน้าหลัก</a>
+<div class="w-top">
+  <a class="w-pill w-back" href="index.html" data-fade title="กลับเกาะ Back to island">🏝️ <span>กลับเกาะ</span></a>
+  <div class="w-pill w-title">🌾 ฟาร์มฝึกคิด <span class="en">· FARM QUIZ</span></div>
+  <div class="w-icons">
+    <button class="w-pill w-icon" id="soundBtn" title="เปิด/ปิดเสียง Sound">🔊</button>
   </div>
-
-  <!-- ── CATEGORY SELECTOR ── -->
-  <div id="catView">
-    <div class="hero">
-      <span class="hero-emoji">🌾</span>
-      <h1 class="hero-title">ฟาร์มฝึกคิด</h1>
-      <p class="hero-sub">ฝึกคิดทีละเรื่อง สนุกแบบฟาร์มๆ 🐮</p>
-      <div class="hero-badge">FARM QUIZ · THINK & PLAY</div>
-    </div>
-    <div class="cat-grid" id="catGrid"></div>
-  </div>
-
-  <!-- ── QUIZ PANEL ── -->
-  <div class="quiz-panel" id="quizView">
-    <div class="quiz-header">
-      <button class="quiz-back" onclick="goHome()">← เรื่อง</button>
-      <span class="quiz-cat-label" id="quizCatLabel"></span>
-    </div>
-    <div class="progress-row">
-      <div class="progress-bar"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
-      <span class="progress-text" id="progText">1 / 5</span>
-    </div>
-    <div class="question-card">
-      <span class="q-image" id="qImage">🌱</span>
-      <div class="q-text"    id="qText">คำถาม</div>
-      <div class="q-text-en" id="qTextEn">Question</div>
-    </div>
-    <div class="choices" id="choicesGrid"></div>
-    <div class="feedback-box idle" id="feedbackBox">‎</div>
-    <button class="btn-next" id="btnNext" onclick="nextQuestion()">ข้อถัดไป →</button>
-  </div>
-
-  <!-- ── SCORE PANEL ── -->
-  <div class="score-panel" id="scoreView">
-    <div class="score-card">
-      <div class="score-stars" id="scoreStars">⭐</div>
-      <div><span class="score-num" id="scoreNum">0</span><span class="score-denom"> / 5</span></div>
-      <div class="score-msg" id="scoreMsg">เก่งมาก!</div>
-      <div class="score-sub" id="scoreSub">ลองเรื่องอื่นในฟาร์มได้อีกนะ</div>
-      <div class="score-btns">
-        <button class="btn-retry" onclick="retryCat()">🔄 ลองใหม่</button>
-        <button class="btn-cats"  onclick="goHome()">🏠 กลับไปเลือกเรื่อง</button>
-      </div>
-    </div>
-  </div>
-
 </div>
 
+<div class="qbox" id="qbox">
+  <div class="prog" id="prog">ข้อ 1 / 5</div>
+  <div class="q" id="qText">คำถาม</div>
+  <div class="en" id="qEn">Question</div>
+</div>
+<div class="w-caption" id="caption"></div>
+
+<div class="w-dock">
+  <div id="homeDock" class="cats"></div>
+  <div id="quizDock">
+    <div class="w-controls" id="choices"></div>
+    <div class="w-controls" style="margin-top:10px">
+      <button class="w-btn white" id="leaveBtn" title="เลือกเรื่องอื่น Other topics">🗺️ เรื่องอื่น</button>
+      <button class="w-btn big" id="nextBtn">ข้อต่อไป ▶</button>
+    </div>
+  </div>
+</div>
+
+<div class="w-modal-bg" id="result">
+  <div class="w-card" style="text-align:center">
+    <div class="stars-big" id="rStars">⭐⭐⭐</div>
+    <h2 id="rMsg">เก่งมาก!</h2>
+    <p>ได้คะแนน <b id="rScore" style="font-size:28px">5/5</b><br><span id="rSub"></span></p>
+    <div class="row2">
+      <button class="w-btn" id="retryBtn">เล่นอีกครั้ง 🔄</button>
+      <button class="w-btn white" id="homeBtn">🗺️ เรื่องอื่น</button>
+    </div>
+  </div>
+</div>
+
+<div class="w-fallback" id="fallback">
+  <div class="big">🌾</div>
+  <h2>โหลดฉาก 3D ไม่ได้</h2>
+  <div>ต้องต่ออินเทอร์เน็ตนะ / This page needs internet</div>
+  <a class="w-btn" href="menu.html">ไปหน้าเมนู ▶</a>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script src="world-kit.js"></script>
 <script>
-/* ═══ QUIZ DATA — 50 questions per category, 5 picked at random each session ═══ */
+  setTimeout(function () { if (!window.__worldReady) document.getElementById('fallback').classList.add('show'); }, 10000);
+</script>
+
+<script>
+/* ═══ QUESTIONS — 5 topics × 50 questions (5 are picked at random each round)
+   showImg:true → the picture is part of the question (e.g. "what does this person do?")
+   otherwise the picture would give the answer away, so the farm shows ❓ instead ═══ */
 const CATS = [
   {
     id:0, em:'🔬', name:'ธรรมชาติในไร่', en:'Farm Nature', cls:'cc1',
@@ -222,7 +154,7 @@ const CATS = [
         ch:[{em:'🔩',l:'เหล็ก',ok:true},{em:'🪵',l:'ไม้',ok:false},{em:'🧶',l:'ด้าย',ok:false}] },
       { img:'🌸', q:'ผึ้งช่วยพืชทำอะไร?', en:'How do bees help plants?',
         ch:[{em:'🌸',l:'ผสมเกสร',ok:true},{em:'💧',l:'รดน้ำ',ok:false},{em:'🌱',l:'ปลูก',ok:false}] },
-      { img:'🌙', q:'โลกหมุนรอบตัวเองครบหนึ่งรอบใช้เวลาเท่าไหร่?', en:'How long does Earth take to spin once?',
+      { img:'🌍', q:'โลกหมุนรอบตัวเองครบหนึ่งรอบใช้เวลาเท่าไหร่?', en:'How long does Earth take to spin once?',
         ch:[{em:'🌙',l:'1 วัน (24 ชั่วโมง)',ok:true},{em:'📅',l:'1 ปี',ok:false},{em:'🕐',l:'1 ชั่วโมง',ok:false}] },
       /* ── คำถามเพิ่มเติม (ให้ครบ 50) ─────────────────────────────── */
       { img:'🌧️', q:'เมฆดำมากๆ มักจะเกิดอะไร?', en:'Dark clouds often mean what?',
@@ -349,7 +281,7 @@ const CATS = [
         ch:[{em:'🧴',l:'ความสะอาด',ok:true},{em:'🧊',l:'ทำให้เป็นน้ำแข็ง',ok:false},{em:'📦',l:'ทำให้กลายเป็นกล่อง',ok:false}] },
       { img:'🧢', q:'ออกแดดนานๆ ควรใส่อะไรป้องกันศีรษะ?', en:'In the sun, what protects the head?',
         ch:[{em:'🧢',l:'หมวก',ok:true},{em:'🧻',l:'กระดาษทิชชู่',ok:false},{em:'🧂',l:'เกลือ',ok:false}] },
-      { img:'🧴', q:'เวลานั่งรถมอเตอร์ไซค์ควรใส่อะไร?', en:'On a motorbike, what should we wear?',
+      { img:'🏍️', q:'เวลานั่งรถมอเตอร์ไซค์ควรใส่อะไร?', en:'On a motorbike, what should we wear?',
         ch:[{em:'🪖',l:'หมวกกันน็อก',ok:true},{em:'🧦',l:'ถุงเท้า',ok:false},{em:'🧣',l:'ผ้าพันคอ',ok:false}] },
       { img:'🚦', q:'ข้ามถนนควรดูอะไร?', en:'When crossing the road, what should we watch?',
         ch:[{em:'🚦',l:'รถและสัญญาณไฟ',ok:true},{em:'🍭',l:'ลูกอม',ok:false},{em:'📺',l:'ทีวี',ok:false}] },
@@ -377,7 +309,7 @@ const CATS = [
         ch:[{em:'🚫',l:'ไม่ดี',ok:true},{em:'✅',l:'ดีมาก',ok:false},{em:'🍭',l:'เหมือนกินขนม',ok:false}] },
       { img:'🍭', q:'กินหวานมากเกินไปดีไหม?', en:'Is eating too much sugar good?',
         ch:[{em:'🚫',l:'ไม่ดี',ok:true},{em:'✅',l:'ดีมาก',ok:false},{em:'🥦',l:'เท่ากับกินผัก',ok:false}] },
-      { img:'🧴', q:'เวลาเล่นน้ำในสระ ต้องมีใครอยู่ด้วย?', en:'When swimming, who should be with you?',
+      { img:'🏊', q:'เวลาเล่นน้ำในสระ ต้องมีใครอยู่ด้วย?', en:'When swimming, who should be with you?',
         ch:[{em:'🧑‍🍼',l:'ผู้ใหญ่ดูแล',ok:true},{em:'👧',l:'อยู่คนเดียว',ok:false},{em:'🐶',l:'หมาเฝ้า',ok:false}] },
       { img:'🔥', q:'ถ้าเห็นไฟ/ของร้อน ควรทำอย่างไร?', en:'If you see fire/hot things, what should you do?',
         ch:[{em:'🙅',l:'ไม่จับ บอกผู้ใหญ่',ok:true},{em:'✋',l:'จับเลย',ok:false},{em:'👅',l:'เอาลิ้นแตะ',ok:false}] },
@@ -385,7 +317,7 @@ const CATS = [
         ch:[{em:'💧',l:'น้ำเปล่า',ok:true},{em:'🧃',l:'น้ำผลไม้หวานๆ',ok:false},{em:'🥤',l:'น้ำอัดลม',ok:false}] },
       { img:'😴', q:'เด็กควรนอนให้พอเพื่ออะไร?', en:'Kids should sleep enough to?',
         ch:[{em:'💪',l:'โตแข็งแรง',ok:true},{em:'😵',l:'ป่วยง่าย',ok:false},{em:'🧊',l:'กลายเป็นน้ำแข็ง',ok:false}] },
-      { img:'🧊', q:'ถ้าปวดท้องมาก ควรทำอย่างไร?', en:'If you have strong stomachache, what should you do?',
+      { img:'🤒', q:'ถ้าปวดท้องมาก ควรทำอย่างไร?', en:'If you have strong stomachache, what should you do?',
         ch:[{em:'🧑‍⚕️',l:'บอกผู้ใหญ่/ไปหาหมอ',ok:true},{em:'🍦',l:'กินไอศกรีมทันที',ok:false},{em:'🏃',l:'วิ่งเร็วๆ',ok:false}] },
       { img:'🧽', q:'เวลาแปรงฟัน ควรใช้สิ่งใดคู่กัน?', en:'When brushing teeth, what should we use?',
         ch:[{em:'🪥',l:'แปรงฟัน+ยาสีฟัน',ok:true},{em:'🧂',l:'เกลืออย่างเดียว',ok:false},{em:'🧴',l:'แชมพู',ok:false}] },
@@ -583,11 +515,11 @@ const CATS = [
         ch:[{em:'⚫',l:'สีดำ',ok:true},{em:'🟡',l:'สีเหลือง',ok:false},{em:'🩷',l:'สีชมพู',ok:false}] },
       { img:'🎨', q:'การผสมสีใช้ทำอะไร?', en:'Why do we mix colors?',
         ch:[{em:'🎨',l:'ได้สีใหม่',ok:true},{em:'🧊',l:'ทำให้น้ำแข็งละลาย',ok:false},{em:'🚗',l:'ทำให้รถวิ่งเร็ว',ok:false}] },
-      { img:'🟢', q:'สีฟ้า + สีเหลือง = ?', en:'Blue + Yellow = ?',
+      { img:'🟢', q:'สีน้ำเงิน + สีเหลือง = ?', en:'Blue + Yellow = ?',
         ch:[{em:'🟢',l:'สีเขียว',ok:true},{em:'🟣',l:'สีม่วง',ok:false},{em:'🟠',l:'สีส้ม',ok:false}] },
       { img:'🟠', q:'สีแดง + สีเหลือง = ?', en:'Red + Yellow = ?',
         ch:[{em:'🟠',l:'สีส้ม',ok:true},{em:'🟢',l:'สีเขียว',ok:false},{em:'🩶',l:'สีเทา',ok:false}] },
-      { img:'🟣', q:'สีแดง + สีฟ้า = ?', en:'Red + Blue = ?',
+      { img:'🟣', q:'สีแดง + สีน้ำเงิน = ?', en:'Red + Blue = ?',
         ch:[{em:'🟣',l:'สีม่วง',ok:true},{em:'🟢',l:'สีเขียว',ok:false},{em:'🟡',l:'สีเหลือง',ok:false}] },
       { img:'🧑‍🎨', q:'คนที่ชอบวาดรูปและทำงานศิลปะเรียกว่าอะไร?', en:'Someone who makes art is an?',
         ch:[{em:'🧑‍🎨',l:'ศิลปิน',ok:true},{em:'🧑‍🚒',l:'นักดับเพลิง',ok:false},{em:'🧑‍⚕️',l:'หมอ',ok:false}] },
@@ -716,187 +648,322 @@ const CATS = [
 /* ═══ STATE ═══ */
 let curCat = null, curQ = 0, score = 0, answered = false, curQs = [];
 const bestScores = [null, null, null, null, null];
+</script>
 
-const PRAISE   = ['เก่งมาก! 🎉','ถูกต้องเลย! ⭐','ใช่เลย! 🌟','ดีมากเลย! 🎊','เยี่ยมมาก! 🏆','สุดยอด! 🥳'];
-const OOPS_MSG = ['เกือบแล้ว! ดูเฉลยสีเขียวนะ 💚','ไม่เป็นไรนะ! ดูคำตอบสีเขียว 🌿','ลองใหม่ได้เลย! สีเขียวคือคำตอบ 💚'];
+<script type="module">
+/* =========================================================
+   ฟาร์มฝึกคิด (Farm quiz) — 5 farm stations, one per topic
+   Tap a station → Summer walks there → 5 questions.
+   Every right answer grows a crop in the station's plot
+   (a wrong answer still grows a little sprout — no one leaves empty-handed).
+   Best scores are saved in summerWorld.v1 → farm: [5 numbers or null].
+   ========================================================= */
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const kit = WorldKit(THREE, OrbitControls);
+const { box } = kit;
+const stage = kit.createStage({ canvas: document.getElementById('world') });
+const { scene, camera, controls } = stage;
+controls.minDistance = 6; controls.maxDistance = 40;
+controls.minPolarAngle = .4; controls.maxPolarAngle = 1.35;
+kit.bindSoundButton(document.getElementById('soundBtn'));
+kit.bindFadeLinks();
+const fx = kit.createConfetti(scene);
+const floaters = kit.createFloaters(scene, { count: 16, radius: 20, spread: 12, y0: -2 });
+const $ = id => document.getElementById(id);
+const portrait = innerWidth < innerHeight;
+
+const PRAISE = ['เก่งมาก! 🎉', 'ถูกต้องเลย! ⭐', 'ใช่เลย! 🌟', 'ดีมากเลย! 🎊', 'เยี่ยมมาก! 🏆', 'สุดยอด! 🥳'];
 const SCORE_TBL = [
-  ['😊 ไม่เป็นไรนะ!',    'ลองใหม่อีกครั้งได้เลย'],
-  ['💪 พยายามดีมาก!',    'ฝึกอีกนิดนะ'],
-  ['😄 ผ่านได้แล้ว!',    'ใกล้ถึงแล้ว!'],
-  ['🎉 เก่งมาก!',        'แทบเต็มแล้วเลย!'],
-  ['🌟 เก่งมากเลย!',     'เหลืออีกแค่ข้อเดียว!'],
-  ['🏆 เยี่ยมที่สุดเลย!', 'คะแนนเต็ม 5/5 !!!'],
+  ['ไม่เป็นไรนะ! 😊', 'ลองใหม่อีกครั้งได้เลย'], ['พยายามดีมาก! 💪', 'ฝึกอีกนิดนะ'], ['ผ่านได้แล้ว! 😄', 'ใกล้ถึงแล้ว!'],
+  ['เก่งมาก! 🎉', 'แทบเต็มแล้วเลย!'], ['เก่งมากเลย! 🌟', 'เหลืออีกแค่ข้อเดียว!'], ['เยี่ยมที่สุดเลย! 🏆', 'คะแนนเต็ม 5/5 !!!'],
 ];
+const best = (kit.loadSave().farm || [null, null, null, null, null]).slice(0, 5);
+const captionEl = $('caption');
+let captionTimer = null;
+function caption(text, ms = 2600) {
+  captionEl.textContent = text; captionEl.classList.add('show');
+  clearTimeout(captionTimer); captionTimer = setTimeout(() => captionEl.classList.remove('show'), ms);
+}
+const shuffle = a => { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
-function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
+/* =========================================================
+   The farm: ground + 5 stations in a row
+   ========================================================= */
+box(scene, 26, .4, 22, '#8fd16a', 0, -.2, -1);
+box(scene, 26, 1.2, 22, '#d39a5c', 0, -1, -1);
+box(scene, 23, 1, 19, '#b87e47', 0, -2.1, -1);
+box(scene, 17, .8, 14, '#9b6a3c', 0, -3, -1);
+box(scene, 24, .06, 1.6, '#e8cf9a', 0, .03, 5.4, false);    // dirt paths in front of each row of stations
+box(scene, 14, .06, 1.6, '#e8cf9a', 0, .03, -1.2, false);
+box(scene, 1.6, .06, 6, '#e8cf9a', 0, .03, 2.1, false);
+for (let i = 0; i < 30; i++) box(scene, .14, .14, .14, ['#ff8fbf', '#ffd166', '#ffffff', '#9ad7ff'][i % 4], -12 + (i * 3.7) % 24, .07, -11 + (i * 2.3) % 20, false);
+// fence along the back
+for (let x = -12; x <= 12; x += 1.6) box(scene, .18, 1, .18, '#c98a5a', x, .5, -10.6);
+box(scene, 24.4, .14, .1, '#c98a5a', 0, .75, -10.6); box(scene, 24.4, .14, .1, '#c98a5a', 0, .4, -10.6);
+// a few trees and a windmill for the farm feel
+function tree(x, z, s = 1) {
+  box(scene, .4 * s, 1.4 * s, .4 * s, '#8b5a3c', x, .7 * s, z);
+  box(scene, 1.6 * s, 1.3 * s, 1.6 * s, '#3fa34d', x, 1.9 * s, z);
+  box(scene, 1.1 * s, .8 * s, 1.1 * s, '#4cbc5b', x, 2.9 * s, z);
+}
+[[-11, -8.5], [11, -8.5], [-11.2, 7], [11, 7.2], [-8.5, -3.5], [8.5, -3.6]].forEach(([x, z], i) => tree(x, z, .8 + (i % 3) * .15));
+const mill = new THREE.Group(); mill.position.set(0, 0, -9); scene.add(mill);
+box(mill, 1.4, 5, 1.4, '#f2e6d0', 0, 2.5, 0); box(mill, 1.8, .6, 1.8, '#d9534f', 0, 5.2, 0);
+const blades = new THREE.Group(); blades.position.set(0, 4.6, .85); mill.add(blades);
+for (let i = 0; i < 4; i++) { const b = box(blades, .35, 2.6, .08, '#ffffff', 0, 1.3, 0); const p = new THREE.Group(); p.rotation.z = i * Math.PI / 2; p.add(b); blades.add(p); }
+
+// station looks: roof colour + what grows in its plot
+const LOOK = [
+  { roof: '#22c55e', crop: 'sunflower' },   // 🔬 nature
+  { roof: '#ef4444', crop: 'carrot' },      // 💪 body
+  { roof: '#3b82f6', crop: 'cabbage' },     // 👨‍👩‍👧 home
+  { roof: '#a855f7', crop: 'tulip' },       // 🎨 colours
+  { roof: '#f59e0b', crop: 'pumpkin' },     // 🌍 around the farm
+];
+// 3 stations in front, 2 behind (gaps between the front barns so the back ones stay visible)
+const POS = [[-6.6, 2.4], [0, 2.4], [6.6, 2.4], [-3.3, -4.2], [3.3, -4.2]];
+const stations = CATS.map((cat, i) => {
+  const g = new THREE.Group();
+  g.position.set(POS[i][0], 0, POS[i][1]);
+  scene.add(g);
+  const L = LOOK[i];
+  // little barn
+  box(g, 3, 2, 2.2, '#fff4e0', 0, 1, -1.6);
+  box(g, 3.3, .4, 2.5, L.roof, 0, 2.2, -1.6);
+  box(g, 2.5, .4, 2.1, L.roof, 0, 2.6, -1.6);
+  box(g, 1.6, .4, 1.7, L.roof, 0, 3, -1.6);
+  box(g, .9, 1.3, .1, '#8b5a3c', 0, .65, -.47);
+  const sign = kit.emojiSprite(cat.em, L.roof, 1.5); sign.position.set(0, 4.2, -1.4); g.add(sign);
+  const name = kit.labelSprite(cat.name, portrait ? .62 : .5); name.position.set(0, 5.25, -1.4); g.add(name);
+  // plot: 5 soil squares in front of the barn
+  const plots = [];
+  for (let k = 0; k < 5; k++) {
+    const x = (k - 2) * .62;
+    box(g, .56, .12, .9, '#7a4a2a', x, .06, 1.2);
+    plots.push({ x, crop: null });
   }
-  return a;
-}
-
-/* ═══ BUILD CATEGORY GRID ═══ */
-function buildCatGrid() {
-  const grid = document.getElementById('catGrid');
-  grid.innerHTML = '';
+  g.traverse(o => { o.userData.station = i; });
+  return { g, plots, i };
+});
+let starSprites = [];
+function refreshStars() {
+  starSprites.forEach(s => s.parent.remove(s));
+  starSprites = stations.map(st => {
+    const b = best[st.i];
+    const s = kit.labelSprite(b === null ? '✨ ใหม่' : '⭐'.repeat(b) + '☆'.repeat(5 - b), .42);
+    s.position.set(0, 6, -1.4); st.g.add(s);
+    return s;
+  });
+  // dock buttons mirror the signs
+  const dock = $('homeDock'); dock.innerHTML = '';
   CATS.forEach((cat, i) => {
-    const btn = document.createElement('button');
-    const best = bestScores[i];
-    btn.className = `cat-btn ${cat.cls}${best === 5 ? ' done' : ''}`;
-    btn.innerHTML =
-      `<span class="cat-em">${cat.em}</span>` +
-      `<div class="cat-name">${cat.name}</div>` +
-      `<div class="cat-en">${cat.en}</div>` +
-      `<div class="cat-score">${best !== null
-        ? '⭐'.repeat(best) + '☆'.repeat(5 - best) + ` ${best}/5`
-        : '✨ ยังไม่ได้ลอง'}</div>`;
-    btn.onclick = () => startCat(i);
-    grid.appendChild(btn);
+    const b = document.createElement('button');
+    b.innerHTML = `<span class="em">${cat.em}</span><span class="nm">${cat.name}</span><span class="st">${best[i] === null ? '✨' : '⭐'.repeat(best[i]) + '☆'.repeat(5 - best[i])}</span>`;
+    b.onclick = () => goStation(i);
+    dock.appendChild(b);
   });
 }
 
-/* ═══ START CATEGORY ═══ */
-function startCat(idx) {
-  curCat = idx; curQ = 0; score = 0; answered = false;
-  curQs = shuffle(CATS[idx].qs).slice(0, 5);
-  showView('quiz');
-  renderQ();
+/* ── Crops (voxel) ── */
+function makeCrop(kind, k, good) {
+  const g = new THREE.Group();
+  const green = '#3fa34d';
+  if (!good) {   // little sprout for a wrong answer
+    box(g, .08, .3, .08, green, 0, .15, 0); box(g, .22, .08, .1, '#57c85e', .07, .3, 0);
+    return g;
+  }
+  if (kind === 'sunflower') {
+    box(g, .1, 1.1, .1, green, 0, .55, 0); box(g, .3, .08, .12, green, .14, .5, 0);
+    box(g, .5, .5, .1, '#fbbf24', 0, 1.2, .02); box(g, .22, .22, .12, '#7c4a1e', 0, 1.2, .04);
+  } else if (kind === 'carrot') {
+    box(g, .22, .3, .22, '#f97316', 0, .1, 0);
+    [-.07, 0, .07].forEach(x => box(g, .06, .35, .06, green, x, .4, 0));
+  } else if (kind === 'cabbage') {
+    box(g, .42, .34, .42, '#86efac', 0, .2, 0); box(g, .28, .2, .28, '#4ade80', 0, .42, 0);
+  } else if (kind === 'tulip') {
+    box(g, .07, .7, .07, green, 0, .35, 0); box(g, .2, .1, .08, green, .08, .25, 0);
+    box(g, .26, .3, .26, ['#ef4444', '#f472b6', '#facc15', '#a855f7', '#fb923c'][k], 0, .82, 0);
+  } else {
+    box(g, .46, .36, .46, '#f97316', 0, .2, 0); box(g, .08, .16, .08, '#65a30d', 0, .45, 0);
+  }
+  return g;
+}
+function grow(st, k, good) {
+  const p = st.plots[k];
+  if (p.crop) st.g.remove(p.crop);
+  p.crop = makeCrop(LOOK[st.i].crop, k, good);
+  p.crop.position.set(p.x, .12, 1.2);
+  p.crop.scale.setScalar(.01); p.crop.userData.grow = 0;
+  st.g.add(p.crop);
+  growing.push(p.crop);
+}
+const growing = [];
+
+const summer = kit.makeSummer();
+summer.g.position.set(0, 0, 6.4);
+scene.add(summer.g);
+let walkTo = null, cheerT = 0;
+
+/* =========================================================
+   Camera views
+   ========================================================= */
+const HOME_POS = portrait ? new THREE.Vector3(0, 30, 33) : new THREE.Vector3(0, 15, 22);
+const HOME_TGT = new THREE.Vector3(0, portrait ? -4 : -.5, -1);
+function stationView(i) {
+  const [x, z] = POS[i], back = z < 0;   // back-row stations: look down from higher, over the front barns
+  return portrait
+    ? [new THREE.Vector3(x - .5, back ? 14 : 9, z + (back ? 12 : 15)), new THREE.Vector3(x, -1.2, z)]
+    : [new THREE.Vector3(x - .5, back ? 10 : 7, z + (back ? 9 : 11)), new THREE.Vector3(x, -2, z + 1)];   // aim low: the plot shows above the answer buttons
 }
 
-/* ═══ RENDER QUESTION ═══ */
-function renderQ() {
-  const q = curQs[curQ];
+/* =========================================================
+   Quiz flow
+   ========================================================= */
+let cur = -1, qs = [], qi = 0, score = 0, answered = false, qSprite = null;
+
+function goStation(i) {
+  cur = i;
+  $('homeDock').style.display = 'none';
+  walkTo = new THREE.Vector3(POS[i][0] + 2.3, 0, POS[i][1] + 1.4);   // beside the plot, not in front of it
+  const [p, t] = stationView(i);
+  kit.flyTo(stage, p, t, 1100);
+  kit.speak(CATS[i].name);
+  // a fresh plot for this round
+  stations[i].plots.forEach(pl => { if (pl.crop) { stations[i].g.remove(pl.crop); pl.crop = null; } });
+  qs = shuffle(CATS[i].qs).slice(0, 5); qi = 0; score = 0;
+  setTimeout(showQ, 900);
+}
+function showQ() {
+  const q = qs[qi];
   answered = false;
-
-  document.getElementById('quizCatLabel').textContent = CATS[curCat].em + ' ' + CATS[curCat].name;
-  document.getElementById('progFill').style.width = (curQ / 5 * 100) + '%';
-  document.getElementById('progText').textContent  = (curQ + 1) + ' / 5';
-
-  const imgEl = document.getElementById('qImage');
-  imgEl.textContent = q.img;
-  imgEl.className = q.showImg ? 'q-image visible' : 'q-image';
-  imgEl.style.animation = 'none';
-  void imgEl.offsetWidth;
-  imgEl.style.animation = '';
-
-  document.getElementById('qText').textContent   = q.q;
-  document.getElementById('qTextEn').textContent = q.en;
-
-  const fb = document.getElementById('feedbackBox');
-  fb.className = 'feedback-box idle';
-  fb.textContent = '‎';
-  document.getElementById('btnNext').classList.remove('show');
-
-  const grid = document.getElementById('choicesGrid');
-  grid.innerHTML = '';
+  $('prog').textContent = `${CATS[cur].em} ${CATS[cur].name} · ข้อ ${qi + 1} / 5`;
+  $('qText').textContent = q.q; $('qEn').textContent = q.en || '';
+  $('qbox').classList.add('show');
+  $('quizDock').style.display = 'block';
+  $('nextBtn').style.display = 'none';
+  // picture over the plot (❓ when the picture would give the answer away)
+  if (qSprite) qSprite.parent.remove(qSprite);
+  qSprite = kit.emojiSprite(q.showImg ? q.img : '❓', LOOK[cur].roof, 1.4);
+  qSprite.position.set(-2.2, 1.9, 1.4); stations[cur].g.add(qSprite);
+  const row = $('choices'); row.innerHTML = '';
   shuffle(q.ch).forEach(ch => {
-    const btn = document.createElement('button');
-    btn.className = 'choice-btn';
-    btn._ok = ch.ok;
-    btn.innerHTML = `<span class="ch-em">${ch.em}</span><span class="ch-lbl">${ch.l}</span>`;
-    btn.onclick = () => pick(btn, ch.ok);
-    grid.appendChild(btn);
+    const b = document.createElement('button');
+    b.className = 'w-btn white choice';
+    b.innerHTML = `<span class="e">${ch.em}</span><span>${ch.l}</span>`;
+    b._ok = ch.ok;
+    b.onclick = () => pick(b, ch.ok);
+    row.appendChild(b);
   });
+  kit.speak(q.q);
 }
-
-/* ═══ PICK ANSWER ═══ */
-function pick(btn, isOk) {
+function pick(btn, ok) {
   if (answered) return;
   answered = true;
-
-  document.querySelectorAll('#choicesGrid .choice-btn').forEach(b => {
-    b.disabled = true;
-    if (b._ok) b.classList.add('correct');
-  });
-  if (!isOk) btn.classList.add('wrong');
-
-  const fb = document.getElementById('feedbackBox');
-  if (isOk) {
+  document.querySelectorAll('#choices .choice').forEach(b => { b.disabled = true; if (b._ok) b.classList.add('right'); });
+  grow(stations[cur], qi, ok);
+  if (ok) {
     score++;
-    fb.className = 'feedback-box correct';
-    fb.textContent = PRAISE[Math.floor(Math.random() * PRAISE.length)];
+    caption(PRAISE[Math.floor(Math.random() * PRAISE.length)]);
+    kit.tones([523, 659, 784], .07); cheerT = 1.4;
+    const w = stations[cur].g.localToWorld(new THREE.Vector3(stations[cur].plots[qi].x, 1, 1.2));
+    fx.burst(w.x, w.y, w.z, ['#fbbf24', '#22c55e', '#f472b6'], 16);
   } else {
-    fb.className = 'feedback-box wrong';
-    fb.textContent = OOPS_MSG[Math.floor(Math.random() * OOPS_MSG.length)];
+    btn.classList.add('wrong');
+    const right = qs[qi].ch.find(c => c.ok);
+    caption(`คำตอบคือ "${right.l}" 💚`, 3200);
+    kit.tones([330, 262], .1, 'sine', .14);
   }
-
-  const btnNext = document.getElementById('btnNext');
-  btnNext.textContent = curQ === 4 ? '🎉 ดูคะแนน!' : 'ข้อถัดไป →';
-  btnNext.classList.add('show');
-}
-
-/* ═══ NEXT QUESTION ═══ */
-function nextQuestion() {
-  if (curQ === 4) { showScore(); return; }
-  curQ++;
-  renderQ();
-}
-
-/* ═══ SHOW SCORE ═══ */
-function showScore() {
-  bestScores[curCat] = Math.max(bestScores[curCat] ?? 0, score);
-  document.getElementById('scoreNum').textContent   = score;
-  document.getElementById('scoreStars').textContent =
-    score >= 5 ? '🏆🌟🎉' : score >= 4 ? '⭐⭐⭐⭐' : score >= 3 ? '⭐⭐⭐' : score >= 2 ? '⭐⭐' : '⭐';
-  const [msg, sub] = SCORE_TBL[score];
-  document.getElementById('scoreMsg').textContent = msg;
-  document.getElementById('scoreSub').textContent = sub;
-  showView('score');
-  if (score === 5) launchConfetti();
-}
-
-/* ═══ CONFETTI ═══ */
-function launchConfetti() {
-  const cols = ['#FF6B9D','#FFD93D','#22c55e','#4ECDC4','#A06CD5','#FF9F1C','#6366f1','#f43f5e'];
-  for (let i = 0; i < 70; i++) {
-    setTimeout(() => {
-      const c = document.createElement('div');
-      c.className = 'confetti-piece';
-      const size = 7 + Math.random() * 9;
-      c.style.cssText =
-        `left:${Math.random() * 100}vw;` +
-        `width:${size}px;height:${size * 1.4}px;` +
-        `background:${cols[Math.floor(Math.random() * cols.length)]};` +
-        `border-radius:${Math.random() > 0.4 ? '50%' : '2px'};` +
-        `transform:rotate(${Math.random() * 360}deg);` +
-        `animation-duration:${1.4 + Math.random() * 2}s;`;
-      document.body.appendChild(c);
-      setTimeout(() => c.remove(), 3500);
-    }, i * 35);
+  if (qs[qi].showImg !== true && qSprite) {   // reveal the real picture now
+    qSprite.parent.remove(qSprite);
+    qSprite = kit.emojiSprite(qs[qi].img, LOOK[cur].roof, 1.4);
+    qSprite.position.set(-2.2, 1.9, 1.4); stations[cur].g.add(qSprite);
   }
+  const nb = $('nextBtn');
+  nb.textContent = qi === 4 ? '🎉 ดูคะแนน!' : 'ข้อต่อไป ▶';
+  nb.style.display = 'inline-flex';
 }
-
-function retryCat() { startCat(curCat); }
-function goHome()   { buildCatGrid(); showView('cat'); }
-
-function showView(v) {
-  document.getElementById('catView').style.display  = v === 'cat'   ? '' : 'none';
-  document.getElementById('quizView').className     = 'quiz-panel'  + (v === 'quiz'  ? ' show' : '');
-  document.getElementById('scoreView').className    = 'score-panel' + (v === 'score' ? ' show' : '');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+function next() {
+  if (qi === 4) { finish(); return; }
+  qi++; showQ();
 }
+function finish() {
+  best[cur] = Math.max(best[cur] ?? 0, score);
+  kit.writeSave({ farm: best });
+  $('rScore').textContent = `${score}/5`;
+  $('rStars').textContent = score === 5 ? '🏆🌟🎉' : '⭐'.repeat(Math.max(1, score));
+  $('rMsg').textContent = SCORE_TBL[score][0]; $('rSub').textContent = SCORE_TBL[score][1];
+  $('result').classList.add('show');
+  kit.speak(`ได้ ${score} คะแนน จาก 5 ข้อ`);
+  if (score >= 4) { const p = stations[cur].g.position; fx.burst(p.x, 4, p.z); kit.cheer(); cheerT = 3; }
+  refreshStars();
+}
+function goHome() {
+  cur = -1;
+  $('result').classList.remove('show');
+  $('qbox').classList.remove('show');
+  $('quizDock').style.display = 'none';
+  $('homeDock').style.display = '';
+  if (qSprite) { qSprite.parent.remove(qSprite); qSprite = null; }
+  kit.flyTo(stage, HOME_POS, HOME_TGT, 1100);
+  walkTo = new THREE.Vector3(0, 0, 6.4);
+  caption('เลือกบ้านในฟาร์ม แล้วตอบคำถามให้ผักงอก! 🌱', 3500);
+}
+$('nextBtn').onclick = next;
+$('leaveBtn').onclick = goHome;
+$('homeBtn').onclick = goHome;
+$('retryBtn').onclick = () => { $('result').classList.remove('show'); goStation(cur); };
 
-/* ═══ BLOBS ═══ */
-(function(){
-  const cols = ['#bbf7d0','#fde68a','#bfdbfe','#e9d5ff','#fed7aa','#d1fae5','#fce7f3'];
-  const wrap = document.getElementById('blobs');
-  for (let i = 0; i < 18; i++) {
-    const b = document.createElement('div');
-    b.className = 'blob';
-    const s = 45 + Math.random() * 110;
-    b.style.cssText = `width:${s}px;height:${s}px;background:${cols[i % cols.length]};` +
-      `left:${Math.random()*100}%;top:${Math.random()*100}%;` +
-      `animation-duration:${9+Math.random()*12}s;animation-delay:${-Math.random()*8}s;`;
-    wrap.appendChild(b);
+/* =========================================================
+   Taps + loop
+   ========================================================= */
+const raycaster = new THREE.Raycaster(), ndc = new THREE.Vector2();
+const canvas = stage.renderer.domElement;
+let press = null;
+canvas.addEventListener('pointerdown', e => { press = { x: e.clientX, y: e.clientY, t: performance.now() }; });
+canvas.addEventListener('pointerup', e => {
+  if (!press) return;
+  const tap = Math.hypot(e.clientX - press.x, e.clientY - press.y) < 10 && performance.now() - press.t < 500;
+  press = null;
+  if (!tap) return;
+  ndc.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
+  raycaster.setFromCamera(ndc, camera);
+  if (raycaster.intersectObject(summer.g, true).length) { cheerT = 1.2; kit.tones([660, 880], .07); return; }
+  if (cur >= 0) return;   // during a quiz, stations don't react to taps
+  const hit = raycaster.intersectObjects(stations.map(s => s.g), true)[0];
+  if (hit) goStation(hit.object.userData.station);
+});
+
+camera.position.set(0, 18, 30); controls.target.copy(HOME_TGT);
+stage.start((dt, time) => {
+  if (walkTo) {
+    const d = walkTo.clone().sub(summer.g.position); d.y = 0;
+    if (d.length() > .05) {
+      summer.g.rotation.y = Math.atan2(d.x, d.z);
+      summer.g.position.add(d.clampLength(0, dt * 7));
+    } else { walkTo = null; summer.g.rotation.y = -.4; }
   }
-})();
+  cheerT -= dt;
+  kit.poseSummer(summer, time, walkTo ? 'walk' : cheerT > 0 ? 'cheer' : 'idle');
+  for (let i = growing.length - 1; i >= 0; i--) {
+    const c = growing[i]; c.userData.grow = Math.min(1, c.userData.grow + dt * 2);
+    const g = c.userData.grow; c.scale.setScalar(.01 + g * (1 + Math.sin(g * Math.PI) * .35));
+    if (g >= 1) growing.splice(i, 1);
+  }
+  if (qSprite) qSprite.position.y = 1.9 + Math.sin(time * 2.5) * .1;
+  blades.rotation.z += dt * .8;
+  floaters.update(dt, time);
+  fx.update(dt);
+});
 
-buildCatGrid();
+// sign text is drawn into textures, so wait for the Thai font first
+document.fonts.load('700 56px "Noto Sans Thai"').catch(() => {}).finally(() => {
+  refreshStars();
+  goHome();
+  window.__worldReady = true;
+});
+window.__farm = { goStation, pick: i => document.querySelectorAll('#choices .choice')[i].click(), okIndex: () => [...document.querySelectorAll('#choices .choice')].findIndex(b => b._ok) };
 </script>
-<!-- Island look: top bar back to the island + 3D backdrop (see world-shell.js) -->
-<script src="world-kit.js"></script>
-<script src="world-shell.js" data-emoji="🌾" data-title="ฟาร์มฝึกคิด"></script>
 </body>
 </html>
