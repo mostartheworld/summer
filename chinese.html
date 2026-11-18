@@ -1,309 +1,389 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>เรียนภาษาจีน (繁體) — Summer's World</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;600;700&family=Noto+Sans+Thai:wght@400;600;700&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --red: #E11D48;
-      --gold: #FBBF24;
-      --dark: #1E293B;
-      --cream: #FFF8F0;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Fredoka', 'Noto Sans Thai', 'Noto Sans TC', sans-serif;
-      background: var(--cream);
-      background-image:
-        radial-gradient(circle at 20% 20%, rgba(225,29,72,0.08), transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(251,191,36,0.1), transparent 50%);
-      min-height: 100vh;
-      padding-bottom: 60px;
-    }
-    .site-nav {
-      position: sticky; top: 0; z-index: 100;
-      background: var(--cream);
-      border-bottom: 4px solid var(--dark);
-      box-shadow: 0 4px 0 var(--dark);
-      padding: 10px 16px;
-      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-    }
-    .nav-brand { font-family: 'Bungee', cursive; font-size: 15px; color: var(--dark); text-decoration: none; white-space: nowrap; }
-    .nav-links { display: flex; gap: 6px; flex-wrap: wrap; }
-    .nav-link {
-      text-decoration: none; font-size: 13px; font-weight: 600;
-      padding: 5px 13px; border-radius: 12px;
-      border: 2.5px solid var(--dark); color: var(--dark); background: white;
-      transition: all .12s;
-    }
-    .nav-link.active { background: var(--red); color: white; }
-    .page { max-width: 720px; margin: 0 auto; padding: 24px 16px; }
-    .hero { text-align: center; margin-bottom: 32px; }
-    .hero-emoji { font-size: 82px; margin-bottom: 8px; display: block; }
-    .hero-title {
-      font-family: 'Bungee', cursive; font-size: clamp(32px, 8vw, 52px);
-      color: var(--red); text-shadow: 3px 3px 0 var(--dark);
-    }
-    .hero-sub { font-size: 17px; color: #64748b; margin-top: 6px; font-weight: 600; }
-    .section { margin-bottom: 42px; }
-    .section-title {
-      font-size: 22px; font-weight: 800; color: var(--dark);
-      margin-bottom: 16px; display: flex; align-items: center; gap: 10px;
-    }
-    .card-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 14px;
-    }
-    .word-card {
-      background: white; border-radius: 20px; padding: 18px 14px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-      text-align: center; transition: transform 0.2s, box-shadow 0.2s;
-      border: 3px solid #fed7d7; cursor: pointer;
-    }
-    .word-card:hover { transform: translateY(-6px); box-shadow: 0 12px 28px rgba(225,29,72,0.15); }
-    .word-card:active { transform: scale(0.96); }
-    .chinese { font-size: 44px; font-weight: 700; color: var(--red); margin-bottom: 4px; }
-    .pinyin { font-size: 15px; color: #854d0e; font-weight: 600; }
-    .meaning { font-size: 15px; color: var(--dark); margin-top: 6px; font-weight: 700; }
-    .speaker { font-size: 18px; margin-top: 8px; color: #e11d48; }
-    .quiz-box {
-      background: white; border-radius: 24px; padding: 28px 22px;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.1); border: 4px solid #fed7d7;
-    }
-    .quiz-question {
-      font-size: 19px; font-weight: 800; color: var(--dark);
-      text-align: center; margin-bottom: 20px;
-    }
-    .quiz-options {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
-    }
-    .quiz-btn {
-      padding: 16px 12px; border: 3px solid #fed7d7; border-radius: 18px;
-      background: #fff1f2; font-size: 20px; font-weight: 800; color: var(--dark);
-      cursor: pointer; transition: all 0.15s;
-    }
-    .quiz-btn:hover:not(:disabled) { background: #fecdd3; transform: translateY(-2px); }
-    .quiz-btn.correct { background: #dcfce7 !important; border-color: #22c55e; color: #166534; }
-    .quiz-btn.wrong { background: #fee2e2 !important; border-color: #ef4444; color: #991b1b; }
-    .quiz-feedback { text-align: center; margin-top: 18px; font-size: 26px; font-weight: 900; min-height: 38px; }
-    .quiz-feedback.correct { color: #16a34a; }
-    .quiz-feedback.wrong { color: #dc2626; }
-    .result-box { text-align: center; padding: 20px 10px; }
-    .result-emoji { font-size: 72px; margin-bottom: 10px; }
-    .result-title { font-size: 26px; font-weight: 900; color: var(--dark); }
-    .result-score { font-size: 48px; font-weight: 900; color: var(--red); }
-    .restart-btn {
-      margin-top: 20px; padding: 14px 42px; border: none; border-radius: 999px;
-      background: linear-gradient(135deg, var(--red), #f43f5e);
-      color: white; font-size: 18px; font-weight: 800; cursor: pointer;
-      box-shadow: 0 6px 20px rgba(225,29,72,0.3);
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🏮 ภาษาจีน (繁體) — Summer's World</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;600;700;900&family=Noto+Sans+TC:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="world-theme.css">
+<style>
+  .w-mode { font-size: 13px; }
+  /* quiz answers */
+  #answers { display: none; gap: 10px; }
+  #answers.show { display: flex; }
+  #answers .w-btn { flex: 1 1 0; min-width: 0; padding: 0 8px; font-size: 22px; min-height: 64px; }
+  #answers .w-btn.ok { background: #2fb36a; box-shadow: 0 6px 0 #1f8a4f; color: #fff; }
+  #answers .w-btn.no { background: #e5d9c4; box-shadow: 0 6px 0 #cbbda4; color: #fff; }
+  .qnum { font-weight: 900; color: var(--orange-dark); }
+  .zh { font-family: 'Noto Sans TC', 'PingFang TC', sans-serif; }
+  .w-card .big { font-size: 64px; text-align: center; }
+  .w-card .score { font-size: 40px; font-weight: 900; text-align: center; color: var(--orange-dark); }
+</style>
 </head>
 <body>
+<div class="w-fade-in"></div>
+<canvas class="w-canvas" id="world"></canvas>
 
-  <div class="page">
-    <!-- Hero -->
-    <div class="hero">
-      <div class="hero-emoji">🀄️</div>
-      <h1 class="hero-title">เรียนภาษาจีน</h1>
-      <p class="hero-sub">繁體中文 ✨ กดที่การ์ดเพื่อฟังเสียงอ่านนะคะ!</p>
-    </div>
-
-    <!-- Greetings -->
-    <div class="section">
-      <div class="section-title">👋 คำทักทาย</div>
-      <div class="card-grid">
-        <div class="word-card" onclick="speak('你好', 'Nǐ hǎo')">
-          <div class="chinese">你好</div>
-          <div class="pinyin">Nǐ hǎo</div>
-          <div class="meaning">สวัสดี</div>
-          <div class="speaker">🔊 กดเพื่อฟังเสียง</div>
-        </div>
-        <div class="word-card" onclick="speak('謝謝', 'Xiè xiè')">
-          <div class="chinese">謝謝</div>
-          <div class="pinyin">Xiè xiè</div>
-          <div class="meaning">ขอบคุณ</div>
-          <div class="speaker">🔊 กดเพื่อฟังเสียง</div>
-        </div>
-        <div class="word-card" onclick="speak('再見', 'Zài jiàn')">
-          <div class="chinese">再見</div>
-          <div class="pinyin">Zài jiàn</div>
-          <div class="meaning">ลาก่อน</div>
-          <div class="speaker">🔊 กดเพื่อฟังเสียง</div>
-        </div>
-        <div class="word-card" onclick="speak('我愛你', 'Wǒ ài nǐ')">
-          <div class="chinese">我愛你</div>
-          <div class="pinyin">Wǒ ài nǐ</div>
-          <div class="meaning">ฉันรักคุณ</div>
-          <div class="speaker">🔊 กดเพื่อฟังเสียง</div>
-        </div>
-        <div class="word-card" onclick="speak('夏天', 'Xià tiān')">
-          <div class="chinese">夏天</div>
-          <div class="pinyin">Xià tiān</div>
-          <div class="meaning">ฤดูร้อน / Summer</div>
-          <div class="speaker">🔊 กดเพื่อฟังเสียง</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Family -->
-    <div class="section">
-      <div class="section-title">👨‍👩‍👧‍👦 ครอบครัว</div>
-      <div class="card-grid">
-        <div class="word-card" onclick="speak('媽媽', 'Mā ma')">
-          <div class="chinese">媽媽</div>
-          <div class="pinyin">Mā ma</div>
-          <div class="meaning">แม่</div>
-          <div class="speaker">🔊 กดเพื่อฟังเสียง</div>
-        </div>
-        <div class="word-card" onclick="speak('爸爸', 'Bà ba')">
-          <div class="chinese">爸爸</div>
-          <div class="pinyin">Bà ba</div>
-          <div class="meaning">พ่อ</div>
-          <div class="speaker">🔊 กดเพื่อฟังเสียง</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Numbers -->
-    <div class="section">
-      <div class="section-title">🔢 ตัวเลข 1-10</div>
-      <div class="card-grid">
-        <div class="word-card" onclick="speak('一', 'Yī')"><div class="chinese">一</div><div class="pinyin">Yī</div><div class="meaning">หนึ่ง</div></div>
-        <div class="word-card" onclick="speak('二', 'Èr')"><div class="chinese">二</div><div class="pinyin">Èr</div><div class="meaning">สอง</div></div>
-        <div class="word-card" onclick="speak('三', 'Sān')"><div class="chinese">三</div><div class="pinyin">Sān</div><div class="meaning">สาม</div></div>
-        <div class="word-card" onclick="speak('四', 'Sì')"><div class="chinese">四</div><div class="pinyin">Sì</div><div class="meaning">สี่</div></div>
-        <div class="word-card" onclick="speak('五', 'Wǔ')"><div class="chinese">五</div><div class="pinyin">Wǔ</div><div class="meaning">ห้า</div></div>
-        <div class="word-card" onclick="speak('六', 'Liù')"><div class="chinese">六</div><div class="pinyin">Liù</div><div class="meaning">หก</div></div>
-        <div class="word-card" onclick="speak('七', 'Qī')"><div class="chinese">七</div><div class="pinyin">Qī</div><div class="meaning">เจ็ด</div></div>
-        <div class="word-card" onclick="speak('八', 'Bā')"><div class="chinese">八</div><div class="pinyin">Bā</div><div class="meaning">แปด</div></div>
-        <div class="word-card" onclick="speak('九', 'Jiǔ')"><div class="chinese">九</div><div class="pinyin">Jiǔ</div><div class="meaning">เก้า</div></div>
-        <div class="word-card" onclick="speak('十', 'Shí')"><div class="chinese">十</div><div class="pinyin">Shí</div><div class="meaning">สิบ</div></div>
-      </div>
-    </div>
-
-    <!-- Quiz -->
-    <div class="section">
-      <div class="section-title">🎮 มาทดสอบกัน!</div>
-      <div class="quiz-box" id="quiz-box">
-        <div id="quiz-content">
-          <div class="quiz-question" id="question"></div>
-          <div class="quiz-options" id="options"></div>
-          <div class="quiz-feedback" id="feedback"></div>
-        </div>
-        <div class="result-box" id="result" style="display: none;">
-          <div class="result-emoji">🎉</div>
-          <div class="result-title">เก่งมากเลย!</div>
-          <div class="result-score" id="score"></div>
-          <div style="color:#64748b; margin-top:4px;">คะแนนเต็ม 6 ข้อ</div>
-          <button class="restart-btn" onclick="restartQuiz()">เล่นอีกครั้ง</button>
-        </div>
-      </div>
-    </div>
+<div class="w-top">
+  <a class="w-pill w-back" href="index.html" data-fade title="กลับเกาะ Back to island">🏝️ <span>กลับเกาะ</span></a>
+  <div class="w-pill w-title">🏮 ภาษาจีน <span class="en">· 繁體中文</span></div>
+  <div class="w-icons">
+    <button class="w-pill w-icon" id="soundBtn" title="เปิด/ปิดเสียง Sound">🔊</button>
   </div>
+</div>
 
-  <script>
-    // Text-to-Speech function (Traditional Chinese)
-    function speak(chinese, pinyin) {
-      const utterance = new SpeechSynthesisUtterance(chinese);
-      utterance.lang = 'zh-TW'; // Traditional Chinese
-      utterance.rate = 0.9;
-      utterance.pitch = 1.1;
-      
-      // Try to find a Chinese voice
-      const voices = speechSynthesis.getVoices();
-      const chineseVoice = voices.find(v => 
-        v.lang.includes('zh') || v.lang.includes('ZH') || 
-        v.name.toLowerCase().includes('chinese') || 
-        v.name.toLowerCase().includes('mandarin')
-      );
-      if (chineseVoice) utterance.voice = chineseVoice;
+<div class="w-caption" id="caption"></div>
+<div class="w-banner" id="banner">🧧 เก่งมาก! 🎉</div>
 
-      speechSynthesis.speak(utterance);
-    }
+<div class="w-dock">
+  <div class="w-controls" id="answers"></div>
+  <div class="w-modes" id="modes"></div>
+</div>
 
-    // Quiz data (Traditional)
-    const questions = [
-      { q: "คำว่า '你好' อ่านว่าอย่างไร?", options: ["Nǐ hǎo", "Xiè xiè", "Zài jiàn"], answer: 0 },
-      { q: "คำว่า '謝謝' แปลว่าอะไร?", options: ["สวัสดี", "ขอบคุณ", "ลาก่อน"], answer: 1 },
-      { q: "เลข '五' คือเลขอะไร?", options: ["3", "5", "8"], answer: 1 },
-      { q: "คำว่า '媽媽' หมายถึงใคร?", options: ["พ่อ", "แม่", "พี่สาว"], answer: 1 },
-      { q: "เลข '八' อ่านว่าอะไร?", options: ["Bā", "Liù", "Qī"], answer: 0 },
-      { q: "คำว่า '我愛你' แปลว่าอะไร?", options: ["ขอบคุณ", "ฉันรักคุณ", "สวัสดี"], answer: 1 }
-    ];
+<div class="w-modal-bg" id="result">
+  <div class="w-card">
+    <div class="big">🧧</div>
+    <h2 style="text-align:center">เก่งมากเลย!</h2>
+    <div class="score" id="rScore">0 / 10</div>
+    <p style="text-align:center" id="rStars"></p>
+    <button class="w-btn" id="againBtn">🔁 เล่นอีกครั้ง</button>
+  </div>
+</div>
 
-    let current = 0;
-    let score = 0;
+<div class="w-fallback" id="fallback">
+  <div class="big">🏮</div>
+  <h2>โหลดฉาก 3D ไม่ได้</h2>
+  <div>ต้องต่ออินเทอร์เน็ตนะ / This page needs internet</div>
+  <a class="w-btn" href="menu.html">ไปหน้าเมนู ▶</a>
+</div>
 
-    function showQuestion() {
-      const q = questions[current];
-      document.getElementById('question').innerHTML = q.q;
-      const opts = document.getElementById('options');
-      opts.innerHTML = '';
-      document.getElementById('feedback').innerHTML = '';
-
-      q.options.forEach((opt, i) => {
-        const btn = document.createElement('button');
-        btn.className = 'quiz-btn';
-        btn.innerHTML = opt;
-        btn.onclick = () => checkAnswer(i, btn, q.answer);
-        opts.appendChild(btn);
-      });
-    }
-
-    function checkAnswer(selected, btn, correct) {
-      const allBtns = document.querySelectorAll('#options .quiz-btn');
-      allBtns.forEach(b => b.disabled = true);
-
-      if (selected === correct) {
-        btn.classList.add('correct');
-        document.getElementById('feedback').innerHTML = '✅ ถูกต้อง! เก่งจังเลย~';
-        document.getElementById('feedback').className = 'quiz-feedback correct';
-        score++;
-      } else {
-        btn.classList.add('wrong');
-        allBtns[correct].classList.add('correct');
-        document.getElementById('feedback').innerHTML = '❌ ยังไม่ถูก ลองใหม่นะคะ!';
-        document.getElementById('feedback').className = 'quiz-feedback wrong';
-      }
-
-      setTimeout(() => {
-        current++;
-        if (current < questions.length) {
-          showQuestion();
-        } else {
-          showResult();
-        }
-      }, 1400);
-    }
-
-    function showResult() {
-      document.getElementById('quiz-content').style.display = 'none';
-      document.getElementById('result').style.display = 'block';
-      document.getElementById('score').innerHTML = `${score} / ${questions.length}`;
-    }
-
-    function restartQuiz() {
-      current = 0;
-      score = 0;
-      document.getElementById('quiz-content').style.display = 'block';
-      document.getElementById('result').style.display = 'none';
-      showQuestion();
-    }
-
-    // Preload voices
-    window.speechSynthesis.onvoiceschanged = function() {};
-
-    window.onload = function() {
-      showQuestion();
-    }
-  </script>
-<!-- Island look: top bar back to the island + 3D backdrop (see world-shell.js) -->
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
 <script src="world-kit.js"></script>
-<script src="world-shell.js" data-emoji="🀄" data-title="ภาษาจีน"></script>
+<script>
+  setTimeout(function () { if (!window.__worldReady) document.getElementById('fallback').classList.add('show'); }, 10000);
+</script>
+
+<script type="module">
+/* =========================================================
+   ภาษาจีน (Chinese, Traditional characters) — a lantern street
+   Every word is a red lantern. Tap it → it glows, swings and says the word in Chinese
+   (zh-TW voice), and the caption shows pinyin + Thai.
+   Modes: 👋 greetings · 👨‍👩‍👦 family · 🔢 numbers 1–10 (with dots to count) · 🎮 quiz (10 questions)
+   ========================================================= */
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const kit = WorldKit(THREE, OrbitControls);
+const { box } = kit;
+const stage = kit.createStage({ canvas: document.getElementById('world') });
+const { scene, camera, controls } = stage;
+controls.minDistance = 8; controls.maxDistance = 34;
+controls.minPolarAngle = .5; controls.maxPolarAngle = 1.5;
+kit.bindSoundButton(document.getElementById('soundBtn'));
+kit.bindFadeLinks();
+const fx = kit.createConfetti(scene);
+const floaters = kit.createFloaters(scene, { count: 16, radius: 15, spread: 10, y0: -2 });
+
+// ── Words ── (zh = Traditional characters, py = pinyin, th = Thai meaning)
+const WORDS = {
+  hello:  [
+    { zh: '你好', py: 'Nǐ hǎo', th: 'สวัสดี' },
+    { zh: '謝謝', py: 'Xiè xiè', th: 'ขอบคุณ' },
+    { zh: '再見', py: 'Zài jiàn', th: 'ลาก่อน' },
+    { zh: '我愛你', py: 'Wǒ ài nǐ', th: 'ฉันรักเธอ' },
+    { zh: '夏天', py: 'Xià tiān', th: 'ฤดูร้อน · Summer', gold: true },
+  ],
+  family: [
+    { zh: '媽媽', py: 'Mā ma', th: 'แม่' },
+    { zh: '爸爸', py: 'Bà ba', th: 'พ่อ' },
+  ],
+  numbers: ['一 Yī หนึ่ง', '二 Èr สอง', '三 Sān สาม', '四 Sì สี่', '五 Wǔ ห้า', '六 Liù หก', '七 Qī เจ็ด', '八 Bā แปด', '九 Jiǔ เก้า', '十 Shí สิบ']
+    .map((s, i) => { const [zh, py, th] = s.split(' '); return { zh, py, th, n: i + 1 }; }),
+};
+const QUIZ = [
+  { q: 'คำว่า 你好 อ่านว่าอะไร?', zh: '你好', options: ['Nǐ hǎo', 'Xiè xiè', 'Zài jiàn'], answer: 0 },
+  { q: 'คำว่า 謝謝 แปลว่าอะไร?', zh: '謝謝', options: ['สวัสดี', 'ขอบคุณ', 'ลาก่อน'], answer: 1 },
+  { q: 'เลข 五 คือเลขอะไร?', zh: '五', options: ['3', '5', '8'], answer: 1 },
+  { q: 'คำว่า 媽媽 หมายถึงใคร?', zh: '媽媽', options: ['พ่อ', 'แม่', 'พี่สาว'], answer: 1 },
+  { q: 'เลข 八 อ่านว่าอะไร?', zh: '八', options: ['Bā', 'Liù', 'Qī'], answer: 0 },
+  { q: 'คำว่า 我愛你 แปลว่าอะไร?', zh: '我愛你', options: ['ขอบคุณ', 'ฉันรักเธอ', 'สวัสดี'], answer: 1 },
+  { q: 'คำว่า 再見 แปลว่าอะไร?', zh: '再見', options: ['ลาก่อน', 'สวัสดี', 'แม่'], answer: 0 },
+  { q: 'คำว่า 爸爸 หมายถึงใคร?', zh: '爸爸', options: ['แม่', 'น้อง', 'พ่อ'], answer: 2 },
+  { q: 'เลข 三 คือเลขอะไร?', zh: '三', options: ['1', '3', '10'], answer: 1 },
+  { q: 'คำว่า 夏天 คือชื่อใครเอ่ย?', zh: '夏天', options: ['Summer', 'แม่', 'พ่อ'], answer: 0 },
+];
+
+// ── Speech: Chinese words in a zh-TW voice; Thai captions in the usual Thai voice ──
+function sayZh(text) {
+  if (!kit.soundOn() || !('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'zh-TW'; u.rate = .8; u.pitch = 1.1;
+  const v = speechSynthesis.getVoices().find(v => /zh[-_]TW/i.test(v.lang)) || speechSynthesis.getVoices().find(v => /^zh/i.test(v.lang));
+  if (v) u.voice = v;
+  speechSynthesis.speak(u);
+}
+const captionEl = document.getElementById('caption');
+let captionTimer = null;
+function caption(text, say = true, ms = 4500) {
+  captionEl.innerHTML = text; captionEl.classList.add('show');
+  clearTimeout(captionTimer); captionTimer = setTimeout(() => captionEl.classList.remove('show'), ms);
+  if (say) kit.speak(text.replace(/<[^>]+>/g, ' ').replace(/[^฀-๿0-9 ]/g, ' '));
+}
+
+/* =========================================================
+   The lantern street
+   ========================================================= */
+box(scene, 22, .4, 12, '#8fd16a', 0, -.2, 0);
+box(scene, 22, 1.2, 12, '#d39a5c', 0, -1, 0);
+box(scene, 20, 1, 10, '#b87e47', 0, -2.1, 0);
+box(scene, 14, .8, 7, '#9b6a3c', 0, -3, 0);
+box(scene, 20, .06, 2.6, '#e9d9b8', 0, .03, 2.2, false);                    // stone path
+// A red gate (牌坊) behind the lanterns
+{
+  const R = '#d7263d', G = '#f4c430';
+  [-6.5, 6.5].forEach(x => { box(scene, .8, 9, .8, R, x, 4.5, -3.2); box(scene, 1.3, .5, 1.3, '#5b4636', x, .25, -3.2); });
+  box(scene, 15.5, .7, 1.2, R, 0, 8.4, -3.2);
+  box(scene, 17, .45, 1.8, '#3f7f5a', 0, 9.05, -3.2); box(scene, 15.6, .4, 1.4, '#4f9a6a', 0, 9.45, -3.2);
+  box(scene, 13.4, .3, .9, G, 0, 7.75, -3.2);
+  const sign = kit.labelSprite('歡迎 · ยินดีต้อนรับ', .8, { bg: G, fg: '#7a1020' }); sign.position.set(0, 8.4, -2.5); scene.add(sign);
+}
+[[-9, -1.5], [9, -1.5], [-9.5, 3.5], [9.5, 3.8]].forEach(([x, z], i) => {     // blossom trees
+  box(scene, .5, 2, .5, '#8b5a3c', x, 1, z); box(scene, 2.4, 1.6, 2.4, i % 2 ? '#ffb7c5' : '#ff9fb4', x, 2.8, z); box(scene, 1.4, .9, 1.4, '#ffd0db', x, 3.9, z);
+});
+const summer = kit.makeSummer();
+summer.g.position.set(-4.3, 0, 3.3); summer.g.rotation.y = .5;
+summer.g.scale.setScalar(1.6);
+scene.add(summer.g);
+
+// Characters drawn into canvas textures (font loaded first so the strokes are right)
+const ZH_FONT = '"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif';
+function faceTexture(w) {
+  const c = document.createElement('canvas'); c.width = 256; c.height = 300;
+  const g = c.getContext('2d');
+  g.fillStyle = w.gold ? '#f4c430' : '#e0283f'; g.fillRect(0, 0, 256, 300);
+  g.strokeStyle = 'rgba(255,230,150,.9)'; g.lineWidth = 8; g.strokeRect(14, 14, 228, 272);
+  g.fillStyle = w.gold ? '#7a1020' : '#fff6d8'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  const n = [...w.zh].length;
+  g.font = `700 ${n >= 3 ? 76 : n === 2 ? 104 : 150}px ${ZH_FONT}`;
+  if (n === 3) { g.fillText(w.zh, 128, 128); }
+  else if (n === 2) { g.fillText(w.zh, 128, 128); }
+  else g.fillText(w.zh, 128, 135);
+  g.font = '700 34px "Fredoka",sans-serif';
+  g.fillText(w.py, 128, 250);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+// A lantern: stepped red body, gold caps, tassel; the word is on the front. Origin = where it hangs.
+function makeLantern(w, size = 1) {
+  const g = new THREE.Group(), sway = new THREE.Group();
+  g.add(sway);
+  const col = w.gold ? '#f4c430' : '#e0283f';
+  const mat = new THREE.MeshLambertMaterial({ color: col, emissive: '#ff9a3c', emissiveIntensity: 0 });
+  const part = (sx, sy, sz, y) => { const m = new THREE.Mesh(kit.UNIT, mat); m.scale.set(sx, sy, sz); m.position.y = y; m.castShadow = true; sway.add(m); return m; };
+  box(sway, .06, .5, .06, '#3b2a1a', 0, -.25, 0, false);                      // cord
+  box(sway, 1, .22, 1, '#f4c430', 0, -.6, 0);                                 // top cap
+  part(1.5, 1.7, 1.5, -1.6); part(1.75, 1.3, 1.75, -1.6); part(1.2, 2, 1.2, -1.6);
+  box(sway, 1, .22, 1, '#f4c430', 0, -2.6, 0);                                // bottom cap
+  [-.2, 0, .2].forEach(x => box(sway, .07, .8, .07, '#f4c430', x, -3.1, 0, false));   // tassel
+  const face = new THREE.Mesh(new THREE.PlaneGeometry(1.3, 1.52), new THREE.MeshBasicMaterial({ map: faceTexture(w) }));
+  face.position.set(0, -1.6, .885); sway.add(face);
+  g.scale.setScalar(size);
+  g.userData = { w, mat, sway, glow: 0, swing: 0 };
+  g.traverse(m => { m.userData.lantern = g; });
+  return g;
+}
+
+/* =========================================================
+   Modes
+   ========================================================= */
+const MODES = {
+  hello:   { em: '👋', th: 'ทักทาย' },
+  family:  { em: '👨‍👩‍👦', th: 'ครอบครัว' },
+  numbers: { em: '🔢', th: 'ตัวเลข' },
+  quiz:    { em: '🎮', th: 'ทดสอบ' },
+};
+let mode = null;
+const street = new THREE.Group(); scene.add(street);
+let lanterns = [];
+
+// Two poles with a rope per row; lanterns hang from it. rows = [[words…], …] top to bottom.
+let box3 = { w: 10, top: 8, bottom: 0 };   // how much space the lanterns take (for the camera)
+function hangRows(rows) {
+  street.clear(); lanterns = [];
+  const dots = rows.some(r => r.some(w => w.n)), step = dots ? 4.8 : 4.4, base = dots ? 5.1 : 4.6;
+  box3 = { w: 0, top: base + (rows.length - 1) * step + .5, bottom: 0 };
+  rows.forEach((row, r) => {
+    const y = base + (rows.length - 1 - r) * step, gap = 2.9, size = 1;
+    box3.w = Math.max(box3.w, (row.length - 1) * gap + 3.4);
+    const half = (row.length - 1) * gap / 2 + 1.6;
+    [-half, half].forEach(x => box(street, .3, y + .2, .3, '#8b5a3c', x, (y + .2) / 2, 0));
+    box(street, half * 2, .07, .07, '#3b2a1a', 0, y, 0, false);
+    row.forEach((w, i) => {
+      const L = makeLantern(w, size);
+      L.position.set(-((row.length - 1) * gap) / 2 + i * gap, y, 0);
+      L.userData.drop = 1 + i * .12 + r * .3;   // lanterns slide down onto the rope one by one
+      street.add(L); lanterns.push(L);
+      const lab = kit.labelSprite(w.th, .5);
+      lab.position.set(L.position.x, y - 3.85 * size, .6); street.add(lab);
+      if (w.n) {                                                              // number lanterns: dots to count
+        const per = Math.min(w.n, 5), dots = new THREE.Group();
+        for (let k = 0; k < w.n; k++) box(dots, .26, .26, .26, '#f4c430', (k % per - (per - 1) / 2) * .34, -Math.floor(k / per) * .34, 0, false);
+        dots.position.set(L.position.x, y - 4.45 * size, .6); street.add(dots);
+      }
+    });
+  });
+}
+
+function tapLantern(L) {
+  const w = L.userData.w;
+  L.userData.glow = 1; L.userData.swing = 1;
+  sayZh(w.zh);
+  caption(`<span class="zh">${w.zh}</span> · ${w.py} · ${w.th}`, false, 4000);
+  setTimeout(() => kit.speak(w.th.split('·')[0]), 1300);   // then the Thai meaning
+  kit.tones([660, 880], .05, 'triangle', .1);
+  fx.burst(...L.getWorldPosition(new THREE.Vector3()).add(new THREE.Vector3(0, -1.5, 1)).toArray(), ['#f4c430', '#ff9a3c', '#ffffff'], 10);
+  if (w.zh === '夏天') setTimeout(() => caption('夏天 แปลว่าฤดูร้อน เหมือนชื่อ Summer เลย! ☀️', true, 5000), 2200);
+  cheerT = 1;
+}
+
+// ── Quiz ──
+const answersEl = document.getElementById('answers');
+let qi = 0, qScore = 0, qLocked = false;
+function showQuestion() {
+  const Q = QUIZ[qi];
+  hangRows([[{ zh: Q.zh, py: '?', th: `ข้อ ${qi + 1}/${QUIZ.length}`, gold: Q.zh === '夏天' }]]);
+  lanterns[0].scale.setScalar(1.35);
+  caption(`<span class="qnum">${qi + 1}/${QUIZ.length}</span> ${Q.q.replace(Q.zh, `<span class="zh">${Q.zh}</span>`)}`, true, 60000);
+  answersEl.innerHTML = '';
+  Q.options.forEach((o, i) => {
+    const b = document.createElement('button');
+    b.className = 'w-btn white'; b.textContent = o;
+    b.onclick = () => answer(i, b);
+    answersEl.appendChild(b);
+  });
+  qLocked = false;
+}
+function answer(i, btn) {
+  if (qLocked) return;
+  qLocked = true;
+  const Q = QUIZ[qi], btns = [...answersEl.children];
+  btns[Q.answer].classList.add('ok');
+  if (i === Q.answer) {
+    qScore++;
+    caption('✅ ถูกต้อง! เก่งมาก', true, 2000);
+    kit.cheer(); cheerT = 1.5;
+    lanterns[0].userData.glow = 1; lanterns[0].userData.swing = 1;
+    fx.burst(0, 6, 1, ['#e0283f', '#f4c430', '#ffffff']);
+  } else {
+    btn.classList.add('no');
+    caption(`ยังไม่ถูก คำตอบคือ ${Q.options[Q.answer]} นะ 😊`, true, 3000);
+    kit.tones([330, 262], .1, 'sine', .12);
+  }
+  setTimeout(() => sayZh(Q.zh), 900);
+  setTimeout(() => { qi++; if (qi < QUIZ.length) showQuestion(); else showResult(); }, 2600);
+}
+function showResult() {
+  const best = Math.max(kit.loadSave().chinese || 0, qScore);
+  kit.writeSave({ chinese: best });
+  document.getElementById('rScore').textContent = `${qScore} / ${QUIZ.length}`;
+  document.getElementById('rStars').textContent = '⭐'.repeat(Math.round(qScore / 2)) + `  (ดีที่สุด ${best}/${QUIZ.length})`;
+  document.getElementById('result').classList.add('show');
+  fx.burst(0, 6, 1); kit.cheer(); cheerT = 3;
+  caption(`ได้ ${qScore} คะแนน จาก ${QUIZ.length} ข้อ! 🧧`, true, 5000);
+}
+document.getElementById('againBtn').onclick = () => { document.getElementById('result').classList.remove('show'); startQuiz(); };
+function startQuiz() { qi = 0; qScore = 0; showQuestion(); }
+
+// Phones are narrow: 3 lanterns per row; wide screens: 5
+function rowsOf(ws) {
+  const per = innerWidth < innerHeight ? 3 : 5, rows = [];
+  for (let i = 0; i < ws.length; i += per) rows.push(ws.slice(i, i + per));
+  return rows;
+}
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('.w-mode').forEach(b => b.classList.toggle('on', b.dataset.m === m));
+  answersEl.classList.toggle('show', m === 'quiz');
+  if (m === 'quiz') startQuiz();
+  else {
+    const ws = WORDS[m];
+    hangRows(rowsOf(ws));
+    caption(m === 'numbers' ? 'แตะโคมไฟ แล้วนับจุดสีทองด้วยกันนะ 1 2 3 🔢' : 'แตะโคมไฟ เพื่อฟังเสียงภาษาจีน 🏮', true, 5000);
+  }
+  frame();
+}
+const modesEl = document.getElementById('modes');
+Object.entries(MODES).forEach(([id, M]) => {
+  const b = document.createElement('button');
+  b.className = 'w-mode'; b.dataset.m = id;
+  b.innerHTML = `<span class="em">${M.em}</span>${M.th}`;
+  b.onclick = () => { if (mode !== id) { kit.tones([440, 660], .06); setMode(id); } };
+  modesEl.appendChild(b);
+});
+
+// Camera: step back until every lantern fits (leaving room for the caption on top and the dock below)
+function frame() {
+  const v = THREE.MathUtils.degToRad(camera.fov) / 2, h = Math.atan(Math.tan(v) * camera.aspect);
+  const H = (box3.top - box3.bottom) * 1.55, W = box3.w * 1.08;
+  const dist = Math.max(H / 2 / Math.tan(v), W / 2 / Math.tan(h), 15);
+  const cy = (box3.top + box3.bottom) / 2 + H * .03;   // a bit above the middle: the caption needs more room than the dock
+  kit.flyTo(stage, new THREE.Vector3(1.5, cy + dist * .16, dist), new THREE.Vector3(0, cy, 0), 1100);
+}
+
+/* =========================================================
+   Taps + loop
+   ========================================================= */
+const raycaster = new THREE.Raycaster(), ndc = new THREE.Vector2();
+const canvas = stage.renderer.domElement;
+let press = null, cheerT = 0;
+canvas.addEventListener('pointerdown', e => { press = { x: e.clientX, y: e.clientY, t: performance.now() }; });
+canvas.addEventListener('pointerup', e => {
+  if (!press) return;
+  const tap = Math.hypot(e.clientX - press.x, e.clientY - press.y) < 10 && performance.now() - press.t < 500;
+  press = null;
+  if (!tap) return;
+  ndc.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
+  raycaster.setFromCamera(ndc, camera);
+  const hit = raycaster.intersectObjects(lanterns, true)[0];
+  if (hit) {
+    const L = hit.object.userData.lantern;
+    if (mode === 'quiz') { L.userData.swing = 1; sayZh(L.userData.w.zh); } else tapLantern(L);
+    return;
+  }
+  if (raycaster.intersectObject(summer.g, true).length) { cheerT = 1.2; sayZh('你好'); caption('<span class="zh">你好</span> · Nǐ hǎo · สวัสดี!', false, 2500); }
+});
+
+camera.position.set(0, 9, 26); controls.target.set(0, 4, 0);
+document.fonts.load(`700 80px "Noto Sans TC"`, '你好謝').catch(() => {}).then(() => setMode('hello'));
+
+stage.start((dt, time) => {
+  lanterns.forEach((L, i) => {
+    const u = L.userData;
+    if (u.drop > 0) { u.drop = Math.max(0, u.drop - dt * 1.6); }
+    const d = Math.min(1, u.drop);
+    u.sway.position.y = d * d * 6;                                            // slide down into place
+    u.swing = Math.max(0, u.swing - dt * .5);
+    u.sway.rotation.z = Math.sin(time * 1.3 + i) * .04 + Math.sin(time * 6) * .35 * u.swing;
+    u.glow = Math.max(0, u.glow - dt * .5);
+    u.mat.emissiveIntensity = .15 + u.glow * .9 + Math.sin(time * 2 + i) * .05;
+  });
+  cheerT -= dt;
+  kit.poseSummer(summer, time, cheerT > 0 ? 'cheer' : 'idle');
+  floaters.update(dt, time);
+  fx.update(dt);
+});
+
+// test hooks
+window.__zh = { setMode, answer: i => answer(i, answersEl.children[i]), tap: i => tapLantern(lanterns[i]), get qi() { return qi; }, get score() { return qScore; }, QUIZ };
+window.__worldReady = true;
+</script>
 </body>
 </html>

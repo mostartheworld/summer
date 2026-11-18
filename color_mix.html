@@ -9,30 +9,40 @@
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;600;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="world-theme.css">
 <style>
-  /* Equation pill: 🔴 + 🔵 = 🟣 */
+  /* Equation pill: 🔴 + 🔵 = 🟣 (dots are rebuilt for every mix) */
   .eq {
     position: fixed; top: 84px; left: 50%; transform: translateX(-50%); z-index: 5;
-    background: #fff; border-radius: 999px; padding: 8px 16px; display: flex; align-items: center; gap: 10px;
-    font-size: 26px; font-weight: 900; color: #cbbda4; box-shadow: 0 6px 0 rgba(0,0,0,.08);
+    background: #fff; border-radius: 999px; padding: 8px 14px; display: flex; align-items: center; gap: 6px;
+    font-size: 24px; font-weight: 900; color: #cbbda4; box-shadow: 0 6px 0 rgba(0,0,0,.08); white-space: nowrap;
   }
   .eq .dot {
-    width: 48px; height: 48px; border-radius: 50%; border: 3px dashed #e5d9c4;
-    display: flex; align-items: center; justify-content: center; font-size: 22px; color: #cbbda4; transition: all .3s;
+    width: 44px; height: 44px; border-radius: 50%; border: 3px dashed #e5d9c4; flex: none;
+    display: flex; align-items: center; justify-content: center; font-size: 20px; color: #cbbda4; transition: all .3s;
   }
-  .eq .dot.on { border: 3px solid rgba(0,0,0,.12); color: transparent; transform: scale(1.08); }
-  .w-caption { top: 158px; }
+  .eq .dot.on { border: 3px solid rgba(0,0,0,.12); color: transparent; transform: scale(1.06); }
+  .eq .dot.target { border: 4px solid var(--orange); color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.5); }
+  .eq .score { font-size: 18px; color: var(--orange-dark); margin-left: 6px; }
+  .w-caption { top: 154px; }
   /* Paint buttons — each one is the colour itself */
   .paint {
-    width: 76px; height: 76px; border-radius: 50%; border: 4px solid #fff; cursor: pointer;
+    width: 72px; height: 72px; border-radius: 50%; border: 4px solid #fff; cursor: pointer;
     background: var(--c); box-shadow: 0 6px 0 rgba(0,0,0,.22);
-    font-family: inherit; font-size: 16px; font-weight: 800; color: #fff; text-shadow: 0 2px 3px rgba(0,0,0,.45);
+    font-family: inherit; font-size: 15px; font-weight: 800; color: #fff; text-shadow: 0 2px 3px rgba(0,0,0,.45);
     display: flex; align-items: center; justify-content: center; line-height: 1.1;
   }
+  .paint.light { color: #3b2a1a; text-shadow: none; border-color: #e5d9c4; }
   .paint:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,.22); }
-  .paint.small { width: 62px; height: 62px; font-size: 13px; }
+  .paint.small { width: 58px; height: 58px; font-size: 13px; }
+  .w-modes { padding: 5px; }
+  .w-mode { min-height: 56px; font-size: 13px; }
+  .w-mode .em { font-size: 22px; }
   #extras { display: none; }
   #extras.show { display: flex; }
-  @media (max-width: 480px) { .paint { width: 68px; height: 68px; } .paint.small { width: 54px; height: 54px; } .eq .dot { width: 40px; height: 40px; } }
+  @media (max-width: 480px) {
+    .paint { width: 62px; height: 62px; font-size: 14px; } .paint.small { width: 54px; height: 54px; }
+    .eq .dot { width: 36px; height: 36px; } .eq { gap: 4px; font-size: 20px; padding: 6px 10px; }
+    .w-controls { gap: 7px; }
+  }
 </style>
 </head>
 <body>
@@ -47,15 +57,15 @@
   </div>
 </div>
 
-<div class="eq"><span class="dot" id="d1">?</span>+<span class="dot" id="d2">?</span>=<span class="dot" id="d3">?</span></div>
+<div class="eq" id="eq"></div>
 <div class="w-caption" id="caption"></div>
 <div class="w-banner" id="banner">🌈 ค้นพบสีใหม่ครบแล้ว!</div>
 
 <div class="w-dock">
+  <div class="w-modes" id="modes"></div>
   <div class="w-controls" id="extras"></div>
-  <div class="w-controls" id="primaries">
-    <button class="w-btn white" id="moreBtn" title="สีเพิ่ม More colors">➕ สีเพิ่ม</button>
-  </div>
+  <div class="w-controls" id="paints"></div>
+  <div class="w-controls" id="actions"></div>
 </div>
 
 <div class="w-fallback" id="fallback">
@@ -79,9 +89,14 @@
 <script type="module">
 /* =========================================================
    ผสมสี (Color mixing) — a paint workshop on the island
-   Tap 2 colours → paint drops into the pot → Summer stirs →
+   Tap colours → paint drops into the pot → Summer stirs →
    the new colour splashes onto the easel and goes into a jar on the shelf.
    Tap a jar to use that colour again.
+   4 modes:
+     🎨 แม่สี     2 colours — discover orange, green, purple (the original game)
+     ⚪ อ่อน/เข้ม  a colour + white = lighter, + black = darker
+     🌈 หลายสี    2–4 drops, then stir (red+yellow+blue = brown, red+red+yellow = red-orange…)
+     🎯 ทายสี     make the target colour with 2 drops
    ========================================================= */
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -90,7 +105,7 @@ const kit = WorldKit(THREE, OrbitControls);
 const { box } = kit;
 const stage = kit.createStage({ canvas: document.getElementById('world') });
 const { scene, camera, controls } = stage;
-controls.minDistance = 8; controls.maxDistance = 30;
+controls.minDistance = 8; controls.maxDistance = 32;
 controls.minPolarAngle = .4; controls.maxPolarAngle = 1.4;
 kit.bindSoundButton(document.getElementById('soundBtn'));
 kit.bindFadeLinks();
@@ -98,36 +113,118 @@ const fx = kit.createConfetti(scene);
 const floaters = kit.createFloaters(scene, { count: 18, radius: 14, spread: 10, y0: -2 });
 
 // ── Colours ──
-// th = Thai name (spoken), en = English label
+// th = Thai name (spoken), en = English label. Every named colour can be the answer of a mix.
 const C = {
-  red:    { th: 'แดง',     en: 'Red',    hex: '#FF2A2A' },
-  blue:   { th: 'น้ำเงิน',  en: 'Blue',   hex: '#1A40FF' },
-  yellow: { th: 'เหลือง',   en: 'Yellow', hex: '#F5C400' },
-  orange: { th: 'ส้ม',      en: 'Orange', hex: '#FF8000' },
-  green:  { th: 'เขียว',    en: 'Green',  hex: '#1AB84F' },
-  purple: { th: 'ม่วง',     en: 'Purple', hex: '#8B2FCC' },
-  pink:   { th: 'ชมพู',     en: 'Pink',   hex: '#FF5BA8' },
-  teal:   { th: 'เขียวอมฟ้า', en: 'Teal',  hex: '#0FA7B5' },
-  brown:  { th: 'น้ำตาล',   en: 'Brown',  hex: '#8B5A2B' },
+  red:        { th: 'แดง',        en: 'Red',          hex: '#FF2A2A' },
+  blue:       { th: 'น้ำเงิน',     en: 'Blue',         hex: '#1A40FF' },
+  yellow:     { th: 'เหลือง',      en: 'Yellow',       hex: '#F5C400' },
+  white:      { th: 'ขาว',        en: 'White',        hex: '#FFFFFF', light: true },
+  black:      { th: 'ดำ',         en: 'Black',        hex: '#222222' },
+  orange:     { th: 'ส้ม',         en: 'Orange',       hex: '#FF8000' },
+  green:      { th: 'เขียว',       en: 'Green',        hex: '#1AB84F' },
+  purple:     { th: 'ม่วง',        en: 'Purple',       hex: '#8B2FCC' },
+  pink:       { th: 'ชมพู',        en: 'Pink',         hex: '#FF8DB4' },
+  lightpink:  { th: 'ชมพูอ่อน',     en: 'Light pink',   hex: '#FFC4D6', light: true },
+  teal:       { th: 'เขียวอมฟ้า',   en: 'Teal',         hex: '#0FA7B5' },
+  brown:      { th: 'น้ำตาล',      en: 'Brown',        hex: '#8B5A2B' },
+  // lighter (+ white)
+  lightblue:  { th: 'ฟ้า',         en: 'Light blue',   hex: '#86C8FF', light: true },
+  cream:      { th: 'ครีม',        en: 'Cream',        hex: '#FFEB9C', light: true },
+  lightgreen: { th: 'เขียวอ่อน',    en: 'Light green',  hex: '#93E3A4', light: true },
+  peach:      { th: 'ส้มอ่อน',      en: 'Peach',        hex: '#FFC08F', light: true },
+  lavender:   { th: 'ม่วงอ่อน',     en: 'Lavender',     hex: '#C9A6F0', light: true },
+  gray:       { th: 'เทา',         en: 'Gray',         hex: '#9A9A9A' },
+  // darker (+ black)
+  darkred:    { th: 'แดงเข้ม',      en: 'Dark red',     hex: '#8A1616' },
+  navy:       { th: 'น้ำเงินเข้ม',   en: 'Navy',         hex: '#17236E' },
+  olive:      { th: 'เขียวขี้ม้า',    en: 'Olive',        hex: '#7A7614' },
+  darkgreen:  { th: 'เขียวเข้ม',     en: 'Dark green',   hex: '#105A2B' },
+  darkpurple: { th: 'ม่วงเข้ม',      en: 'Dark purple',  hex: '#4A1670' },
+  // in-between colours (3 drops: 2 of one + 1 of another)
+  redorange:  { th: 'ส้มอมแดง',     en: 'Red-orange',   hex: '#FF5A1A' },
+  amber:      { th: 'ส้มอมเหลือง',   en: 'Yellow-orange', hex: '#FFAA00' },
+  lime:       { th: 'เขียวอมเหลือง',  en: 'Yellow-green', hex: '#A3CF2A' },
+  indigo:     { th: 'ม่วงอมน้ำเงิน',  en: 'Blue-purple',  hex: '#4B30C8' },
+  magenta:    { th: 'ม่วงอมแดง',     en: 'Red-purple',   hex: '#B5207A' },
 };
-const PRIMARY = ['red', 'blue', 'yellow'];
-const EXTRA = ['orange', 'green', 'purple', 'pink', 'teal', 'brown'];
-// The 3 "magic" mixes Summer should discover (primary + primary = secondary)
-const MIXES = {
-  'blue+red':    'purple',
-  'red+yellow':  'orange',
-  'blue+yellow': 'green',
+// Mixes we know the answer to (keys sorted alphabetically). Everything else is worked out from its recipe (see MAKE).
+const KNOWN = {
+  'blue+red': 'purple', 'red+yellow': 'orange', 'blue+yellow': 'green',
+  'red+white': 'pink', 'blue+white': 'lightblue', 'white+yellow': 'cream', 'green+white': 'lightgreen',
+  'orange+white': 'peach', 'purple+white': 'lavender', 'black+white': 'gray',
+  'black+red': 'darkred', 'black+blue': 'navy', 'black+yellow': 'olive', 'black+green': 'darkgreen',
+  'black+orange': 'brown', 'black+purple': 'darkpurple',
+  'blue+red+yellow': 'brown',
+  'red+red+yellow': 'redorange', 'red+yellow+yellow': 'amber', 'blue+yellow+yellow': 'lime',
+  'blue+blue+yellow': 'teal', 'blue+blue+red': 'indigo', 'blue+red+red': 'magenta',
 };
-const SECONDARY = new Set(Object.values(MIXES));
+const SECONDARY = ['orange', 'green', 'purple'];   // the 3 "magic" colours of the first mode
 
-function mixOf(a, b) {
-  const key = [a, b].sort().join('+');
-  if (MIXES[key]) return { id: MIXES[key], ...C[MIXES[key]], magic: true };
-  if (a === b) {   // same colour → a deeper shade
-    return { id: a + '-deep', th: C[a].th + 'เข้ม', en: 'Deep ' + C[a].en, hex: kit.shade(C[a].hex, .72), same: true };
+// Every colour remembers what it is made of: parts of red/yellow/blue/white/black (adding up to 1).
+// Mixing just averages those parts — so a jar of orange + white really is the same as red + yellow + white + white.
+const MAKE = {
+  red: { r: 1 }, yellow: { y: 1 }, blue: { b: 1 }, white: { w: 1 }, black: { k: 1 },
+  orange: { r: .5, y: .5 }, green: { y: .5, b: .5 }, purple: { r: .5, b: .5 }, brown: { r: 1 / 3, y: 1 / 3, b: 1 / 3 },
+  pink: { r: .5, w: .5 }, lightpink: { r: 1 / 3, w: 2 / 3 }, teal: { y: 1 / 3, b: 2 / 3 },
+  lightblue: { b: .5, w: .5 }, cream: { y: .5, w: .5 }, lightgreen: { y: .25, b: .25, w: .5 }, peach: { r: .25, y: .25, w: .5 },
+  lavender: { r: .25, b: .25, w: .5 }, gray: { w: .5, k: .5 },
+  darkred: { r: .5, k: .5 }, navy: { b: .5, k: .5 }, olive: { y: .5, k: .5 }, darkgreen: { y: .25, b: .25, k: .5 }, darkpurple: { r: .25, b: .25, k: .5 },
+  redorange: { r: 2 / 3, y: 1 / 3 }, amber: { r: 1 / 3, y: 2 / 3 }, lime: { y: 2 / 3, b: 1 / 3 }, indigo: { r: 1 / 3, b: 2 / 3 }, magenta: { r: 2 / 3, b: 1 / 3 },
+};
+const vec = o => ['r', 'y', 'b', 'w', 'k'].map(k => o[k] || 0);
+Object.entries(MAKE).forEach(([id, o]) => { C[id].mix = vec(o); C[id].named = true; });
+
+// Painters' colour wheel as a cube: the 8 corners are white, the 3 primaries, the 3 secondaries and brown.
+// A colour's red/yellow/blue amounts pick a point inside the cube (trilinear blend of the corners).
+const CORNER = {};
+[['000', '#ffffff'], ['100', C.red.hex], ['010', C.yellow.hex], ['001', C.blue.hex], ['110', C.orange.hex],
+ ['101', C.purple.hex], ['011', C.green.hex], ['111', C.brown.hex]].forEach(([k, h]) => { CORNER[k] = new THREE.Color(h); });
+function hexOf(v) {
+  const [r, y, b, w, k] = v, chroma = r + y + b, out = new THREE.Color(0, 0, 0);
+  // equal parts of red + yellow + blue make brown, so that share is brown (opposite colours turn muddy, like real paint)
+  const mud = Math.min(r, y, b) * 3;
+  out.add(new THREE.Color(C.brown.hex).multiplyScalar(mud));
+  if (chroma - mud > 1e-6) {
+    const rest = [r, y, b].map(c => c - mud / 3), m = Math.max(...rest), x = rest.map(c => c / m);
+    const hue = new THREE.Color(0, 0, 0);
+    for (const key in CORNER) {
+      const wt = [0, 1, 2].reduce((a, i) => a * (key[i] === '1' ? x[i] : 1 - x[i]), 1);
+      hue.r += CORNER[key].r * wt; hue.g += CORNER[key].g * wt; hue.b += CORNER[key].b * wt;
+    }
+    out.add(hue.multiplyScalar(chroma - mud));
   }
-  const hex = '#' + new THREE.Color(C[a].hex).lerp(new THREE.Color(C[b].hex), .5).getHexString();
-  return { id: key, th: 'สีใหม่', en: 'New shade', hex };
+  out.add(new THREE.Color(1, 1, 1).multiplyScalar(w)).add(new THREE.Color(C.black.hex).multiplyScalar(k));
+  return '#' + out.getHexString();
+}
+// Nearest named colour (compared in Lab, which matches how eyes see differences)
+function lab(hex) {
+  const c = new THREE.Color(hex).convertSRGBToLinear();
+  const f = t => t > .008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116;
+  const x = f((c.r * .4124 + c.g * .3576 + c.b * .1805) / .9505), y = f(c.r * .2126 + c.g * .7152 + c.b * .0722), z = f((c.r * .0193 + c.g * .1192 + c.b * .9505) / 1.089);
+  return [116 * y - 16, 500 * (x - y), 200 * (y - z)];
+}
+function nearest(hex) {
+  const L = lab(hex);
+  let best = null, bestD = 1e9;
+  Object.keys(C).forEach(id => {
+    if (!C[id].named) return;
+    const M = lab(C[id].hex), d = Math.hypot(L[0] - M[0], L[1] - M[1], L[2] - M[2]);
+    if (d < bestD) { bestD = d; best = id; }
+  });
+  return best;
+}
+
+function mixOf(keys) {
+  const key = keys.slice().sort().join('+');
+  if (KNOWN[key]) { const id = KNOWN[key]; return { id, ...C[id], magic: SECONDARY.includes(id) }; }
+  if (keys.every(k => k === keys[0])) return { id: keys[0], ...C[keys[0]], same: true };   // red + red = still red
+  const v = [0, 0, 0, 0, 0];
+  keys.forEach(k => C[k].mix.forEach((x, i) => { v[i] += x / keys.length; }));
+  // same recipe as a named colour? then it IS that colour
+  const exact = Object.keys(C).find(id => C[id].named && C[id].mix.every((x, i) => Math.abs(x - v[i]) < .01));
+  if (exact) return { id: exact, ...C[exact] };
+  const hex = hexOf(v);
+  return { id: 'mix' + hex, th: 'สีใหม่', en: 'New shade', hex, mix: v, like: C[nearest(hex)].th };
 }
 
 // ── Caption (+ speech) ──
@@ -188,12 +285,12 @@ box(easel, EASEL.w + .3, EASEL.h + .3, .12, '#c98a5a', 0, EASEL.y, .32);
 box(easel, EASEL.w, EASEL.h, .1, '#ffffff', 0, EASEL.y, .4);
 box(easel, 3.2, .16, .4, '#8b5a3c', 0, 1.55, .5);
 
-// Shelf of discovered colours (jars you can tap)
-const SHELF = { x: -1, z: -3.8, rows: [1.1, 2.5], perRow: 6 };
-box(scene, .25, 3.3, .6, '#8b5a3c', SHELF.x - 4.2, 1.65, SHELF.z);
-box(scene, .25, 3.3, .6, '#8b5a3c', SHELF.x + 4.2, 1.65, SHELF.z);
+// Shelf of discovered colours (jars you can tap) — 3 rows of 6
+const SHELF = { x: -1, z: -3.8, rows: [1.1, 2.5, 3.9], perRow: 6 };
+box(scene, .25, 4.7, .6, '#8b5a3c', SHELF.x - 4.2, 2.35, SHELF.z);
+box(scene, .25, 4.7, .6, '#8b5a3c', SHELF.x + 4.2, 2.35, SHELF.z);
 SHELF.rows.forEach(y => box(scene, 8.6, .2, .8, '#c98a5a', SHELF.x, y - .1, SHELF.z));
-const shelfSign = kit.labelSprite('สีที่ค้นพบ', .5); shelfSign.position.set(SHELF.x, 3.75, SHELF.z); scene.add(shelfSign);
+const shelfSign = kit.labelSprite('สีที่ค้นพบ', .5); shelfSign.position.set(SHELF.x, 5.15, SHELF.z); scene.add(shelfSign);
 const jars = [];
 function addJar(res) {
   if (jars.some(j => j.res.id === res.id) || jars.length >= SHELF.rows.length * SHELF.perRow) return false;
@@ -208,80 +305,152 @@ function addJar(res) {
   scene.add(g);
   jars.push({ g, res, grow: 0 });
   // jars hold their colour so they can be reused in the next mix
-  if (!C[res.id]) C[res.id] = { th: res.th, en: res.en, hex: res.hex };
+  if (!C[res.id]) C[res.id] = { th: res.th, en: res.en, hex: res.hex, mix: res.mix };
   return true;
 }
 
 /* =========================================================
-   Mixing
+   Modes
    ========================================================= */
-const eqDots = ['d1', 'd2', 'd3'].map(id => document.getElementById(id));
-function setDot(i, hex) {
-  eqDots[i].classList.toggle('on', !!hex);
-  eqDots[i].style.background = hex || '';
-}
-let picks = [], busy = false, stirT = 0, splats = 0;
+const MODES = {
+  primary: { em: '🎨', th: 'แม่สี',     need: 2, paints: ['red', 'blue', 'yellow'], more: ['orange', 'green', 'purple', 'pink', 'teal', 'brown'],
+             hello: 'แตะสี 2 สี แล้วดูว่าได้สีอะไร! 🎨' },
+  tint:    { em: '🌗', th: 'อ่อน/เข้ม',  need: 2, paints: ['red', 'yellow', 'blue', 'green', 'orange', 'purple'], small: true, extra: ['white', 'black'],
+             hello: 'เลือกสี 1 สี แล้วใส่ขาวให้อ่อนลง หรือใส่ดำให้เข้มขึ้น ⚪⚫' },
+  multi:   { em: '🌈', th: 'หลายสี',    need: 4, paints: ['red', 'yellow', 'blue', 'white', 'black'], stir: true,
+             hello: 'ใส่สีได้ถึง 4 หยด แล้วกดคน! ลองแดง เหลือง น้ำเงิน รวมกันดูสิ 🌈' },
+  quiz:    { em: '🎯', th: 'ทายสี',     need: 2, paints: ['red', 'yellow', 'blue', 'white', 'black'], quiz: true },
+};
+// Targets for 🎯 — every one can be made with 2 drops
+const TARGETS = ['orange', 'green', 'purple', 'pink', 'lightblue', 'gray', 'darkred', 'navy', 'cream', 'olive'];
+const RECIPE = {};
+Object.entries(KNOWN).forEach(([k, id]) => { if (k.split('+').length === 2 && !RECIPE[id]) RECIPE[id] = k.split('+'); });
+
+let mode = 'primary', picks = [], busy = false, done = false, stirT = 0, splats = 0;
+let target = null, tries = 0, stars = 0;
 const drops = [];
-const liquidFrom = new THREE.Color(), liquidTo = new THREE.Color();
+
+const eqEl = document.getElementById('eq');
+// The equation shows one dot per drop (+ empty dots still to fill) and the result (or the 🎯 target)
+function drawEq(res) {
+  const M = MODES[mode];
+  const slots = Math.max(M.stir ? Math.max(picks.length, 2) : M.need, picks.length);
+  let html = '';
+  for (let i = 0; i < slots; i++) {
+    const k = picks[i];
+    html += (i ? '+' : '') + `<span class="dot${k ? ' on' : ''}" style="${k ? 'background:' + C[k].hex : ''}">?</span>`;
+  }
+  if (res) html += `=<span class="dot on" style="background:${res.hex}">?</span>`;
+  else if (target) html += `=<span class="dot target" style="background:${C[target].hex}">🎯</span>`;
+  else html += '=<span class="dot">?</span>';
+  if (M.quiz) html += `<span class="score">⭐${stars}</span>`;
+  eqEl.innerHTML = html;
+}
+
+function newTarget() {
+  let t;
+  do t = TARGETS[Math.floor(Math.random() * TARGETS.length)]; while (t === target);
+  target = t; tries = 0;
+  caption(`ทำสี${C[t].th}ให้ได้! 🎯 ใช้ 2 สี`, true, 6000);
+}
+
+function resetPot() {
+  picks = []; done = false; liquid.visible = false;
+}
+
+function setMode(m) {
+  mode = m; resetPot(); target = null;
+  document.querySelectorAll('.w-mode').forEach(b => b.classList.toggle('on', b.dataset.m === m));
+  buildDock();
+  if (MODES[m].quiz) newTarget(); else caption(MODES[m].hello, true, 6000);
+  drawEq();
+}
 
 function pick(key) {
   if (busy) return;
-  if (picks.length === 2) {   // previous mix finished → start fresh
-    picks = []; liquid.visible = false; [0, 1, 2].forEach(i => setDot(i, null));
-  }
+  const M = MODES[mode];
+  if (done || picks.length >= M.need) resetPot();   // previous mix finished → start fresh
   picks.push(key);
   busy = true;
-  setDot(picks.length - 1, C[key].hex);
+  drawEq();
   kit.speak(C[key].th);
   // a blob of paint falls from the dispenser into the pot
   const m = new THREE.Mesh(new THREE.SphereGeometry(.32, 14, 10), new THREE.MeshLambertMaterial({ color: C[key].hex }));
   m.position.set(0, 5.2, -1.2);
   scene.add(m);
   drops.push({ m, vy: 0, key });
+  updateActions();
 }
 
 function dropLanded(d) {
   scene.remove(d.m);
-  splash(0, POT_Y + .2, 0, d.key ? C[d.key].hex : '#fff', 8);
+  splash(0, POT_Y + .2, 0, C[d.key].hex, 8);
   kit.tones([520, 330], .06, 'sine', .14);
-  if (picks.length === 1) {
-    liquid.visible = true;
-    liquidMat.color.set(C[d.key].hex);
-    liquid.position.y = .85;
+  const M = MODES[mode];
+  liquid.visible = true;
+  liquid.position.y = .85 + picks.length * .14;
+  if (picks.length < M.need) {
+    liquidMat.color.set(C[d.key].hex);   // the drops sit on top until we stir
     busy = false;
-    caption(`${C[d.key].th}! เลือกสีที่ 2 เลย 👇`, false);
-  } else {
-    stirT = 1.8;   // stir, then reveal (see the loop)
-    liquid.position.y = 1.35;
-    liquidFrom.set(C[picks[0]].hex); liquidTo.set(C[picks[1]].hex);
-  }
+    if (M.stir) caption(picks.length < 2 ? 'ใส่อีกสีนะ 👇' : `ใส่แล้ว ${picks.length} หยด กดคนได้เลย หรือใส่เพิ่มอีก 🥄`, false, 3500);
+    else caption(picks.length === 1 && mode === 'tint' && !['white', 'black'].includes(d.key) ? `${C[d.key].th}! ใส่ขาว ⚪ หรือ ดำ ⚫ ดีนะ?` : `${C[d.key].th}! เลือกสีที่ 2 เลย 👇`, false);
+    updateActions();
+  } else stir();
+}
+
+// Swirl through all the drops, then reveal
+let swirl = [];
+function stir() {
+  if (picks.length < 2) return;
+  busy = true; stirT = 1.8;
+  swirl = picks.map(k => new THREE.Color(C[k].hex));
+  updateActions();
 }
 
 function reveal() {
-  const [a, b] = picks;
-  const res = mixOf(a, b);
+  const res = mixOf(picks);
+  done = true;
   liquidMat.color.set(res.hex);
-  setDot(2, res.hex);
+  drawEq(res);
   // paint ball flies from the pot onto the easel
   const ball = new THREE.Mesh(new THREE.SphereGeometry(.3, 14, 10), new THREE.MeshLambertMaterial({ color: res.hex }));
   ball.position.set(0, POT_Y + .4, 0);
   scene.add(ball);
-  const target = easel.localToWorld(new THREE.Vector3((Math.random() - .5) * (EASEL.w - .8), EASEL.y + (Math.random() - .5) * (EASEL.h - .8), .46));
-  flights.push({ m: ball, from: ball.position.clone(), to: target, t: 0, res });
+  const tgt = easel.localToWorld(new THREE.Vector3((Math.random() - .5) * (EASEL.w - .8), EASEL.y + (Math.random() - .5) * (EASEL.h - .8), .46));
+  flights.push({ m: ball, from: ball.position.clone(), to: tgt, t: 0, res });
 
-  const isNew = addJar(res);
-  if (res.magic) {
-    caption(`${C[a].th} + ${C[b].th} = ${res.th}! เก่งมาก 🎉`, true, 6000);
-    if (isNew) { fx.burst(0, 3.5, 0); kit.cheer(); cheerT = 2.5; }
-    const found = jars.filter(j => SECONDARY.has(j.res.id)).length;
-    if (isNew && found === SECONDARY.size) setTimeout(celebrateAll, 1500);
-  } else if (res.same) {
-    caption(`${C[a].th} + ${C[b].th} = ${res.th} ลองคู่อื่นนะ 😊`, true, 5500);
-  } else {
-    caption(`${C[a].th} + ${C[b].th} = ได้สีใหม่! ✨`, true, 5500);
-    if (isNew) kit.tones([523, 659, 784], .08);
-  }
+  const sum = picks.map(k => C[k].th).join(' + ');
+  const name = res.like ? `สีใหม่! คล้ายสี${res.like}` : `${res.th}`;
+  const isNew = res.same ? false : addJar(res);
   busy = false;
+  updateActions();
+
+  if (MODES[mode].quiz) {
+    if (res.id === target) {
+      stars++; drawEq(res);
+      caption(`${sum} = ${name}! ถูกต้อง เก่งมาก ⭐`, true, 4500);
+      fx.burst(0, 3.5, 0); kit.cheer(); cheerT = 2.5;
+      setTimeout(() => { if (mode === 'quiz') { resetPot(); newTarget(); drawEq(); } }, 3600);
+    } else {
+      tries++;
+      const hint = tries >= 2 && RECIPE[target] ? ` ลอง ${RECIPE[target].map(k => C[k].th).join(' + ')} นะ` : ' ลองใหม่นะ';
+      caption(`${sum} = ${name} ยังไม่ใช่สี${C[target].th}${hint} 😊`, true, 6000);
+    }
+    return;
+  }
+  if (res.same) { caption(`${sum} = ก็ยังเป็นสี${res.th}! ลองคู่อื่นนะ 😊`, true, 5500); return; }
+  if (res.magic) {
+    caption(`${sum} = ${name}! เก่งมาก 🎉`, true, 6000);
+    if (isNew) { fx.burst(0, 3.5, 0); kit.cheer(); cheerT = 2.5; }
+    const found = jars.filter(j => SECONDARY.includes(j.res.id)).length;
+    if (isNew && found === SECONDARY.length) setTimeout(celebrateAll, 1500);
+    return;
+  }
+  let why = '';
+  if (picks.includes('white') && !picks.includes('black')) why = ' ใส่ขาวแล้วสีอ่อนลง';
+  else if (picks.includes('black') && !picks.includes('white')) why = ' ใส่ดำแล้วสีเข้มขึ้น';
+  caption(`${sum} = ${name}!${why} ✨`, true, 6000);
+  if (isNew) { kit.tones([523, 659, 784], .08); cheerT = 1.2; }
 }
 
 function celebrateAll() {
@@ -315,25 +484,54 @@ function splat(pos, hex) {
 }
 
 /* =========================================================
-   Buttons, taps, loop
+   Dock: mode buttons + the paints for the current mode
    ========================================================= */
 function paintButton(key, small) {
   const b = document.createElement('button');
-  b.className = 'paint' + (small ? ' small' : '');
+  b.className = 'paint' + (small ? ' small' : '') + (C[key].light ? ' light' : '');
   b.style.setProperty('--c', C[key].hex);
   b.innerHTML = C[key].th;
   b.title = C[key].en;
   b.addEventListener('click', () => pick(key));
   return b;
 }
-const primaries = document.getElementById('primaries'), extras = document.getElementById('extras');
-const moreBtn = document.getElementById('moreBtn');
-PRIMARY.forEach(k => primaries.insertBefore(paintButton(k), moreBtn));
-EXTRA.forEach(k => extras.appendChild(paintButton(k, true)));
-moreBtn.onclick = () => {
-  const on = extras.classList.toggle('show');
-  moreBtn.textContent = on ? '➖ ซ่อน' : '➕ สีเพิ่ม';
-};
+const modesEl = document.getElementById('modes');
+Object.entries(MODES).forEach(([id, M]) => {
+  const b = document.createElement('button');
+  b.className = 'w-mode'; b.dataset.m = id;
+  b.innerHTML = `<span class="em">${M.em}</span>${M.th}`;
+  b.onclick = () => { if (mode !== id && !busy) { kit.tones([440, 660], .06); setMode(id); } };
+  modesEl.appendChild(b);
+});
+const paintsEl = document.getElementById('paints'), extrasEl = document.getElementById('extras'), actionsEl = document.getElementById('actions');
+let stirBtn = null;
+function buildDock() {
+  const M = MODES[mode];
+  paintsEl.innerHTML = ''; extrasEl.innerHTML = ''; actionsEl.innerHTML = ''; stirBtn = null;
+  extrasEl.classList.remove('show');
+  M.paints.forEach(k => paintsEl.appendChild(paintButton(k, M.small)));
+  if (M.more) {                                    // 🎨 mode keeps its "more colours" drawer
+    M.more.forEach(k => extrasEl.appendChild(paintButton(k, true)));
+    const more = document.createElement('button');
+    more.className = 'w-btn white'; more.textContent = '➕ สีเพิ่ม'; more.title = 'More colors';
+    more.onclick = () => { const on = extrasEl.classList.toggle('show'); more.textContent = on ? '➖ ซ่อน' : '➕ สีเพิ่ม'; };
+    paintsEl.appendChild(more);
+  }
+  if (M.extra) M.extra.forEach(k => actionsEl.appendChild(paintButton(k)));   // ⚪ ⚫
+  if (M.stir) {
+    stirBtn = document.createElement('button');
+    stirBtn.className = 'w-btn'; stirBtn.textContent = '🥄 คน! Stir';
+    stirBtn.onclick = () => { if (!busy && !done) stir(); };
+    const again = document.createElement('button');
+    again.className = 'w-btn white'; again.textContent = '↺ เทใหม่';
+    again.onclick = () => { if (!busy) { resetPot(); drawEq(); updateActions(); caption('หม้อว่างแล้ว ใส่สีใหม่ได้เลย', false, 2500); } };
+    actionsEl.append(stirBtn, again);
+  }
+  updateActions();
+}
+function updateActions() {
+  if (stirBtn) stirBtn.disabled = busy || done || picks.length < 2;
+}
 
 const raycaster = new THREE.Raycaster(), ndc = new THREE.Vector2();
 const canvas = stage.renderer.domElement;
@@ -353,8 +551,8 @@ canvas.addEventListener('pointerup', e => {
 
 camera.position.set(0, 8, 15); controls.target.set(0, 2, 0);
 const portrait = innerWidth < innerHeight;   // phones need to stand further back to see pot + shelf + easel
-kit.flyTo(stage, portrait ? new THREE.Vector3(2, 12, 22) : new THREE.Vector3(1, 7.5, 13.5), new THREE.Vector3(0, portrait ? 1.6 : 2.2, -.5), 1200);
-setTimeout(() => caption('แตะสี 2 สี แล้วดูว่าได้สีอะไร! 🎨'), 700);
+kit.flyTo(stage, portrait ? new THREE.Vector3(2, 14, 25) : new THREE.Vector3(1, 10, 19), new THREE.Vector3(0, portrait ? .8 : 1.4, -.8), 1200);
+setMode('primary');
 
 stage.start((dt, time) => {
   // falling paint drops
@@ -363,12 +561,12 @@ stage.start((dt, time) => {
     d.vy -= 14 * dt; d.m.position.y += d.vy * dt;
     if (d.m.position.y <= POT_Y + .1) { drops.splice(i, 1); dropLanded(d); }
   }
-  // stirring
+  // stirring: the liquid swirls through every colour that went in
   if (stirT > 0) {
     stirT -= dt;
     stirrer.rotation.y += dt * 9;
-    const k = (Math.sin(time * 14) + 1) / 2;   // swirl between the two colours
-    liquidMat.color.copy(liquidFrom).lerp(liquidTo, k);
+    const k = (time * 7) % swirl.length, a = Math.floor(k);
+    liquidMat.color.copy(swirl[a]).lerp(swirl[(a + 1) % swirl.length], k - a);
     if (Math.random() < .3) splash((Math.random() - .5) * 2, POT_Y + .3, (Math.random() - .5) * 2, '#ffffff', 1);
     if (stirT <= 0) reveal();
   } else stirrer.rotation.y += dt * .4;
@@ -399,6 +597,9 @@ stage.start((dt, time) => {
   floaters.update(dt, time);
   fx.update(dt);
 });
+
+// test hooks
+window.__mix = { pick, stir, setMode, mixOf, hexOf, get target() { return target; }, get stars() { return stars; }, get busy() { return busy; }, jars };
 window.__worldReady = true;
 </script>
 </body>
