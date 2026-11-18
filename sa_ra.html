@@ -2,715 +2,464 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>🗣️ สระ — Summer's World</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;600;700;900&family=Noto+Sans+Thai+Looped:wght@700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="world-theme.css">
 <style>
-  :root { --cream:#FFF8E8; --dark:#2D3047; --pink:#FF6B9D; --yellow:#FFD93D; --orange:#FF9F1C; --sara:#f97316; }
-  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  body {
-    min-height:100vh;
-    font-family:'Fredoka','Noto Sans Thai',sans-serif;
-    background:
-      radial-gradient(circle at 14% 20%, rgba(255,215,61,.32) 0%, transparent 30%),
-      radial-gradient(circle at 86% 18%, rgba(255,107,157,.24) 0%, transparent 28%),
-      radial-gradient(circle at 50% 88%, rgba(34,197,94,.18) 0%, transparent 32%),
-      linear-gradient(135deg, #fff7ed 0%, #fff3d6 52%, #ffe4e6 100%);
-    overflow-x:hidden;
+  /* Equation pill: ก + า = กา */
+  .eq {
+    position: fixed; top: 84px; left: 50%; transform: translateX(-50%); z-index: 5;
+    background: #fff; border-radius: 999px; padding: 4px 26px; box-shadow: 0 6px 0 rgba(0,0,0,.08);
+    font-family: 'Noto Sans Thai Looped', 'Noto Sans Thai', sans-serif; font-size: 40px; font-weight: 900; white-space: nowrap; color: var(--ink);
   }
-
-  .blobs { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
-  .blob { position:absolute; border-radius:50%; animation: blob-float ease-in-out infinite; opacity:.16; filter: blur(14px); }
-  @keyframes blob-float { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(18px,-24px) scale(1.08); } }
-
-  .site-nav {
-    position:sticky; top:0; z-index:100;
-    background:var(--cream);
-    border-bottom:4px solid var(--dark);
-    box-shadow:0 4px 0 var(--dark);
-    padding:10px 16px;
-    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  .eq .op { color: var(--orange); margin: 0 8px; font-family: 'Fredoka', sans-serif; }
+  .eq .v { color: #ec4899; }
+  .eq #ans { color: #cbbda4; display: inline-block; min-width: 60px; text-align: center; }
+  .eq #ans.ok { color: #16a34a; }
+  .w-caption { top: 162px; }
+  .info { font-weight: 800; }
+  .info b { color: var(--orange-dark); }
+  .choice { flex: 1 1 0; min-width: 0; min-height: 72px; font-size: 34px; font-family: 'Noto Sans Thai Looped', 'Noto Sans Thai', sans-serif; font-weight: 900; }
+  .choice.right { background: #22c55e; box-shadow: 0 6px 0 #15803d; }
+  .choice.wrong { background: #ef4444; box-shadow: 0 6px 0 #b91c1c; }
+  #vowelBtn { font-size: 20px; }
+  #vowelBtn b { font-size: 26px; color: #ec4899; margin: 0 4px; }
+  /* Vowel picker (modal) */
+  .vgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 8px; }
+  .vgrid button {
+    min-height: 84px; border: 3px solid #f1e8d8; border-radius: 20px; background: #fff; cursor: pointer;
+    font-family: 'Noto Sans Thai Looped', 'Noto Sans Thai', sans-serif; font-size: 34px; font-weight: 900; color: var(--ink);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1;
   }
-  .nav-brand {
-    font-family:'Bungee',cursive; font-size:15px; color:var(--dark);
-    text-shadow:2px 2px 0 var(--pink); white-space:nowrap; flex-shrink:0; text-decoration:none;
-  }
-  .nav-links { display:flex; gap:6px; flex-wrap:wrap; }
-  .nav-link {
-    text-decoration:none; font-size:13px; font-weight:600;
-    padding:5px 13px; border-radius:12px; border:2.5px solid var(--dark);
-    color:var(--dark); background:white; transition:all .12s;
-    display:inline-flex; align-items:center; gap:4px; white-space:nowrap;
-    box-shadow:2px 2px 0 var(--dark);
-  }
-  .nav-link:hover { background:var(--yellow); transform:translate(-1px,-1px); box-shadow:3px 3px 0 var(--dark); }
-  .nav-link.active { background:linear-gradient(135deg,var(--sara), #fb7185); color:white; border-color:transparent; }
-
-  .page { position:relative; z-index:1; max-width:560px; margin:0 auto; padding:24px 16px 72px; }
-  .home-link-wrap { margin-bottom:14px; }
-  .home-link {
-    display:inline-flex; align-items:center; gap:8px; text-decoration:none; background:white;
-    color:var(--dark); border:2.5px solid var(--dark); border-radius:999px;
-    padding:10px 16px; font-size:15px; font-weight:800; box-shadow:2px 2px 0 var(--dark);
-  }
-  .home-link:hover { background:var(--yellow); }
-
-  .hero { text-align:center; margin-bottom:20px; }
-  .hero-emoji { font-size:88px; display:block; animation: hero-float 3s ease-in-out infinite; filter: drop-shadow(0 12px 20px rgba(0,0,0,.12)); }
-  @keyframes hero-float { 0%,100%{ transform:translateY(0) rotate(-3deg); } 50%{ transform:translateY(-14px) rotate(3deg); } }
-  .hero-title { font-family:'Bungee',cursive; font-size:clamp(24px,8vw,42px); color:var(--dark); line-height:1.1; margin:12px 0 8px; }
-  .hero-sub { color:#6b5e78; font-size:17px; font-weight:600; line-height:1.6; max-width:440px; margin:0 auto; }
-  .hero-badge {
-    display:inline-block; background:linear-gradient(135deg,#f97316,#fb7185);
-    color:white; font-family:'Bungee',cursive; font-size:10px; letter-spacing:1.5px;
-    padding:5px 14px; border-radius:20px; border:2.5px solid var(--dark);
-    margin-top:10px; box-shadow:2px 2px 0 var(--dark);
-  }
-
-  .play-card {
-    background:rgba(255,255,255,.88); backdrop-filter: blur(10px);
-    border:3px solid var(--dark); border-radius:28px; box-shadow:4px 4px 0 var(--dark);
-    padding:22px 18px 20px; margin-bottom:18px; position:relative; overflow:hidden;
-  }
-  .play-card::before {
-    content:""; position:absolute; inset:0;
-    background: radial-gradient(circle at 18% 18%, rgba(255,215,61,.22), transparent 35%),
-                radial-gradient(circle at 82% 20%, rgba(255,107,157,.18), transparent 32%);
-    pointer-events:none;
-  }
-  .play-card > * { position:relative; }
-
-  .mode-chip {
-    display:inline-flex; align-items:center; justify-content:center;
-    background:#2a2434; color:white; border-radius:999px;
-    padding:7px 16px; font-size:13px; font-weight:800; margin-bottom:14px;
-  }
-  .mode-bar { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-bottom:12px; }
-  .mode-btn {
-    border:none; cursor:pointer;
-    background:white; color:var(--dark);
-    border:2.5px solid var(--dark);
-    border-radius:999px;
-    padding:10px 14px;
-    font-family:inherit;
-    font-size:14px;
-    font-weight:900;
-    box-shadow:2px 2px 0 var(--dark);
-    transition:transform .12s, box-shadow .12s, background .12s;
-  }
-  .mode-btn:active { transform:translateY(3px); box-shadow:none; }
-  .mode-btn.active { background:linear-gradient(135deg,#f97316,#fb7185); color:white; border-color:transparent; }
-
-  .status-row { display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin:6px 0 12px; }
-  .pill {
-    display:inline-flex; align-items:center; gap:8px;
-    background:white; color:var(--dark);
-    border:2.5px solid var(--dark);
-    border-radius:999px;
-    padding:8px 12px;
-    font-size:13px;
-    font-weight:900;
-    box-shadow:2px 2px 0 var(--dark);
-  }
-  .pill strong { font-family:'Bungee',cursive; font-size:12px; }
-  .display-main {
-    font-size:clamp(42px,11vw,68px);
-    font-weight:900;
-    min-height:132px;
-    display:flex; align-items:center; justify-content:center; gap:12px; flex-wrap:wrap;
-    text-align:center; color:var(--dark); line-height:1.1;
-  }
-  .display-sub {
-    min-height:54px;
-    font-size:clamp(18px,4vw,26px);
-    color:#6b5e78;
-    text-align:center;
-    margin-bottom:12px;
-    font-weight:700;
-  }
-  .piece { display:inline-flex; align-items:center; justify-content:center; min-width:72px; }
-  .piece.strong { color:#0f172a; text-shadow:2px 2px 0 rgba(255,255,255,.6); }
-  .piece.vowel { color:#f97316; }
-  .answer {
-    display:inline-block;
-    border-bottom:6px dashed var(--sara);
-    color:#9333ea;
-    padding:0 6px;
-  }
-  .plus, .equals { font-family:'Bungee',cursive; font-size:.58em; color:#c084fc; }
-  .hint-row {
-    display:flex; align-items:center; justify-content:center; gap:8px;
-    color:#7c6d88; font-size:14px; font-weight:700; margin-bottom:16px;
-  }
-
-  .vowel-title {
-    font-family:'Bungee',cursive; font-size:12px; letter-spacing:2px;
-    color:rgba(45,48,71,.55); margin:6px 0 10px; text-transform:uppercase;
-  }
-  .vowel-row { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
-  .vowel-chip {
-    border:none; cursor:pointer;
-    background:white; color:var(--dark);
-    border:2.5px solid var(--dark);
-    border-radius:999px;
-    padding:10px 14px;
-    font-family:inherit;
-    font-size:15px;
-    font-weight:900;
-    box-shadow:2px 2px 0 var(--dark);
-    display:inline-flex; align-items:center; gap:8px;
-    transition:transform .12s, box-shadow .12s, background .12s;
-  }
-  .vowel-chip:active { transform:translateY(3px); box-shadow:none; }
-  .vowel-chip.active { background:linear-gradient(135deg,#fff7ed,#ffe4e6); }
-  .vowel-chip .mini { font-size:11px; font-weight:900; color:#fb7185; letter-spacing:.4px; }
-
-  .btn-group { display:flex; flex-direction:column; gap:12px; }
-  .btn {
-    border:none; border-radius:999px; cursor:pointer; min-height:58px;
-    padding:14px 18px; font-family:inherit; font-size:18px; font-weight:800;
-    transition:transform .12s, box-shadow .12s, filter .12s;
-  }
-  .btn:active { transform:translateY(3px); box-shadow:none; }
-  .btn-primary {
-    background:linear-gradient(135deg,#f97316,#fb7185); color:white;
-    box-shadow:0 6px 0 #c2410c;
-  }
-  .btn-secondary {
-    background:white; color:var(--dark); border:2.5px solid var(--dark);
-    box-shadow:0 6px 0 var(--dark);
-  }
-  .btn:hover { filter:saturate(1.05); }
-
-  .choice-grid { display:grid; grid-template-columns:repeat(2, 1fr); gap:10px; margin-top:10px; }
-  .choice-btn {
-    border:none; cursor:pointer;
-    background:white; color:var(--dark);
-    border:2.5px solid var(--dark);
-    border-radius:18px;
-    min-height:64px;
-    font-family:inherit;
-    font-size:22px;
-    font-weight:900;
-    box-shadow:3px 3px 0 var(--dark);
-    transition:transform .12s, box-shadow .12s, background .12s;
-  }
-  .choice-btn:active { transform:translateY(3px); box-shadow:none; }
-  .choice-btn.correct { background:linear-gradient(135deg,#dcfce7,#86efac); }
-  .choice-btn.wrong { background:linear-gradient(135deg,#ffe4e6,#fecdd3); }
-  .choice-btn:disabled { cursor:default; opacity:1; }
-
-  .feedback {
-    text-align:center;
-    font-size:18px;
-    font-weight:900;
-    min-height:26px;
-    margin-top:10px;
-    color:#5f5670;
-  }
-  .feedback.good { color:#15803d; }
-  .feedback.try { color:#be123c; }
-
-  .examples-title {
-    font-family:'Bungee',cursive; font-size:12px; letter-spacing:2px;
-    color:rgba(45,48,71,.55); margin:18px 0 10px; text-transform:uppercase;
-  }
-  .example-grid { display:grid; grid-template-columns:repeat(2, 1fr); gap:10px; }
-  .example-chip {
-    background:white; border:2.5px solid var(--dark); border-radius:18px; box-shadow:3px 3px 0 var(--dark);
-    padding:14px 10px; text-align:center;
-  }
-  .example-chip .th { font-size:26px; font-weight:900; color:var(--dark); line-height:1.1; }
-  .example-chip.active { background:linear-gradient(135deg,#fff7ed,#ffe4e6); transform:translateY(-2px); }
-
-  .tip-card {
-    background:linear-gradient(135deg, rgba(255,255,255,.96), rgba(255,244,230,.96));
-    border:3px solid var(--dark); border-radius:24px; box-shadow:4px 4px 0 var(--dark);
-    padding:18px 16px; margin-top:16px;
-  }
-  .tip-title { font-family:'Bungee',cursive; font-size:14px; color:var(--dark); margin-bottom:8px; }
-  .tip-text { color:#5f5670; font-size:15px; line-height:1.55; font-weight:600; }
-  .tip-text strong { color:#f97316; }
-
-  @media (max-width: 420px) {
-    .nav-brand { font-size:13px; }
-    .nav-link { font-size:11px; padding:4px 10px; }
-    .page { padding:20px 12px 64px; }
-    .play-card { padding:18px 14px 18px; }
-    .hero-emoji { font-size:72px; }
-  }
+  .vgrid button small { font-size: 14px; font-weight: 700; color: var(--muted); }
+  .vgrid button.on { border-color: #ec4899; background: #fdf2f8; color: #db2777; }
+  .stars-big { font-size: 46px; text-align: center; }
+  #gameRow, #nextBtn { display: none; }
+  @media (max-width: 480px) { .eq { font-size: 32px; padding: 2px 18px; } .choice { font-size: 28px; } }
 </style>
 </head>
 <body>
+<div class="w-fade-in"></div>
+<canvas class="w-canvas" id="world"></canvas>
 
-
-<div class="blobs" id="blobs"></div>
-
-<div class="page">
-  <div class="home-link-wrap">
-    <a class="home-link" href="index.html">← กลับหน้าหลัก</a>
+<div class="w-top">
+  <a class="w-pill w-back" href="index.html" data-fade title="กลับเกาะ Back to island">🏝️ <span>กลับเกาะ</span></a>
+  <div class="w-pill w-title">🗣️ สระ <span class="en">· THAI VOWELS</span></div>
+  <div class="w-icons">
+    <button class="w-pill w-icon" id="soundBtn" title="เปิด/ปิดเสียง Sound">🔊</button>
   </div>
-
-  <header class="hero">
-    <span class="hero-emoji">🗣️</span>
-    <h1 class="hero-title">สระ</h1>
-    <p class="hero-sub">เลือกสระ แล้วฝึกอ่านคำสั้นๆ แบบสนุกๆ พร้อมฟังเสียงได้</p>
-    <div class="hero-badge">สระ · ฝึกอ่าน · ฟังเสียง</div>
-  </header>
-
-  <div class="vowel-title">เลือกสระ</div>
-  <div class="vowel-row" id="vowelRow"></div>
-
-  <section class="play-card" aria-label="ฝึกสระภาษาไทย">
-    <div class="mode-bar" aria-label="เลือกโหมด">
-      <button class="mode-btn active" id="practiceModeBtn" type="button">🧩 โหมดฝึก</button>
-      <button class="mode-btn" id="gameModeBtn" type="button">🏁 โหมดเกม 10 ข้อ</button>
-    </div>
-    <div class="mode-chip" id="modeTag">สระอา</div>
-    <div class="status-row" id="statusRow" style="display:none;">
-      <div class="pill">ข้อ <strong id="qIndex">1</strong>/<strong id="qTotal">10</strong></div>
-      <div class="pill">คะแนน <strong id="scoreNow">0</strong></div>
-    </div>
-    <div class="display-main" id="mainArea"></div>
-    <div class="display-sub" id="subArea"></div>
-    <div class="hint-row">🔊 กดฟังเสียงแล้วอ่านตามได้เลย</div>
-    <div class="choice-grid" id="choiceGrid" style="display:none;"></div>
-    <div class="feedback" id="feedback"></div>
-    <div class="btn-group" id="practiceButtons">
-      <button class="btn btn-primary" id="revealBtn" type="button">🔊 ฟังเสียง & เฉลย</button>
-      <button class="btn btn-secondary" id="nextBtn" type="button">สุ่มคำใหม่ ➜</button>
-    </div>
-    <div class="btn-group" id="gameButtons" style="display:none;">
-      <button class="btn btn-primary" id="nextGameBtn" type="button">ข้อต่อไป ➜</button>
-      <button class="btn btn-secondary" id="restartGameBtn" type="button">เริ่มเกมใหม่</button>
-    </div>
-  </section>
-
-  <div class="examples-title" id="examplesTitle">ตัวอย่างคำ</div>
-  <section class="example-grid" id="exampleGrid"></section>
-
-  <section class="tip-card">
-    <div class="tip-title">จำง่ายๆ</div>
-    <div class="tip-text" id="tipText"></div>
-  </section>
 </div>
 
-<script>
-  (function() {
-    const colors = ['#ffb3d9', '#ffe082', '#a5f3c6', '#bfdbfe', '#ddd6fe', '#99f6e4', '#fca5a5', '#fbcfe8'];
-    const wrap = document.getElementById('blobs');
-    for (let i = 0; i < 12; i++) {
-      const blob = document.createElement('div');
-      blob.className = 'blob';
-      const size = 130 + Math.random() * 210;
-      blob.style.cssText =
-        `width:${size}px;height:${size}px;background:${colors[i % colors.length]};` +
-        `left:${Math.random() * 105 - 5}%;top:${Math.random() * 105 - 5}%;` +
-        `animation-duration:${14 + Math.random() * 18}s;animation-delay:${-Math.random() * 12}s;`;
-      wrap.appendChild(blob);
-    }
-  })();
+<div class="eq"><span id="eA">ก</span><span class="op">+</span><span id="eB" class="v">า</span><span class="op">=</span><span id="ans">?</span></div>
+<div class="w-caption" id="caption"></div>
 
-  const vowels = [
-    {
-      id: 'aa',
-      label: 'อา',
-      name: 'สระอา',
-      pattern: { type: 'after', mark: 'า' },
-      tipHtml: 'สระอาออกเสียง <strong>"อา"</strong> ยาวนิดๆ และวางหลังพยัญชนะ เช่น <strong>กา</strong>, <strong>มา</strong>, <strong>ตา</strong>',
-      items: [
-        { thC: 'ก', word: 'กา', read: 'กอ อา กา' },
-        { thC: 'ม', word: 'มา', read: 'มอ อา มา' },
-        { thC: 'ต', word: 'ตา', read: 'ตอ อา ตา' },
-        { thC: 'ป', word: 'ปา', read: 'ปอ อา ปา' },
-        { thC: 'น', word: 'นา', read: 'นอ อา นา' },
-        { thC: 'ร', word: 'รา', read: 'รอ อา รา' },
-        { thC: 'ล', word: 'ลา', read: 'ลอ อา ลา' }
-      ]
-    },
-    {
-      id: 'i',
-      label: 'อิ',
-      name: 'สระอิ',
-      pattern: { type: 'after', mark: 'ิ' },
-      tipHtml: 'สระอิออกเสียง <strong>"อิ"</strong> สั้นๆ (วรรณยุกต์เล็กด้านบน) เช่น <strong>กิ</strong>, <strong>มิ</strong>, <strong>ติ</strong>',
-      items: [
-        { thC: 'ก', word: 'กิ', read: 'กอ อิ กิ' },
-        { thC: 'ม', word: 'มิ', read: 'มอ อิ มิ' },
-        { thC: 'ต', word: 'ติ', read: 'ตอ อิ ติ' },
-        { thC: 'ป', word: 'ปิ', read: 'ปอ อิ ปิ' },
-        { thC: 'น', word: 'นิ', read: 'นอ อิ นิ' },
-        { thC: 'ล', word: 'ลิ', read: 'ลอ อิ ลิ' }
-      ]
-    },
-    {
-      id: 'ii',
-      label: 'อี',
-      name: 'สระอี',
-      pattern: { type: 'after', mark: 'ี' },
-      tipHtml: 'สระอีออกเสียง <strong>"อี"</strong> ยาวกว่าอิ เช่น <strong>กี</strong>, <strong>มี</strong>, <strong>ตี</strong>',
-      items: [
-        { thC: 'ก', word: 'กี', read: 'กอ อี กี' },
-        { thC: 'ม', word: 'มี', read: 'มอ อี มี' },
-        { thC: 'ต', word: 'ตี', read: 'ตอ อี ตี' },
-        { thC: 'ป', word: 'ปี', read: 'ปอ อี ปี' },
-        { thC: 'น', word: 'นี', read: 'นอ อี นี' },
-        { thC: 'ล', word: 'ลี', read: 'ลอ อี ลี' }
-      ]
-    },
-    {
-      id: 'u',
-      label: 'อุ',
-      name: 'สระอุ',
-      pattern: { type: 'after', mark: 'ุ' },
-      tipHtml: 'สระอุออกเสียง <strong>"อุ"</strong> สั้นๆ (สัญลักษณ์อยู่ล่าง) เช่น <strong>กุ</strong>, <strong>มุ</strong>, <strong>ตุ</strong>',
-      items: [
-        { thC: 'ก', word: 'กุ', read: 'กอ อุ กุ' },
-        { thC: 'ม', word: 'มุ', read: 'มอ อุ มุ' },
-        { thC: 'ต', word: 'ตุ', read: 'ตอ อุ ตุ' },
-        { thC: 'ป', word: 'ปุ', read: 'ปอ อุ ปุ' },
-        { thC: 'น', word: 'นุ', read: 'นอ อุ นุ' },
-        { thC: 'ล', word: 'ลุ', read: 'ลอ อุ ลุ' }
-      ]
-    },
-    {
-      id: 'uu',
-      label: 'อู',
-      name: 'สระอู',
-      pattern: { type: 'after', mark: 'ู' },
-      tipHtml: 'สระอูออกเสียง <strong>"อู"</strong> ยาวกว่าอุ เช่น <strong>กู</strong>, <strong>มู</strong>, <strong>ตู</strong>',
-      items: [
-        { thC: 'ก', word: 'กู', read: 'กอ อู กู' },
-        { thC: 'ม', word: 'มู', read: 'มอ อู มู' },
-        { thC: 'ต', word: 'ตู', read: 'ตอ อู ตู' },
-        { thC: 'ป', word: 'ปู', read: 'ปอ อู ปู' },
-        { thC: 'น', word: 'นู', read: 'นอ อู นู' },
-        { thC: 'ล', word: 'ลู', read: 'ลอ อู ลู' }
-      ]
-    },
-    {
-      id: 'e',
-      label: 'เอ',
-      name: 'สระเอ',
-      pattern: { type: 'before', mark: 'เ' },
-      tipHtml: 'สระเอออกเสียง <strong>"เอ"</strong> (เขียน เ ก่อนพยัญชนะ) เช่น <strong>เก</strong>, <strong>เม</strong>, <strong>เต</strong>',
-      items: [
-        { thC: 'ก', word: 'เก', read: 'กอ เอ เก' },
-        { thC: 'ม', word: 'เม', read: 'มอ เอ เม' },
-        { thC: 'ต', word: 'เต', read: 'ตอ เอ เต' },
-        { thC: 'ป', word: 'เป', read: 'ปอ เอ เป' },
-        { thC: 'น', word: 'เน', read: 'นอ เอ เน' },
-        { thC: 'ล', word: 'เล', read: 'ลอ เอ เล' }
-      ]
-    },
-    {
-      id: 'ae',
-      label: 'แอ',
-      name: 'สระแอ',
-      pattern: { type: 'before', mark: 'แ' },
-      tipHtml: 'สระแอออกเสียง <strong>"แอ"</strong> (เขียน แ ก่อนพยัญชนะ) เช่น <strong>แก</strong>, <strong>แม</strong>, <strong>แต</strong>',
-      items: [
-        { thC: 'ก', word: 'แก', read: 'กอ แอ แก' },
-        { thC: 'ม', word: 'แม', read: 'มอ แอ แม' },
-        { thC: 'ต', word: 'แต', read: 'ตอ แอ แต' },
-        { thC: 'ป', word: 'แพ', read: 'ปอ แอ แพ' },
-        { thC: 'น', word: 'แน', read: 'นอ แอ แน' },
-        { thC: 'ล', word: 'แล', read: 'ลอ แอ แล' }
-      ]
-    },
-    {
-      id: 'o',
-      label: 'โอ',
-      name: 'สระโอ',
-      pattern: { type: 'before', mark: 'โ' },
-      tipHtml: 'สระโอออกเสียง <strong>"โอ"</strong> (เขียน โ ก่อนพยัญชนะ) เช่น <strong>โก</strong>, <strong>โม</strong>, <strong>โต</strong>',
-      items: [
-        { thC: 'ก', word: 'โก', read: 'กอ โอ โก' },
-        { thC: 'ม', word: 'โม', read: 'มอ โอ โม' },
-        { thC: 'ต', word: 'โต', read: 'ตอ โอ โต' },
-        { thC: 'ป', word: 'โป', read: 'ปอ โอ โป' },
-        { thC: 'น', word: 'โน', read: 'นอ โอ โน' },
-        { thC: 'ล', word: 'โล', read: 'ลอ โอ โล' }
-      ]
-    },
-    {
-      id: 'ai',
-      label: 'ไอ',
-      name: 'สระไอ',
-      pattern: { type: 'before', mark: 'ไ' },
-      tipHtml: 'สระไอออกเสียง <strong>"ไอ"</strong> (เขียน ไ ก่อนพยัญชนะ) เช่น <strong>ไป</strong>, <strong>ไอ</strong>',
-      items: [
-        { thC: 'ป', word: 'ไป', read: 'ปอ ไอ ไป' },
-        { thC: 'อ', word: 'ไอ', read: 'ออ ไอ ไอ' },
-        { thC: 'ม', word: 'ไม', read: 'มอ ไอ ไม' },
-        { thC: 'ต', word: 'ไต', read: 'ตอ ไอ ไต' }
-      ]
-    }
-  ];
+<div class="w-dock">
+  <div class="w-controls">
+    <button class="w-btn white" id="vowelBtn" title="เลือกสระ Choose vowel">สระ<b id="vowelNow">อา</b>▾</button>
+    <div class="w-pill info" id="gameInfo" style="display:none">⭐ <b id="score">0</b> · ข้อ <b id="qnum">1</b>/10</div>
+  </div>
+  <div class="w-controls" id="practiceRow">
+    <button class="w-btn big" id="joinBtn">🔊 ต่อคำ!</button>
+    <button class="w-btn white" id="newBtn">🎲 คำใหม่</button>
+  </div>
+  <div class="w-controls" id="gameRow"></div>
+  <div class="w-controls"><button class="w-btn big" id="nextBtn">ข้อต่อไป ▶</button></div>
+  <div class="w-modes">
+    <button class="w-mode on" data-mode="practice"><span class="em">🧩</span>ฝึกต่อคำ</button>
+    <button class="w-mode" data-mode="game"><span class="em">🏁</span>เกม 10 ข้อ</button>
+  </div>
+</div>
 
-  const vowelRow = document.getElementById('vowelRow');
-  const examplesTitle = document.getElementById('examplesTitle');
-  const tipText = document.getElementById('tipText');
-  const exampleGrid = document.getElementById('exampleGrid');
-  const practiceModeBtn = document.getElementById('practiceModeBtn');
-  const gameModeBtn = document.getElementById('gameModeBtn');
-  const statusRow = document.getElementById('statusRow');
-  const qIndex = document.getElementById('qIndex');
-  const qTotal = document.getElementById('qTotal');
-  const scoreNow = document.getElementById('scoreNow');
-  const choiceGrid = document.getElementById('choiceGrid');
-  const feedback = document.getElementById('feedback');
-  const practiceButtons = document.getElementById('practiceButtons');
-  const gameButtons = document.getElementById('gameButtons');
-  const revealBtn = document.getElementById('revealBtn');
-  const nextBtn = document.getElementById('nextBtn');
-  const nextGameBtn = document.getElementById('nextGameBtn');
-  const restartGameBtn = document.getElementById('restartGameBtn');
+<div class="w-modal-bg" id="picker">
+  <div class="w-card">
+    <h2>เลือกสระ 🗣️</h2>
+    <div class="vgrid" id="vgrid"></div>
+  </div>
+</div>
 
-  let currentVowel = vowels[0];
-  let currentItem = currentVowel.items[0];
-  let isRevealed = false;
-  let mode = 'practice'; // 'practice' | 'game'
+<div class="w-modal-bg" id="result">
+  <div class="w-card" style="text-align:center">
+    <div class="stars-big" id="rStars">⭐⭐⭐</div>
+    <h2>จบเกมแล้ว! 🎉</h2>
+    <p>ได้คะแนน <b id="rScore" style="font-size:28px">10/10</b></p>
+    <button class="w-btn" id="retryBtn">เล่นอีกครั้ง 🔄</button>
+  </div>
+</div>
 
-  const GAME_TOTAL = 10;
-  let gameStep = 0;
-  let gameScore = 0;
-  let gameAnswered = false;
-  let gameCorrectWord = '';
+<div class="w-fallback" id="fallback">
+  <div class="big">🗣️</div>
+  <h2>โหลดฉาก 3D ไม่ได้</h2>
+  <div>ต้องต่ออินเทอร์เน็ตนะ / This page needs internet</div>
+  <a class="w-btn" href="menu.html">ไปหน้าเมนู ▶</a>
+</div>
 
-  function buildQuestionDisplay(item, vowel, revealed) {
-    const answer = revealed ? item.word : '?';
-    const mark = vowel.pattern.mark;
-
-    if (vowel.pattern.type === 'before') {
-      return `
-        <span class="piece vowel">${mark}</span>
-        <span class="plus">+</span>
-        <span class="piece strong">${item.thC}</span>
-        <span class="equals">=</span>
-        <span class="answer" id="res">${answer}</span>
-      `;
-    }
-
-    return `
-      <span class="piece strong">${item.thC}</span>
-      <span class="plus">+</span>
-      <span class="piece vowel">${mark}</span>
-      <span class="equals">=</span>
-      <span class="answer" id="res">${answer}</span>
-    `;
-  }
-
-  function speakThai(text) {
-    if (!window.speechSynthesis) return;
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = 'th-TH';
-    u.rate = 0.72;
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(u);
-  }
-
-  function renderExamples(activeWord) {
-    exampleGrid.innerHTML = '';
-    currentVowel.items.forEach(item => {
-      const chip = document.createElement('div');
-      chip.className = `example-chip${item.word === activeWord ? ' active' : ''}`;
-      chip.innerHTML = `<div class="th">${item.word}</div>`;
-      exampleGrid.appendChild(chip);
-    });
-  }
-
-  function renderVowelChips() {
-    vowelRow.innerHTML = '';
-    vowels.forEach(v => {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = `vowel-chip${v.id === currentVowel.id ? ' active' : ''}`;
-      btn.innerHTML = `<span>${v.label}</span><span class="mini">${v.name}</span>`;
-      btn.addEventListener('click', () => setVowel(v.id));
-      vowelRow.appendChild(btn);
-    });
-  }
-
-  function setVowel(vowelId) {
-    const found = vowels.find(v => v.id === vowelId);
-    if (!found) return;
-    currentVowel = found;
-    isRevealed = false;
-    if (mode === 'game') startGame();
-    else nextQuestion();
-    renderVowelChips();
-  }
-
-  function nextQuestion() {
-    currentItem = currentVowel.items[Math.floor(Math.random() * currentVowel.items.length)];
-    isRevealed = false;
-
-    document.getElementById('modeTag').textContent = currentVowel.name;
-    document.getElementById('mainArea').innerHTML = buildQuestionDisplay(currentItem, currentVowel, false);
-    document.getElementById('subArea').textContent =
-      currentVowel.pattern.type === 'before'
-        ? `${currentVowel.pattern.mark} + ${currentItem.thC} = ?`
-        : `${currentItem.thC} + ${currentVowel.pattern.mark} = ?`;
-
-    examplesTitle.textContent = `ตัวอย่างคำ ${currentVowel.name}`;
-    tipText.innerHTML = currentVowel.tipHtml;
-    renderExamples(currentItem.word);
-    feedback.textContent = '';
-    feedback.className = 'feedback';
-  }
-
-  function revealAndSpeak() {
-    isRevealed = true;
-    document.getElementById('mainArea').innerHTML = buildQuestionDisplay(currentItem, currentVowel, true);
-    document.getElementById('subArea').textContent =
-      currentVowel.pattern.type === 'before'
-        ? `${currentVowel.pattern.mark} + ${currentItem.thC} = ${currentItem.word}`
-        : `${currentItem.thC} + ${currentVowel.pattern.mark} = ${currentItem.word}`;
-    speakThai(currentItem.read);
-  }
-
-  function shuffleInPlace(arr) {
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
-  }
-
-  function setMode(nextMode) {
-    mode = nextMode;
-    const isGame = mode === 'game';
-
-    practiceModeBtn.classList.toggle('active', !isGame);
-    gameModeBtn.classList.toggle('active', isGame);
-
-    statusRow.style.display = isGame ? '' : 'none';
-    choiceGrid.style.display = isGame ? '' : 'none';
-    practiceButtons.style.display = isGame ? 'none' : '';
-    gameButtons.style.display = isGame ? '' : 'none';
-
-    if (isGame) startGame();
-    else nextQuestion();
-  }
-
-  function startGame() {
-    gameStep = 0;
-    gameScore = 0;
-    qTotal.textContent = String(GAME_TOTAL);
-    scoreNow.textContent = String(gameScore);
-    feedback.textContent = 'เริ่มเลย! เลือกคำที่ถูกต้อง';
-    feedback.className = 'feedback';
-    nextGameQuestion();
-  }
-
-  function nextGameQuestion() {
-    gameStep += 1;
-    gameAnswered = false;
-    currentItem = currentVowel.items[Math.floor(Math.random() * currentVowel.items.length)];
-    gameCorrectWord = currentItem.word;
-
-    qIndex.textContent = String(gameStep);
-    scoreNow.textContent = String(gameScore);
-
-    document.getElementById('modeTag').textContent = `${currentVowel.name} · เกม`;
-    document.getElementById('mainArea').innerHTML = buildQuestionDisplay(currentItem, currentVowel, false);
-    document.getElementById('subArea').textContent =
-      currentVowel.pattern.type === 'before'
-        ? `${currentVowel.pattern.mark} + ${currentItem.thC} = ?`
-        : `${currentItem.thC} + ${currentVowel.pattern.mark} = ?`;
-
-    examplesTitle.textContent = `ตัวอย่างคำ ${currentVowel.name}`;
-    tipText.innerHTML = currentVowel.tipHtml;
-    renderExamples(currentItem.word);
-
-    const pool = currentVowel.items.map(x => x.word).filter(w => w !== gameCorrectWord);
-    shuffleInPlace(pool);
-    const choices = [gameCorrectWord, ...pool.slice(0, 3)];
-    shuffleInPlace(choices);
-
-    choiceGrid.innerHTML = '';
-    choices.forEach(word => {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'choice-btn';
-      btn.textContent = word;
-      btn.addEventListener('click', () => onChoose(word, btn));
-      choiceGrid.appendChild(btn);
-    });
-
-    feedback.textContent = 'เลือกคำที่ถูกต้อง';
-    feedback.className = 'feedback';
-    nextGameBtn.disabled = true;
-    nextGameBtn.style.display = 'none';
-  }
-
-  function finishGame() {
-    document.getElementById('modeTag').textContent = `${currentVowel.name} · จบเกม`;
-    document.getElementById('mainArea').innerHTML = `<span class="piece strong">🎉</span> <span class="piece vowel">เก่งมาก!</span>`;
-    document.getElementById('subArea').textContent = `ได้ ${gameScore} คะแนน จาก ${GAME_TOTAL} ข้อ`;
-    choiceGrid.innerHTML = '';
-    feedback.textContent = gameScore >= 8 ? 'สุดยอด!' : (gameScore >= 5 ? 'ดีมาก ลองอีกครั้งได้' : 'ไม่เป็นไร ลองใหม่ได้เลย');
-    feedback.className = `feedback ${gameScore >= 5 ? 'good' : 'try'}`;
-    nextGameBtn.style.display = 'none';
-    nextGameBtn.disabled = true;
-    speakThai(`จบเกม ได้ ${gameScore} คะแนน จาก ${GAME_TOTAL} ข้อ`);
-  }
-
-  function onChoose(word, btnEl) {
-    if (gameAnswered) return;
-    gameAnswered = true;
-
-    const buttons = Array.from(choiceGrid.querySelectorAll('button'));
-    buttons.forEach(b => { b.disabled = true; });
-
-    const isCorrect = word === gameCorrectWord;
-    if (isCorrect) {
-      gameScore += 1;
-      scoreNow.textContent = String(gameScore);
-      btnEl.classList.add('correct');
-      feedback.textContent = 'ถูกต้อง! 👏';
-      feedback.className = 'feedback good';
-    } else {
-      btnEl.classList.add('wrong');
-      const correctBtn = buttons.find(b => b.textContent === gameCorrectWord);
-      if (correctBtn) correctBtn.classList.add('correct');
-      feedback.textContent = 'ลองใหม่นะ — คำที่ถูกคือ...';
-      feedback.className = 'feedback try';
-    }
-
-    document.getElementById('mainArea').innerHTML = buildQuestionDisplay(currentItem, currentVowel, true);
-    document.getElementById('subArea').textContent =
-      currentVowel.pattern.type === 'before'
-        ? `${currentVowel.pattern.mark} + ${currentItem.thC} = ${currentItem.word}`
-        : `${currentItem.thC} + ${currentVowel.pattern.mark} = ${currentItem.word}`;
-    speakThai(currentItem.read);
-
-    if (gameStep >= GAME_TOTAL) {
-      nextGameBtn.style.display = 'none';
-      nextGameBtn.disabled = true;
-      setTimeout(finishGame, 450);
-      return;
-    }
-
-    nextGameBtn.style.display = '';
-    nextGameBtn.disabled = false;
-  }
-
-  practiceModeBtn.addEventListener('click', () => setMode('practice'));
-  gameModeBtn.addEventListener('click', () => setMode('game'));
-  revealBtn.addEventListener('click', () => revealAndSpeak());
-  nextBtn.addEventListener('click', () => nextQuestion());
-  nextGameBtn.addEventListener('click', () => nextGameQuestion());
-  restartGameBtn.addEventListener('click', () => startGame());
-
-  renderVowelChips();
-  setMode('practice');
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
 </script>
-<!-- Island look: top bar back to the island + 3D backdrop (see world-shell.js) -->
 <script src="world-kit.js"></script>
-<script src="world-shell.js" data-emoji="🗣️" data-title="สระ"></script>
+<script>
+  setTimeout(function () { if (!window.__worldReady) document.getElementById('fallback').classList.add('show'); }, 10000);
+</script>
+
+<script type="module">
+/* =========================================================
+   สระ (Thai vowels) — a word workshop on the island
+   A consonant block and a vowel block stand on the platform.
+   "ต่อคำ!" sends the vowel to where it is really written
+   (after → right, before → left, above → on top, below → underneath),
+   then the two blocks merge into one word block and Summer reads it.
+   Game mode: 10 questions, pick the word the two blocks make.
+   ========================================================= */
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const kit = WorldKit(THREE, OrbitControls);
+const { box } = kit;
+const stage = kit.createStage({ canvas: document.getElementById('world') });
+const { scene, camera, controls } = stage;
+controls.minDistance = 8; controls.maxDistance = 32;
+controls.minPolarAngle = .5; controls.maxPolarAngle = 1.4;
+kit.bindSoundButton(document.getElementById('soundBtn'));
+kit.bindFadeLinks();
+const fx = kit.createConfetti(scene);
+const floaters = kit.createFloaters(scene, { count: 16, radius: 14, spread: 10, y0: -2 });
+
+/* ── Vowels and words ──
+   where = where the vowel is written next to the consonant (the block flies there)
+   read  = how Summer spells it out loud */
+const VOWELS = [
+  { id: 'aa', label: 'อา', name: 'สระอา', mark: 'า', where: 'right',
+    tip: 'สระอา ออกเสียง "อา" ยาว ๆ เขียนไว้ข้างหลังพยัญชนะ',
+    items: [['ก','กา','กอ อา กา'], ['ม','มา','มอ อา มา'], ['ต','ตา','ตอ อา ตา'], ['ป','ปา','ปอ อา ปา'], ['น','นา','นอ อา นา'], ['ร','รา','รอ อา รา'], ['ล','ลา','ลอ อา ลา']] },
+  { id: 'i', label: 'อิ', name: 'สระอิ', mark: 'ิ', where: 'top',
+    tip: 'สระอิ ออกเสียง "อิ" สั้น ๆ เขียนไว้ข้างบนพยัญชนะ',
+    items: [['ก','กิ','กอ อิ กิ'], ['ม','มิ','มอ อิ มิ'], ['ต','ติ','ตอ อิ ติ'], ['ป','ปิ','ปอ อิ ปิ'], ['น','นิ','นอ อิ นิ'], ['ล','ลิ','ลอ อิ ลิ']] },
+  { id: 'ii', label: 'อี', name: 'สระอี', mark: 'ี', where: 'top',
+    tip: 'สระอี ออกเสียง "อี" ยาวกว่าอิ เขียนไว้ข้างบนพยัญชนะ',
+    items: [['ก','กี','กอ อี กี'], ['ม','มี','มอ อี มี'], ['ต','ตี','ตอ อี ตี'], ['ป','ปี','ปอ อี ปี'], ['น','นี','นอ อี นี'], ['ล','ลี','ลอ อี ลี']] },
+  { id: 'u', label: 'อุ', name: 'สระอุ', mark: 'ุ', where: 'bottom',
+    tip: 'สระอุ ออกเสียง "อุ" สั้น ๆ เขียนไว้ข้างล่างพยัญชนะ',
+    items: [['ก','กุ','กอ อุ กุ'], ['ม','มุ','มอ อุ มุ'], ['ต','ตุ','ตอ อุ ตุ'], ['ป','ปุ','ปอ อุ ปุ'], ['น','นุ','นอ อุ นุ'], ['ล','ลุ','ลอ อุ ลุ']] },
+  { id: 'uu', label: 'อู', name: 'สระอู', mark: 'ู', where: 'bottom',
+    tip: 'สระอู ออกเสียง "อู" ยาวกว่าอุ เขียนไว้ข้างล่างพยัญชนะ',
+    items: [['ด','ดู','ดอ อู ดู'], ['ม','มู','มอ อู มู'], ['ต','ตู','ตอ อู ตู'], ['ป','ปู','ปอ อู ปู'], ['น','นู','นอ อู นู'], ['ล','ลู','ลอ อู ลู']] },
+  { id: 'e', label: 'เอ', name: 'สระเอ', mark: 'เ', where: 'left',
+    tip: 'สระเอ ออกเสียง "เอ" เขียนไว้ข้างหน้าพยัญชนะ',
+    items: [['ก','เก','กอ เอ เก'], ['ม','เม','มอ เอ เม'], ['ต','เต','ตอ เอ เต'], ['ป','เป','ปอ เอ เป'], ['น','เน','นอ เอ เน'], ['ล','เล','ลอ เอ เล']] },
+  { id: 'ae', label: 'แอ', name: 'สระแอ', mark: 'แ', where: 'left',
+    tip: 'สระแอ ออกเสียง "แอ" เขียนไว้ข้างหน้าพยัญชนะ',
+    items: [['ก','แก','กอ แอ แก'], ['ม','แม','มอ แอ แม'], ['ต','แต','ตอ แอ แต'], ['พ','แพ','พอ แอ แพ'], ['น','แน','นอ แอ แน'], ['ล','แล','ลอ แอ แล']] },
+  { id: 'o', label: 'โอ', name: 'สระโอ', mark: 'โ', where: 'left',
+    tip: 'สระโอ ออกเสียง "โอ" เขียนไว้ข้างหน้าพยัญชนะ',
+    items: [['ก','โก','กอ โอ โก'], ['ม','โม','มอ โอ โม'], ['ต','โต','ตอ โอ โต'], ['ป','โป','ปอ โอ โป'], ['น','โน','นอ โอ โน'], ['ล','โล','ลอ โอ โล']] },
+  { id: 'ai', label: 'ไอ', name: 'สระไอ', mark: 'ไ', where: 'left',
+    tip: 'สระไอ ออกเสียง "ไอ" เขียนไว้ข้างหน้าพยัญชนะ',
+    items: [['ป','ไป','ปอ ไอ ไป'], ['อ','ไอ','ออ ไอ ไอ'], ['ม','ไม','มอ ไอ ไม'], ['ต','ไต','ตอ ไอ ไต']] },
+].map(v => ({ ...v, items: v.items.map(([c, word, read]) => ({ c, word, read })) }));
+// marks that sit on top/underneath are shown on a dotted circle, the way books print them
+const markText = v => (v.where === 'top' || v.where === 'bottom') ? '◌' + v.mark : v.mark;
+
+// Spelling is read slower than normal speech
+function spell(text) {
+  if (!kit.soundOn() || !('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'th-TH'; u.rate = .7; u.pitch = 1.15;
+  speechSynthesis.speak(u);
+}
+const captionEl = document.getElementById('caption');
+let captionTimer = null;
+function caption(text, ms = 5000) {
+  captionEl.textContent = text; captionEl.classList.add('show');
+  clearTimeout(captionTimer); captionTimer = setTimeout(() => captionEl.classList.remove('show'), ms);
+}
+
+/* =========================================================
+   Letter blocks — a cube with the letter on its front
+   ========================================================= */
+function letterTexture(text, bg, fg, wide) {
+  const c = document.createElement('canvas'); c.width = wide ? 512 : 256; c.height = 256;
+  const g = c.getContext('2d');
+  g.fillStyle = bg; g.fillRect(0, 0, c.width, c.height);
+  g.fillStyle = 'rgba(255,255,255,.35)'; g.fillRect(0, 0, c.width, 18);   // light top edge
+  let size = 190;
+  g.font = `900 ${size}px "Noto Sans Thai Looped", "Noto Sans Thai", sans-serif`;
+  while (g.measureText(text).width > c.width - 40 && size > 60) { size -= 10; g.font = `900 ${size}px "Noto Sans Thai Looped", "Noto Sans Thai", sans-serif`; }
+  g.fillStyle = fg; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillText(text, c.width / 2, c.height / 2 + 6);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4;
+  return t;
+}
+function letterBlock(text, color, w = 2, h = 2) {
+  const side = new THREE.MeshLambertMaterial({ color });
+  const face = new THREE.MeshBasicMaterial({ map: letterTexture(text, color, '#ffffff', w > h * 1.3) });
+  // face order: +x, -x, +y, -y, +z (front), -z
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, w > h ? 1.6 : w), [side, side, side, side, face, side]);
+  m.castShadow = true;
+  const g = new THREE.Group(); g.add(m);
+  return g;
+}
+
+/* =========================================================
+   The workshop
+   ========================================================= */
+box(scene, 16, .4, 11, '#8fd16a', 0, -.2, 0);
+box(scene, 16, 1.2, 11, '#d39a5c', 0, -1, 0);
+box(scene, 14, 1, 9, '#b87e47', 0, -2.1, 0);
+box(scene, 10, .8, 6, '#9b6a3c', 0, -3, 0);
+for (let i = 0; i < 14; i++) box(scene, .14, .14, .14, ['#ff8fbf', '#ffd166', '#ffffff', '#9ad7ff'][i % 4], -7 + (i * 2.9) % 14, .07, -4.6 + (i * 1.7) % 9.2, false);
+// platform where the blocks stand
+box(scene, 9, .3, 3.6, '#f2e6d0', 0, .15, .6);
+box(scene, 9.4, .14, 4, '#c98a5a', 0, .05, .6);
+// "+" sign between the blocks (hidden once they join)
+const plus = kit.labelSprite('+', .9, { fg: '#f59e0b' }); plus.position.set(0, 1.9, 1.2); scene.add(plus);
+
+// Shelf of example words at the back (tap one to practise it)
+const SHELF = { z: -3.6, y: 1.25, w: 11 };
+box(scene, SHELF.w, .2, 1, '#c98a5a', 0, SHELF.y - .1, SHELF.z);
+box(scene, .25, 2.4, .8, '#8b5a3c', -SHELF.w / 2 + .1, 1.2, SHELF.z);
+box(scene, .25, 2.4, .8, '#8b5a3c', SHELF.w / 2 - .1, 1.2, SHELF.z);
+const shelfSign = kit.labelSprite('ตัวอย่างคำ', .5); shelfSign.position.set(0, 3.3, SHELF.z); scene.add(shelfSign);
+let shelfBlocks = [];
+
+const summer = kit.makeSummer();
+summer.g.position.set(5.2, .3, 1.6); summer.g.rotation.y = -.7;
+scene.add(summer.g);
+
+/* =========================================================
+   One question = consonant block + vowel block (+ word block when joined)
+   ========================================================= */
+const CON_COLOR = '#3b82f6', VOW_COLOR = '#ec4899', WORD_COLOR = '#22c55e';
+const BLOCK_Y = 1.3, GAP = 3;
+let vowel = VOWELS[0], item = vowel.items[0];
+let conB = null, vowB = null, wordB = null, join = null, wordPop = 0, cheerT = 0;
+
+function clearBlocks() {
+  [conB, vowB, wordB].forEach(b => b && scene.remove(b));
+  conB = vowB = wordB = null; join = null;
+}
+function showQuestion(it) {
+  clearBlocks();
+  item = it;
+  conB = letterBlock(it.c, CON_COLOR);
+  vowB = letterBlock(markText(vowel), VOW_COLOR, 1.7, 1.7);
+  // left-to-right like the written sum: before-vowels come first (เ + ก), others after (ก + า)
+  const vowelFirst = vowel.where === 'left';
+  conB.position.set(vowelFirst ? GAP / 2 : -GAP / 2, BLOCK_Y, .8);
+  vowB.position.set(vowelFirst ? -GAP / 2 : GAP / 2, BLOCK_Y - .15, .8);
+  conB.userData.tap = () => spell(it.c + 'อ');            // "กอ"
+  vowB.userData.tap = () => spell(vowel.name);           // "สระอา"
+  [conB, vowB].forEach(b => { b.scale.setScalar(.01); b.userData.grow = 0; scene.add(b); });
+  plus.visible = true;
+  document.getElementById('eA').textContent = vowelFirst ? vowel.mark : it.c;
+  document.getElementById('eB').textContent = vowelFirst ? it.c : markText(vowel);
+  document.getElementById('eA').className = vowelFirst ? 'v' : '';
+  document.getElementById('eB').className = vowelFirst ? '' : 'v';
+  const ans = document.getElementById('ans'); ans.textContent = '?'; ans.className = '';
+  highlightShelf();
+}
+
+// ต่อคำ: the vowel flies to its real place, then both blocks become one word block
+const SPOT = { right: [1.85, 0], left: [-1.85, 0], top: [0, 1.85], bottom: [0, -1.85] };
+function joinBlocks(say = true) {
+  if (!conB || join || wordB) return;
+  const [dx, dy] = SPOT[vowel.where];
+  // for "underneath" vowels the consonant hops up so the vowel can slide in below
+  const conTo = new THREE.Vector3(0, BLOCK_Y + (vowel.where === 'bottom' ? 1.9 : 0), .8);
+  join = {
+    t: 0, say,
+    con: { from: conB.position.clone(), to: conTo },
+    vow: { from: vowB.position.clone(), mid: conTo.clone().add(new THREE.Vector3(dx * 1.6, dy * 1.6 + (dy ? 0 : 1.6), 0)), to: conTo.clone().add(new THREE.Vector3(dx, dy, 0)) },
+  };
+  plus.visible = false;
+  kit.tones([392, 523], .08, 'triangle', .14);
+}
+function finishJoin() {
+  const it = item, s = join.say;
+  join = null;
+  scene.remove(conB); scene.remove(vowB);
+  wordB = letterBlock(it.word, WORD_COLOR, 3.6, 2.2);
+  wordB.position.set(0, 1.4, .8);
+  wordB.userData.tap = () => spell(it.read);
+  wordB.scale.setScalar(.01); wordPop = 0;
+  scene.add(wordB);
+  fx.burst(0, 2.6, .8, ['#22c55e', '#ec4899', '#3b82f6', '#fbbf24'], 30);
+  const ans = document.getElementById('ans'); ans.textContent = it.word; ans.className = 'ok';
+  if (s) spell(it.read);
+  cheerT = 1.6;
+}
+
+function highlightShelf() {
+  shelfBlocks.forEach(b => b.children[0].position.y = b.userData.item === item ? .25 : 0);
+}
+function buildShelf() {
+  shelfBlocks.forEach(b => scene.remove(b));
+  const n = vowel.items.length, step = Math.min(1.5, (SHELF.w - 1.4) / n);
+  shelfBlocks = vowel.items.map((it, i) => {
+    const b = letterBlock(it.word, '#a78bfa', 1.3, .9);
+    b.position.set((i - (n - 1) / 2) * step, SHELF.y + .45, SHELF.z);
+    b.userData.item = it;
+    b.userData.tap = () => { if (mode === 'practice') { showQuestion(it); setTimeout(() => joinBlocks(), 450); } else spell(it.word); };
+    scene.add(b);
+    return b;
+  });
+}
+
+/* =========================================================
+   Modes
+   ========================================================= */
+let mode = 'practice', gScore = 0, gNum = 0, gAnswered = false;
+const $ = id => document.getElementById(id);
+const pickRandom = () => {
+  const pool = vowel.items.filter(x => x !== item);
+  return pool[Math.floor(Math.random() * pool.length)] || vowel.items[0];
+};
+
+function setVowel(v) {
+  vowel = v;
+  $('vowelNow').textContent = v.label;
+  buildShelf();
+  if (mode === 'game') startGame(); else showQuestion(pickRandom());
+  caption(v.tip, 6000);
+  spell(v.name);
+}
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('.w-mode').forEach(b => b.classList.toggle('on', b.dataset.mode === m));
+  $('practiceRow').style.display = m === 'practice' ? '' : 'none';
+  $('gameRow').style.display = m === 'game' ? 'flex' : 'none';
+  $('gameInfo').style.display = m === 'game' ? '' : 'none';
+  $('nextBtn').style.display = 'none';
+  if (m === 'game') startGame(); else showQuestion(pickRandom());
+}
+
+function startGame() { gScore = 0; gNum = 0; nextGameQ(); }
+function nextGameQ() {
+  gNum++; gAnswered = false;
+  $('score').textContent = gScore; $('qnum').textContent = gNum;
+  $('nextBtn').style.display = 'none';
+  showQuestion(pickRandom());
+  // 4 word choices from the same vowel (all look alike, so Summer must read the consonant)
+  const others = vowel.items.filter(x => x !== item).sort(() => Math.random() - .5).slice(0, 3);
+  const row = $('gameRow'); row.innerHTML = '';
+  [item, ...others].sort(() => Math.random() - .5).forEach(it => {
+    const b = document.createElement('button');
+    b.className = 'w-btn white choice'; b.textContent = it.word;
+    b.onclick = () => answer(it, b);
+    row.appendChild(b);
+  });
+  caption('ก้อนนี้ต่อกันแล้วได้คำว่าอะไร? 🤔', 3500);
+}
+function answer(it, btn) {
+  if (gAnswered) return;
+  gAnswered = true;
+  const ok = it === item;
+  document.querySelectorAll('#gameRow .choice').forEach(b => {
+    b.disabled = true;
+    if (b.textContent === item.word) b.classList.add('right');
+  });
+  if (ok) { gScore++; $('score').textContent = gScore; caption('ถูกต้อง! เก่งมาก 👏', 3000); }
+  else { btn.classList.add('wrong'); caption(`คำที่ถูกคือ "${item.word}" ดูก้อนต่อกันนะ`, 4000); kit.tones([300, 220], .1, 'sine', .14); }
+  joinBlocks();
+  if (gNum >= 10) setTimeout(finishGame, 2600);
+  else $('nextBtn').style.display = 'inline-flex';
+}
+function finishGame() {
+  $('rScore').textContent = `${gScore}/10`;
+  $('rStars').textContent = gScore >= 9 ? '⭐⭐⭐' : gScore >= 6 ? '⭐⭐' : '⭐';
+  $('result').classList.add('show');
+  kit.speak(`จบเกม ได้ ${gScore} คะแนน จาก 10 ข้อ`);
+  if (gScore >= 6) { fx.burst(0, 4, 0); kit.cheer(); cheerT = 3; }
+}
+
+// vowel picker
+const vgrid = $('vgrid');
+VOWELS.forEach(v => {
+  const b = document.createElement('button');
+  b.innerHTML = `${v.label}<small>${v.name}</small>`;
+  b.onclick = () => { $('picker').classList.remove('show'); setVowel(v); };
+  vgrid.appendChild(b);
+});
+$('vowelBtn').onclick = () => {
+  vgrid.querySelectorAll('button').forEach((b, i) => b.classList.toggle('on', VOWELS[i] === vowel));
+  $('picker').classList.add('show');
+};
+$('picker').addEventListener('click', e => { if (e.target.id === 'picker') $('picker').classList.remove('show'); });
+$('joinBtn').onclick = () => { if (wordB) spell(item.read); else joinBlocks(); };
+$('newBtn').onclick = () => showQuestion(pickRandom());
+$('nextBtn').onclick = nextGameQ;
+$('retryBtn').onclick = () => { $('result').classList.remove('show'); startGame(); };
+document.querySelectorAll('.w-mode').forEach(b => b.onclick = () => setMode(b.dataset.mode));
+
+/* =========================================================
+   Taps on blocks, loop
+   ========================================================= */
+const raycaster = new THREE.Raycaster(), ndc = new THREE.Vector2();
+const canvas = stage.renderer.domElement;
+let press = null;
+canvas.addEventListener('pointerdown', e => { press = { x: e.clientX, y: e.clientY, t: performance.now() }; });
+canvas.addEventListener('pointerup', e => {
+  if (!press) return;
+  const tap = Math.hypot(e.clientX - press.x, e.clientY - press.y) < 10 && performance.now() - press.t < 500;
+  press = null;
+  if (!tap) return;
+  ndc.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
+  raycaster.setFromCamera(ndc, camera);
+  const targets = [conB, vowB, wordB, ...shelfBlocks].filter(Boolean);
+  const hit = raycaster.intersectObjects(targets, true)[0];
+  if (hit) {
+    let o = hit.object; while (o && !o.userData.tap) o = o.parent;
+    if (o) { o.userData.tap(); o.userData.bump = 1; }
+    return;
+  }
+  if (raycaster.intersectObject(summer.g, true).length) { cheerT = 1.2; kit.tones([660, 880], .07); }
+});
+
+camera.position.set(0, 8, 16); controls.target.set(0, 2, 0);
+const portrait = innerWidth < innerHeight;   // phones stand further back so the blocks + shelf fit
+kit.flyTo(stage, portrait ? new THREE.Vector3(1, 9.5, 27) : new THREE.Vector3(1, 6.5, 17), new THREE.Vector3(0, portrait ? -.6 : .4, -.4), 1200);   // aim low so the blocks sit above the dock
+
+const ease = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+stage.start((dt, time) => {
+  // new blocks pop in
+  [conB, vowB].forEach(b => { if (b && b.userData.grow < 1) { b.userData.grow = Math.min(1, b.userData.grow + dt * 3); const g = b.userData.grow; b.scale.setScalar(.01 + g * (1 + Math.sin(g * Math.PI) * .25)); } });
+  // joining: consonant moves to the middle, vowel arcs over to its spot
+  if (join) {
+    join.t = Math.min(1, join.t + dt * .9);
+    const e = ease(join.t);
+    conB.position.lerpVectors(join.con.from, join.con.to, e);
+    const v = join.vow, a = Math.min(1, e * 2), b = Math.max(0, e * 2 - 1);
+    if (e < .5) vowB.position.lerpVectors(v.from, v.mid, ease(a));
+    else vowB.position.lerpVectors(v.mid, v.to, ease(b));
+    if (join.t >= 1) finishJoin();
+  }
+  if (wordB && wordPop < 1) { wordPop = Math.min(1, wordPop + dt * 2.5); wordB.scale.setScalar(.01 + wordPop * (1 + Math.sin(wordPop * Math.PI) * .3)); }
+  // tapped blocks give a little hop
+  [conB, vowB, wordB, ...shelfBlocks].forEach(b => {
+    if (b && b.userData.bump > 0) { b.userData.bump = Math.max(0, b.userData.bump - dt * 4); b.children[0].position.y = Math.sin(b.userData.bump * Math.PI) * .4 + (shelfBlocks.includes(b) && b.userData.item === item ? .25 : 0); }
+  });
+  plus.position.y = 1.9 + Math.sin(time * 3) * .08;
+  cheerT -= dt;
+  kit.poseSummer(summer, time, cheerT > 0 ? 'cheer' : 'idle');
+  floaters.update(dt, time);
+  fx.update(dt);
+});
+
+// letters are drawn into textures, so wait for the looped Thai font (the style kids learn at school) first
+document.fonts.load('900 100px "Noto Sans Thai Looped"').catch(() => {}).finally(() => {
+  buildShelf();
+  setMode('practice');
+  setTimeout(() => caption('แตะ "ต่อคำ" ดูสระวิ่งไปต่อกับพยัญชนะ! 🧩'), 900);
+  window.__worldReady = true;
+});
+// for automated tests
+window.__sara = { joinBlocks, answer: w => { const b = [...document.querySelectorAll('#gameRow .choice')].find(x => x.textContent === w); b && b.click(); }, get item() { return item; }, setVowel: id => setVowel(VOWELS.find(v => v.id === id)) };
+</script>
 </body>
 </html>

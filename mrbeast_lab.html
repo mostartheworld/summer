@@ -67,6 +67,11 @@
   .card .tick { position:absolute; top:12px; left:12px; background:var(--yellow); color:#2a2200; border-radius:999px; font-size:11px; padding:0 7px; font-weight:700; }
   .note { font-size:13px; color:var(--muted); line-height:1.6; }
   .legend { display:flex; gap:8px; flex-wrap:wrap; }
+  /* Island look (world-shell.js): the page keeps its dark lab panels on the island's yellow sky */
+  body.w-shell .wrap { position:relative; z-index:1; margin:92px auto 40px; width:calc(100% - 24px); background:linear-gradient(135deg,#12132a,#1e1f3a); border-radius:28px; box-shadow:0 10px 0 rgba(0,0,0,.15); }
+  html:has(body.w-shell) { background:#f6cf7a; }   /* the page's dark html background would show above/below the panel */
+  body.w-shell .home { display:none; }   /* the "🏝️ กลับเกาะ" top bar replaces it */
+  body.w-shell .top:has(.count:empty) { display:none; }
 </style>
 </head>
 <body>
@@ -199,5 +204,8 @@ fetch(BASE+'catalog.json').then(r=>r.json()).then(d=>{
   renderGrid();
 }).catch(()=>{$('count').textContent='โหลดข้อมูลไม่ได้ — ลองรีเฟรช'});
 </script>
+<!-- Island look: top bar back to the island + 3D backdrop (see world-shell.js) -->
+<script src="world-kit.js"></script>
+<script src="world-shell.js" data-emoji="🧪" data-title="Beast Lab"></script>
 </body>
 </html>

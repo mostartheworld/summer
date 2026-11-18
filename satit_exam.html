@@ -1089,7 +1089,11 @@ function renderDomino(q){
   const imgEl=document.getElementById('qImage');
   imgEl.className='q-image visible';
   imgEl.style.fontSize='0';
-  imgEl.innerHTML=`<div style="display:flex;justify-content:center">${makeDominoSVG(q.left,q.right,160,82)}</div>`;
+  if(window.Satit3D){   // 3D domino; after answering the dots are counted one by one (see bottom of file)
+    imgEl.className='q-image';
+    const bw=document.getElementById('blockWrap'); bw.style.display='flex';
+    Satit3D.domino(bw,q.left,q.right);
+  } else imgEl.innerHTML=`<div style="display:flex;justify-content:center">${makeDominoSVG(q.left,q.right,160,82)}</div>`;
   document.getElementById('qText').textContent=q.q;
   document.getElementById('qTextEn').textContent=q.en||'';
   buildMCQChoices(q.ch);
@@ -1104,7 +1108,11 @@ function renderDominoSeq(q){
   const items=q.seq.map((pair,i)=>
     `${i>0?'<span class="domino-arrow">→</span>':''}${makeDominoSVG(pair[0],pair[1],68,35)}`
   ).join('');
-  imgEl.innerHTML=`<div class="domino-seq-wrap">${items}<span class="domino-arrow">→</span><div class="domino-blank">?</div></div>`;
+  if(window.Satit3D){   // 3D row of dominoes with an empty "?" spot; the right one drops in after answering
+    imgEl.className='q-image';
+    const bw=document.getElementById('blockWrap'); bw.style.display='flex';
+    Satit3D.dominoSeq(bw,q.seq);
+  } else imgEl.innerHTML=`<div class="domino-seq-wrap">${items}<span class="domino-arrow">→</span><div class="domino-blank">?</div></div>`;
   document.getElementById('qText').textContent=q.q;
   document.getElementById('qTextEn').textContent=q.en||'';
   buildDominoSeqChoices(q.ch);
@@ -1346,6 +1354,7 @@ showView('cat');
      Loads Three.js; if it can't (offline), the SVG drawings above are used instead.
      Satit3D.blocks(el, pos)          : blocks to turn around (pos uses x→right, y→depth, z→up)
      Satit3D.cubenet(el, layout, hl)  : flat net; "📦 พับกล่อง" folds it into a cube
+     Satit3D.domino(el, L, R) / dominoSeq(el, seq) : 3D dominoes
      Satit3D.explain(q)               : after answering — count the blocks 1,2,3… / fold the net
      Satit3D.drawing(el, d, check)    : ✏️ connect-the-dots board; finished pictures become 3D objects
 ═══════════════════════════════════════════ -->
@@ -1388,11 +1397,12 @@ const floor = new THREE.Mesh(new THREE.CircleGeometry(5, 40), new THREE.MeshLamb
 floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true;
 scene.add(floor);
 
-let root = null, mode = null, cubes = [], counting = null, net = null;
+let root = null, mode = null, cubes = [], counting = null, net = null, dom = null;
 function reset(el) {
   if (root) scene.remove(root);
   root = new THREE.Group(); scene.add(root);
-  cubes = []; counting = null; net = null;
+  cubes = []; counting = null; net = null; dom = null;
+  controls.minAzimuthAngle = -Infinity; controls.maxAzimuthAngle = Infinity;
   countEl.textContent = ''; foldBtn.style.display = 'none'; hint.style.opacity = 1;
   el.innerHTML = ''; el.appendChild(wrap);
   const w = wrap.clientWidth || 340, h = wrap.clientHeight || 270;
@@ -1507,9 +1517,125 @@ foldBtn.onclick = toggleFold;
 
 function explain(q) {
   if (q.type === 'blocks' && mode === 'blocks') countUp();
+  if (q.type === 'domino' && mode === 'domino' && !dom.steps) explainDomino(q);
+  if (q.type === 'domino-seq' && mode === 'dominoSeq' && !dom.drop && dom.wave < 0) explainDominoSeq(q);
   if (q.type === 'cubenet' && mode === 'net') { foldBtn.style.display = ''; if (!net.folded) setTimeout(toggleFold, 600); }
 }
 
+
+
+/* ── Dominoes ──
+   A domino stands on its long edge facing us: left half = left dots, right half = right dots.
+   domino(el, L, R)    : one domino; explain() counts its dots 1,2,3… and shows the sum
+   dominoSeq(el, seq)  : a row of dominoes + an empty "?" spot; explain() drops the answer in */
+const PIP_SPOTS = {   // dot positions inside one half (-1..1), like a real domino
+  1: [[0, 0]], 2: [[-1, 1], [1, -1]], 3: [[-1, 1], [0, 0], [1, -1]],
+  4: [[-1, 1], [1, 1], [-1, -1], [1, -1]], 5: [[-1, 1], [1, 1], [0, 0], [-1, -1], [1, -1]],
+  6: [[-1, 1], [0, 1], [1, 1], [-1, -1], [0, -1], [1, -1]],
+};
+const pipGeo = new THREE.CylinderGeometry(.1, .1, .05, 18);
+const domBodyGeo = new THREE.BoxGeometry(2, 1, .3);
+function makeDomino(L, R, ghost = false) {
+  const g = new THREE.Group(), pips = { L: [], R: [] };
+  const body = new THREE.Mesh(domBodyGeo, ghost
+    ? new THREE.MeshBasicMaterial({ color: '#c4b5fd', transparent: true, opacity: .35 })
+    : new THREE.MeshLambertMaterial({ color: '#fffaf0', emissive: '#6b6358' }));   // emissive keeps the face ivory, not grey
+  body.castShadow = !ghost; g.add(body);
+  body.add(new THREE.LineSegments(new THREE.EdgesGeometry(domBodyGeo), new THREE.LineBasicMaterial({ color: ghost ? '#7c3aed' : '#94a3b8' })));
+  if (ghost) { const q = kit.labelSprite('?', .6); q.position.z = .2; g.add(q); return { g, pips }; }
+  const bar = new THREE.Mesh(new THREE.BoxGeometry(.05, .8, .02), new THREE.MeshBasicMaterial({ color: '#475569' }));
+  bar.position.z = .155; g.add(bar);
+  [['L', L, -.5], ['R', R, .5]].forEach(([side, n, cx]) => (PIP_SPOTS[n] || []).forEach(([px, py]) => {
+    const m = new THREE.Mesh(pipGeo, new THREE.MeshLambertMaterial({ color: '#1f2937' }));
+    m.rotation.x = Math.PI / 2; m.position.set(cx + px * .25, py * .25, .16);
+    g.add(m); pips[side].push(m);
+  }));
+  return { g, pips };
+}
+// camera straight in front, far enough back that a row `width` wide fits
+function frontView(width, centerY) {
+  const vf = camera.fov * Math.PI / 360, hf = Math.atan(Math.tan(vf) * camera.aspect);
+  const dist = Math.max((width / 2 + .25) / Math.tan(hf), 1.3 / Math.tan(vf));
+  camera.position.set(0, centerY + dist * .22, dist);
+  controls.target.set(0, centerY, 0); controls.update();
+  wantDist = camera.position.distanceTo(controls.target);
+  controls.autoRotate = false;
+  controls.minAzimuthAngle = -.8; controls.maxAzimuthAngle = .8;   // can peek around, never loses the face
+}
+function domino(el, L, R) {
+  reset(el); mode = 'domino';
+  const d = makeDomino(L, R); d.g.position.y = .55; d.g.rotation.x = -.12; root.add(d.g);
+  dom = { L, R, d, steps: null };
+  frontView(2.6, .6);
+}
+function dominoSeq(el, seq) {
+  reset(el); mode = 'dominoSeq';
+  const n = seq.length + 1, gap = 1.75, x0 = -(n - 1) * gap / 2, list = [];
+  seq.forEach(([a, b], i) => {
+    const d = makeDomino(a, b); d.g.scale.setScalar(.8);
+    d.g.position.set(x0 + i * gap, .45, 0); root.add(d.g); list.push(d);
+  });
+  const ghost = makeDomino(0, 0, true); ghost.g.scale.setScalar(.8);
+  ghost.g.position.set(x0 + seq.length * gap, .45, 0); root.add(ghost.g);
+  dom = { seq, list, ghost, gap, x0, drop: null, wave: -1 };
+  frontView((n - 1) * gap + 1.7, .5);
+}
+const PIP_ON = new THREE.Color('#f59e0b');
+function explainDomino(q) {
+  const { L, R, d } = dom;
+  const total = q.q.includes('รวม'), diff = !total && q.q.includes('กี่แต้ม');
+  // total: keep counting across both halves; otherwise each side is counted on its own
+  const steps = [...d.pips.L.map((m, i) => ({ m, n: i + 1 })), ...d.pips.R.map((m, i) => ({ m, n: total ? L + i + 1 : i + 1 }))];
+  const sign = L > R ? '>' : L < R ? '<' : '=';
+  const shown = total ? `${L}+${R}=${L + R}` : diff ? `${L}−${R}=${L - R}` : `${L} ${sign} ${R}`;
+  const said = total ? `${L} บวก ${R} เท่ากับ ${L + R}` : diff ? `${L} ลบ ${R} เท่ากับ ${L - R}`
+    : L > R ? `ซ้าย ${L} ขวา ${R} ด้านซ้ายมากกว่า` : L < R ? `ซ้าย ${L} ขวา ${R} ด้านขวามากกว่า` : `ซ้าย ${L} ขวา ${R} เท่ากัน`;
+  dom.steps = { list: steps, i: 0, t: .3, done() { countEl.textContent = shown; setTimeout(() => kit.speak(said), 250); } };
+}
+function explainDominoSeq(q) {
+  const ok = q.ch.find(c => c.ok);
+  const d = makeDomino(ok.left, ok.right); d.g.scale.setScalar(.8);
+  d.g.position.set(dom.ghost.g.position.x, 4, 0); root.add(d.g);
+  dom.drop = { d, v: 0 };
+  // a small "a|b" tag over each domino shows the pattern
+  [...dom.seq, [ok.left, ok.right]].forEach(([a, b], i) => {
+    const tag = kit.labelSprite(`${a} | ${b}`, .42); tag.position.set(dom.x0 + i * dom.gap, 1.35, 0); root.add(tag);
+  });
+}
+function dominoTick(dt, time) {
+  if (!dom) return;
+  const st = dom.steps;   // (single domino) dots still to count
+  if (st && st.i < st.list.length) {
+    st.t -= dt;
+    if (st.t <= 0) {
+      const { m, n } = st.list[st.i++];
+      m.material.color.copy(PIP_ON); m.scale.set(1.3, 1, 1.3);
+      const tag = kit.labelSprite(String(n), .3); tag.position.set(m.position.x, m.position.y + .22, .3); dom.d.g.add(tag);
+      countEl.textContent = n;
+      kit.tones([400 + n * 40], .03, 'triangle', .1);
+      st.t = .4;
+      if (st.i === st.list.length) st.done();
+    }
+  }
+  if (dom.drop) {   // answer domino falls into the "?" spot with a little bounce, then the row does a wave
+    const p = dom.drop.d.g.position;
+    dom.drop.v -= 18 * dt; p.y += dom.drop.v * dt;
+    if (p.y <= .45) {
+      p.y = .45;
+      if (dom.drop.v < -2) { dom.drop.v *= -.3; kit.tones([330], .03, 'square', .08); }
+      else { dom.drop = null; dom.ghost.g.visible = false; dom.wave = 0; kit.tones([523, 659, 784], .08); }
+    }
+  }
+  if (dom.wave >= 0) {
+    dom.wave += dt;
+    root.children.forEach(c => {
+      if (!c.isGroup) return;
+      const i = Math.round((c.position.x - dom.x0) / dom.gap), k = dom.wave * 5 - i;
+      c.position.y = .45 + (k > 0 && k < Math.PI ? Math.sin(k) * .35 : 0);
+    });
+    if (dom.wave > 2.5) dom.wave = -1;
+  }
+}
 
 /* ── ✏️ Connect-the-dots on a 3D board ──
    Same dot data as DRAWINGS (280×220 picture coordinates, 28 px = 1 unit).
@@ -1717,6 +1843,7 @@ function loop() {
       if (counting.i === counting.order.length) setTimeout(() => kit.speak(`ทั้งหมด ${counting.i} กล่อง`), 300);
     }
   }
+  dominoTick(dt, time);
   cubes.forEach(c => { if (c.bump > 0) { c.bump = Math.max(0, c.bump - dt * 4); c.m.position.y = c.y0 + Math.sin(c.bump * Math.PI) * .25; } });
   if (net) {
     net.t += ((net.folded ? 1 : 0) - net.t) * Math.min(1, dt * 3);
@@ -1738,7 +1865,7 @@ function dotScreen(i) {
   const v = toWorld(D.d.dots[i]).project(dCam), r = dCanvas.getBoundingClientRect();
   return { x: r.left + (v.x + 1) / 2 * r.width, y: r.top + (1 - v.y) / 2 * r.height };
 }
-window.Satit3D = { blocks, cubenet, explain, drawing, dotScreen };
+window.Satit3D = { blocks, cubenet, domino, dominoSeq, explain, drawing, dotScreen };
 </script>
 
 <!-- Island look: top bar back to the island + 3D backdrop (see world-shell.js) -->
