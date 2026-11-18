@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>📒 การบ้าน — Summer's World</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="world-theme.css">
+<style>
+  /* Script panel — the words to practise (under the top bar) */
+  .script {
+    position: fixed; top: 84px; left: 50%; transform: translateX(-50%); z-index: 6;
+    width: min(720px, calc(100vw - 24px)); background: #fff; border-radius: 24px; padding: 10px 14px 14px;
+    box-shadow: 0 8px 0 #eee7da, 0 16px 0 #d8cfbf; display: none;
+  }
+  .script.show { display: block; }
+  .cues { display: flex; gap: 4px; margin-bottom: 8px; }
+  .cue { flex: 1 1 0; min-width: 0; height: 46px; border: 0; border-radius: 14px; background: #f3eee4; font-size: 22px; cursor: pointer; }
+  .cue.done { background: #c9f0d6; }
+  .cue.now { box-shadow: inset 0 0 0 3px #f2a20d; background: #fff1c2; }
+  .meta { font-size: 15px; font-weight: 700; color: #8a7a62; display: flex; justify-content: space-between; gap: 8px; }
+  .line { font-family: Fredoka, 'Noto Sans Thai', sans-serif; font-size: 27px; font-weight: 600; line-height: 1.45; margin-top: 6px; min-height: 80px; }
+  .line .w { border-radius: 8px; padding: 0 2px; transition: background .12s; }
+  .line .w.on { background: #ffd166; }
+  .line .w.past { color: #2b8a57; }
+  .blank { display: inline-block; background: #fff1c2; border: 2px dashed #f2a20d; border-radius: 10px; padding: 0 8px; font: 700 17px 'Noto Sans Thai', sans-serif; vertical-align: middle; }
+  .turn { margin-top: 8px; font-weight: 800; color: #e0457a; font-size: 19px; display: none; }
+  .turn.show { display: block; animation: pulse 1s infinite alternate; }
+  @keyframes pulse { to { transform: scale(1.04); } }
+  .bigcue { font-size: 64px; text-align: center; line-height: 1.1; }
+  .hint { font-family: Fredoka, 'Noto Sans Thai', sans-serif; font-size: 18px; font-weight: 500; line-height: 1.5; color: #5a4a35; }
+  .hint p { margin: 4px 0; }
+  .timer { font-variant-numeric: tabular-nums; }
+  .w-btn.rec { background: #e0453a; box-shadow: 0 6px 0 #a8302a; color: #fff; }
+  .w-btn.glow { animation: pulse .8s infinite alternate; }
+  #speechDock[hidden], #classDock[hidden], [data-for][hidden] { display: none !important; }
+  @media (max-width: 520px) {
+    .script { top: 76px; padding: 8px 10px 12px; }
+    .line { font-size: 22px; min-height: 64px; }
+    .cue { height: 42px; font-size: 19px; }
+    .bigcue { font-size: 52px; }
+    .hint { font-size: 16px; }
+    #speechDock .w-btn { padding: 0 14px; font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+<div class="w-fade-in"></div>
+<canvas class="w-canvas" id="world"></canvas>
+
+<div class="w-top">
+  <a class="w-pill w-back" href="index.html" data-fade title="กลับเกาะ Back to island">🏝️ <span>กลับเกาะ</span></a>
+  <div class="w-pill w-title">📒 การบ้าน <span class="en">· HOMEWORK</span></div>
+  <div class="w-icons">
+    <button class="w-pill w-icon" id="soundBtn" title="เปิด/ปิดเสียง Sound">🔊</button>
+  </div>
+</div>
+
+<div class="w-caption" id="caption"></div>
+
+<div class="script" id="script">
+  <div class="cues" id="cues"></div>
+  <div class="meta"><span id="meta"></span><span class="timer" id="timer"></span></div>
+  <div id="body"></div>
+  <div class="turn" id="turn">🎤 ถึงตาหนูแล้ว! พูดตามเลย · Your turn!</div>
+</div>
+
+<div class="w-dock">
+  <div class="w-controls" id="classDock"></div>
+  <div id="speechDock" hidden>
+    <div class="w-modes">
+      <button class="w-mode" data-mode="listen"><span class="em">👂</span>ฟัง</button>
+      <button class="w-mode" data-mode="repeat"><span class="em">🗣️</span>พูดตาม</button>
+      <button class="w-mode" data-mode="stage"><span class="em">🎭</span>ขึ้นเวที</button>
+      <button class="w-mode" id="toClass"><span class="em">📒</span>การบ้าน</button>
+    </div>
+    <div class="w-controls">
+      <!-- 👂 listen -->
+      <button class="w-btn white" data-for="listen" id="prevBtn" title="ประโยคก่อน">⏮</button>
+      <button class="w-btn big" data-for="listen" id="playBtn">▶ ฟัง</button>
+      <button class="w-btn white" data-for="listen" id="nextBtn" title="ประโยคต่อไป">⏭</button>
+      <button class="w-btn white" data-for="listen repeat" id="speedBtn">🐢 ช้า</button>
+      <!-- 🗣️ repeat -->
+      <button class="w-btn white" data-for="repeat" id="againBtn">🔁 ฟังอีก</button>
+      <button class="w-btn big" data-for="repeat" id="saidBtn">✅ พูดแล้ว</button>
+      <!-- 🎭 stage -->
+      <button class="w-btn white" data-for="stage" id="pPrev" title="ย่อหน้าก่อน">◀</button>
+      <button class="w-btn white" data-for="stage" id="hintBtn">💡 ใบ้</button>
+      <button class="w-btn white" data-for="stage" id="pNext" title="ย่อหน้าต่อไป">▶</button>
+      <button class="w-btn white" data-for="stage" id="recBtn">🎙️ อัด</button>
+      <button class="w-btn white" data-for="stage" id="playRecBtn" hidden>🔈 ฟังตัวเอง</button>
+      <button class="w-btn" data-for="stage" id="endBtn">👏 จบ!</button>
+    </div>
+  </div>
+</div>
+
+<div class="w-fallback" id="fallback">
+  <div class="big">📒</div>
+  <h2>โหลดฉาก 3D ไม่ได้</h2>
+  <div>ต้องต่ออินเทอร์เน็ตนะ / This page needs internet</div>
+  <a class="w-btn" href="menu.html">ไปหน้าเมนู ▶</a>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script src="world-kit.js"></script>
+<script src="homework-data.js"></script>
+<script>
+  setTimeout(function () { if (!window.__worldReady) document.getElementById('fallback').classList.add('show'); }, 10000);
+</script>
+
+<script type="module">
+/* =========================================================
+   การบ้าน (Homework) — get ready for ป.1
+   - Classroom: one notebook per homework (list lives in homework-data.js)
+   - 'speech' homework → a stage with an audience. 3 ways to practise:
+       👂 ฟัง      the computer reads sentence by sentence, words light up (karaoke)
+       🗣️ พูดตาม  it reads one sentence, then waits for Summer to say it → ✅
+       🎭 ขึ้นเวที  words hidden, only the picture cue per paragraph; record yourself; audience claps at the end
+   - No pronunciation score on purpose: speech recognition is unreliable for young kids.
+   - {NAME}/{SCHOOL} blanks are never read aloud (real name + school are not on this public site).
+   Saved in localStorage "summer_homework_v1": { [homeworkId]: { done: [paragraph index…], stage: times performed } }
+   ========================================================= */
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const kit = WorldKit(THREE, OrbitControls);
+const { box } = kit;
+const stage = kit.createStage({ canvas: document.getElementById('world') });
+const { scene, camera, controls } = stage;
+controls.minDistance = 6; controls.maxDistance = 36;
+controls.minPolarAngle = .3; controls.maxPolarAngle = 1.45;
+kit.bindSoundButton(document.getElementById('soundBtn'));
+kit.bindFadeLinks();
+const fx = kit.createConfetti(scene);
+const portrait = () => innerWidth < innerHeight;
+
+const HW = window.HOMEWORK || [], BLANKS = window.BLANKS || {};
+
+// ── Saved progress ──
+const SAVE_KEY = 'summer_homework_v1';
+let prog = {};
+try { prog = JSON.parse(localStorage.getItem(SAVE_KEY)) || {}; } catch (e) {}
+const progOf = id => prog[id] || (prog[id] = { done: [], stage: 0 });
+function saveProg() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(prog)); } catch (e) {} }
+
+const captionEl = document.getElementById('caption');
+let captionTimer = null;
+function caption(text, speakIt = false, ms = 4000) {
+  captionEl.textContent = text; captionEl.classList.add('show');
+  clearTimeout(captionTimer); captionTimer = setTimeout(() => captionEl.classList.remove('show'), ms);
+  if (speakIt) kit.speak(text);
+}
+
+/* =========================================================
+   Scene 1 — the classroom (around x = 0)
+   ========================================================= */
+box(scene, 18, .4, 13, '#e9c48f', 0, -.2, 0);
+box(scene, 18, 1.4, 13, '#c99a63', 0, -1.1, 0);
+box(scene, 18, 7, .4, '#fff1d6', 0, 3.3, -6.3);                       // back wall
+box(scene, .4, 7, 13, '#ffe6c2', -9, 3.3, 0);                          // side wall
+box(scene, 9, 3.8, .2, '#7a5230', 0, 3.6, -6);                         // chalkboard frame
+box(scene, 8.4, 3.2, .2, '#2f5d46', 0, 3.6, -5.9, false);
+const boardTitle = kit.labelSprite('📒 การบ้าน · HOMEWORK', .8, { bg: '#2f5d46', fg: '#ffffff' });
+boardTitle.position.set(0, 4.5, -5.6); scene.add(boardTitle);
+const boardSub = kit.labelSprite('เตรียมตัวขึ้น ป.1 ✏️', .55, { bg: '#2f5d46', fg: '#ffe9a8' });
+boardSub.position.set(0, 3.3, -5.6); scene.add(boardSub);
+box(scene, 2.4, 2.2, .2, '#9ad7ff', -8.75, 3.8, -2, false);            // window
+box(scene, 2.4, .14, .3, '#ffffff', -8.7, 3.8, -2, false);
+[['🔤', -6.5], ['🔢', 6.5]].forEach(([e, x]) => { const s = kit.emojiSprite(e, '#ffffff', 1.3); s.position.set(x, 4.2, -5.9); scene.add(s); });
+box(scene, .9, 1, .9, '#c96f3a', 7.8, .5, -5.2); box(scene, 1.2, 1.2, 1.2, '#5fb36a', 7.8, 1.6, -5.2);   // plant
+
+const summer = kit.makeSummer();
+summer.g.scale.setScalar(1.3); scene.add(summer.g);
+
+// one desk + notebook per homework
+const books = HW.map((hw, i) => {
+  const g = new THREE.Group();
+  const cols = Math.min(HW.length, 3), row = Math.floor(i / 3), col = i % 3;
+  g.position.set((col - (cols - 1) / 2) * 4, 0, row * 3.4 + 1.5);
+  box(g, 3, .25, 1.8, '#c98a4b', 0, 1.5, 0);
+  [[-1.3, -.7], [1.3, -.7], [-1.3, .7], [1.3, .7]].forEach(([x, z]) => box(g, .18, 1.4, .18, '#8b5a3c', x, .7, z));
+  const book = new THREE.Group(); book.position.set(0, 1.7, 0); book.rotation.y = -.15; g.add(book);
+  box(book, 1.5, .16, 1.1, hw.color || '#3aa0e0', 0, 0, 0);
+  box(book, 1.4, .1, 1.04, '#ffffff', .03, .1, 0, false);
+  const em = kit.emojiSprite(hw.emoji || '📒', hw.color || '#3aa0e0', 1.3); em.position.y = 3; g.add(em);
+  scene.add(g);
+  const b = { g, book, em, hw, label: null };
+  g.traverse(m => { m.userData.book = b; });
+  return b;
+});
+function labelBook(b) {
+  if (b.label) b.g.remove(b.label);
+  const n = b.hw.paragraphs ? b.hw.paragraphs.length : 0, d = progOf(b.hw.id).done.length;
+  b.label = kit.labelSprite(`${b.hw.th} ✅ ${d}/${n}`, .42);
+  b.label.position.y = 4; b.g.add(b.label);
+}
+
+/* =========================================================
+   Scene 2 — the speech stage (around x = SX)
+   ========================================================= */
+const SX = 70;
+box(scene, 22, .4, 18, '#7a5ca8', SX, -.2, 2);                          // hall floor
+box(scene, 22, 1.4, 18, '#5a3f85', SX, -1.1, 2);
+box(scene, 12, 1, 5, '#a8693a', SX, .5, -3);                            // stage
+box(scene, 12.2, .12, 5.2, '#c98a4b', SX, 1.04, -3, false);
+box(scene, 14, 8, .4, '#4a2a6a', SX, 4, -5.8);                          // back wall
+[-1, 1].forEach(s => {                                                  // curtains
+  for (let k = 0; k < 3; k++) box(scene, .7, 6.6, .5, k % 2 ? '#b8263a' : '#d63a4f', SX + s * (5.4 + k * .55), 4.3, -5.1 + k * .3);
+});
+box(scene, 13, .8, .6, '#d63a4f', SX, 7.6, -5.1);
+const stageSign = kit.labelSprite('🎤 SPEECH DAY', .7, { bg: '#f4c430', fg: '#4a2a6a' });
+stageSign.position.set(SX, 6.4, -5.4); scene.add(stageSign);
+// podium + microphone
+box(scene, 1.3, 1.5, .9, '#8b5a3c', SX + 1.4, 1.85, -2.4);
+box(scene, 1.5, .14, 1.1, '#c98a4b', SX + 1.4, 2.65, -2.4);
+box(scene, .08, 1.9, .08, '#333333', SX, 2, -1.6, false);               // mic stand in front of Summer
+box(scene, .22, .34, .22, '#222222', SX, 3.05, -1.55, false);
+const star = kit.makeSummer();
+star.g.scale.setScalar(1.25); star.g.position.set(SX, 1.1, -2.2); scene.add(star.g);
+// the cue picture that floats over the stage
+let cueSprite = null;
+function showCueSprite(emoji) {
+  if (cueSprite) scene.remove(cueSprite);
+  cueSprite = kit.emojiSprite(emoji, '#ffffff', 1.8); cueSprite.position.set(SX - 2.8, 3.2, -2.6); scene.add(cueSprite);
+}
+// audience: judges at a table + friends, facing the stage
+const audience = [];
+function person(x, z, shirt, judge) {
+  const g = new THREE.Group(); g.position.set(x, 0, z);
+  box(g, .7, .9, .5, shirt, 0, .95, 0);
+  box(g, .6, .6, .6, '#ffd8b5', 0, 1.75, 0);
+  box(g, .64, .2, .64, ['#3a2a1a', '#6b4423', '#1a1a1a'][audience.length % 3], 0, 2.1, 0);
+  box(g, .5, .5, .5, '#3a3a3a', 0, .25, 0);                             // seat
+  if (judge) { const c = kit.emojiSprite('⭐', '#f4c430', .45); c.position.set(.45, 1.2, -.4); g.add(c); }
+  scene.add(g); audience.push({ g, phase: Math.random() * 6 });
+}
+box(scene, 6, .2, 1.2, '#ffffff', SX, 1.2, 2.2); box(scene, 6, 1, .1, '#e0457a', SX, .7, 1.65);   // judges' table
+[-2, 0, 2].forEach(x => person(SX + x, 3, '#3f5a8a', true));
+[-4.5, -3, -1.5, 1.5, 3, 4.5].forEach((x, i) => person(SX + x, 5.5 + (i % 2) * .3, ['#e0457a', '#2fb36a', '#f2a20d', '#3aa0e0', '#8a5ce0', '#ef5a5a'][i], false));
+
+/* =========================================================
+   Reading out loud (English) with word highlight
+   ========================================================= */
+let enVoice = null;
+function pickVoice() {
+  const vs = 'speechSynthesis' in window ? speechSynthesis.getVoices() : [];
+  enVoice = vs.find(v => /en[-_]US/i.test(v.lang) && /Samantha|Google US|Aria|Jenny|Ava/i.test(v.name))
+    || vs.find(v => /en[-_]US/i.test(v.lang)) || vs.find(v => /^en/i.test(v.lang)) || null;
+}
+if ('speechSynthesis' in window) { pickVoice(); speechSynthesis.addEventListener('voiceschanged', pickVoice); }
+
+// A sentence → the spoken text + one span per word (blanks become ⭐ chips and a short pause)
+function buildLine(sentence) {
+  const host = document.createElement('div'); host.className = 'line';
+  const words = []; let tts = '';
+  sentence.split(/(\{[A-Z]+\})/).forEach(part => {
+    const m = part.match(/^\{([A-Z]+)\}$/);
+    if (m) {
+      const chip = document.createElement('span'); chip.className = 'blank';
+      chip.textContent = `⭐ ${(BLANKS[m[1]] || { th: m[1] }).th}`;
+      host.append(chip, ' '); tts += ', ';
+      return;
+    }
+    part.split(/\s+/).filter(Boolean).forEach(w => {
+      const el = document.createElement('span'); el.className = 'w'; el.textContent = w;
+      host.append(el, ' ');
+      words.push({ el, start: tts.length }); tts += w + ' ';
+    });
+  });
+  return { host, words, tts: tts.trim() };
+}
+
+let utter = null, hlTimer = null, fakeTimer = null, gotBoundary = false, line = null;
+function highlightAt(i) {
+  if (!line) return;
+  line.words.forEach(w => { w.el.classList.toggle('on', false); w.el.classList.toggle('past', w.start < i); });
+  const cur = [...line.words].reverse().find(w => w.start <= i);
+  if (cur) { cur.el.classList.remove('past'); cur.el.classList.add('on'); }
+}
+function stopSpeech() {
+  utter = null; clearInterval(hlTimer); clearTimeout(fakeTimer);
+  if ('speechSynthesis' in window) speechSynthesis.cancel();
+}
+// Some browsers never send word events → move the highlight by an estimate instead
+function estimateHighlight(L, rate) {
+  const t0 = performance.now(), perChar = 68 / rate;
+  clearInterval(hlTimer);
+  hlTimer = setInterval(() => { if (!gotBoundary) highlightAt((performance.now() - t0) / perChar); }, 80);
+  return L.tts.length * perChar;
+}
+function readLine(onEnd) {
+  stopSpeech();
+  const L = line; gotBoundary = false;
+  if (!kit.soundOn() || !('speechSynthesis' in window)) {          // sound off: still light the words up
+    const ms = estimateHighlight(L, S.rate);
+    fakeTimer = setTimeout(() => { clearInterval(hlTimer); highlightAt(1e9); onEnd(); }, ms + 300);
+    return;
+  }
+  const u = new SpeechSynthesisUtterance(L.tts);
+  u.lang = 'en-US'; if (enVoice) u.voice = enVoice; u.rate = S.rate;
+  u.onstart = () => estimateHighlight(L, S.rate);
+  u.onboundary = e => { if (e.name && e.name !== 'word') return; gotBoundary = true; highlightAt(e.charIndex); };
+  const done = () => { if (utter !== u) return; utter = null; clearInterval(hlTimer); highlightAt(1e9); onEnd(); };
+  u.onend = done;
+  u.onerror = e => { if (e.error !== 'interrupted' && e.error !== 'canceled') done(); };
+  utter = u; speechSynthesis.speak(u);
+}
+
+/* =========================================================
+   Practice state + panel
+   ========================================================= */
+const S = { hw: null, p: 0, s: 0, mode: 'listen', playing: false, waiting: false, rate: .8, hint: false };
+const $ = id => document.getElementById(id);
+const scriptEl = $('script'), bodyEl = $('body'), cuesEl = $('cues'), metaEl = $('meta'), turnEl = $('turn');
+const para = () => S.hw.paragraphs[S.p];
+
+function renderCues() {
+  const d = progOf(S.hw.id).done;
+  cuesEl.innerHTML = '';
+  S.hw.paragraphs.forEach((pp, i) => {
+    const b = document.createElement('button');
+    b.className = 'cue' + (d.includes(i) ? ' done' : '') + (i === S.p ? ' now' : '');
+    b.textContent = pp.cue; b.title = pp.th;
+    b.onclick = () => goParagraph(i);
+    cuesEl.appendChild(b);
+  });
+}
+function render() {
+  renderCues();
+  const pp = para();
+  metaEl.textContent = `${pp.cue} ย่อหน้า ${S.p + 1}/${S.hw.paragraphs.length} · ${pp.th}`;
+  bodyEl.innerHTML = '';
+  if (S.mode === 'stage') {
+    line = null;
+    const big = document.createElement('div'); big.className = 'bigcue'; big.textContent = pp.cue;
+    bodyEl.appendChild(big);
+    const h = document.createElement('div'); h.className = 'hint';
+    if (S.hint) pp.sentences.forEach(s => { const p = document.createElement('p'); p.append(...buildLine(s).host.childNodes); h.appendChild(p); });
+    else h.textContent = '💡 จำไม่ได้ กด "ใบ้" ได้เลยนะ · Tap hint if you forget';
+    bodyEl.appendChild(h);
+  } else {
+    line = buildLine(pp.sentences[S.s]);
+    bodyEl.appendChild(line.host);
+  }
+  turnEl.classList.toggle('show', S.mode === 'repeat' && S.waiting);
+  $('saidBtn').classList.toggle('glow', S.waiting);
+  $('playBtn').textContent = S.playing ? '⏸ หยุด' : '▶ ฟัง';
+  $('speedBtn').textContent = S.rate < .8 ? '🐢 ช้า' : '🐇 ปกติ';
+  showCueSprite(pp.cue);
+}
+
+function markDone(i) {
+  const d = progOf(S.hw.id).done;
+  if (!d.includes(i)) { d.push(i); saveProg(); }
+  fx.burst(SX, 4, -2, ['#f4c430', '#2fb36a', '#ffffff'], 18);
+  kit.tones([660, 880, 1046], .07, 'triangle', .1);
+}
+// move to the next sentence; returns false at the very end
+function step(dir) {
+  const ps = S.hw.paragraphs;
+  let p = S.p, s = S.s + dir;
+  if (s >= ps[p].sentences.length) { if (p + 1 >= ps.length) return false; p++; s = 0; }
+  if (s < 0) { if (p === 0) return false; p--; s = ps[p].sentences.length - 1; }
+  S.p = p; S.s = s; return true;
+}
+function goParagraph(i) {
+  stopSpeech(); S.p = i; S.s = 0; S.waiting = false; S.playing = false;
+  render();
+  if (S.mode === 'repeat') speakForRepeat();
+}
+
+// 👂 listen: read on and on until the end (or ⏸)
+function listenLoop() {
+  render();
+  readLine(() => {
+    if (!S.playing) return;
+    const lastOfPara = S.s === para().sentences.length - 1;
+    fakeTimer = setTimeout(() => {
+      if (!S.playing) return;
+      if (!step(1)) { S.playing = false; render(); caption('ฟังจบแล้ว! เก่งมาก 👏', true); kit.cheer(); clapT = 2.5; return; }
+      listenLoop();
+    }, lastOfPara ? 1100 : 550);
+  });
+}
+// 🗣️ repeat: read one sentence, then wait for Summer
+function speakForRepeat() {
+  S.waiting = false; render();
+  readLine(() => { S.waiting = true; render(); kit.tones([523, 784], .06, 'sine', .08); });
+}
+
+function setMode(m) {
+  stopSpeech(); S.mode = m; S.playing = false; S.waiting = false; S.hint = false;
+  document.querySelectorAll('#speechDock .w-mode[data-mode]').forEach(b => b.classList.toggle('on', b.dataset.mode === m));
+  document.querySelectorAll('[data-for]').forEach(b => { b.hidden = !b.dataset.for.split(' ').includes(m); });
+  $('playRecBtn').hidden = m !== 'stage' || !recUrl;
+  $('timer').textContent = '';
+  render();
+  if (m === 'listen') caption('กด ▶ ฟัง แล้วฟังทีละประโยคนะ 👂', true);
+  if (m === 'repeat') { caption('ฟังแล้วพูดตาม พูดเสร็จกด ✅', true); setTimeout(() => S.mode === 'repeat' && speakForRepeat(), 1800); }
+  if (m === 'stage') { S.s = 0; render(); caption('ขึ้นเวทีแล้ว! ดูรูปแล้วพูดเองเลย 🎭', true); }
+}
+
+$('playBtn').onclick = () => {
+  if (S.playing) { S.playing = false; stopSpeech(); render(); return; }
+  S.playing = true; listenLoop();
+};
+$('prevBtn').onclick = () => { const was = S.playing; stopSpeech(); S.playing = false; step(-1); render(); if (was) { S.playing = true; listenLoop(); } };
+$('nextBtn').onclick = () => { const was = S.playing; stopSpeech(); S.playing = false; step(1); render(); if (was) { S.playing = true; listenLoop(); } };
+$('speedBtn').onclick = () => { S.rate = S.rate < .8 ? .9 : .65; render(); };
+$('againBtn').onclick = () => speakForRepeat();
+$('saidBtn').onclick = () => {
+  stopSpeech();
+  if (S.s === para().sentences.length - 1) markDone(S.p);
+  else kit.tones([784], .05, 'triangle', .08);
+  talkT = .6;
+  if (!step(1)) { S.waiting = false; render(); caption('พูดตามครบทั้งเรื่องแล้ว! สุดยอด 🎉', true); kit.cheer(); clapT = 3; return; }
+  speakForRepeat();
+};
+
+// 🎭 stage
+$('pPrev').onclick = () => { if (S.p > 0) { S.p--; S.hint = false; render(); } };
+$('pNext').onclick = () => {
+  markDone(S.p);
+  if (S.p < S.hw.paragraphs.length - 1) { S.p++; S.hint = false; render(); }
+  else caption('ย่อหน้าสุดท้ายแล้ว พูดจบกด 👏 จบ!', false);
+};
+$('hintBtn').onclick = () => { S.hint = !S.hint; render(); };
+
+// recording (stays on this device only) + speech timer
+let rec = null, recUrl = null, t0 = 0, timerT = null;
+function fmt(ms) { const s = Math.round(ms / 1000); return `⏱ ${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; }
+function startTimer() { t0 = performance.now(); clearInterval(timerT); timerT = setInterval(() => { $('timer').textContent = fmt(performance.now() - t0); }, 250); }
+async function startRec() {
+  startTimer();
+  $('recBtn').classList.add('rec'); $('recBtn').textContent = '⏹ หยุดอัด';
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const chunks = [];
+    rec = new MediaRecorder(stream);
+    rec.ondataavailable = e => chunks.push(e.data);
+    rec.onstop = () => {
+      stream.getTracks().forEach(t => t.stop());
+      if (recUrl) URL.revokeObjectURL(recUrl);
+      recUrl = URL.createObjectURL(new Blob(chunks, { type: rec.mimeType }));
+      $('playRecBtn').hidden = S.mode !== 'stage';
+      rec = null;
+    };
+    rec.start();
+    caption('กำลังอัดเสียง 🎙️ พูดได้เลย!', false);
+  } catch (e) {
+    caption('อัดเสียงไม่ได้ ไม่เป็นไร ซ้อมต่อได้เลย ⏱', false);
+  }
+}
+function stopRec() {
+  clearInterval(timerT);
+  $('recBtn').classList.remove('rec'); $('recBtn').textContent = '🎙️ อัด';
+  if (rec && rec.state !== 'inactive') rec.stop();
+  recording = false;
+}
+let recording = false;
+$('recBtn').onclick = () => { if (recording) stopRec(); else { recording = true; startRec(); } };
+$('playRecBtn').onclick = () => { if (recUrl) { stopSpeech(); new Audio(recUrl).play(); } };
+$('endBtn').onclick = () => {
+  const took = recording ? performance.now() - t0 : 0;
+  if (recording) stopRec();
+  markDone(S.p);
+  const p = progOf(S.hw.id); p.stage++; saveProg();
+  clapT = 4; kit.cheer();
+  fx.burst(SX, 5, 1, ['#f4c430', '#e0457a', '#3aa0e0', '#ffffff'], 40);
+  caption(took ? `เยี่ยมมาก! พูดจบใน ${fmt(took).slice(2)} นาที 👏 (ขึ้นเวทีครั้งที่ ${p.stage})` : `เยี่ยมมาก! ทุกคนปรบมือให้ 👏 (ขึ้นเวทีครั้งที่ ${p.stage})`, true, 5000);
+  render();
+};
+
+/* =========================================================
+   Switching between the classroom and a homework
+   ========================================================= */
+const classDock = $('classDock'), speechDock = $('speechDock');
+function goClass() {
+  stopSpeech(); if (recording) stopRec();
+  S.hw = null; S.playing = false;
+  scriptEl.classList.remove('show'); speechDock.hidden = true; classDock.hidden = false;
+  classDock.innerHTML = '';
+  HW.forEach((hw, i) => {
+    const b = document.createElement('button'); b.className = 'w-btn big';
+    b.textContent = `${hw.emoji} ${hw.th}`; b.onclick = () => openHomework(i);
+    classDock.appendChild(b);
+  });
+  books.forEach(labelBook);
+  summer.g.position.set(-5.5, 0, 2.5); summer.g.rotation.y = .5;
+  kit.flyTo(stage, portrait() ? new THREE.Vector3(0, 11, 21) : new THREE.Vector3(0, 7.5, 14), new THREE.Vector3(0, portrait() ? 1.2 : 2.2, -1.5), 1100);
+  if (!HW.length) caption('ยังไม่มีการบ้าน 🎉', true);
+}
+function openHomework(i) {
+  const hw = HW[i];
+  if (hw.type !== 'speech') { caption('การบ้านแบบนี้ยังไม่รองรับ — บอก Claude ให้เพิ่มได้นะ', false); return; }
+  S.hw = hw; S.p = 0; S.s = 0;
+  const d = progOf(hw.id).done;                           // continue from the first paragraph not practised yet
+  const firstTodo = hw.paragraphs.findIndex((_, k) => !d.includes(k));
+  if (firstTodo > 0) S.p = firstTodo;
+  classDock.hidden = true; speechDock.hidden = false; scriptEl.classList.add('show');
+  $('playRecBtn').hidden = true;
+  setMode('listen');
+  kit.flyTo(stage, portrait() ? new THREE.Vector3(SX, 13, 24) : new THREE.Vector3(SX + 1, 10, 16), new THREE.Vector3(SX, portrait() ? 4.6 : 4.2, -1.5), 1300);
+}
+$('toClass').onclick = goClass;
+document.querySelectorAll('#speechDock .w-mode[data-mode]').forEach(b => { b.onclick = () => setMode(b.dataset.mode); });
+
+/* =========================================================
+   Taps + loop
+   ========================================================= */
+const raycaster = new THREE.Raycaster(), ndc = new THREE.Vector2();
+const canvas = stage.renderer.domElement;
+let press = null, clapT = 0, talkT = 0, cheerT = 0;
+canvas.addEventListener('pointerdown', e => { press = { x: e.clientX, y: e.clientY, t: performance.now() }; });
+canvas.addEventListener('pointerup', e => {
+  if (!press) return;
+  const tap = Math.hypot(e.clientX - press.x, e.clientY - press.y) < 10 && performance.now() - press.t < 500;
+  press = null;
+  if (!tap) return;
+  ndc.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
+  raycaster.setFromCamera(ndc, camera);
+  if (!S.hw) {
+    const hit = raycaster.intersectObjects(books.map(b => b.g), true)[0];
+    if (hit) { openHomework(HW.indexOf(hit.object.userData.book.hw)); return; }
+    if (raycaster.intersectObject(summer.g, true).length) { cheerT = 1.2; kit.tones([660, 880], .07); }
+  } else if (raycaster.intersectObject(star.g, true).length) { cheerT = 1.2; kit.tones([660, 880], .07); }
+});
+
+camera.position.set(0, 12, 24); controls.target.set(0, 2, 0);
+goClass();
+setTimeout(() => HW.length && caption('เลือกการบ้านที่จะฝึกเลย 📒', true), 800);
+
+stage.start((dt, time) => {
+  books.forEach((b, i) => { b.em.position.y = 3 + Math.sin(time * 2 + i) * .12; });
+  if (cueSprite) cueSprite.position.y = 3.2 + Math.sin(time * 2) * .15;
+  clapT -= dt; talkT -= dt; cheerT -= dt;
+  audience.forEach(a => { a.g.position.y = clapT > 0 ? Math.abs(Math.sin(time * 10 + a.phase)) * .3 : 0; });
+  if (clapT > 0 && Math.random() < dt * 14) kit.tones([1400 + Math.random() * 900], .02, 'square', .025);
+  const speaking = !!utter || talkT > 0;
+  kit.poseSummer(summer, time, cheerT > 0 ? 'cheer' : 'idle');
+  kit.poseSummer(star, time, clapT > 0 || cheerT > 0 ? 'cheer' : 'idle');
+  star.head.rotation.x = speaking ? Math.sin(time * 14) * .08 : 0;
+  fx.update(dt);
+});
+
+// test hooks
+window.__hw = { open: openHomework, setMode, goClass, get state() { return { p: S.p, s: S.s, mode: S.mode, waiting: S.waiting, done: S.hw && progOf(S.hw.id).done.slice() }; }, said: () => $('saidBtn').click(), end: () => $('endBtn').click() };
+window.__worldReady = true;
+</script>
+</body>
+</html>
