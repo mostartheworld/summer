@@ -312,7 +312,8 @@
 <script type="module">
 /* =========================================================
    Summer's World — 3D voxel town on a floating island
-   - The island has 3 floors: ground (front: plaza + lake), terrace (back) and a hill on top, joined by stairs
+   - Two big floors: the ground (front: plaza + lake) and a high upper deck (back) with a small hill on top.
+     Glass lifts (LIFTS) carry Summer between the ground and the upper deck; stairs go up the hill
    - Each building = one activity page (PLACES below); each has its own look (style → BUILD)
    - Drag = rotate camera, pinch/scroll = zoom. While the island turns, signs swing and Summer turns to wave
    - Walk: tap the ground (path-finding), arrow keys/WASD, d-pad, or tap the round mini-map
@@ -326,18 +327,22 @@ const kit = WorldKit(THREE, OrbitControls);   // shared Summer model, voxel help
 
 // ── World layout (tile grid; 1 tile = 1 unit in 3D) ──
 const MAP_W = 40, MAP_H = 33;
-const LEVEL_H = 1.5;                       // height of one floor
+const FLOOR_Y = [0, 4, 5.5];               // height of each floor: ground, upper deck, hill
 const PLAZA = { x: 18, y: 17, w: 5, h: 5 };
 const FOUNTAIN = { x: 20, y: 19 };
 const LAKE = { cx: 9.5, cy: 20.5, rx: 3, ry: 2 };
 const SPAWN = { x: 20.5, y: 22.5 };
-// Floor of each tile: 0 = ground (front), 1 = terrace (back), 2 = hill (on top of the terrace)
+// Floor of each tile: 0 = ground (front), 1 = upper deck (back), 2 = hill (on top of the upper deck)
 function levelOf(x, y) {
   if (x >= 14 && x <= 25 && y <= 6 && !((x === 14 || x === 25) && y === 6)) return 2;
   return y <= (x < 6 || x > 33 ? 10 : 11) ? 1 : 0;
 }
-// Stair tiles sit on the front edge of the upper floor and go down towards the front (+y)
-const STAIRS = [[19, 6], [20, 6], [8, 11], [9, 11], [19, 11], [20, 11], [30, 11], [31, 11]];
+// Stair tiles sit on the front edge of the upper floor and go down towards the front (+y) — hill ↔ upper deck
+const STAIRS = [[19, 6], [20, 6]];
+// Glass lifts between the ground and the upper deck: the bottom tile [x, y]; the top landing is the tile behind it (y - 1)
+const LIFTS = [[8, 12], [19, 12], [30, 12]];
+// A waterfall pours off the upper deck into a little pool (tiles x..x+1, y 12..13)
+const FALLS = { x: 13 };
 
 // Buildings are 3×2 tiles; the door is the tile just below the middle (x+1, y+2)
 // style = which builder in BUILD draws it (roof shape, decorations)
@@ -360,7 +365,7 @@ const PLACES = [
 ];
 PLACES.forEach(p => { p.w = 3; p.h = 2; p.door = { x: p.x + 1, y: p.y + 2 }; p.level = levelOf(p.x, p.y); });
 
-const T = { GRASS: 0, PATH: 1, PLAZA: 2, WATER: 3, TREE: 4, BUILDING: 5, FOUNTAIN: 6, STAIR: 7 };
+const T = { GRASS: 0, PATH: 1, PLAZA: 2, WATER: 3, TREE: 4, BUILDING: 5, FOUNTAIN: 6, STAIR: 7, LIFT: 8 };
 const BLOCKING = new Set([T.WATER, T.TREE, T.BUILDING, T.FOUNTAIN]);
 
 // ── Save data (localStorage — per device only) ──
@@ -400,15 +405,24 @@ for (let y = 0; y < MAP_H; y++) for (let x = 0; x < MAP_W; x++) {
 }
 grid[FOUNTAIN.y][FOUNTAIN.x] = T.FOUNTAIN;
 STAIRS.forEach(([x, y]) => { grid[y][x] = T.STAIR; });
+LIFTS.forEach(([x, y]) => { grid[y][x] = T.LIFT; });
+for (let y = 9; y <= 13; y++) for (let x = FALLS.x; x <= FALLS.x + 1; x++) grid[y][x] = T.WATER;   // stream (deck) + pool (ground)
 PLACES.forEach(p => {
   for (let y = p.y; y < p.y + p.h; y++) for (let x = p.x; x < p.x + p.w; x++) grid[y][x] = T.BUILDING;
 });
 
 // Can you step from tile a to the next tile b? Same floor = yes.
-// A different floor only through a stair: in at its top end (same floor) or its bottom end (one floor down).
+// A different floor only through a stair (in at its top end or its bottom end)
+// or a lift (in from the ground in front of it, or from the upper-deck landing behind it).
 const isStair = (x, y) => grid[y][x] === T.STAIR;
+const isLift = (x, y) => grid[y][x] === T.LIFT;
 function canStep(ax, ay, bx, by) {
   if (ax === bx && ay === by) return true;
+  if (isLift(ax, ay) || isLift(bx, by)) {
+    if (isLift(ax, ay) && isLift(bx, by)) return false;
+    const [lx, ly, ox, oy] = isLift(ax, ay) ? [ax, ay, bx, by] : [bx, by, ax, ay];
+    return ox === lx && ((oy === ly + 1 && lvl[oy][ox] === 0) || (oy === ly - 1 && lvl[oy][ox] === 1));
+  }
   const la = lvl[ay][ax], lb = lvl[by][bx], sa = isStair(ax, ay), sb = isStair(bx, by);
   if (!sa && !sb) return la === lb;
   if (sa && sb) return la === lb && ay === by;           // two stair lanes side by side
@@ -451,7 +465,7 @@ const rand = mulberry32(2026);
 function nearOpenArea(x, y) {
   for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
     const nx = x + dx, ny = y + dy;
-    if (inMap(nx, ny) && [T.PATH, T.PLAZA, T.BUILDING, T.STAIR].includes(grid[ny][nx])) return true;
+    if (inMap(nx, ny) && [T.PATH, T.PLAZA, T.BUILDING, T.STAIR, T.LIFT].includes(grid[ny][nx])) return true;
   }
   return false;
 }
@@ -466,11 +480,16 @@ for (let y = 0; y < MAP_H; y++) for (let x = 0; x < MAP_W; x++) {
 
 const blocked = (x, y) => !inMap(x, y) || BLOCKING.has(grid[y][x]);
 const blockedAt = (px, py) => blocked(Math.floor(px), Math.floor(py));
-// Height of the ground at a point (stairs are a smooth ramp)
+// Height of the ground at a point (stairs are a smooth ramp, a lift tile is wherever its cabin is)
+const lifts = [];
+const liftAt = (x, y) => lifts.find(l => l.x === x && l.y === y);
 function groundY(px, py) {
   const x = Math.floor(px), y = Math.floor(py);
   if (!inMap(x, y)) return 0;
-  return (isStair(x, y) ? lvl[y][x] - (py - y) : lvl[y][x]) * LEVEL_H;
+  if (isLift(x, y)) return liftAt(x, y).cabinY;
+  if (!isStair(x, y)) return FLOOR_Y[lvl[y][x]];
+  const lo = FLOOR_Y[lvl[y][x] - 1], hi = FLOOR_Y[lvl[y][x]];
+  return lo + (hi - lo) * (1 - (py - y));
 }
 
 // Tile coords → 3D coords (map centred on the origin; tile y becomes 3D z)
@@ -568,6 +587,7 @@ const TILE_STYLE = {
   [T.PATH]: { h: .34, colors: ['#f3d9a4', '#efd29a'] },
   [T.PLAZA]: { h: .38, colors: ['#f2e6d0', '#e6d6bb'] },
   [T.FOUNTAIN]: { h: .38, colors: ['#f2e6d0'] },
+  [T.LIFT]: { h: .34, colors: ['#c0c6cf'] },
 };
 const groundMeshes = [];   // what a tap on the ground can hit
 let snowCover;
@@ -578,7 +598,7 @@ let snowCover;
   snowCover = new THREE.InstancedMesh(UNIT, snowMat, tiles.length);
   ground.receiveShadow = snowCover.receiveShadow = true;
   tiles.forEach(([x, y], i) => {
-    const st = TILE_STYLE[grid[y][x]], base = lvl[y][x] * LEVEL_H;
+    const st = TILE_STYLE[grid[y][x]], base = FLOOR_Y[lvl[y][x]];
     dummy.position.set(WX(x + .5), base - .3 + st.h / 2, WZ(y + .5));
     dummy.scale.set(1, st.h, 1); dummy.updateMatrix();
     ground.setMatrixAt(i, dummy.matrix);
@@ -590,15 +610,21 @@ let snowCover;
   island.add(ground, snowCover);
   groundMeshes.push(ground);
 
-  // Cliffs under the terrace and the hill: brown dirt columns, striped every other tile
-  const raised = tiles.filter(([x, y]) => lvl[y][x] > 0);
-  const cliffs = new THREE.InstancedMesh(UNIT, new THREE.MeshLambertMaterial({ color: 0xffffff }), raised.length);
+  // Cliffs under the upper deck and the hill: layered rock bands (only the outside tiles need them)
+  const STRATA = ['#9c6a3b', '#b98149', '#c98f55', '#a8733f', '#d6a066', '#b98149'];
+  const lowerNext = (x, y) => [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => !inMap(x + dx, y + dy) || lvl[y + dy][x + dx] < lvl[y][x]);
+  const bands = [];
+  for (let y = 0; y < MAP_H; y++) for (let x = 0; x < MAP_W; x++) {
+    if (!lvl[y][x] || isStair(x, y) || !lowerNext(x, y)) continue;
+    const h = FLOOR_Y[lvl[y][x]];
+    for (let b = 0; b < h; b++) bands.push([x, y, b, Math.min(1, h - b)]);
+  }
+  const cliffs = new THREE.InstancedMesh(UNIT, new THREE.MeshLambertMaterial({ color: 0xffffff }), bands.length);
   cliffs.receiveShadow = cliffs.castShadow = true;
-  raised.forEach(([x, y], i) => {
-    const h = lvl[y][x] * LEVEL_H;
-    dummy.position.set(WX(x + .5), -.3 + h / 2, WZ(y + .5)); dummy.scale.set(1, h, 1); dummy.updateMatrix();
+  bands.forEach(([x, y, b, bh], i) => {
+    dummy.position.set(WX(x + .5), -.3 + b + bh / 2, WZ(y + .5)); dummy.scale.set(1, bh, 1); dummy.updateMatrix();
     cliffs.setMatrixAt(i, dummy.matrix);
-    cliffs.setColorAt(i, col.set((x + y) % 2 ? '#c98f55' : '#b98149'));
+    cliffs.setColorAt(i, col.set(shade(STRATA[b % STRATA.length], (x + y) % 2 ? 1 : .94)));
   });
   island.add(cliffs);
   groundMeshes.push(cliffs);
@@ -607,9 +633,9 @@ let snowCover;
   const steps = new THREE.InstancedMesh(UNIT, new THREE.MeshLambertMaterial({ color: 0xffffff }), STAIRS.length * 4);
   steps.receiveShadow = steps.castShadow = true;
   STAIRS.forEach(([x, y], i) => {
-    const base = (lvl[y][x] - 1) * LEVEL_H;
+    const base = FLOOR_Y[lvl[y][x] - 1], rise = FLOOR_Y[lvl[y][x]] - base;
     for (let k = 0; k < 4; k++) {
-      const top = base + (k + 1) * LEVEL_H / 4;
+      const top = base + (k + 1) * rise / 4;
       dummy.position.set(WX(x + .5), (top - .3) / 2, WZ(y + .875 - .25 * k)); dummy.scale.set(1, top + .3, .25); dummy.updateMatrix();
       steps.setMatrixAt(i * 4 + k, dummy.matrix);
       steps.setColorAt(i * 4 + k, col.set(k % 2 ? '#e3d2b2' : '#efe3cb'));
@@ -623,9 +649,11 @@ let snowCover;
   for (let y = 0; y < MAP_H; y++) for (let x = 0; x < MAP_W; x++) if (grid[y][x] === T.WATER) water.push([x, y]);
   const waterMesh = new THREE.InstancedMesh(UNIT, new THREE.MeshLambertMaterial({ color: '#6cc6ec', transparent: true, opacity: .85 }), water.length);
   water.forEach(([x, y], i) => {
-    dummy.position.set(WX(x + .5), -.24, WZ(y + .5)); dummy.scale.set(1, .12, 1); dummy.updateMatrix();
+    const base = FLOOR_Y[lvl[y][x]];
+    dummy.position.set(WX(x + .5), base - .24, WZ(y + .5)); dummy.scale.set(1, .12, 1); dummy.updateMatrix();
     waterMesh.setMatrixAt(i, dummy.matrix);
-    if ((x + y) % 3 === 0) {
+    if (base) box(island, 1, .06, 1, '#4f9fc4', WX(x + .5), base - .33, WZ(y + .5), false);   // stream bed
+    else if ((x + y) % 3 === 0) {
       box(island, .45, .04, .45, '#5fb36a', WX(x + .4), -.17, WZ(y + .45), false);
       box(island, .14, .12, .14, '#ff9ec4', WX(x + .5), -.1, WZ(y + .4), false);
     }
@@ -650,7 +678,7 @@ let treeSnow;
     const r = mulberry32(x * 1000 + y), kind = Math.floor(r() * 10);
     const style = TREE_COLORS[kind < 4 ? 0 : kind < 6 ? 1 : kind < 8 ? 2 : 3];
     const s = .85 + r() * .3, rot = r() * Math.PI / 2;
-    const cx = WX(x + .5), cz = WZ(y + .5), base = lvl[y][x] * LEVEL_H;
+    const cx = WX(x + .5), cz = WZ(y + .5), base = FLOOR_Y[lvl[y][x]];
     dummy.rotation.set(0, rot, 0);
     dummy.position.set(cx, base + .45 * s, cz); dummy.scale.set(.22 * s, .9 * s, .22 * s); dummy.updateMatrix();
     trunks.setMatrixAt(i, dummy.matrix);
@@ -677,7 +705,7 @@ let treeSnow;
   spots.forEach(([x, y]) => {
     const r = mulberry32(x * 77 + y * 3);
     for (let k = 0; k < 3; k++) {
-      dummy.position.set(WX(x + .2 + r() * .6), lvl[y][x] * LEVEL_H + .1, WZ(y + .2 + r() * .6)); dummy.scale.set(.13, .13, .13); dummy.updateMatrix();
+      dummy.position.set(WX(x + .2 + r() * .6), FLOOR_Y[lvl[y][x]] + .1, WZ(y + .2 + r() * .6)); dummy.scale.set(.13, .13, .13); dummy.updateMatrix();
       heads.setMatrixAt(fi, dummy.matrix);
       heads.setColorAt(fi++, col.set(k ? flowers[y][x] : FLOWER_COLORS[(x + y) % FLOWER_COLORS.length]));
     }
@@ -707,9 +735,97 @@ function lamp(x, z, y0, light) {
 });
 // A lamp on each side of every staircase (at the top)
 for (let i = 0; i < STAIRS.length; i += 2) {
-  const [x1, y] = STAIRS[i], x2 = STAIRS[i + 1][0], top = lvl[y][x1] * LEVEL_H;
+  const [x1, y] = STAIRS[i], x2 = STAIRS[i + 1][0], top = FLOOR_Y[lvl[y][x1]];
   lamp(WX(x1 - .25), WZ(y + .3), top, false);
   lamp(WX(x2 + 1.25), WZ(y + .3), top, false);
+}
+
+// ── White fence along the edge of the upper deck and the hill (so you can see where the cliff is) ──
+{
+  const posts = [], rails = [];
+  for (let y = 0; y < MAP_H; y++) for (let x = 0; x < MAP_W; x++) {
+    if (!lvl[y][x] || isStair(x, y) || grid[y][x] === T.WATER) continue;
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const nx = x + dx, ny = y + dy;
+      if (!inMap(nx, ny) || lvl[ny][nx] >= lvl[y][x] || isStair(nx, ny) || isLift(nx, ny) || grid[ny][nx] === T.WATER) continue;
+      const top = FLOOR_Y[lvl[y][x]], ex = WX(x + .5 + dx * .44), ez = WZ(y + .5 + dy * .44);
+      posts.push([ex + dy * .44, top, ez + dx * .44], [ex - dy * .44, top, ez - dx * .44]);
+      rails.push([ex, top + .5, ez, dx], [ex, top + .28, ez, dx]);
+    }
+  }
+  const fenceMat = mat('#fff8ea');
+  const postMesh = new THREE.InstancedMesh(UNIT, fenceMat, posts.length), railMesh = new THREE.InstancedMesh(UNIT, fenceMat, rails.length);
+  posts.forEach(([x, y, z], i) => { dummy.position.set(x, y + .3, z); dummy.scale.set(.09, .6, .09); dummy.updateMatrix(); postMesh.setMatrixAt(i, dummy.matrix); });
+  rails.forEach(([x, y, z, dx], i) => { dummy.position.set(x, y, z); dummy.scale.set(dx ? .05 : 1, .06, dx ? 1 : .05); dummy.updateMatrix(); railMesh.setMatrixAt(i, dummy.matrix); });
+  postMesh.castShadow = railMesh.castShadow = true;
+  island.add(postMesh, railMesh);
+
+  // Vines hanging down the front cliff
+  const r = mulberry32(31);
+  for (let x = 1; x < MAP_W - 1; x++) {
+    const y = [...Array(MAP_H).keys()].reverse().find(yy => lvl[yy][x] === 1);
+    if (y === undefined || !inMap(x, y + 1) || isLift(x, y + 1) || grid[y][x] === T.WATER || grid[y + 1][x] === T.WATER || r() > .35) continue;
+    const len = 1 + r() * 2, vx = WX(x + .2 + r() * .6), vz = WZ(y + 1) + .04;
+    box(island, .12, len, .05, '#4f9e4a', vx, FLOOR_Y[1] - .3 - len / 2, vz, false);
+    for (let k = 0; k < 3; k++) box(island, .16, .12, .05, '#6dba84', vx + (k % 2 ? .08 : -.08), FLOOR_Y[1] - .5 - k * len / 3, vz + .01, false);
+  }
+}
+
+// ── Waterfall: the stream on the upper deck pours over the edge into a pool ──
+const fallBits = [];
+{
+  const x0 = WX(FALLS.x + 1), z0 = WZ(12), top = FLOOR_Y[1];
+  const sheet = part(island, UNIT, new THREE.MeshLambertMaterial({ color: '#7fd0f2', transparent: true, opacity: .8 }), x0, (top - .38) / 2, z0 + .08, false);
+  sheet.scale.set(1.9, top + .02, .12);
+  for (let i = 0; i < 16; i++) fallBits.push({ m: box(island, .2, .45, .06, '#ffffff', x0 - .8 + (i % 8) * .23, 0, z0 + .16, false), ph: (i * .37) % 1, top, kind: 'drop' });
+  for (let i = 0; i < 6; i++) fallBits.push({ m: box(island, .3, .14, .3, '#ffffff', x0 - .75 + i * .3, -.12, z0 + .5, false), ph: i / 6, kind: 'foam' });
+  [[-.7, -.2], [.6, .1], [0, -.35]].forEach(([dx, dz]) => box(island, .45, .35, .4, '#9aa3ad', x0 + dx, top - .05, WZ(9) + .3 + dz));   // spring rocks
+}
+
+// ── Glass lifts between the ground and the upper deck ──
+// Walk in → the cabin carries Summer to the other floor → he walks out. If the cabin is on the other floor, it comes to fetch him.
+const glassMat = new THREE.MeshLambertMaterial({ color: '#9fdcff', transparent: true, opacity: .28, depthWrite: false });
+const cabinLightMat = glowMat('#fff6d8', '#ffe08a');
+LIFTS.forEach(([x, y]) => {
+  const top = FLOOR_Y[lvl[y - 1][x]], H = top + 2.6;
+  const g = new THREE.Group(); g.position.set(WX(x + .5), 0, WZ(y + .5)); island.add(g);
+  // yellow frame with a ring every metre; glass on the sides (front and back stay open to walk through)
+  [[-.5, -.5], [.5, -.5], [-.5, .5], [.5, .5]].forEach(([px, pz]) => box(g, .1, H, .1, '#ffd23f', px, H / 2, pz));
+  for (let b = 1; b < H; b++) [-.5, .5].forEach(px => box(g, .06, .06, 1.0, '#ffd23f', px, b, 0, false));
+  [-.5, .5].forEach(px => part(g, UNIT, glassMat, px, H / 2, 0, false).scale.set(.04, H, 1));
+  box(g, 1.25, .45, 1.25, '#3b4256', 0, H + .2, 0);
+  box(g, 1.35, .08, 1.35, '#ffd23f', 0, H - .02, 0);
+  const sign = emojiSprite('🛗', '#ffd23f', .9); sign.position.y = H + 1.0; g.add(sign);
+  const cabin = new THREE.Group(); g.add(cabin);
+  box(cabin, .92, .1, .92, '#4a4f63', 0, .03, 0);
+  box(cabin, .92, .08, .92, '#4a4f63', 0, 1.95, 0);
+  part(cabin, UNIT, cabinLightMat, 0, 1.89, 0, false).scale.set(.4, .05, .4);
+  [-.44, .44].forEach(px => {
+    part(cabin, UNIT, glassMat, px, 1.0, 0, false).scale.set(.04, 1.8, .9);
+    [.44, -.44].forEach(pz => box(cabin, .06, 1.9, .06, '#ffd23f', px, 1.0, pz, false));
+    box(cabin, .05, .05, .8, '#c0c6cf', px * .9, .85, 0, false);
+  });
+  const up = emojiSprite('⬆️', null, .5), down = emojiSprite('⬇️', null, .5);
+  up.position.y = down.position.y = 2.4; up.visible = down.visible = false; cabin.add(up, down);
+  const lift = { x, y, top, g, cabin, up, down, cabinY: 0, target: 0 };
+  g.traverse(o => { o.userData.lift = lift; });
+  lifts.push(lift);
+});
+const liftMoving = l => Math.abs(l.target - l.cabinY) > .001;
+function callLift(l, h) {
+  if (liftMoving(l) || Math.abs(l.cabinY - h) < .01) return;
+  l.target = h; tones([523, 659], .08);
+}
+function updateLifts(dt) {
+  lifts.forEach(l => {
+    const d = l.target - l.cabinY;
+    if (Math.abs(d) > .001) {
+      l.cabinY += Math.sign(d) * Math.min(Math.abs(d), dt * 1.8);
+      if (!liftMoving(l)) { l.cabinY = l.target; tones([1047, 1319], .12); }   // ding!
+    }
+    l.cabin.position.y = l.cabinY;
+    l.up.visible = d > .001; l.down.visible = d < -.001;
+  });
 }
 
 // Fountain with animated water drops (swapped for a Christmas tree at Christmas)
@@ -993,7 +1109,7 @@ function lightString(g, y, w = 2.9, d = 1.9) {
 const buildingGroups = [];
 function makeBuilding(p) {
   const g = new THREE.Group();
-  g.position.set(WX(p.x + 1.5), p.level * LEVEL_H, WZ(p.y + 1));
+  g.position.set(WX(p.x + 1.5), FLOOR_Y[p.level], WZ(p.y + 1));
   const { top, eave } = BUILD[p.style](g, p);
   lightString(g, eave);
   // floating sign + name + star
@@ -1131,7 +1247,7 @@ const critters = [
 // Critters stay on their own floor (no wandering off a cliff); ducks may swim
 function critterCanGo(c, px, py) {
   const x = Math.floor(px), y = Math.floor(py);
-  if (!inMap(x, y) || lvl[y][x] !== c.level || isStair(x, y)) return false;
+  if (!inMap(x, y) || lvl[y][x] !== c.level || isStair(x, y) || isLift(x, y)) return false;
   if (c.kind === 'duck' && grid[y][x] === T.WATER) return true;
   return !BLOCKING.has(grid[y][x]);
 }
@@ -1152,7 +1268,7 @@ const snowmen = [];
     const spot = freeSpot(sx, sy);
     if (!spot) return;
     const [x, y] = spot, g = new THREE.Group();
-    g.position.set(WX(x + .5), lvl[y][x] * LEVEL_H, WZ(y + .5));
+    g.position.set(WX(x + .5), FLOOR_Y[lvl[y][x]], WZ(y + .5));
     box(g, .7, .6, .7, '#fbfdff', 0, .3, 0);
     box(g, .52, .46, .52, '#fbfdff', 0, .83, 0);
     box(g, .4, .38, .4, '#fbfdff', 0, 1.25, 0);
@@ -1300,7 +1416,7 @@ function closeCard() {
 // Going in: remember where Summer stood, zoom the camera into the door, fade, then open the activity
 function enterPlace(place) {
   persist();
-  const door = new THREE.Vector3(WX(place.door.x + .5), place.level * LEVEL_H + 1, WZ(place.door.y + .5) - .6);
+  const door = new THREE.Vector3(WX(place.door.x + .5), FLOOR_Y[place.level] + 1, WZ(place.door.y + .5) - .6);
   kit.flyTo({ camera, controls }, door.clone().add(new THREE.Vector3(0, 1.2, 3)), door, 600);
   kit.fadeTo(place.href, 650);
 }
@@ -1456,7 +1572,7 @@ function handleTap(sx, sy) {
   hint.classList.add('hidden');
   ndc.set(sx / innerWidth * 2 - 1, -(sy / innerHeight) * 2 + 1);
   raycaster.setFromCamera(ndc, camera);
-  const tappable = [summer.g, ...critters.map(c => c.g), ...snowmen.filter(s => s.g.visible).map(s => s.g), ...buildingGroups];
+  const tappable = [summer.g, ...critters.map(c => c.g), ...snowmen.filter(s => s.g.visible).map(s => s.g), ...buildingGroups, ...lifts.map(l => l.g)];
   const hits = raycaster.intersectObjects(tappable, true);
   if (hits.length) {
     const o = hits[0].object.userData;
@@ -1471,6 +1587,7 @@ function handleTap(sx, sy) {
       return;
     }
     if (o.place) return walkTo(o.place.door.x, o.place.door.y);
+    if (o.lift) return walkTo(o.lift.x, o.lift.y);
   }
   // The ground: step slightly into the surface that was hit, then find the tile under that point
   const hit = raycaster.intersectObjects(groundMeshes, false)[0];
@@ -1488,12 +1605,12 @@ const miniBase = document.createElement('canvas');
   const PX = 4, g = miniBase.getContext('2d');
   miniBase.width = MAP_W * PX; miniBase.height = MAP_H * PX;
   const GRASS = ['#8fd16a', '#79bd55', '#65a843'];
-  const colorOf = { [T.PATH]: '#f3d9a4', [T.PLAZA]: '#f2e6d0', [T.FOUNTAIN]: '#7fd0f2', [T.WATER]: '#6cc6ec', [T.STAIR]: '#efe3cb' };
+  const colorOf = { [T.PATH]: '#f3d9a4', [T.PLAZA]: '#f2e6d0', [T.FOUNTAIN]: '#7fd0f2', [T.WATER]: '#6cc6ec', [T.STAIR]: '#efe3cb', [T.LIFT]: '#ffd23f' };
   for (let y = 0; y < MAP_H; y++) for (let x = 0; x < MAP_W; x++) {
     const t = grid[y][x];
     g.fillStyle = t === T.TREE ? '#4f9e4a' : colorOf[t] || GRASS[lvl[y][x]];
     g.fillRect(x * PX, y * PX, PX, PX);
-    if (y + 1 < MAP_H && lvl[y + 1][x] < lvl[y][x] && t !== T.STAIR) { g.fillStyle = '#8a5a30'; g.fillRect(x * PX, y * PX + PX - 1, PX, 1); }
+    if (y + 1 < MAP_H && lvl[y + 1][x] < lvl[y][x] && t !== T.STAIR && grid[y + 1][x] !== T.LIFT) { g.fillStyle = '#8a5a30'; g.fillRect(x * PX, y * PX + PX - 1, PX, 1); }
   }
   PLACES.forEach(p => { g.fillStyle = p.roof; g.fillRect(p.x * PX, p.y * PX, p.w * PX, p.h * PX); });
 }
@@ -1634,6 +1751,14 @@ function canStand(x, y) {
   for (const [ox, oy] of [[-R, -R], [R, -R], [-R, R], [R, R]]) {
     const tx = Math.floor(x + ox), ty = Math.floor(y + oy);
     if (blocked(tx, ty) || !canStep(cx, cy, tx, ty)) return false;
+    if (tx === cx && ty === cy) continue;
+    if (isLift(tx, ty)) {             // stepping into a lift: the cabin must be waiting on this floor (else call it)
+      const l = liftAt(tx, ty), h = groundY(player.x, player.y);
+      if (liftMoving(l) || Math.abs(l.cabinY - h) > .05) { callLift(l, h); return false; }
+    } else if (isLift(cx, cy)) {      // stepping out: only onto the floor the cabin is at
+      const l = liftAt(cx, cy);
+      if (liftMoving(l) || Math.abs(FLOOR_Y[lvl[ty][tx]] - l.cabinY) > .05) return false;
+    }
   }
   return true;
 }
@@ -1643,6 +1768,7 @@ const yawToCamera = (x, z) => Math.atan2(camera.position.x - x, camera.position.
 let lastAz = 0, spin = 0, sway = 0;
 
 function update(dt, time) {
+  updateLifts(dt);
   // How fast is the island being turned? (used to swing signs and make everyone look at the camera)
   const az = controls.getAzimuthalAngle();
   let dAz = az - lastAz; lastAz = az;
@@ -1651,10 +1777,34 @@ function update(dt, time) {
   const turning = started && Math.abs(spin) > .35;
   sway += (THREE.MathUtils.clamp(-spin * .25, -.45, .45) - sway) * Math.min(1, dt * 4);
 
+  // Lifts: step in → glide to the middle of the cabin → ride to the other floor → step out (keys ignored meanwhile)
+  const ptx = Math.floor(player.x), pty = Math.floor(player.y), inLift = isLift(ptx, pty) ? liftAt(ptx, pty) : null;
+  if (!inLift) player.rideDone = false;
+  if (inLift && !player.rideDone && !player.ride) {
+    player.ride = { lift: inLift, stage: 'board' };
+    player.route = [{ x: inLift.x + .5, y: inLift.y + .5 }, ...player.route.filter(w => !isLift(Math.floor(w.x), Math.floor(w.y)))];
+  }
+  const ride = player.ride;
+  if (ride) {
+    const l = ride.lift;
+    if (ride.stage === 'board' && Math.hypot(player.x - l.x - .5, player.y - l.y - .5) < .03) {
+      ride.stage = 'ride'; ride.up = l.cabinY < .01; player.rideDone = true;
+      player.x = l.x + .5; player.y = l.y + .5;
+      player.route = player.route.filter(w => !isLift(Math.floor(w.x), Math.floor(w.y)));
+      l.target = ride.up ? l.top : 0;
+      sayFor(player, ride.up ? 'ขึ้นลิฟต์ ⬆️' : 'ลงลิฟต์ ⬇️', 2200); tones([659, 784], .1);
+    } else if (ride.stage === 'ride' && !liftMoving(l)) {
+      ride.stage = 'exit';
+      const exit = { x: l.x + .5, y: l.y + (ride.up ? -.5 : 1.5) };
+      if (!player.route.length || Math.floor(player.route[0].y) !== Math.floor(exit.y)) player.route.unshift(exit);
+    } else if (ride.stage === 'exit' && !inLift) player.ride = null;
+  }
+
   // Keyboard/d-pad move relative to the camera: "up" = away from the camera
   const ix = (keys.right ? 1 : 0) - (keys.left ? 1 : 0), iy = (keys.up ? 1 : 0) - (keys.down ? 1 : 0);
   let dx = 0, dy = 0, step = SPEED * dt;
-  if (ix || iy) {
+  if (player.ride && player.ride.stage === 'ride') { /* standing still in the moving cabin */ }
+  else if ((ix || iy) && !player.ride) {
     hint.classList.add('hidden'); targetMarker.visible = false;
     camera.getWorldDirection(fwd); fwd.y = 0; fwd.normalize();
     dx = fwd.x * iy - fwd.z * ix; dy = fwd.z * iy + fwd.x * ix;
@@ -1703,6 +1853,13 @@ function update(dt, time) {
     const t = (time * .35 + s.ph) % 1;
     s.m.position.set(s.x + t * .4, s.y + t * 1.4, s.z);
     s.m.scale.setScalar(.12 + .3 * Math.sin(t * Math.PI));
+  });
+
+  // Waterfall chunks slide down; foam bobs in the pool
+  fallBits.forEach(b => {
+    const t = (time * (b.kind === 'drop' ? 1.3 : .8) + b.ph) % 1;
+    if (b.kind === 'drop') b.m.position.y = b.top - .3 - t * (b.top + .1);
+    else { b.m.position.y = -.12 + Math.sin(t * Math.PI * 2) * .05; b.m.scale.setScalar(.8 + Math.sin(t * Math.PI) * .4); }
   });
 
   // Fountain drops arc from the top bowl into the basin
@@ -1848,7 +2005,7 @@ window.__worldReady = true;
 window.__island = {
   setTime: h => { setTime(h); sky.hour = h; }, setWeather, setFestival, walkTo,
   snap: () => { sky.hour = sky.target; Object.assign(amt, weatherGoal()); },
-  state: () => ({ hour: sky.hour, weather: sky.weather, festival: sky.festival, amt: { ...amt }, player: { x: player.x, y: player.y, z: groundY(player.x, player.y) }, umbrella: umbrella.visible, snowmen: snowmen.length }),
+  state: () => ({ hour: sky.hour, weather: sky.weather, festival: sky.festival, amt: { ...amt }, player: { x: player.x, y: player.y, z: groundY(player.x, player.y), ride: player.ride && player.ride.stage, route: player.route.length }, umbrella: umbrella.visible, snowmen: snowmen.length }),
   look: (x, y, dist = 16) => { controls.target.set(WX(x), groundY(x, y) + .8, WZ(y)); camera.position.set(WX(x) + dist * .55, groundY(x, y) + dist * .75, WZ(y) + dist * .8); player.x = x; player.y = y; },
 };
 
