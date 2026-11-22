@@ -184,6 +184,31 @@
   }
   .toast.show { transform: translate(-50%, 0); opacity: 1; }
 
+  /* ── Sky buttons (time of day / weather / festival) ── */
+  .skybar { position: fixed; right: 14px; top: 84px; z-index: 5; display: flex; flex-direction: column; gap: 8px; }
+  .skybar button {
+    width: 60px; height: 60px; border: none; border-radius: 18px; cursor: pointer;
+    background: rgba(255,255,255,.92); box-shadow: 0 5px 0 rgba(0,0,0,.08); color: var(--ink);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: inherit;
+  }
+  .skybar button:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,.08); }
+  .skybar .e { font-size: 26px; line-height: 1; }
+  .skybar .t { font-size: 11px; font-weight: 700; margin-top: 3px; }
+
+  /* ── Round mini-map (turns with the camera; tap to walk there) ── */
+  .mini {
+    position: fixed; right: 16px; bottom: 16px; z-index: 4; width: 132px; height: 132px;
+    border-radius: 50%; border: 4px solid #fff; background: #bfe6ff; cursor: pointer; touch-action: none;
+    box-shadow: 0 5px 0 rgba(0,0,0,.1);
+  }
+  @media (max-width: 720px) {
+    .mini { width: 112px; height: 112px; }
+    body.card-open .mini { display: none; }
+  }
+  @media (max-width: 520px) {
+    .hint, .toast { max-width: calc(100vw - 170px); white-space: normal; text-align: center; }
+  }
+
   /* Page transitions (same as world-theme.css) */
   .w-fade-in, .w-fade-out { position: fixed; inset: 0; z-index: 100; background: var(--sun); pointer-events: none; }
   .w-fade-in { animation: w-fade-in .6s ease-out forwards; }
@@ -213,6 +238,13 @@
     <a href="menu.html" title="เมนูทั้งหมด (พ่อแม่) Menu">☰</a>
   </div>
 </div>
+
+<div class="skybar">
+  <button id="timeBtn" title="เปลี่ยนเวลา Time of day"><span class="e">🌞</span><span class="t">เวลา</span></button>
+  <button id="weatherBtn" title="เปลี่ยนอากาศ Weather"><span class="e">☀️</span><span class="t">อากาศ</span></button>
+  <button id="festBtn" title="เทศกาล Festival"><span class="e">🏝️</span><span class="t">เทศกาล</span></button>
+</div>
+<canvas class="mini" id="mini" title="แผนที่ แตะเพื่อเดินไป Map"></canvas>
 
 <div class="hint hidden" id="hint">👆 ลากเพื่อหมุน • แตะพื้นเพื่อเดิน</div>
 <div class="toast" id="toast"></div>
@@ -280,44 +312,55 @@
 <script type="module">
 /* =========================================================
    Summer's World — 3D voxel town on a floating island
-   - Each building = one activity page (PLACES below)
-   - Drag = rotate camera, pinch/scroll = zoom
-   - Walk: tap the ground (path-finding), arrow keys/WASD, or d-pad
+   - The island has 3 floors: ground (front: plaza + lake), terrace (back) and a hill on top, joined by stairs
+   - Each building = one activity page (PLACES below); each has its own look (style → BUILD)
+   - Drag = rotate camera, pinch/scroll = zoom. While the island turns, signs swing and Summer turns to wave
+   - Walk: tap the ground (path-finding), arrow keys/WASD, d-pad, or tap the round mini-map
+   - Sky buttons (right side): time of day, weather (rain → umbrella, snow → snowmen), festival (Christmas, Loy Krathong)
    - Reaching a door for the first time = stamp + ⭐ (saved in localStorage)
-   To add a new activity: add one entry to PLACES with a free spot on the map.
+   To add a new activity: add one entry to PLACES on a free 3×2 spot (the floor is worked out from x, y).
    ========================================================= */
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 const kit = WorldKit(THREE, OrbitControls);   // shared Summer model, voxel helpers, sounds (world-kit.js)
 
 // ── World layout (tile grid; 1 tile = 1 unit in 3D) ──
-const MAP_W = 34, MAP_H = 27;
-const PLAZA = { x: 16, y: 11, w: 5, h: 5 };
-const FOUNTAIN = { x: 18, y: 13 };
-const LAKE = { cx: 11, cy: 14.5, rx: 2.6, ry: 1.8 };
-const SPAWN = { x: 18.5, y: 15.5 };
+const MAP_W = 40, MAP_H = 33;
+const LEVEL_H = 1.5;                       // height of one floor
+const PLAZA = { x: 18, y: 17, w: 5, h: 5 };
+const FOUNTAIN = { x: 20, y: 19 };
+const LAKE = { cx: 9.5, cy: 20.5, rx: 3, ry: 2 };
+const SPAWN = { x: 20.5, y: 22.5 };
+// Floor of each tile: 0 = ground (front), 1 = terrace (back), 2 = hill (on top of the terrace)
+function levelOf(x, y) {
+  if (x >= 14 && x <= 25 && y <= 6 && !((x === 14 || x === 25) && y === 6)) return 2;
+  return y <= (x < 6 || x > 33 ? 10 : 11) ? 1 : 0;
+}
+// Stair tiles sit on the front edge of the upper floor and go down towards the front (+y)
+const STAIRS = [[19, 6], [20, 6], [8, 11], [9, 11], [19, 11], [20, 11], [30, 11], [31, 11]];
 
 // Buildings are 3×2 tiles; the door is the tile just below the middle (x+1, y+2)
+// style = which builder in BUILD draws it (roof shape, decorations)
 const PLACES = [
-  { id: 'satit',   href: 'satit_exam.html',  emoji: '📝', th: 'โรงเรียนสาธิต', en: 'EXAM SCHOOL',   desc: 'ลุยโจทย์ฝึกสอบหลายหมวด',       x: 4,  y: 3,  color: '#8ec5f5', roof: '#3f7cc9' },
-  { id: 'library', href: 'knowledge.html',   emoji: '📚', th: 'ห้องสมุด',      en: 'LIBRARY',       desc: 'คำศัพท์ไทย-อังกฤษ เก็บดาว',     x: 10, y: 3,  color: '#d2b4f5', roof: '#8a5cc9' },
-  { id: 'sara',    href: 'sa_ra.html',       emoji: '🗣️', th: 'บ้านสระ',       en: 'VOWEL HOUSE',   desc: 'ฝึกอ่าน กา มา ตา',             x: 16, y: 3,  color: '#ffc58f', roof: '#e3793a' },
-  { id: 'chinese', href: 'chinese.html',     emoji: '🏮', th: 'ศาลาจีน',       en: 'CHINESE',       desc: 'แตะโคมไฟ ฟังเสียงจีน',     x: 22, y: 3,  color: '#ffaaa2', roof: '#c9433a' },
-  { id: 'gravity', href: 'gravity.html',     emoji: '🚀', th: 'ฐานจรวด',       en: 'ROCKET BASE',   desc: 'จรวด ดูดาว ระบบสุริยะ',    x: 28, y: 3,  color: '#b0b5f5', roof: '#4a4fa8' },
-  { id: 'clock',   href: 'clock_game.html',  emoji: '🕐', th: 'หอนาฬิกา',      en: 'CLOCK TOWER',   desc: 'อ่านเวลาจากเข็มนาฬิกา',        x: 4,  y: 10, color: '#c5b0f5', roof: '#6d4fc0' },
-  { id: 'math',    href: 'math_2digit.html', emoji: '🔢', th: 'บ้านตัวเลข',    en: 'NUMBER HOUSE',  desc: 'บวกลบเลขสองหลัก',             x: 28, y: 10, color: '#ffe080', roof: '#d19a1a' },
-  { id: 'talk',    href: '24_question.html', emoji: '🎲', th: 'ลานปิกนิก',     en: 'PICNIC TALK',   desc: 'คุยเล่นกับพ่อแม่ 24 คำถาม',     x: 22, y: 16, color: '#ffbfd8', roof: '#d6538a' },
-  { id: 'coins',   href: 'thai_money.html',  emoji: '🪙', th: 'ธนาคารเหรียญ',  en: 'COIN BANK',     desc: 'รู้จักเหรียญ 1 2 5 10 บาท',     x: 4,  y: 19, color: '#ffdc96', roof: '#b8781a' },
-  { id: 'shop',    href: 'pay_money.html',   emoji: '🛒', th: 'ร้านค้า',        en: 'SHOP',          desc: 'จ่ายเงิน รับเงินทอน',           x: 10, y: 21, color: '#9fe8da', roof: '#2a9a86' },
-  { id: 'farm',    href: 'farm_kid.html',    emoji: '🌾', th: 'ฟาร์มฝึกคิด',   en: 'FARM',          desc: 'โจทย์ฝึกคิดสนุกๆ',             x: 16, y: 21, color: '#f5dea8', roof: '#b5452e' },
-  { id: 'robot',   href: 'robot_game.html',  emoji: '🤖', th: 'โรงงานหุ่นยนต์', en: 'ROBOT FACTORY', desc: 'ประกอบหุ่น Noob ถึง God',       x: 22, y: 21, color: '#d2dbe6', roof: '#5a6b80' },
-  { id: 'homework', href: 'homework.html',  emoji: '📒', th: 'ห้องการบ้าน',   en: 'HOMEWORK',      desc: 'ฝึกพูดบนเวที เตรียม ป.1',       x: 10, y: 8,  color: '#ffc2d1', roof: '#c9385f' },
-  { id: 'reward',  href: 'rewards.html',     emoji: '🏆', th: 'ห้องสมบัติ',    en: 'TREASURE ROOM', desc: 'เก็บดาวเด็กดี เปิดหีบรางวัล',     x: 22, y: 9,  color: '#e8d2ff', roof: '#d19a1a' },
-  { id: 'art',     href: 'color_mix.html',   emoji: '🎨', th: 'บ้านศิลปะ',     en: 'ART HOUSE',     desc: 'ผสมสี 4 โหมด',            x: 28, y: 19, color: '#ffbcc8', roof: '#d6456a' },
+  { id: 'satit',   href: 'satit_exam.html',  emoji: '📝', th: 'โรงเรียนสาธิต', en: 'EXAM SCHOOL',   desc: 'ลุยโจทย์ฝึกสอบหลายหมวด',       x: 2,  y: 2,  style: 'school',    color: '#8ec5f5', roof: '#3f7cc9' },
+  { id: 'library', href: 'knowledge.html',   emoji: '📚', th: 'ห้องสมุด',      en: 'LIBRARY',       desc: 'คำศัพท์ไทย-อังกฤษ เก็บดาว',     x: 8,  y: 2,  style: 'dome',      color: '#d2b4f5', roof: '#8a5cc9' },
+  { id: 'sara',    href: 'sa_ra.html',       emoji: '🗣️', th: 'บ้านสระ',       en: 'VOWEL HOUSE',   desc: 'ฝึกอ่าน กา มา ตา',             x: 30, y: 7,  style: 'cottage',   color: '#ffc58f', roof: '#e3793a' },
+  { id: 'chinese', href: 'chinese.html',     emoji: '🏮', th: 'ศาลาจีน',       en: 'CHINESE',       desc: 'แตะโคมไฟ ฟังเสียงจีน',     x: 27, y: 2,  style: 'pagoda',    color: '#ffaaa2', roof: '#c9433a' },
+  { id: 'gravity', href: 'gravity.html',     emoji: '🚀', th: 'ฐานจรวด',       en: 'ROCKET BASE',   desc: 'จรวด ดูดาว ระบบสุริยะ',    x: 22, y: 2,  style: 'rocket',    color: '#b0b5f5', roof: '#4a4fa8' },
+  { id: 'clock',   href: 'clock_game.html',  emoji: '🕐', th: 'หอนาฬิกา',      en: 'CLOCK TOWER',   desc: 'อ่านเวลาจากเข็มนาฬิกา',        x: 15, y: 2,  style: 'tower',     color: '#c5b0f5', roof: '#6d4fc0' },
+  { id: 'math',    href: 'math_2digit.html', emoji: '🔢', th: 'บ้านตัวเลข',    en: 'NUMBER HOUSE',  desc: 'บวกลบเลขสองหลัก',             x: 33, y: 14, style: 'blocks',    color: '#ffe080', roof: '#d19a1a' },
+  { id: 'talk',    href: '24_question.html', emoji: '🎲', th: 'ลานปิกนิก',     en: 'PICNIC TALK',   desc: 'คุยเล่นกับพ่อแม่ 24 คำถาม',     x: 26, y: 15, style: 'tent',      color: '#ffbfd8', roof: '#d6538a' },
+  { id: 'coins',   href: 'thai_money.html',  emoji: '🪙', th: 'ธนาคารเหรียญ',  en: 'COIN BANK',     desc: 'รู้จักเหรียญ 1 2 5 10 บาท',     x: 3,  y: 14, style: 'bank',      color: '#ffdc96', roof: '#b8781a' },
+  { id: 'shop',    href: 'pay_money.html',   emoji: '🛒', th: 'ร้านค้า',        en: 'SHOP',          desc: 'จ่ายเงิน รับเงินทอน',           x: 5,  y: 25, style: 'shop',      color: '#9fe8da', roof: '#2a9a86' },
+  { id: 'farm',    href: 'farm_kid.html',    emoji: '🌾', th: 'ฟาร์มฝึกคิด',   en: 'FARM',          desc: 'โจทย์ฝึกคิดสนุกๆ',             x: 13, y: 26, style: 'barn',      color: '#f5dea8', roof: '#b5452e' },
+  { id: 'robot',   href: 'robot_game.html',  emoji: '🤖', th: 'โรงงานหุ่นยนต์', en: 'ROBOT FACTORY', desc: 'ประกอบหุ่น Noob ถึง God',       x: 24, y: 26, style: 'factory',   color: '#d2dbe6', roof: '#5a6b80' },
+  { id: 'homework', href: 'homework.html',  emoji: '📒', th: 'ห้องการบ้าน',   en: 'HOMEWORK',      desc: 'ฝึกพูดบนเวที เตรียม ป.1',       x: 4,  y: 7,  style: 'classroom', color: '#ffc2d1', roof: '#c9385f' },
+  { id: 'reward',  href: 'rewards.html',     emoji: '🏆', th: 'ห้องสมบัติ',    en: 'TREASURE ROOM', desc: 'เก็บดาวเด็กดี เปิดหีบรางวัล',     x: 33, y: 2,  style: 'castle',    color: '#e8d2ff', roof: '#d19a1a' },
+  { id: 'art',     href: 'color_mix.html',   emoji: '🎨', th: 'บ้านศิลปะ',     en: 'ART HOUSE',     desc: 'ผสมสี 4 โหมด',            x: 32, y: 24, style: 'studio',    color: '#ffbcc8', roof: '#d6456a' },
 ];
-PLACES.forEach(p => { p.w = 3; p.h = 2; p.door = { x: p.x + 1, y: p.y + 2 }; });
+PLACES.forEach(p => { p.w = 3; p.h = 2; p.door = { x: p.x + 1, y: p.y + 2 }; p.level = levelOf(p.x, p.y); });
 
-const T = { GRASS: 0, PATH: 1, PLAZA: 2, WATER: 3, TREE: 4, BUILDING: 5, FOUNTAIN: 6 };
+const T = { GRASS: 0, PATH: 1, PLAZA: 2, WATER: 3, TREE: 4, BUILDING: 5, FOUNTAIN: 6, STAIR: 7 };
 const BLOCKING = new Set([T.WATER, T.TREE, T.BUILDING, T.FOUNTAIN]);
 
 // ── Save data (localStorage — per device only) ──
@@ -340,8 +383,12 @@ function mulberry32(a) {
 }
 
 // ── Build the tile grid ──
-const grid = [], flowers = [];
-for (let y = 0; y < MAP_H; y++) { grid.push(new Array(MAP_W).fill(T.GRASS)); flowers.push(new Array(MAP_W).fill(null)); }
+const grid = [], flowers = [], lvl = [];
+for (let y = 0; y < MAP_H; y++) {
+  grid.push(new Array(MAP_W).fill(T.GRASS));
+  flowers.push(new Array(MAP_W).fill(null));
+  lvl.push(Array.from({ length: MAP_W }, (_, x) => levelOf(x, y)));
+}
 const inMap = (x, y) => x >= 0 && y >= 0 && x < MAP_W && y < MAP_H;
 const isBorder = (x, y) => x === 0 || y === 0 || x === MAP_W - 1 || y === MAP_H - 1;
 const inLake = (x, y) => ((x + .5 - LAKE.cx) / LAKE.rx) ** 2 + ((y + .5 - LAKE.cy) / LAKE.ry) ** 2 <= 1;
@@ -352,9 +399,23 @@ for (let y = 0; y < MAP_H; y++) for (let x = 0; x < MAP_W; x++) {
   else if (inPlaza(x, y)) grid[y][x] = T.PLAZA;
 }
 grid[FOUNTAIN.y][FOUNTAIN.x] = T.FOUNTAIN;
+STAIRS.forEach(([x, y]) => { grid[y][x] = T.STAIR; });
 PLACES.forEach(p => {
   for (let y = p.y; y < p.y + p.h; y++) for (let x = p.x; x < p.x + p.w; x++) grid[y][x] = T.BUILDING;
 });
+
+// Can you step from tile a to the next tile b? Same floor = yes.
+// A different floor only through a stair: in at its top end (same floor) or its bottom end (one floor down).
+const isStair = (x, y) => grid[y][x] === T.STAIR;
+function canStep(ax, ay, bx, by) {
+  if (ax === bx && ay === by) return true;
+  const la = lvl[ay][ax], lb = lvl[by][bx], sa = isStair(ax, ay), sb = isStair(bx, by);
+  if (!sa && !sb) return la === lb;
+  if (sa && sb) return la === lb && ay === by;           // two stair lanes side by side
+  const [sx, sy, ls, ox, oy, lo] = sa ? [ax, ay, la, bx, by, lb] : [bx, by, lb, ax, ay, la];
+  if (ox !== sx) return false;                           // no stepping off the side of a stair
+  return (oy === sy - 1 && lo === ls) || (oy === sy + 1 && lo === ls - 1);
+}
 
 // Breadth-first search on the grid; returns list of tiles from start to goal (or null)
 function bfs(sx, sy, isGoal, isBlocked) {
@@ -370,7 +431,7 @@ function bfs(sx, sy, isGoal, isBlocked) {
     }
     for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
       const nx = x + dx, ny = y + dy;
-      if (!inMap(nx, ny) || prev.has(key(nx, ny)) || isBlocked(nx, ny)) continue;
+      if (!inMap(nx, ny) || prev.has(key(nx, ny)) || isBlocked(nx, ny, x, y)) continue;
       prev.set(key(nx, ny), key(x, y));
       queue.push([nx, ny]);
     }
@@ -378,19 +439,19 @@ function bfs(sx, sy, isGoal, isBlocked) {
   return null;
 }
 
-// Dirt paths: from every door to the plaza, going around the lake and buildings
+// Dirt paths: from every door to the plaza, going around the lake and buildings and using the stairs
 PLACES.forEach(p => {
   const route = bfs(p.door.x, p.door.y, inPlaza,
-    (x, y) => isBorder(x, y) || grid[y][x] === T.WATER || grid[y][x] === T.BUILDING);
+    (x, y, fx, fy) => isBorder(x, y) || grid[y][x] === T.WATER || grid[y][x] === T.BUILDING || !canStep(fx, fy, x, y));
   (route || []).forEach(c => { if (grid[c.y][c.x] === T.GRASS) grid[c.y][c.x] = T.PATH; });
 });
 
-// Trees and flowers — keep a 1-tile clear margin around paths, plaza and doors
+// Trees and flowers — keep a 1-tile clear margin around paths, stairs, plaza and doors
 const rand = mulberry32(2026);
 function nearOpenArea(x, y) {
   for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
     const nx = x + dx, ny = y + dy;
-    if (inMap(nx, ny) && (grid[ny][nx] === T.PATH || grid[ny][nx] === T.PLAZA || grid[ny][nx] === T.BUILDING)) return true;
+    if (inMap(nx, ny) && [T.PATH, T.PLAZA, T.BUILDING, T.STAIR].includes(grid[ny][nx])) return true;
   }
   return false;
 }
@@ -405,6 +466,12 @@ for (let y = 0; y < MAP_H; y++) for (let x = 0; x < MAP_W; x++) {
 
 const blocked = (x, y) => !inMap(x, y) || BLOCKING.has(grid[y][x]);
 const blockedAt = (px, py) => blocked(Math.floor(px), Math.floor(py));
+// Height of the ground at a point (stairs are a smooth ramp)
+function groundY(px, py) {
+  const x = Math.floor(px), y = Math.floor(py);
+  if (!inMap(x, y)) return 0;
+  return (isStair(x, y) ? lvl[y][x] - (py - y) : lvl[y][x]) * LEVEL_H;
+}
 
 // Tile coords → 3D coords (map centred on the origin; tile y becomes 3D z)
 const WX = tx => tx - MAP_W / 2;
@@ -419,29 +486,68 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 const scene = new THREE.Scene();
-scene.fog = new THREE.Fog(0xf8dc95, 55, 110);
+scene.fog = new THREE.Fog(0xf8dc95, 60, 130);
 const camera = new THREE.PerspectiveCamera(35, innerWidth / innerHeight, .1, 300);
 
 const controls = new OrbitControls(camera, canvas);
 controls.enablePan = false;
-controls.enableDamping = true; controls.dampingFactor = .08;
+controls.enableDamping = true; controls.dampingFactor = .05;   // low damping = the island keeps gliding after a swipe
 controls.rotateSpeed = .6;
-controls.minDistance = 9; controls.maxDistance = 48;
+controls.minDistance = 9; controls.maxDistance = 52;
 controls.minPolarAngle = .45; controls.maxPolarAngle = 1.2;
 controls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_ROTATE };
 controls.autoRotate = true; controls.autoRotateSpeed = .8;   // slow spin behind the title screen
 
-scene.add(new THREE.HemisphereLight(0xfff4d6, 0xc9a46a, 1.25));
-const sun = new THREE.DirectionalLight(0xffffff, 1.7);
+const hemi = new THREE.HemisphereLight(0xfff4d6, 0xc9a46a, 1.25);
+scene.add(hemi);
+const sun = new THREE.DirectionalLight(0xffffff, 1.7);   // the sun by day, the moon by night (see applySky)
 sun.position.set(18, 32, 14);
 sun.castShadow = true;
 sun.shadow.mapSize.set(small ? 1024 : 2048, small ? 1024 : 2048);
-Object.assign(sun.shadow.camera, { left: -26, right: 26, top: 26, bottom: -26, near: 1, far: 90 });
+Object.assign(sun.shadow.camera, { left: -28, right: 28, top: 28, bottom: -28, near: 1, far: 110 });
 sun.shadow.bias = -.0005; sun.shadow.normalBias = .03;
 scene.add(sun);
 
 // Shared voxel helpers and sprites come from world-kit.js
-const { UNIT, mat, box, labelSprite, emojiSprite } = kit;
+const { UNIT, mat, box, labelSprite, emojiSprite, shade } = kit;
+function part(parent, geo, material, x, y, z, shadows = true) {
+  const m = new THREE.Mesh(geo, typeof material === 'string' ? mat(material) : material);
+  m.position.set(x, y, z); m.castShadow = shadows; m.receiveShadow = true;
+  parent.add(m);
+  return m;
+}
+const cyl = (parent, r, h, color, x, y, z, seg = 16) => part(parent, new THREE.CylinderGeometry(r, r, h, seg), color, x, y, z);
+function cone(parent, r, h, color, x, y, z, seg = 4) {
+  const m = part(parent, new THREE.ConeGeometry(r, h, seg), color, x, y, z);
+  if (seg === 4) m.rotation.y = Math.PI / 4;   // square cone lines up with the walls
+  return m;
+}
+const halfBall = (parent, r, color, x, y, z) => part(parent, new THREE.SphereGeometry(r, 18, 9, 0, Math.PI * 2, 0, Math.PI / 2), color, x, y, z);
+// Material with a picture drawn on a canvas (number blocks, shop sign)
+function canvasMat(w, h, draw) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  draw(c.getContext('2d'), w, h);
+  const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
+  return new THREE.MeshLambertMaterial({ map: tex });
+}
+const textMat = (text, bg, size) => canvasMat(size === 'sq' ? 64 : 256, 64, (g, w, h) => {
+  g.fillStyle = bg; g.fillRect(0, 0, w, h);
+  g.fillStyle = '#fff'; g.font = `900 ${size === 'sq' ? 46 : 36}px Fredoka, "Apple Color Emoji", sans-serif`;
+  g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(text, w / 2, h / 2 + 2);
+});
+
+// Materials that light up at night (windows, lanterns, lamps) — brightness is set by the sky every frame
+const glowMats = [];
+function glowMat(color, glow) {
+  const m = new THREE.MeshLambertMaterial({ color, emissive: glow, emissiveIntensity: 0 });
+  glowMats.push(m);
+  return m;
+}
+const winMat = glowMat('#eaf7ff', '#ffc65a');
+const lanternMat = glowMat('#e63946', '#ff4a2a');
+const lampMat = glowMat('#fff6d8', '#ffd27a');
+// Snow cover on the ground and trees (fades in while it snows)
+const snowMat = new THREE.MeshLambertMaterial({ color: '#f7fbff', transparent: true, opacity: 0 });
 
 // ── The floating island ──
 const island = new THREE.Group();
@@ -463,19 +569,54 @@ const TILE_STYLE = {
   [T.PLAZA]: { h: .38, colors: ['#f2e6d0', '#e6d6bb'] },
   [T.FOUNTAIN]: { h: .38, colors: ['#f2e6d0'] },
 };
+const groundMeshes = [];   // what a tap on the ground can hit
+let snowCover;
 {
   const tiles = [];
-  for (let y = 0; y < MAP_H; y++) for (let x = 0; x < MAP_W; x++) if (grid[y][x] !== T.WATER) tiles.push([x, y]);
+  for (let y = 0; y < MAP_H; y++) for (let x = 0; x < MAP_W; x++) if (grid[y][x] !== T.WATER && grid[y][x] !== T.STAIR) tiles.push([x, y]);
   const ground = new THREE.InstancedMesh(UNIT, new THREE.MeshLambertMaterial({ color: 0xffffff }), tiles.length);
-  ground.receiveShadow = true;
+  snowCover = new THREE.InstancedMesh(UNIT, snowMat, tiles.length);
+  ground.receiveShadow = snowCover.receiveShadow = true;
   tiles.forEach(([x, y], i) => {
-    const st = TILE_STYLE[grid[y][x]];
-    dummy.position.set(WX(x + .5), -.3 + st.h / 2, WZ(y + .5));
+    const st = TILE_STYLE[grid[y][x]], base = lvl[y][x] * LEVEL_H;
+    dummy.position.set(WX(x + .5), base - .3 + st.h / 2, WZ(y + .5));
     dummy.scale.set(1, st.h, 1); dummy.updateMatrix();
     ground.setMatrixAt(i, dummy.matrix);
     ground.setColorAt(i, col.set(st.colors[(x * 7 + y * 13) % st.colors.length]));
+    dummy.position.y = base + st.h - .27; dummy.scale.set(1, .06, 1); dummy.updateMatrix();
+    snowCover.setMatrixAt(i, dummy.matrix);
   });
-  island.add(ground);
+  snowCover.visible = false;
+  island.add(ground, snowCover);
+  groundMeshes.push(ground);
+
+  // Cliffs under the terrace and the hill: brown dirt columns, striped every other tile
+  const raised = tiles.filter(([x, y]) => lvl[y][x] > 0);
+  const cliffs = new THREE.InstancedMesh(UNIT, new THREE.MeshLambertMaterial({ color: 0xffffff }), raised.length);
+  cliffs.receiveShadow = cliffs.castShadow = true;
+  raised.forEach(([x, y], i) => {
+    const h = lvl[y][x] * LEVEL_H;
+    dummy.position.set(WX(x + .5), -.3 + h / 2, WZ(y + .5)); dummy.scale.set(1, h, 1); dummy.updateMatrix();
+    cliffs.setMatrixAt(i, dummy.matrix);
+    cliffs.setColorAt(i, col.set((x + y) % 2 ? '#c98f55' : '#b98149'));
+  });
+  island.add(cliffs);
+  groundMeshes.push(cliffs);
+
+  // Stairs: 4 stone steps per tile, rising towards the back
+  const steps = new THREE.InstancedMesh(UNIT, new THREE.MeshLambertMaterial({ color: 0xffffff }), STAIRS.length * 4);
+  steps.receiveShadow = steps.castShadow = true;
+  STAIRS.forEach(([x, y], i) => {
+    const base = (lvl[y][x] - 1) * LEVEL_H;
+    for (let k = 0; k < 4; k++) {
+      const top = base + (k + 1) * LEVEL_H / 4;
+      dummy.position.set(WX(x + .5), (top - .3) / 2, WZ(y + .875 - .25 * k)); dummy.scale.set(1, top + .3, .25); dummy.updateMatrix();
+      steps.setMatrixAt(i * 4 + k, dummy.matrix);
+      steps.setColorAt(i * 4 + k, col.set(k % 2 ? '#e3d2b2' : '#efe3cb'));
+    }
+  });
+  island.add(steps);
+  groundMeshes.push(steps);
 
   // Pond: lower, slightly see-through water blocks + lily pads
   const water = [];
@@ -490,15 +631,18 @@ const TILE_STYLE = {
     }
   });
   island.add(waterMesh);
+  groundMeshes.push(waterMesh);
 }
 
-// Trees: voxel trunks + stacked leaf cubes, all instanced
+// Trees: voxel trunks + stacked leaf cubes, all instanced (+ snow caps for snowy days)
 const TREE_COLORS = [['#7ccf5f', '#9ee07e'], ['#f59a52', '#ffbc7a'], ['#f7a6c4', '#ffc8dc'], ['#4f9e6a', '#6dba84']];
+let treeSnow;
 {
   const trees = [];
   for (let y = 0; y < MAP_H; y++) for (let x = 0; x < MAP_W; x++) if (grid[y][x] === T.TREE) trees.push([x, y]);
   const trunks = new THREE.InstancedMesh(UNIT, mat('#7a5232'), trees.length);
   const leaves = new THREE.InstancedMesh(UNIT, new THREE.MeshLambertMaterial({ color: 0xffffff }), trees.length * 3);
+  treeSnow = new THREE.InstancedMesh(UNIT, snowMat, trees.length);
   trunks.castShadow = leaves.castShadow = true;
   leaves.receiveShadow = true;
   let li = 0;
@@ -506,20 +650,24 @@ const TREE_COLORS = [['#7ccf5f', '#9ee07e'], ['#f59a52', '#ffbc7a'], ['#f7a6c4',
     const r = mulberry32(x * 1000 + y), kind = Math.floor(r() * 10);
     const style = TREE_COLORS[kind < 4 ? 0 : kind < 6 ? 1 : kind < 8 ? 2 : 3];
     const s = .85 + r() * .3, rot = r() * Math.PI / 2;
-    const cx = WX(x + .5), cz = WZ(y + .5);
+    const cx = WX(x + .5), cz = WZ(y + .5), base = lvl[y][x] * LEVEL_H;
     dummy.rotation.set(0, rot, 0);
-    dummy.position.set(cx, .45 * s, cz); dummy.scale.set(.22 * s, .9 * s, .22 * s); dummy.updateMatrix();
+    dummy.position.set(cx, base + .45 * s, cz); dummy.scale.set(.22 * s, .9 * s, .22 * s); dummy.updateMatrix();
     trunks.setMatrixAt(i, dummy.matrix);
     const pine = style === TREE_COLORS[3];
     const layers = pine ? [[.95, .9, 1.0], [.68, .5, 1.6], [.38, .4, 2.05]] : [[.95, .85, 1.25], [.62, .45, 1.85], [.3, .3, 2.2]];
     layers.forEach(([w, h, yy], k) => {
-      dummy.position.set(cx, yy * s, cz); dummy.scale.set(w * s, h * s, w * s); dummy.updateMatrix();
+      dummy.position.set(cx, base + yy * s, cz); dummy.scale.set(w * s, h * s, w * s); dummy.updateMatrix();
       leaves.setMatrixAt(li, dummy.matrix);
       leaves.setColorAt(li++, col.set(style[k % 2]));
     });
+    const [w, h, yy] = layers[0];   // snow sits on the widest layer
+    dummy.position.set(cx, base + (yy + h / 2) * s + .03, cz); dummy.scale.set(w * s + .04, .08, w * s + .04); dummy.updateMatrix();
+    treeSnow.setMatrixAt(i, dummy.matrix);
   });
   dummy.rotation.set(0, 0, 0);
-  island.add(trunks, leaves);
+  treeSnow.visible = false;
+  island.add(trunks, leaves, treeSnow);
 
   // Flowers: little coloured cubes
   const spots = [];
@@ -529,7 +677,7 @@ const TREE_COLORS = [['#7ccf5f', '#9ee07e'], ['#f59a52', '#ffbc7a'], ['#f7a6c4',
   spots.forEach(([x, y]) => {
     const r = mulberry32(x * 77 + y * 3);
     for (let k = 0; k < 3; k++) {
-      dummy.position.set(WX(x + .2 + r() * .6), .1, WZ(y + .2 + r() * .6)); dummy.scale.set(.13, .13, .13); dummy.updateMatrix();
+      dummy.position.set(WX(x + .2 + r() * .6), lvl[y][x] * LEVEL_H + .1, WZ(y + .2 + r() * .6)); dummy.scale.set(.13, .13, .13); dummy.updateMatrix();
       heads.setMatrixAt(fi, dummy.matrix);
       heads.setColorAt(fi++, col.set(k ? flowers[y][x] : FLOWER_COLORS[(x + y) % FLOWER_COLORS.length]));
     }
@@ -538,70 +686,415 @@ const TREE_COLORS = [['#7ccf5f', '#9ee07e'], ['#f59a52', '#ffbc7a'], ['#f7a6c4',
   island.add(heads);
 }
 
-// Plaza flower planters at the corners
+// Street lamps (glow at night). The 4 plaza lamps also really light up the ground.
+const lampLights = [];
+function lamp(x, z, y0, light) {
+  box(island, .12, 1.9, .12, '#4a4f63', x, y0 + .95, z);
+  box(island, .34, .08, .34, '#4a4f63', x, y0 + 1.92, z);
+  part(island, UNIT, lampMat, x, y0 + 2.1, z, false).scale.set(.26, .3, .26);
+  box(island, .36, .08, .36, '#4a4f63', x, y0 + 2.29, z);
+  if (!light) return;
+  const l = new THREE.PointLight('#ffd58a', 0, 10, 1.6);
+  l.position.set(x, y0 + 2.1, z);
+  island.add(l); lampLights.push(l);
+}
+// Plaza flower planters at the corners, each with a lamp
 [[0, 0], [PLAZA.w - 1, 0], [0, PLAZA.h - 1], [PLAZA.w - 1, PLAZA.h - 1]].forEach(([i, j], k) => {
   const x = WX(PLAZA.x + i + .5), z = WZ(PLAZA.y + j + .5);
   box(island, .6, .3, .6, '#c98a5a', x, .23, z);
   for (let f = 0; f < 4; f++) box(island, .16, .16, .16, FLOWER_COLORS[(k + f) % 5], x + (f % 2 - .5) * .25, .45, z + (Math.floor(f / 2) - .5) * .25);
+  lamp(x, z, .38, true);
 });
+// A lamp on each side of every staircase (at the top)
+for (let i = 0; i < STAIRS.length; i += 2) {
+  const [x1, y] = STAIRS[i], x2 = STAIRS[i + 1][0], top = lvl[y][x1] * LEVEL_H;
+  lamp(WX(x1 - .25), WZ(y + .3), top, false);
+  lamp(WX(x2 + 1.25), WZ(y + .3), top, false);
+}
 
-// Fountain with animated water drops
+// Fountain with animated water drops (swapped for a Christmas tree at Christmas)
 const drops = [];
+const fountain = new THREE.Group();
 {
-  const g = new THREE.Group();
+  const g = fountain;
   g.position.set(WX(FOUNTAIN.x + .5), .08, WZ(FOUNTAIN.y + .5));
   const stone = mat('#dfe5ee');
-  const cyl = (r, h, y, m) => { const c = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 16), m); c.position.y = y; c.castShadow = c.receiveShadow = true; g.add(c); };
-  cyl(.75, .3, .15, stone);
-  cyl(.62, .05, .31, mat('#7fd0f2'));
-  cyl(.12, .8, .7, stone);
-  cyl(.32, .1, 1.1, stone);
+  const ring = (r, h, y, m) => { const c = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 16), m); c.position.y = y; c.castShadow = c.receiveShadow = true; g.add(c); };
+  ring(.75, .3, .15, stone);
+  ring(.62, .05, .31, mat('#7fd0f2'));
+  ring(.12, .8, .7, stone);
+  ring(.32, .1, 1.1, stone);
   const dropGeo = new THREE.SphereGeometry(.05, 6, 6), dropMat = mat('#bfeaff');
   for (let i = 0; i < 12; i++) { const d = new THREE.Mesh(dropGeo, dropMat); g.add(d); drops.push(d); }
   island.add(g);
 }
 
-// ── Buildings ──
-const shade = (hex, f) => '#' + new THREE.Color(hex).multiplyScalar(f).getHexString();
-const buildingGroups = [];
-function makeBuilding(p) {
-  const g = new THREE.Group();
-  g.position.set(WX(p.x + 1.5), 0, WZ(p.y + 1));
+// ── Buildings: each style has its own roof and decorations ──
+const clockHands = [], spinners = [], smokePuffs = [];
+const smokeMat = new THREE.MeshLambertMaterial({ color: '#f4f4f4', transparent: true, opacity: .85 });
+function addSmoke(g, x, y, z) {
+  for (let k = 0; k < 3; k++) smokePuffs.push({ m: part(g, UNIT, smokeMat, x, y, z, false), x, y, z, ph: k / 3 });
+}
+// Plain walls + door + two windows (glow at night) — most buildings start with this. Returns the wall top height.
+function walls(g, p, h = 1.5, color = p.color, flowerBoxes = true) {
   box(g, 2.9, .16, 1.9, '#efe3cf', 0, .08, 0);                   // foundation
-  box(g, 2.6, 1.5, 1.6, p.color, 0, .9, 0);                      // walls
-  // stepped voxel roof
-  box(g, 3.0, .34, 2.0, p.roof, 0, 1.82, 0);
-  box(g, 2.4, .34, 1.5, shade(p.roof, 1.12), 0, 2.16, 0);
-  box(g, 1.6, .34, 1.0, p.roof, 0, 2.5, 0);
-  // door, knob, little awning
-  box(g, .6, .9, .08, '#8b5a3c', 0, .6, .81);
+  box(g, 2.6, h, 1.6, color, 0, .15 + h / 2, 0);                 // walls
+  box(g, .6, .9, .08, '#8b5a3c', 0, .6, .81);                    // door + knob
   box(g, .08, .08, .06, '#ffd166', .18, .6, .86, false);
-  box(g, 1.0, .08, .36, shade(p.roof, 1.12), 0, 1.15, .95);
-  // windows with flower boxes
   [-.85, .85].forEach(wx => {
-    box(g, .5, .45, .06, '#eaf7ff', wx, 1.05, .81, false);
+    part(g, UNIT, winMat, wx, 1.05, .81, false).scale.set(.5, .45, .06);
     box(g, .06, .45, .07, p.roof, wx, 1.05, .82, false);
+    if (!flowerBoxes) return;
     box(g, .6, .12, .16, '#b5734a', wx, .78, .86);
     for (let f = 0; f < 3; f++) box(g, .12, .12, .12, FLOWER_COLORS[f], wx + (f - 1) * .18, .9, .86, false);
   });
+  return .15 + h;
+}
+// Roof of stacked slabs. ridge 'x' = runs left-right, 'z' = runs front-back (triangle faces you), 'both' = pyramid
+function slabRoof(g, colors, y, w, d, steps, ridge, th = .3) {
+  for (let i = 0; i < steps; i++) {
+    const k = 1 - i / steps;
+    box(g, ridge === 'x' ? w : w * k, th, ridge === 'z' ? d : d * k, colors[i % colors.length], 0, y + th / 2 + i * th, 0);
+  }
+  return y + steps * th;
+}
+const roofColors = p => [p.roof, shade(p.roof, 1.12)];
+
+// Each builder draws one building into group g and returns { top: roof top height, eave: where Christmas lights go }
+const BUILD = {
+  // 📝 school: pitched roof, bell tower, Thai flag
+  school(g, p) {
+    const top = slabRoof(g, roofColors(p), walls(g, p, 1.6), 3.0, 2.0, 4, 'x');
+    box(g, .64, .8, .64, '#fff8ea', 0, top - .1, 0);
+    box(g, .36, .4, .06, '#5a3b2a', 0, top, .31, false);
+    box(g, .2, .22, .1, '#ffd23f', 0, top - .02, .31, false);
+    cone(g, .56, .6, p.roof, 0, top + .6, 0);
+    box(g, .05, 1.4, .05, '#dddddd', 1.15, top - .05, -.3);
+    ['#e63946', '#ffffff', '#2d4a9c', '#ffffff', '#e63946'].forEach((c, i) =>
+      box(g, .5, i === 2 ? .12 : .06, .03, c, 1.43, top + .62 - [.03, .09, .18, .27, .33][i], -.3, false));
+    return { top: top + .9, eave: 1.75 };
+  },
+  // 📚 library: white columns + big dome
+  dome(g, p) {
+    const y = walls(g, p, 1.5);
+    [-1.15, -.45, .45, 1.15].forEach(x => box(g, .16, 1.5, .16, '#fffaf0', x, .9, 1.0));
+    box(g, 2.9, .14, .45, '#f3ead8', 0, y + .02, .98);
+    box(g, 2.8, .12, 1.8, '#f3ead8', 0, y + .06, 0);
+    halfBall(g, 1.05, p.roof, 0, y + .12, 0).scale.z = .78;
+    box(g, .1, .45, .1, '#ffd23f', 0, y + 1.35, 0);
+    box(g, .2, .2, .2, '#ffd23f', 0, y + 1.6, 0);
+    return { top: y + 1.7, eave: y };
+  },
+  // 🗣️ cottage: steep front-facing roof, round window, smoking chimney
+  cottage(g, p) {
+    const y = walls(g, p, 1.35);
+    const top = slabRoof(g, roofColors(p), y, 3.0, 2.0, 5, 'z', .28);
+    part(g, UNIT, winMat, 0, y + .5, 1.01, false).scale.set(.32, .32, .05);
+    box(g, .3, 1.0, .3, '#b0705a', .85, y + .9, -.4);
+    addSmoke(g, .85, y + 1.5, -.4);
+    return { top, eave: y };
+  },
+  // 🏮 pagoda: two curly roofs, red pillars, glowing lanterns
+  pagoda(g, p) {
+    const y = walls(g, p, 1.3, p.color, false);
+    [[-1.32, .82], [1.32, .82], [-1.32, -.82], [1.32, -.82]].forEach(([x, z]) => box(g, .16, 1.3, .16, '#8f1f1a', x, .8, z));
+    const eaves = (yy, w, d) => {
+      box(g, w, .16, d, p.roof, 0, yy, 0);
+      box(g, w - .4, .14, d - .4, shade(p.roof, 1.15), 0, yy + .15, 0);
+      [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sz]) => {
+        box(g, .3, .14, .3, p.roof, sx * (w / 2 - .05), yy + .12, sz * (d / 2 - .05));
+        box(g, .14, .14, .14, '#ffd23f', sx * (w / 2 + .05), yy + .24, sz * (d / 2 + .05));
+      });
+    };
+    eaves(y + .08, 3.3, 2.3);
+    box(g, 1.7, .7, 1.1, p.color, 0, y + .6, 0);
+    part(g, UNIT, winMat, 0, y + .6, .56, false).scale.set(.6, .32, .05);
+    eaves(y + 1.03, 2.3, 1.6);
+    box(g, .2, .2, .2, '#ffd23f', 0, y + 1.4, 0);
+    box(g, .1, .4, .1, '#ffd23f', 0, y + 1.7, 0);
+    [-.85, .85].forEach(x => {
+      box(g, .03, .14, .03, '#2b2118', x, y - .02, 1.05, false);
+      part(g, UNIT, lanternMat, x, y - .25, 1.05, false).scale.set(.24, .3, .24);
+      box(g, .04, .14, .04, '#ffd23f', x, y - .47, 1.05, false);
+    });
+    return { top: y + 1.9, eave: y + .08 };
+  },
+  // 🚀 rocket base: round observatory with a telescope + a rocket on its launch pad
+  rocket(g, p) {
+    box(g, 2.9, .16, 1.9, '#efe3cf', 0, .08, 0);
+    cyl(g, .95, 1.3, p.color, -.35, .8, 0, 20);
+    halfBall(g, .95, '#e8ecf5', -.35, 1.45, 0);
+    cyl(g, .13, 1.0, p.roof, -.35, 2.25, .3, 10).rotation.x = .7;
+    box(g, .6, .9, .08, '#8b5a3c', 0, .6, .86);
+    const w = part(g, UNIT, winMat, -.9, 1.05, .76, false); w.scale.set(.35, .35, .06); w.rotation.y = -.62;
+    box(g, 1.0, .2, 1.0, '#9aa3ad', 1.0, .26, -.1);
+    cyl(g, .26, 1.6, '#ffffff', 1.0, 1.16, -.1, 12);
+    cyl(g, .27, .16, '#e63946', 1.0, 1.5, -.1, 12);
+    cone(g, .26, .55, '#e63946', 1.0, 2.23, -.1, 12);
+    cyl(g, .1, .05, '#7fd0f2', 1.0, 1.75, .16, 10).rotation.x = Math.PI / 2;
+    [[.3, 0], [-.3, 0], [0, .3], [0, -.3]].forEach(([fx, fz]) => box(g, fx ? .25 : .05, .45, fz ? .25 : .05, '#e63946', 1.0 + fx, .58, -.1 + fz));
+    return { top: 2.6, eave: .3 };
+  },
+  // 🕐 clock tower: tall tower whose hands show the island's time of day
+  tower(g, p) {
+    const y = walls(g, p, 1.2);
+    slabRoof(g, roofColors(p), y, 3.0, 2.0, 2, 'x');
+    box(g, 1.2, 2.6, 1.2, p.color, 0, y + 1.3, -.1);
+    box(g, 1.32, .14, 1.32, p.roof, 0, y + 2.6, -.1);
+    cyl(g, .5, .05, p.roof, 0, y + 1.95, .505, 24).rotation.x = Math.PI / 2;
+    cyl(g, .44, .06, '#ffffff', 0, y + 1.95, .52, 24).rotation.x = Math.PI / 2;
+    const hand = (len, w) => {
+      const pivot = new THREE.Group(); pivot.position.set(0, y + 1.95, .57); g.add(pivot);
+      box(pivot, w, len, .03, '#2b2118', 0, len / 2, 0, false);
+      return pivot;
+    };
+    clockHands.push({ hour: hand(.24, .07), minute: hand(.36, .045) });
+    cone(g, .95, 1.1, p.roof, 0, y + 3.22, -.1);
+    box(g, .12, .12, .12, '#ffd23f', 0, y + 3.85, -.1);
+    return { top: y + 3.9, eave: y };
+  },
+  // 🔢 number house: flat roof with giant 1-2-3 blocks
+  blocks(g, p) {
+    const y = walls(g, p, 1.5);
+    box(g, 2.9, .18, 1.9, p.roof, 0, y + .09, 0);
+    [['1', '#e63946', -.75, y + .53, .1, .2], ['2', '#3b82f6', .75, y + .53, -.05, -.25], ['3', '#22a55b', -.1, y + 1.23, 0, .5]]
+      .forEach(([d, c, x, yy, z, ry]) => { const m = part(g, UNIT, textMat(d, c, 'sq'), x, yy, z); m.scale.setScalar(.7); m.rotation.y = ry; });
+    return { top: y + 1.6, eave: y };
+  },
+  // 🎲 picnic tent: no walls, striped roof, checked blanket + basket
+  tent(g, p) {
+    box(g, 2.9, .16, 1.9, '#efe3cf', 0, .08, 0);
+    [[-1.3, .8], [1.3, .8], [-1.3, -.8], [1.3, -.8]].forEach(([x, z]) => box(g, .12, 1.4, .12, '#8b5a3c', x, .86, z));
+    const top = slabRoof(g, [p.roof, '#ffffff'], 1.5, 3.3, 2.3, 6, 'both', .22);
+    for (let i = 0; i < 6; i++) for (let j = 0; j < 4; j++) box(g, .4, .03, .4, (i + j) % 2 ? '#ffffff' : '#e63946', -1 + i * .4, .18, -.6 + j * .4, false);
+    box(g, .44, .26, .3, '#c98a5a', .5, .33, .1);
+    box(g, .44, .04, .04, '#8b5a3c', .5, .56, .1, false);
+    box(g, .22, .2, .22, '#ff8fbf', -.45, .3, -.1);
+    box(g, .24, .05, .24, '#ffffff', -.45, .42, -.1, false);
+    return { top, eave: 1.5 };
+  },
+  // 🪙 bank: columns, triangle roof, spinning gold coin
+  bank(g, p) {
+    const y = walls(g, p, 1.5, p.color, false);
+    box(g, 1.4, .1, .35, '#f3ead8', 0, .21, 1.07);
+    [-1.15, -.45, .45, 1.15].forEach(x => box(g, .18, 1.45, .18, '#fffaf0', x, .88, 1.0));
+    box(g, 3.0, .18, 2.1, '#f3ead8', 0, y + .09, .05);
+    const top = slabRoof(g, roofColors(p), y + .18, 3.0, 2.0, 4, 'z', .2);
+    const coin = new THREE.Group(); coin.position.set(0, top + .55, 0); g.add(coin);
+    cyl(coin, .42, .1, '#ffd23f', 0, 0, 0, 24).rotation.x = Math.PI / 2;
+    cyl(coin, .3, .12, '#f0b90b', 0, 0, 0, 24).rotation.x = Math.PI / 2;
+    spinners.push({ o: coin, axis: 'y', speed: 1.6 });
+    return { top: top + .95, eave: y };
+  },
+  // 🛒 shop: striped awning, signboard, fruit crates
+  shop(g, p) {
+    const y = walls(g, p, 1.5, p.color, false);
+    box(g, 2.9, .16, 1.9, '#f3ead8', 0, y + .08, 0);
+    for (let i = 0; i < 6; i++) {
+      const c = i % 2 ? '#ffffff' : p.roof;
+      box(g, .5, .06, .7, c, -1.25 + i * .5, 1.42, 1.08).rotation.x = .35;
+      box(g, .5, .14, .05, c, -1.25 + i * .5, 1.25, 1.42, false);
+    }
+    part(g, UNIT, textMat('SHOP', p.roof), 0, y + .45, .7).scale.set(2.0, .5, .1);
+    [[-1.05, '#ff6b6b'], [1.05, '#ffd23f']].forEach(([x, c]) => {
+      box(g, .45, .3, .35, '#c98a5a', x, .31, 1.2);
+      for (let f = 0; f < 3; f++) box(g, .12, .12, .12, c, x + (f - 1) * .13, .52, 1.2, false);
+    });
+    return { top: y + .8, eave: y };
+  },
+  // 🌾 barn: red walls with white X door, curved (gambrel) roof, silo
+  barn(g, p) {
+    const y = walls(g, p, 1.5, '#c94f3d', false);
+    [-1.3, 1.3].forEach(x => box(g, .08, 1.5, .08, '#ffffff', x, .9, .8, false));
+    [.8, -.8].forEach(r => { box(g, .06, .95, .05, '#ffffff', 0, .6, .86, false).rotation.z = r; });
+    [2.1, 1.95, 1.6, 1.05, .45].forEach((d, i) => box(g, 3.0, .3, d, i % 2 ? '#7a4a33' : '#5a3b2a', 0, y + .15 + i * .3, 0));
+    box(g, .4, .3, .06, '#ffe082', 0, y + .45, .99, false);
+    cyl(g, .45, 2.4, '#dcd3c2', -1.05, 1.35, -.55);
+    halfBall(g, .45, '#8aa1b1', -1.05, 2.55, -.55);
+    return { top: y + 1.6, eave: y };
+  },
+  // 🤖 factory: saw-tooth roof, smoking chimney, turning gear
+  factory(g, p) {
+    const y = walls(g, p, 1.5);
+    [-.88, 0, .88].forEach(x => {
+      box(g, .9, .5, 1.7, p.roof, x, y + .2, 0).rotation.z = .45;
+      box(g, .06, .4, 1.6, '#bfe7ff', x + .38, y + .28, 0, false);
+    });
+    cyl(g, .22, 1.8, '#7d8a99', 1.0, y + .8, -.45, 12);
+    cyl(g, .24, .15, '#e63946', 1.0, y + 1.5, -.45, 12);
+    addSmoke(g, 1.0, y + 1.8, -.45);
+    const gear = new THREE.Group(); gear.position.set(0, 1.38, .84); g.add(gear);
+    cyl(gear, .17, .06, '#ffd23f', 0, 0, 0, 12).rotation.x = Math.PI / 2;
+    for (let i = 0; i < 8; i++) {
+      const a = i / 8 * Math.PI * 2;
+      box(gear, .08, .1, .06, '#ffd23f', Math.cos(a) * .21, Math.sin(a) * .21, 0, false).rotation.z = a;
+    }
+    spinners.push({ o: gear, axis: 'z', speed: 1.2 });
+    return { top: y + 1.8, eave: y };
+  },
+  // 📒 homework room: pitched roof, giant pencil leaning on the wall, apple on the roof
+  classroom(g, p) {
+    const y = walls(g, p, 1.5);
+    const top = slabRoof(g, roofColors(p), y, 3.0, 2.0, 4, 'x');
+    const pencil = new THREE.Group(); pencil.position.set(1.55, .16, .35); pencil.rotation.z = .22; g.add(pencil);
+    cyl(pencil, .17, .14, '#ff9ec4', 0, .07, 0, 6);
+    cyl(pencil, .175, .1, '#c0c6cf', 0, .19, 0, 6);
+    cyl(pencil, .17, 1.9, '#ffc93c', 0, 1.19, 0, 6);
+    cone(pencil, .17, .38, '#f3d2a0', 0, 2.33, 0, 6);
+    cone(pencil, .06, .14, '#2b2118', 0, 2.47, 0, 6);
+    box(g, .32, .32, .32, '#e63946', -.9, top + .12, 0);
+    box(g, .05, .14, .05, '#7a5232', -.9, top + .35, 0, false);
+    box(g, .14, .06, .1, '#5fb36a', -.8, top + .38, 0, false);
+    return { top: top + .3, eave: y };
+  },
+  // 🏆 treasure castle: battlements, two turrets, flag
+  castle(g, p) {
+    const y = walls(g, p, 1.7, p.color, false);
+    for (let i = 0; i < 6; i++) [.7, -.7].forEach(z => box(g, .26, .3, .2, p.color, -1.15 + i * .46, y + .15, z));
+    [-.35, .35].forEach(z => [-1.2, 1.2].forEach(x => box(g, .2, .3, .26, p.color, x, y + .15, z)));
+    [-1.3, 1.3].forEach(x => {
+      cyl(g, .38, 2.7, shade(p.color, .92), x, 1.5, .72, 12);
+      cone(g, .5, .85, p.roof, x, 3.27, .72, 10);
+    });
+    box(g, .04, .7, .04, '#8b5a3c', -1.3, 4.0, .72, false);
+    box(g, .42, .26, .03, '#e63946', -1.08, 4.2, .72, false);
+    box(g, .7, .14, .1, p.roof, 0, 1.12, .83);
+    return { top: 3.75, eave: y };
+  },
+  // 🎨 art house: rainbow stripes, paint-palette roof, giant brush
+  studio(g, p) {
+    const y = walls(g, p, 1.5);
+    ['#e63946', '#ff9f1c', '#ffd23f', '#22a55b', '#3b82f6', '#8b5cf6'].forEach((c, i) => box(g, 2.64, .06, 1.64, c, 0, y - .36 + i * .06, 0, false));
+    box(g, 2.9, .14, 1.9, '#f3ead8', 0, y + .07, 0);
+    cyl(g, 1.1, .12, '#f3d2a0', -.1, y + .2, 0, 24).scale.z = .72;
+    cyl(g, .16, .13, '#f3ead8', .6, y + .21, .25, 12);
+    ['#e63946', '#ffd23f', '#3b82f6', '#22a55b', '#ff8fbf'].forEach((c, i) => {
+      const a = 2.2 + i * .9;
+      cyl(g, .17, .08, c, -.1 + Math.cos(a) * .7, y + .28, Math.sin(a) * .45, 10);
+    });
+    const brush = new THREE.Group(); brush.position.set(.75, y + .25, -.15); brush.rotation.z = -.7; g.add(brush);
+    box(brush, .09, 1.3, .09, '#8b5a3c', 0, .65, 0);
+    box(brush, .12, .12, .12, '#c0c6cf', 0, 1.36, 0);
+    box(brush, .14, .26, .14, '#3b82f6', 0, 1.55, 0);
+    return { top: y + 1.4, eave: y };
+  },
+};
+
+// Christmas fairy lights: one instanced mesh with every bulb; the colours twinkle
+const bulbSpots = [];
+function lightString(g, y, w = 2.9, d = 1.9) {
+  const corners = [[-w / 2, d / 2], [w / 2, d / 2], [w / 2, -d / 2], [-w / 2, -d / 2]];
+  corners.forEach(([x1, z1], i) => {
+    const [x2, z2] = corners[(i + 1) % 4], n = Math.round(Math.hypot(x2 - x1, z2 - z1) / .34);
+    for (let k = 0; k < n; k++) bulbSpots.push(new THREE.Vector3(x1 + (x2 - x1) * k / n, y + .05, z1 + (z2 - z1) * k / n).add(g.position));
+  });
+}
+
+const buildingGroups = [];
+function makeBuilding(p) {
+  const g = new THREE.Group();
+  g.position.set(WX(p.x + 1.5), p.level * LEVEL_H, WZ(p.y + 1));
+  const { top, eave } = BUILD[p.style](g, p);
+  lightString(g, eave);
   // floating sign + name + star
-  const sign = emojiSprite(p.emoji, p.roof, 1.05); sign.position.set(0, 3.35, 0); g.add(sign);
-  const label = labelSprite(p.th, small ? .8 : .62); label.position.set(0, 4.25, 0); g.add(label);
-  const star = emojiSprite('⭐', null, .6); star.position.set(.62, 3.75, 0); g.add(star);
+  p.signY = g.position.y + top + .6;
+  const sign = emojiSprite(p.emoji, p.roof, 1.05); sign.position.set(0, top + .6, 0); g.add(sign);
+  const label = labelSprite(p.th, small ? .8 : .62); label.position.set(0, top + 1.5, 0); g.add(label);
+  const star = emojiSprite('⭐', null, .6); star.position.set(.62, top + 1.0, 0); g.add(star);
   // glowing ring at the door until visited
   const ring = new THREE.Mesh(new THREE.TorusGeometry(.36, .06, 8, 28), new THREE.MeshBasicMaterial({ color: '#ffd23f' }));
   ring.rotation.x = -Math.PI / 2; ring.position.set(0, .1, 1.5); g.add(ring);
 
   g.traverse(o => { o.userData.place = p; });
-  Object.assign(g.userData, { star, ring, sign, label });
+  Object.assign(g.userData, { star, ring, sign, label, signBase: top + .6 });
   island.add(g);
   buildingGroups.push(g);
 }
 PLACES.forEach(makeBuilding);
 
+// ── Festivals ──
+// 🎄 Christmas tree (stands where the fountain is), with ornaments, gifts and a spiral of lights
+const xmasTree = new THREE.Group();
+{
+  const g = xmasTree;
+  g.position.copy(fountain.position);
+  box(g, .35, .6, .35, '#7a5232', 0, .3, 0);
+  [[1.25, 1.3, .95], [1.0, 1.2, 1.8], [.72, 1.05, 2.55], [.45, .9, 3.2]].forEach(([r, h, y], i) => cone(g, r, h, i % 2 ? '#38a05a' : '#2f8f4e', 0, y, 0, 8));
+  const topStar = emojiSprite('⭐', null, .9); topStar.position.y = 3.95; g.add(topStar);
+  const balls = ['#e63946', '#ffd23f', '#3b82f6', '#ffffff', '#ff8fbf'];
+  for (let i = 0; i < 16; i++) {
+    const a = i * 2.4, y = .5 + i / 16 * 2.8, r = 1.2 * (1 - (y - .3) / 3.6) + .02;
+    box(g, .16, .16, .16, balls[i % balls.length], Math.cos(a) * r, y, Math.sin(a) * r, false);
+  }
+  for (let i = 0; i < 44; i++) {
+    const t = i / 44, y = .45 + t * 3.0, r = 1.2 * (1 - t * .8) + .04, a = t * Math.PI * 9;
+    bulbSpots.push(new THREE.Vector3(Math.cos(a) * r, y, Math.sin(a) * r).add(g.position));
+  }
+  [[.95, .45, '#e63946'], [-.9, .55, '#3b82f6'], [.1, -.95, '#ffd23f'], [-.6, -.75, '#22a55b'], [.75, -.6, '#8b5cf6']].forEach(([x, z, c]) => {
+    box(g, .36, .3, .36, c, x, .15, z);
+    box(g, .38, .31, .08, '#ffffff', x, .15, z, false);
+    box(g, .14, .08, .14, '#ffffff', x, .34, z, false);
+  });
+  g.scale.setScalar(0); g.visible = false;
+  island.add(g);
+}
+const BULB_COLORS = ['#ff4d4d', '#ffd23f', '#4dd2ff', '#7dff7a', '#ff8fe0'].map(c => new THREE.Color(c));
+const bulbs = new THREE.InstancedMesh(new THREE.BoxGeometry(.11, .11, .11), new THREE.MeshBasicMaterial({ color: 0xffffff }), bulbSpots.length);
+bulbSpots.forEach((v, i) => { dummy.position.copy(v); dummy.scale.set(1, 1, 1); dummy.updateMatrix(); bulbs.setMatrixAt(i, dummy.matrix); bulbs.setColorAt(i, BULB_COLORS[i % 5]); });
+bulbs.visible = false;
+island.add(bulbs);
+
+// 🌕 Loy Krathong: little lotus boats with candles on the lake + paper lanterns floating up into the sky
+const flameMat = new THREE.MeshBasicMaterial({ color: '#ffb347' });
+const krathongs = [], skyLanterns = [];
+for (let i = 0; i < 6; i++) {
+  const g = new THREE.Group();
+  cyl(g, .3, .12, '#5fb36a', 0, 0, 0, 10);
+  cone(g, .25, .3, i % 2 ? '#ffb3c8' : '#fff0f5', 0, .2, 0, 8);
+  box(g, .05, .16, .05, '#fffbe8', 0, .42, 0, false);
+  part(g, UNIT, flameMat, 0, .55, 0, false).scale.set(.06, .1, .06);
+  g.scale.setScalar(0); g.visible = false;
+  island.add(g);
+  krathongs.push({ g, a: i / 6 * Math.PI * 2, r: .3 + (i % 3) * .2, sp: .05 + i * .012 });
+}
+const paperMat = glowMat('#ffcf8a', '#ff9a3c');
+for (let i = 0; i < 12; i++) {
+  const g = new THREE.Group();
+  part(g, UNIT, paperMat, 0, 0, 0, false).scale.set(.34, .44, .34);
+  part(g, UNIT, flameMat, 0, -.26, 0, false).scale.set(.08, .08, .08);
+  g.visible = false;
+  island.add(g);
+  skyLanterns.push({ g, t: i / 12, a: i * 2.1, r: 1 + (i % 4) * .8 });
+}
+
 // ── Summer: voxel boy in a yellow racing suit and helmet (model lives in world-kit.js) ──
 const summer = kit.makeSummer();
 island.add(summer.g);
+// Extra outfits: umbrella (rain), red scarf (snow), Santa hat (Christmas)
+const umbrella = new THREE.Group();
+umbrella.position.set(.28, .71, .33);
+summer.body.add(umbrella);
+box(umbrella, .04, 1.25, .04, '#5a3b2a', 0, .62, 0, false);
+box(umbrella, .12, .04, .04, '#5a3b2a', .05, 0, 0, false);
+cone(umbrella, .85, .38, '#e63946', 0, 1.3, 0, 8);
+for (let i = 0; i < 8; i++) {
+  const a = (i + .5) / 8 * Math.PI * 2;
+  box(umbrella, .22, .05, .05, i % 2 ? '#ffd23f' : '#ffffff', Math.cos(a) * .8, 1.12, Math.sin(a) * .8, false).rotation.y = -a + Math.PI / 2;
+}
+box(umbrella, .06, .12, .06, '#ffd23f', 0, 1.53, 0, false);
+umbrella.scale.setScalar(0); umbrella.visible = false;
+const scarf = new THREE.Group();
+summer.body.add(scarf);
+box(scarf, .5, .1, .36, '#e63946', 0, .87, 0, false);
+box(scarf, .11, .26, .05, '#e63946', .12, .72, .17, false);
+scarf.visible = false;
+const santaHat = new THREE.Group();
+summer.head.add(santaHat);
+box(santaHat, .64, .1, .6, '#ffffff', 0, .31, 0, false);
+cone(santaHat, .28, .5, '#e63946', 0, .6, 0).rotation.z = -.3;
+box(santaHat, .13, .13, .13, '#ffffff', .13, .84, 0, false);
+santaHat.visible = false;
+summer.g.traverse(o => { o.userData.isSummer = true; });
 
 // ── Critters (little voxel animals) ──
 function makeCritter(kind) {
@@ -622,39 +1115,117 @@ function makeCritter(kind) {
   return g;
 }
 const critters = [
-  { kind: 'dog',     sound: 'โฮ่ง โฮ่ง!', home: { x: 18.5, y: 16.5 } },
-  { kind: 'chicken', sound: 'กุ๊ก กุ๊ก!',  home: { x: 14.5, y: 24.5 } },
-  { kind: 'sheep',   sound: 'แบ๊ะ แบ๊ะ!',  home: { x: 20.5, y: 24.5 } },
-  { kind: 'duck',    sound: 'ก๊าบ ก๊าบ!',  home: { x: 11.5, y: 17.5 } },
-  { kind: 'cat',     sound: 'เหมียว~',     home: { x: 9.5,  y: 6.5  } },
+  { kind: 'dog',     sound: 'โฮ่ง โฮ่ง!', home: { x: 20.5, y: 23.5 } },
+  { kind: 'chicken', sound: 'กุ๊ก กุ๊ก!',  home: { x: 18.5, y: 29.5 } },
+  { kind: 'sheep',   sound: 'แบ๊ะ แบ๊ะ!',  home: { x: 21.5, y: 30.2 } },
+  { kind: 'duck',    sound: 'ก๊าบ ก๊าบ!',  home: { x: 9.5,  y: 23.2 } },
+  { kind: 'cat',     sound: 'เหมียว~',     home: { x: 11.5, y: 6.5  } },
 ].map(c => {
   const g = makeCritter(c.kind);
   island.add(g);
-  const critter = { ...c, g, x: c.home.x, y: c.home.y, tx: c.home.x, ty: c.home.y, wait: rand() * 3, jump: 0, yaw: 0, say: null };
+  const critter = { ...c, g, x: c.home.x, y: c.home.y, tx: c.home.x, ty: c.home.y, wait: rand() * 3, jump: 0, yaw: 0, say: null,
+    level: lvl[Math.floor(c.home.y)][Math.floor(c.home.x)] };
   g.traverse(o => { o.userData.critter = critter; });
   return critter;
 });
+// Critters stay on their own floor (no wandering off a cliff); ducks may swim
+function critterCanGo(c, px, py) {
+  const x = Math.floor(px), y = Math.floor(py);
+  if (!inMap(x, y) || lvl[y][x] !== c.level || isStair(x, y)) return false;
+  if (c.kind === 'duck' && grid[y][x] === T.WATER) return true;
+  return !BLOCKING.has(grid[y][x]);
+}
 
-// ── Sky decorations: floating pastel cubes and voxel clouds ──
+// ── Snowmen: pop up around town when it snows (tap one to say hi) ──
+const snowmen = [];
+{
+  const taken = new Set();
+  const freeSpot = (x, y) => {
+    for (let r = 0; r <= 2; r++) for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) {
+      const nx = x + dx, ny = y + dy;
+      if (inMap(nx, ny) && grid[ny][nx] === T.GRASS && !taken.has(ny * MAP_W + nx)) { taken.add(ny * MAP_W + nx); return [nx, ny]; }
+    }
+    return null;
+  };
+  const SPOTS = [[16, 16], [24, 16], [16, 23], [24, 23], [12, 9], [27, 9], [19, 2], [37, 20], [2, 21], [29, 30], [10, 29], [36, 7]];
+  SPOTS.forEach(([sx, sy], i) => {
+    const spot = freeSpot(sx, sy);
+    if (!spot) return;
+    const [x, y] = spot, g = new THREE.Group();
+    g.position.set(WX(x + .5), lvl[y][x] * LEVEL_H, WZ(y + .5));
+    box(g, .7, .6, .7, '#fbfdff', 0, .3, 0);
+    box(g, .52, .46, .52, '#fbfdff', 0, .83, 0);
+    box(g, .4, .38, .4, '#fbfdff', 0, 1.25, 0);
+    [-.08, .08].forEach(ex => box(g, .06, .06, .03, '#2b2118', ex, 1.3, .21, false));
+    [.95, .8].forEach(by => box(g, .07, .07, .03, '#2b2118', 0, by, .27, false));
+    cone(g, .05, .26, '#ff8a1c', 0, 1.22, .32, 6).rotation.x = Math.PI / 2;
+    box(g, .56, .09, .56, i % 2 ? '#3b82f6' : '#e63946', 0, 1.06, 0, false);
+    box(g, .46, .05, .46, '#2b2118', 0, 1.46, 0);
+    box(g, .3, .3, .3, '#2b2118', 0, 1.62, 0);
+    [-1, 1].forEach(s => { box(g, .45, .05, .05, '#7a5232', s * .45, .95, 0, false).rotation.z = s * .5; });
+    g.scale.setScalar(0); g.visible = false;
+    island.add(g);
+    const sm = { g, x: x + .5, y: y + .5, say: null, jump: 0 };
+    g.traverse(o => { o.userData.snowman = sm; });
+    snowmen.push(sm);
+  });
+}
+
+// ── Sky: stars, sun + moon, floating pastel cubes, voxel clouds, rain, snow ──
+const stars = (() => {
+  const r = mulberry32(7), pos = [];
+  for (let i = 0; i < 500; i++) {
+    const a = r() * Math.PI * 2, up = .15 + r() * .85, d = 110;
+    pos.push(Math.cos(a) * Math.sqrt(1 - up * up) * d, up * d, Math.sin(a) * Math.sqrt(1 - up * up) * d);
+  }
+  const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  const pts = new THREE.Points(geo, new THREE.PointsMaterial({ color: '#ffffff', size: 1.3, transparent: true, opacity: 0, fog: false, depthWrite: false }));
+  scene.add(pts);
+  return pts;
+})();
+const sunDisc = new THREE.Mesh(new THREE.SphereGeometry(4, 16, 12), new THREE.MeshBasicMaterial({ color: '#fff1a8', fog: false, transparent: true }));
+const moonDisc = new THREE.Mesh(new THREE.SphereGeometry(3, 16, 12), new THREE.MeshBasicMaterial({ color: '#f4f1ff', fog: false, transparent: true }));
+scene.add(sunDisc, moonDisc);
+
 const floaters = [];
+const cloudMat = new THREE.MeshLambertMaterial({ color: '#ffffff' });
 {
   const colors = ['#ffb3c8', '#ffd166', '#9fe8da', '#ffffff', '#b8a4ff', '#ff9f7a'];
   const r = mulberry32(99);
   for (let i = 0; i < 40; i++) {
-    const a = r() * Math.PI * 2, dist = 20 + r() * 18;
+    const a = r() * Math.PI * 2, dist = 24 + r() * 18;
     const m = box(scene, 1, 1, 1, colors[i % colors.length], Math.cos(a) * dist, -6 + r() * 22, Math.sin(a) * dist, false);
     m.scale.setScalar(.25 + r() * .45);
     floaters.push({ m, base: m.position.y, ph: r() * 6, spin: .2 + r() * .6 });
   }
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < 8; i++) {
     const cloud = new THREE.Group();
     [[0, 0, 0, 2.4, 1, 1.6], [1.4, .3, .2, 1.8, 1.2, 1.4], [-1.3, .1, -.1, 1.6, .9, 1.3], [.4, .8, 0, 1.4, .8, 1.1]]
-      .forEach(([x, y, z, w, h, d]) => box(cloud, w, h, d, '#ffffff', x, y, z, false));
-    cloud.userData = { a: i / 6 * Math.PI * 2, dist: 26 + (i % 3) * 5, y: 9 + (i % 2) * 4 };
+      .forEach(([x, y, z, w, h, d]) => part(cloud, UNIT, cloudMat, x, y, z, false).scale.set(w, h, d));
+    cloud.userData = { a: i / 8 * Math.PI * 2, dist: 28 + (i % 3) * 5, y: 10 + (i % 2) * 4 };
     scene.add(cloud);
     floaters.push({ cloud });
   }
 }
+// Rain = short falling lines, snow = little white squares; both fill a box over the island
+const AREA = { w: 46, d: 40, h: 26 };
+const RAIN_N = small ? 600 : 1000, SNOW_N = small ? 500 : 900;
+const rainPos = new Float32Array(RAIN_N * 6), snowPos = new Float32Array(SNOW_N * 3);
+{
+  const r = mulberry32(5);
+  for (let i = 0; i < RAIN_N; i++) {
+    const x = (r() - .5) * AREA.w, y = r() * AREA.h, z = (r() - .5) * AREA.d;
+    rainPos.set([x, y, z, x + .06, y + .7, z], i * 6);
+  }
+  for (let i = 0; i < SNOW_N; i++) snowPos.set([(r() - .5) * AREA.w, r() * AREA.h, (r() - .5) * AREA.d], i * 3);
+}
+const rainGeo = new THREE.BufferGeometry(); rainGeo.setAttribute('position', new THREE.BufferAttribute(rainPos, 3));
+const rain = new THREE.LineSegments(rainGeo, new THREE.LineBasicMaterial({ color: '#d6ecff', transparent: true, opacity: 0 }));
+const snowGeo = new THREE.BufferGeometry(); snowGeo.setAttribute('position', new THREE.BufferAttribute(snowPos, 3));
+const snowfall = new THREE.Points(snowGeo, new THREE.PointsMaterial({ color: '#ffffff', size: .22, transparent: true, opacity: 0 }));
+rain.frustumCulled = snowfall.frustumCulled = false;
+rain.visible = snowfall.visible = false;
+scene.add(rain, snowfall);
 
 // ── Sound: Thai speech + little tones ──
 const soundBtn = document.getElementById('soundBtn');
@@ -691,7 +1262,7 @@ function burst(x, y, z, colors = ['#ffd23f', '#ff8fbf', '#9fe8da', '#ffffff']) {
 }
 
 // ── Player ──
-const player = { x: SPAWN.x, y: SPAWN.y, yaw: 0, moving: false, route: [], say: null };
+const player = { x: SPAWN.x, y: SPAWN.y, yaw: 0, moving: false, route: [], say: null, idle: 0 };
 if (save.pos && !blockedAt(save.pos.x, save.pos.y)) { player.x = save.pos.x; player.y = save.pos.y; }
 const sayFor = (who, text, ms = 1800) => { who.say = { text, until: performance.now() + ms }; };
 
@@ -699,7 +1270,7 @@ function visit(place) {
   if (save.visited.includes(place.id)) { sayFor(player, 'ไปเล่นกัน!'); return; }
   save.visited.push(place.id);
   refreshStars(); persist();
-  burst(WX(player.x), 1.5, WZ(player.y)); tones([523, 659, 784, 1047]);
+  burst(WX(player.x), groundY(player.x, player.y) + 1.5, WZ(player.y)); tones([523, 659, 784, 1047]);
   sayFor(player, 'เย้! ได้ดาว ⭐', 2200);
   toast(`ได้ดาว ⭐ ${save.visited.length}/${PLACES.length}`);
   if (save.visited.length === PLACES.length && !save.celebrated) {
@@ -729,7 +1300,7 @@ function closeCard() {
 // Going in: remember where Summer stood, zoom the camera into the door, fade, then open the activity
 function enterPlace(place) {
   persist();
-  const door = new THREE.Vector3(WX(place.door.x + .5), 1, WZ(place.door.y + .5) - .6);
+  const door = new THREE.Vector3(WX(place.door.x + .5), place.level * LEVEL_H + 1, WZ(place.door.y + .5) - .6);
   kit.flyTo({ camera, controls }, door.clone().add(new THREE.Vector3(0, 1.2, 3)), door, 600);
   kit.fadeTo(place.href, 650);
 }
@@ -753,6 +1324,68 @@ document.getElementById('starBtn').onclick = openBook;
 document.getElementById('bookClose').onclick = () => bookModal.classList.remove('show');
 document.getElementById('winClose').onclick = () => document.getElementById('winModal').classList.remove('show');
 
+// ── Sky buttons: time of day, weather, festival (kept for this browser session) ──
+const TIMES = [
+  { h: 7,    emoji: '🌅', th: 'ตอนเช้า',  en: 'Morning' },
+  { h: 12,   emoji: '🌞', th: 'กลางวัน',  en: 'Daytime' },
+  { h: 17.6, emoji: '🌇', th: 'ตอนเย็น',  en: 'Evening' },
+  { h: 21,   emoji: '🌙', th: 'กลางคืน', en: 'Night' },
+];
+const WEATHERS = [
+  { id: 'sun',   emoji: '☀️', th: 'แดดใส',    en: 'Sunny' },
+  { id: 'cloud', emoji: '☁️', th: 'เมฆครึ้ม', en: 'Cloudy' },
+  { id: 'rain',  emoji: '🌧️', th: 'ฝนตก',     en: 'Rainy' },
+  { id: 'snow',  emoji: '❄️', th: 'หิมะตก',   en: 'Snowy' },
+];
+const FESTIVALS = [
+  { id: 'none',     emoji: '🏝️', th: 'วันธรรมดา', en: 'Normal day' },
+  { id: 'xmas',     emoji: '🎄', th: 'คริสต์มาส', en: 'Christmas' },
+  { id: 'krathong', emoji: '🌕', th: 'ลอยกระทง',  en: 'Loy Krathong' },
+];
+// Festival switches on by itself in its season (the button can still change it)
+function festivalByDate(d) {
+  const m = d.getMonth(), day = d.getDate();
+  if (m === 11 || (m === 0 && day <= 6)) return 'xmas';
+  if (m === 10 && day >= 10) return 'krathong';
+  return 'none';
+}
+const today = new Date();
+const sky = { hour: today.getHours() + today.getMinutes() / 60, weather: 'sun', festival: festivalByDate(today) };
+try { Object.assign(sky, JSON.parse(sessionStorage.getItem('summerWorld.sky')) || {}); } catch (e) {}
+sky.target = sky.hour;
+function persistSky() {
+  try { sessionStorage.setItem('summerWorld.sky', JSON.stringify({ hour: sky.target, weather: sky.weather, festival: sky.festival })); } catch (e) {}
+}
+const timeSlot = h => h >= 5 && h < 10 ? 0 : h >= 10 && h < 16 ? 1 : h >= 16 && h < 19 ? 2 : 3;
+// How much of each effect is showing (0..1) — these fade towards the chosen weather/festival
+const amt = { rain: 0, snow: 0, cover: 0, cloud: 0, xmas: 0, krathong: 0 };
+const weatherGoal = () => ({ rain: +(sky.weather === 'rain'), snow: +(sky.weather === 'snow'), cover: +(sky.weather === 'snow'),
+  cloud: { sun: 0, cloud: 1, rain: 1, snow: .7 }[sky.weather], xmas: +(sky.festival === 'xmas'), krathong: +(sky.festival === 'krathong') });
+Object.assign(amt, weatherGoal());   // no fade on page load
+
+const timeBtn = document.getElementById('timeBtn'), weatherBtn = document.getElementById('weatherBtn'), festBtn = document.getElementById('festBtn');
+function refreshSkyBtns() {
+  timeBtn.querySelector('.e').textContent = TIMES[timeSlot(sky.target)].emoji;
+  weatherBtn.querySelector('.e').textContent = WEATHERS.find(w => w.id === sky.weather).emoji;
+  festBtn.querySelector('.e').textContent = FESTIVALS.find(f => f.id === sky.festival).emoji;
+}
+refreshSkyBtns();
+function announce(o) { toast(`${o.emoji} ${o.th} · ${o.en}`); speak(o.th); tones([660, 880], .06); }
+function setTime(h) { sky.target = h; persistSky(); refreshSkyBtns(); }
+function setWeather(id) {
+  sky.weather = id; persistSky(); refreshSkyBtns();
+  if (id === 'rain') sayFor(player, 'ฝนตก! กางร่มก่อน ☂️', 2400);
+  if (id === 'snow') sayFor(player, 'หิมะตก! ตุ๊กตาหิมะมาแล้ว ⛄', 2400);
+}
+function setFestival(id) {
+  sky.festival = id; persistSky(); refreshSkyBtns();
+  if (id === 'xmas') sayFor(player, 'เมอร์รี่คริสต์มาส! 🎄', 2400);
+  if (id === 'krathong') sayFor(player, 'ไปลอยกระทงกัน! 🪔', 2400);
+}
+timeBtn.onclick = () => { const t = TIMES[(timeSlot(sky.target) + 1) % TIMES.length]; setTime(t.h); announce(t); };
+weatherBtn.onclick = () => { const i = WEATHERS.findIndex(w => w.id === sky.weather), w = WEATHERS[(i + 1) % WEATHERS.length]; setWeather(w.id); announce(w); };
+festBtn.onclick = () => { const i = FESTIVALS.findIndex(f => f.id === sky.festival), f = FESTIVALS[(i + 1) % FESTIVALS.length]; setFestival(f.id); announce(f); };
+
 // ── Title screen: once per browser session ──
 const titleEl = document.getElementById('title'), hint = document.getElementById('hint');
 let started = false;
@@ -770,6 +1403,8 @@ document.getElementById('startBtn').onclick = begin;
 
 // ── Input ──
 const keys = {};
+let lastInput = performance.now();   // after 30 s without touching anything the island slowly spins by itself
+['pointerdown', 'wheel', 'keydown'].forEach(ev => addEventListener(ev, () => { lastInput = performance.now(); }, { passive: true }));
 const KEYMAP = { ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down', ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right' };
 addEventListener('keydown', e => {
   if (!started) { if (e.code === 'Enter' || e.code === 'Space') begin(); return; }
@@ -789,17 +1424,26 @@ const targetMarker = new THREE.Mesh(new THREE.TorusGeometry(.3, .05, 8, 24), new
 targetMarker.rotation.x = -Math.PI / 2; targetMarker.visible = false;
 scene.add(targetMarker);
 function walkTo(tx, ty) {
-  const route = bfs(Math.floor(player.x), Math.floor(player.y), (x, y) => x === tx && y === ty, blocked);
-  if (!route) return;
+  const route = bfs(Math.floor(player.x), Math.floor(player.y), (x, y) => x === tx && y === ty,
+    (x, y, fx, fy) => blocked(x, y) || !canStep(fx, fy, x, y));
+  if (!route) return false;
   hint.classList.add('hidden');
   player.route = route.slice(1).map(c => ({ x: c.x + .5, y: c.y + .5 }));
   targetMarker.visible = true;
-  targetMarker.position.set(WX(tx + .5), .12, WZ(ty + .5));
+  targetMarker.position.set(WX(tx + .5), groundY(tx + .5, ty + .5) + .12, WZ(ty + .5));
+  return true;
+}
+// Walk to a tile; if it's a building go to its door, if it's blocked try a free tile next to it
+function walkToward(tx, ty) {
+  const place = PLACES.find(pl => tx >= pl.x - 1 && tx < pl.x + pl.w + 1 && ty >= pl.y - 1 && ty < pl.y + pl.h);
+  if (place) return walkTo(place.door.x, place.door.y);
+  if (!blocked(tx, ty) && walkTo(tx, ty)) return true;
+  for (const [dx, dy] of [[0, 1], [1, 0], [-1, 0], [0, -1]]) if (inMap(tx + dx, ty + dy) && !blocked(tx + dx, ty + dy) && walkTo(tx + dx, ty + dy)) return true;
+  return false;
 }
 
 // A tap is a short press that didn't move (a drag rotates the camera instead)
 const raycaster = new THREE.Raycaster(), ndc = new THREE.Vector2();
-const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -.05);
 let press = null;
 canvas.addEventListener('pointerdown', e => { press = { x: e.clientX, y: e.clientY, t: performance.now() }; });
 canvas.addEventListener('pointerup', e => {
@@ -812,35 +1456,201 @@ function handleTap(sx, sy) {
   hint.classList.add('hidden');
   ndc.set(sx / innerWidth * 2 - 1, -(sy / innerHeight) * 2 + 1);
   raycaster.setFromCamera(ndc, camera);
-  const hits = raycaster.intersectObjects([summer.g, ...critters.map(c => c.g), ...buildingGroups], true);
+  const tappable = [summer.g, ...critters.map(c => c.g), ...snowmen.filter(s => s.g.visible).map(s => s.g), ...buildingGroups];
+  const hits = raycaster.intersectObjects(tappable, true);
   if (hits.length) {
     const o = hits[0].object.userData;
-    if (o.isSummer) { burst(WX(player.x), 1.6, WZ(player.y), ['#ff8fbf', '#ff5d8f']); sayFor(player, 'ฮิฮิ 😊'); tones([880, 1175], .07); return; }
+    if (o.isSummer) { burst(WX(player.x), groundY(player.x, player.y) + 1.6, WZ(player.y), ['#ff8fbf', '#ff5d8f']); sayFor(player, 'ฮิฮิ 😊'); tones([880, 1175], .07); return; }
     if (o.critter) {
       const c = o.critter;
       c.jump = 1; sayFor(c, c.sound, 1500); speak(c.sound); tones([660, 880], .08, 'square');
       return;
     }
+    if (o.snowman) {
+      o.snowman.jump = 1; sayFor(o.snowman, 'สวัสดี! ฉันตุ๊กตาหิมะ ⛄', 1800); speak('สวัสดี ฉันตุ๊กตาหิมะ'); tones([784, 988, 1175], .08);
+      return;
+    }
     if (o.place) return walkTo(o.place.door.x, o.place.door.y);
   }
-  const p = new THREE.Vector3();
-  if (!raycaster.ray.intersectPlane(groundPlane, p)) return;
+  // The ground: step slightly into the surface that was hit, then find the tile under that point
+  const hit = raycaster.intersectObjects(groundMeshes, false)[0];
+  if (!hit) return;
+  const p = hit.point.clone();
+  if (hit.face) p.addScaledVector(hit.face.normal, -.05);
   const tx = Math.floor(p.x + MAP_W / 2), ty = Math.floor(p.z + MAP_H / 2);
-  if (!inMap(tx, ty)) return;
-  const place = PLACES.find(pl => tx >= pl.x && tx < pl.x + pl.w && ty >= pl.y && ty < pl.y + pl.h);
-  if (place) return walkTo(place.door.x, place.door.y);
-  if (!blocked(tx, ty)) walkTo(tx, ty);
+  if (inMap(tx, ty)) walkToward(tx, ty);
+}
+
+// ── Mini-map: the whole island seen from above, turned so "up" is where the camera looks ──
+const mini = document.getElementById('mini'), mctx = mini.getContext('2d');
+const miniBase = document.createElement('canvas');
+{
+  const PX = 4, g = miniBase.getContext('2d');
+  miniBase.width = MAP_W * PX; miniBase.height = MAP_H * PX;
+  const GRASS = ['#8fd16a', '#79bd55', '#65a843'];
+  const colorOf = { [T.PATH]: '#f3d9a4', [T.PLAZA]: '#f2e6d0', [T.FOUNTAIN]: '#7fd0f2', [T.WATER]: '#6cc6ec', [T.STAIR]: '#efe3cb' };
+  for (let y = 0; y < MAP_H; y++) for (let x = 0; x < MAP_W; x++) {
+    const t = grid[y][x];
+    g.fillStyle = t === T.TREE ? '#4f9e4a' : colorOf[t] || GRASS[lvl[y][x]];
+    g.fillRect(x * PX, y * PX, PX, PX);
+    if (y + 1 < MAP_H && lvl[y + 1][x] < lvl[y][x] && t !== T.STAIR) { g.fillStyle = '#8a5a30'; g.fillRect(x * PX, y * PX + PX - 1, PX, 1); }
+  }
+  PLACES.forEach(p => { g.fillStyle = p.roof; g.fillRect(p.x * PX, p.y * PX, p.w * PX, p.h * PX); });
+}
+let miniHeading = 0, miniNext = 0;
+const miniPt = (x, z, c, s, sc) => [c + (x * Math.cos(-miniHeading) - z * Math.sin(-miniHeading)) * sc, c + (x * Math.sin(-miniHeading) + z * Math.cos(-miniHeading)) * sc];
+function drawMini(time) {
+  const css = mini.clientWidth, dpr = Math.min(devicePixelRatio || 1, 2), s = Math.round(css * dpr);
+  if (!css) return;
+  if (mini.width !== s) { mini.width = mini.height = s; }
+  miniHeading = Math.atan2(controls.target.x - camera.position.x, -(controls.target.z - camera.position.z));
+  const c = s / 2, sc = s / 44;
+  mctx.setTransform(1, 0, 0, 1, 0, 0);
+  mctx.clearRect(0, 0, s, s);
+  mctx.save();
+  mctx.beginPath(); mctx.arc(c, c, c, 0, Math.PI * 2); mctx.clip();
+  mctx.fillStyle = '#bfe6ff'; mctx.fillRect(0, 0, s, s);
+  mctx.translate(c, c); mctx.rotate(-miniHeading);
+  mctx.imageSmoothingEnabled = false;
+  mctx.drawImage(miniBase, -MAP_W / 2 * sc, -MAP_H / 2 * sc, MAP_W * sc, MAP_H * sc);
+  mctx.restore();
+  mctx.font = `${Math.round(s * .1)}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;
+  mctx.textAlign = 'center'; mctx.textBaseline = 'middle';
+  PLACES.forEach(p => { const [x, y] = miniPt(WX(p.x + 1.5), WZ(p.y + 1), c, s, sc); mctx.fillText(p.emoji, x, y); });
+  const [px, py] = miniPt(WX(player.x), WZ(player.y), c, s, sc);
+  mctx.beginPath(); mctx.arc(px, py, s * (.045 + Math.sin(time * 6) * .008), 0, Math.PI * 2);
+  mctx.fillStyle = '#ffd23f'; mctx.fill(); mctx.lineWidth = s * .018; mctx.strokeStyle = '#3b2a1a'; mctx.stroke();
+}
+// Tap the mini-map = walk there
+mini.addEventListener('pointerup', e => {
+  if (!started) return;
+  const r = mini.getBoundingClientRect(), sc = r.width / 44;
+  const lx = (e.clientX - r.left - r.width / 2) / sc, ly = (e.clientY - r.top - r.height / 2) / sc;
+  const x = lx * Math.cos(miniHeading) - ly * Math.sin(miniHeading), z = lx * Math.sin(miniHeading) + ly * Math.cos(miniHeading);
+  const tx = Math.floor(x + MAP_W / 2), ty = Math.floor(z + MAP_H / 2);
+  if (inMap(tx, ty) && walkToward(tx, ty)) tones([700, 900], .05);
+});
+
+// ── Sky colours + lights for the time of day and weather ──
+const C = hex => new THREE.Color(hex);
+const SKY = {
+  day: [C('#ffe9b3'), C('#f6cf7a')], night: [C('#27346b'), C('#0e1636')], dusk: [C('#ffc08a'), C('#ee8a86')],
+  greyDay: [C('#e3e7ec'), C('#b7c1cc')], greyNight: [C('#2c3346'), C('#151a27')],
+};
+const skyTop = new THREE.Color(), skyBottom = new THREE.Color(), tmp = new THREE.Color();
+let lastBg = '';
+function applySky(dt, time) {
+  // The clock only runs forwards, so choosing "night" plays the sunset first
+  const diff = ((sky.target - sky.hour) % 24 + 24) % 24;
+  if (diff > .001) sky.hour = (sky.hour + Math.min(diff, dt * 7)) % 24;
+  const goal = weatherGoal();
+  for (const k in amt) amt[k] += (goal[k] - amt[k]) * Math.min(1, dt * (k === 'cover' ? .35 : 1.5));
+
+  const a = (sky.hour - 6) / 12 * Math.PI, up = Math.sin(a);
+  const day = THREE.MathUtils.smoothstep(up, -.18, .28), night = 1 - day;
+  const dusk = Math.exp(-(((up - .05) / .22) ** 2)), cloud = amt.cloud;
+  [[skyTop, 0], [skyBottom, 1]].forEach(([c, i]) => {
+    c.copy(SKY.night[i]).lerp(SKY.day[i], day).lerp(SKY.dusk[i], dusk * .75 * (1 - cloud * .6));
+    c.lerp(tmp.copy(SKY.greyNight[i]).lerp(SKY.greyDay[i], day), cloud * .7);
+  });
+  scene.fog.color.copy(skyBottom);
+  const bg = `radial-gradient(ellipse at 50% 35%, #${skyTop.getHexString()} 0%, #${skyBottom.getHexString()} 100%)`;
+  if (bg !== lastBg) { document.body.style.background = bg; lastBg = bg; }
+
+  hemi.intensity = (.4 + .85 * day) * (1 - .25 * cloud);
+  hemi.color.set('#8ea2ff').lerp(tmp.set('#fff4d6'), day);
+  hemi.groundColor.set('#3a3050').lerp(tmp.set('#c9a46a'), day);
+  const sunUp = up > 0, dx = Math.cos(a), dy = Math.sin(a);
+  sun.position.set((sunUp ? dx : -dx) * 34, Math.max(8, Math.abs(dy) * 34), 16);
+  sun.intensity = sunUp ? (1.55 * day + .15) * (1 - .6 * cloud) : .4 * (1 - .5 * cloud);
+  sun.color.set(sunUp ? '#ffffff' : '#a9bcff');
+  if (sunUp) sun.color.lerp(tmp.set('#ffab6b'), dusk * .8);
+  sunDisc.position.set(dx * 95, dy * 95, 40);
+  moonDisc.position.set(-dx * 95, -dy * 95, 40);
+  sunDisc.material.opacity = THREE.MathUtils.clamp(up * 5 + .5, 0, 1) * (1 - cloud * .8);
+  moonDisc.material.opacity = THREE.MathUtils.clamp(-up * 5 + .5, 0, 1) * (1 - cloud * .7);
+  sunDisc.material.color.set('#fff1a8').lerp(tmp.set('#ff9a5a'), dusk);
+
+  glowMats.forEach(m => { m.emissiveIntensity = night * 1.2 + cloud * .15; });
+  lampLights.forEach(l => { l.intensity = night * 14; });
+  stars.material.opacity = night * (1 - cloud * .85);
+  cloudMat.color.set('#ffffff').lerp(tmp.set('#8f99a6'), amt.rain * .8 + cloud * .2).multiplyScalar(.35 + .65 * day);
+
+  // Rain + snow particles
+  rain.visible = amt.rain > .02;
+  rain.material.opacity = amt.rain * .6;
+  if (rain.visible) {
+    for (let i = 0; i < RAIN_N; i++) {
+      const j = i * 6;
+      let y = rainPos[j + 1] - 22 * dt;
+      if (y < -.5) y += AREA.h;
+      rainPos[j + 1] = y; rainPos[j + 4] = y + .7;
+    }
+    rainGeo.attributes.position.needsUpdate = true;
+  }
+  snowfall.visible = amt.snow > .02;
+  snowfall.material.opacity = amt.snow;
+  if (snowfall.visible) {
+    for (let i = 0; i < SNOW_N; i++) {
+      const j = i * 3;
+      snowPos[j] += Math.sin(time * .8 + i) * .4 * dt;
+      snowPos[j + 1] -= (1.2 + (i % 5) * .15) * dt;
+      if (snowPos[j + 1] < -.5) snowPos[j + 1] += AREA.h;
+    }
+    snowGeo.attributes.position.needsUpdate = true;
+  }
+  snowMat.opacity = amt.cover * .92;
+  snowCover.visible = treeSnow.visible = amt.cover > .01;
+  const pop = THREE.MathUtils.clamp((amt.cover - .2) / .5, 0, 1);
+  snowmen.forEach(s => { s.g.visible = pop > .02; s.g.scale.setScalar(pop); });
+
+  // Summer's outfits
+  const u = THREE.MathUtils.damp(umbrella.scale.x, sky.weather === 'rain' ? 1 : 0, 6, dt);
+  umbrella.scale.setScalar(u); umbrella.visible = u > .02;
+  scarf.visible = amt.cover > .3 || sky.weather === 'snow';
+  santaHat.visible = amt.xmas > .5;
+
+  // Festivals
+  fountain.scale.setScalar(Math.max(.001, 1 - amt.xmas)); fountain.visible = amt.xmas < .98;
+  xmasTree.scale.setScalar(Math.max(.001, amt.xmas)); xmasTree.visible = amt.xmas > .02;
+  bulbs.visible = amt.xmas > .6;
+  krathongs.forEach(k => { k.g.visible = amt.krathong > .02; k.g.scale.setScalar(Math.max(.001, amt.krathong)); });
+  skyLanterns.forEach(l => { l.g.visible = amt.krathong > .05; });
+}
+let bulbTick = 0;
+function twinkle(time) {
+  const tick = Math.floor(time * 3);
+  if (!bulbs.visible || tick === bulbTick) return;
+  bulbTick = tick;
+  for (let i = 0; i < bulbSpots.length; i++) bulbs.setColorAt(i, BULB_COLORS[(i + tick) % BULB_COLORS.length]);
+  bulbs.instanceColor.needsUpdate = true;
 }
 
 // ── Update ──
 const SPEED = 4, R = .3;
+// Summer's 4 corners must be on free tiles that can be reached from the tile he stands on (no walking off cliffs)
 function canStand(x, y) {
-  return !blockedAt(x - R, y - R) && !blockedAt(x + R, y - R) && !blockedAt(x - R, y + R) && !blockedAt(x + R, y + R);
+  const cx = Math.floor(player.x), cy = Math.floor(player.y);
+  for (const [ox, oy] of [[-R, -R], [R, -R], [-R, R], [R, R]]) {
+    const tx = Math.floor(x + ox), ty = Math.floor(y + oy);
+    if (blocked(tx, ty) || !canStep(cx, cy, tx, ty)) return false;
+  }
+  return true;
 }
 const fwd = new THREE.Vector3(), camTarget = new THREE.Vector3();
 const lerpAngle = (a, b, t) => a + (((b - a) % (Math.PI * 2) + Math.PI * 3) % (Math.PI * 2) - Math.PI) * t;
+const yawToCamera = (x, z) => Math.atan2(camera.position.x - x, camera.position.z - z);
+let lastAz = 0, spin = 0, sway = 0;
 
 function update(dt, time) {
+  // How fast is the island being turned? (used to swing signs and make everyone look at the camera)
+  const az = controls.getAzimuthalAngle();
+  let dAz = az - lastAz; lastAz = az;
+  if (dAz > Math.PI) dAz -= Math.PI * 2; else if (dAz < -Math.PI) dAz += Math.PI * 2;
+  spin += (dAz / Math.max(dt, 1e-3) - spin) * Math.min(1, dt * 8);
+  const turning = started && Math.abs(spin) > .35;
+  sway += (THREE.MathUtils.clamp(-spin * .25, -.45, .45) - sway) * Math.min(1, dt * 4);
+
   // Keyboard/d-pad move relative to the camera: "up" = away from the camera
   const ix = (keys.right ? 1 : 0) - (keys.left ? 1 : 0), iy = (keys.up ? 1 : 0) - (keys.down ? 1 : 0);
   let dx = 0, dy = 0, step = SPEED * dt;
@@ -858,26 +1668,42 @@ function update(dt, time) {
   player.moving = !!(dx || dy);
   if (canStand(player.x + dx * step, player.y)) player.x += dx * step;
   if (canStand(player.x, player.y + dy * step)) player.y += dy * step;
-  if (player.moving) player.yaw = lerpAngle(player.yaw, Math.atan2(dx, dy), Math.min(1, dt * 12));
+  if (player.moving) { player.yaw = lerpAngle(player.yaw, Math.atan2(dx, dy), Math.min(1, dt * 12)); player.idle = 0; }
+  else player.idle += dt;
+  const sy = groundY(player.x, player.y);
 
-  // Summer's walk animation
-  summer.g.position.set(WX(player.x), 0, WZ(player.y));
+  // Summer: walk animation; standing still he turns to face you, and waves while the island spins
+  if (!player.moving && (player.idle > 1.5 || turning))
+    player.yaw = lerpAngle(player.yaw, yawToCamera(WX(player.x), WZ(player.y)), Math.min(1, dt * (turning ? 6 : 2)));
+  summer.g.position.set(WX(player.x), sy, WZ(player.y));
   summer.g.rotation.y = player.yaw;
   kit.poseSummer(summer, time, player.moving ? 'walk' : 'idle');
+  if (turning && !player.moving) { summer.armL.rotation.z = -2.5 + Math.sin(time * 12) * .4; summer.armL.rotation.x = 0; }
+  if (umbrella.visible) { summer.armR.rotation.x = -1.3; summer.armR.rotation.z = 0; }
 
   // Standing at a door?
   const here = PLACES.find(p => Math.hypot(player.x - (p.door.x + .5), player.y - (p.door.y + .5)) < .9);
   if (here && here !== currentPlace) { openCard(here); visit(here); }
   else if (!here && currentPlace) closeCard();
 
-  // Buildings: wiggle the one Summer is visiting, bob signs, pulse door rings
+  // Buildings: wiggle the one Summer is visiting, bob + swing signs, pulse door rings
   buildingGroups.forEach(g => {
-    const active = g.userData.place === currentPlace;
+    const u = g.userData, active = u.place === currentPlace;
     g.scale.y = active ? 1 + Math.sin(time * 7) * .03 : 1;
-    g.userData.sign.position.y = 3.35 + Math.sin(time * 2 + g.position.x) * .08;
-    g.userData.ring.scale.setScalar(1 + Math.sin(time * 4) * .15);
+    u.sign.position.y = u.signBase + Math.sin(time * 2 + g.position.x) * .08;
+    u.sign.material.rotation = sway + Math.sin(time * 2 + g.position.z) * .04;
+    u.label.material.rotation = sway * .6;
+    u.ring.scale.setScalar(1 + Math.sin(time * 4) * .15);
   });
   targetMarker.scale.setScalar(1 + Math.sin(time * 8) * .12);
+  const isle = sky.hour % 12;   // clock tower hands follow the island's time
+  clockHands.forEach(c => { c.hour.rotation.z = -isle / 12 * Math.PI * 2; c.minute.rotation.z = -(sky.hour % 1) * Math.PI * 2; });
+  spinners.forEach(s => { s.o.rotation[s.axis] += dt * s.speed; });
+  smokePuffs.forEach(s => {
+    const t = (time * .35 + s.ph) % 1;
+    s.m.position.set(s.x + t * .4, s.y + t * 1.4, s.z);
+    s.m.scale.setScalar(.12 + .3 * Math.sin(t * Math.PI));
+  });
 
   // Fountain drops arc from the top bowl into the basin
   drops.forEach((d, i) => {
@@ -885,16 +1711,18 @@ function update(dt, time) {
     d.position.set(Math.cos(a) * .55 * t, 1.15 + 1.9 * t * (1 - t) - .8 * t, Math.sin(a) * .55 * t);
   });
 
-  // Critters wander near home; tapped ones jump
+  // Critters wander near home (on their own floor); tapped ones jump; they look up when the island spins
   critters.forEach(c => {
     c.jump = Math.max(0, c.jump - dt * 2.2);
-    if (c.wait > 0) c.wait -= dt;
-    else {
+    if (c.wait > 0) {
+      c.wait -= dt;
+      if (turning) c.yaw = lerpAngle(c.yaw, yawToCamera(WX(c.x), WZ(c.y)), Math.min(1, dt * 5));
+    } else {
       const ex = c.tx - c.x, ey = c.ty - c.y, d = Math.hypot(ex, ey);
       if (d < .05) {
         c.wait = 1 + Math.random() * 3;
         const tx = c.home.x + (Math.random() * 4 - 2), ty = c.home.y + (Math.random() * 2 - 1);
-        if (!blockedAt(tx, ty) || (c.kind === 'duck' && grid[Math.floor(ty)][Math.floor(tx)] === T.WATER)) { c.tx = tx; c.ty = ty; }
+        if (critterCanGo(c, tx, ty) && critterCanGo(c, (tx + c.x) / 2, (ty + c.y) / 2)) { c.tx = tx; c.ty = ty; }
       } else {
         const s = Math.min(d, 1.2 * dt);
         c.x += ex / d * s; c.y += ey / d * s;
@@ -903,15 +1731,36 @@ function update(dt, time) {
     }
     const swimming = grid[Math.floor(c.y)][Math.floor(c.x)] === T.WATER;
     const hop = (c.wait > 0 || swimming ? 0 : Math.abs(Math.sin(time * 10)) * .05) + Math.sin(c.jump * Math.PI) * .7;
-    c.g.position.set(WX(c.x), (swimming ? -.2 : 0) + hop, WZ(c.y));
+    c.g.position.set(WX(c.x), groundY(c.x, c.y) + (swimming ? -.2 : 0) + hop, WZ(c.y));
     c.g.rotation.y = c.yaw;
   });
+  // Snowmen slowly turn to watch the camera; tapped ones hop
+  snowmen.forEach(s => {
+    if (!s.g.visible) return;
+    s.jump = Math.max(0, s.jump - dt * 2.2);
+    s.g.rotation.y = lerpAngle(s.g.rotation.y, yawToCamera(WX(s.x), WZ(s.y)), Math.min(1, dt * 2));
+    s.g.position.y = groundY(s.x, s.y) + Math.sin(s.jump * Math.PI) * .5;
+  });
+  // Krathongs drift round the lake; paper lanterns float up and start again
+  krathongs.forEach((k, i) => {
+    if (!k.g.visible) return;
+    k.a += dt * k.sp;
+    k.g.position.set(WX(LAKE.cx) + Math.cos(k.a) * LAKE.rx * k.r * 1.6, -.16 + Math.sin(time * 2 + i) * .03, WZ(LAKE.cy) + Math.sin(k.a) * LAKE.ry * k.r * 1.6);
+  });
+  skyLanterns.forEach(l => {
+    if (!l.g.visible) return;
+    l.t = (l.t + dt / 28) % 1;
+    const r = l.r + l.t * 6;
+    l.g.position.set(WX(LAKE.cx) + Math.cos(l.a + l.t * 2) * r, .3 + l.t * 26, WZ(LAKE.cy) + Math.sin(l.a + l.t * 2) * r);
+    l.g.scale.setScalar(Math.max(.001, amt.krathong * Math.min(1, l.t * 20)));
+  });
 
-  // Floating cubes bob and spin; clouds drift around the island
+  // Floating cubes bob and spin; clouds drift around the island (rain clouds grow bigger)
   floaters.forEach(f => {
     if (f.cloud) {
       const u = f.cloud.userData; u.a += dt * .02;
-      f.cloud.position.set(Math.cos(u.a) * u.dist, u.y, Math.sin(u.a) * u.dist);
+      f.cloud.position.set(Math.cos(u.a) * u.dist, u.y - amt.cloud * 2, Math.sin(u.a) * u.dist);
+      f.cloud.scale.setScalar(1 + amt.cloud * .5);
     } else {
       f.m.position.y = f.base + Math.sin(time * .6 + f.ph) * .6;
       f.m.rotation.x += dt * f.spin; f.m.rotation.y += dt * f.spin * .7;
@@ -924,13 +1773,18 @@ function update(dt, time) {
     c.m.rotation.x += dt * 6; c.life -= dt;
     if (c.life <= 0) { scene.remove(c.m); confetti.splice(i, 1); }
   }
+  applySky(dt, time);
+  twinkle(time);
 
-  // Camera gently follows Summer (keeps whatever angle the user rotated to)
+  // Camera gently follows Summer (keeps whatever angle the user rotated to); idle for 30 s → slow auto-spin
   if (started) {
-    camTarget.set(WX(player.x), .8, WZ(player.y)).sub(controls.target).multiplyScalar(Math.min(1, dt * 4));
+    camTarget.set(WX(player.x), sy + .8, WZ(player.y)).sub(controls.target).multiplyScalar(Math.min(1, dt * 4));
     controls.target.add(camTarget); camera.position.add(camTarget);
+    controls.autoRotate = !player.moving && performance.now() - lastInput > 30000;
+    controls.autoRotateSpeed = .35;
   }
   controls.update();
+  if (time > miniNext || turning) { miniNext = time + .08; drawMini(time); }
 }
 
 // ── Screen overlays: speech bubbles + dotted line ──
@@ -952,15 +1806,16 @@ function showBubble(who, x, y, z) {
 }
 const linkLine = document.getElementById('linkLine'), linkDot = document.getElementById('linkDot');
 function updateOverlays() {
-  showBubble(player, WX(player.x), 2.1, WZ(player.y));
-  critters.forEach(c => showBubble(c, WX(c.x), 1.1, WZ(c.y)));
+  showBubble(player, WX(player.x), groundY(player.x, player.y) + (umbrella.visible ? 2.8 : 2.1), WZ(player.y));
+  critters.forEach(c => showBubble(c, WX(c.x), groundY(c.x, c.y) + 1.1, WZ(c.y)));
+  snowmen.forEach(s => showBubble(s, WX(s.x), groundY(s.x, s.y) + 2.1, WZ(s.y)));
   const show = !!currentPlace;
   linkLine.style.display = linkDot.style.display = show ? '' : 'none';
   if (!show) return;
   const r = card.getBoundingClientRect();
   const wide = innerWidth > 720;
   const ax = wide ? r.right - 24 : r.left + r.width / 2, ay = wide ? r.top + 24 : r.top;
-  const s = toScreen(WX(currentPlace.x + 1.5), 3.35, WZ(currentPlace.y + 1));
+  const s = toScreen(WX(currentPlace.x + 1.5), currentPlace.signY, WZ(currentPlace.y + 1));
   linkLine.setAttribute('x1', ax); linkLine.setAttribute('y1', ay);
   linkLine.setAttribute('x2', s.x); linkLine.setAttribute('y2', s.y);
   linkDot.setAttribute('cx', s.x); linkDot.setAttribute('cy', s.y);
@@ -976,8 +1831,9 @@ function resize() {
 addEventListener('resize', resize);
 resize();
 // Start the camera already looking at Summer
-controls.target.set(WX(player.x), .8, WZ(player.y));
+controls.target.set(WX(player.x), groundY(player.x, player.y) + .8, WZ(player.y));
 camera.position.set(WX(player.x) + 12, 16, WZ(player.y) + 18);
+lastAz = controls.getAzimuthalAngle();
 
 const clock = new THREE.Clock();
 renderer.setAnimationLoop(() => {
@@ -988,6 +1844,13 @@ renderer.setAnimationLoop(() => {
 });
 addEventListener('pagehide', persist);
 window.__worldReady = true;
+// Test hook (Playwright): change the sky instantly and read the state
+window.__island = {
+  setTime: h => { setTime(h); sky.hour = h; }, setWeather, setFestival, walkTo,
+  snap: () => { sky.hour = sky.target; Object.assign(amt, weatherGoal()); },
+  state: () => ({ hour: sky.hour, weather: sky.weather, festival: sky.festival, amt: { ...amt }, player: { x: player.x, y: player.y, z: groundY(player.x, player.y) }, umbrella: umbrella.visible, snowmen: snowmen.length }),
+  look: (x, y, dist = 16) => { controls.target.set(WX(x), groundY(x, y) + .8, WZ(y)); camera.position.set(WX(x) + dist * .55, groundY(x, y) + dist * .75, WZ(y) + dist * .8); player.x = x; player.y = y; },
+};
 
 // Labels use the Thai web font — redraw them once it has loaded
 if (document.fonts) document.fonts.load('700 56px "Noto Sans Thai"').then(() => {

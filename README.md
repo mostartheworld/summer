@@ -16,7 +16,7 @@
 
 | Page | What it is | Status |
 |------|------------|--------|
-| `index.html` | 🏝️ 3D island home — walk/tap Summer to a building to enter each activity | ✅ Ready |
+| `index.html` | 🏝️ 3D island home — 3 floors with stairs, 15 unique buildings, day/night + weather (rain umbrella, snowmen) + festivals (Christmas, Loy Krathong), rotating mini-map; walk/tap Summer to a building to enter each activity | ✅ Ready |
 | `menu.html` | Classic card menu (all pages + parent tools); badges show ✨3D / 🏝️ island-theme pages | ✅ Ready |
 | `24_question.html` | ✨3D picnic — roll the big die, a topic chest opens with a conversation question; 🇹🇭/🇬🇧 toggle, progress saved | ✅ Ready |
 | `robot_game.html` | ✨3D robot workshop — 4 levels Noob/Pro/Hacker/God (5–12 parts), endless random colours (tap a part to recolour or restyle), lessons per part | ✅ Ready |
