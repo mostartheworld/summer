@@ -962,6 +962,7 @@ document.fonts.load('700 56px "Noto Sans Thai"').catch(() => {}).finally(() => {
   refreshStars();
   goHome();
   window.__worldReady = true;
+  document.getElementById('fallback').classList.remove('show');   // a slow connection may have shown it already
 });
 window.__farm = { goStation, pick: i => document.querySelectorAll('#choices .choice')[i].click(), okIndex: () => [...document.querySelectorAll('#choices .choice')].findIndex(b => b._ok) };
 </script>

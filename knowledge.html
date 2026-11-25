@@ -407,6 +407,7 @@ stage.start((dt, time) => {
 // test hooks
 window.__know = { setMode, tap: i => tapExhibit(exhibits[i]), mathAnswer: ok => { const b = [...answersEl.children].find(x => (+x.textContent === M.ans) === ok); mathAnswer(+b.textContent, b); }, M, get learned() { return learned.size; } };
 window.__worldReady = true;
+document.getElementById('fallback').classList.remove('show');   // a slow connection may have shown it already
 </script>
 </body>
 </html>

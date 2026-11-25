@@ -553,6 +553,7 @@ stage.start((dt, time) => {
 // test hooks
 window.__hw = { open: openHomework, setMode, goClass, get state() { return { p: S.p, s: S.s, mode: S.mode, waiting: S.waiting, done: S.hw && progOf(S.hw.id).done.slice() }; }, said: () => $('saidBtn').click(), end: () => $('endBtn').click() };
 window.__worldReady = true;
+document.getElementById('fallback').classList.remove('show');   // a slow connection may have shown it already
 </script>
 </body>
 </html>

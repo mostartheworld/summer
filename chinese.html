@@ -384,6 +384,7 @@ stage.start((dt, time) => {
 // test hooks
 window.__zh = { setMode, answer: i => answer(i, answersEl.children[i]), tap: i => tapLantern(lanterns[i]), get qi() { return qi; }, get score() { return qScore; }, QUIZ };
 window.__worldReady = true;
+document.getElementById('fallback').classList.remove('show');   // a slow connection may have shown it already
 </script>
 </body>
 </html>

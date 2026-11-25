@@ -360,6 +360,7 @@ stage.start((dt, time) => {
 // test hooks
 window.__q24 = { roll, setLang, get current() { return current; }, get done() { return done.size; }, markDone: () => doneBtn.click() };
 window.__worldReady = true;
+document.getElementById('fallback').classList.remove('show');   // a slow connection may have shown it already
 </script>
 </body>
 </html>

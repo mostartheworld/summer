@@ -9,7 +9,7 @@
 
 ## Quick start
 
-- Local: open `index.html` in any browser (3D needs internet for Three.js from jsdelivr; pages fall back gracefully offline)
+- Local: open `index.html` in any browser (3D needs internet for Three.js from jsdelivr; pages fall back gracefully offline, and the notice goes away by itself if a slow connection catches up)
 - GitHub Pages (optional): serve the repo root (users can land on `home.html` → redirects to `index.html`)
 
 ## Games & activities

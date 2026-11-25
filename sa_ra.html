@@ -457,6 +457,7 @@ document.fonts.load('900 100px "Noto Sans Thai Looped"').catch(() => {}).finally
   setMode('practice');
   setTimeout(() => caption('แตะ "ต่อคำ" ดูสระวิ่งไปต่อกับพยัญชนะ! 🧩'), 900);
   window.__worldReady = true;
+  document.getElementById('fallback').classList.remove('show');   // a slow connection may have shown it already
 });
 // for automated tests
 window.__sara = { joinBlocks, answer: w => { const b = [...document.querySelectorAll('#gameRow .choice')].find(x => x.textContent === w); b && b.click(); }, get item() { return item; }, setVowel: id => setVowel(VOWELS.find(v => v.id === id)) };

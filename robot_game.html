@@ -716,6 +716,7 @@ stage.start((dt, time) => {
 // test hooks
 window.__robot = { S, place, restyle, setTapMode, newRobot, pickLevel: id => levelsEl.querySelector(`[data-id="${id}"]`).click() };
 window.__worldReady = true;
+document.getElementById('fallback').classList.remove('show');   // a slow connection may have shown it already
 </script>
 </body>
 </html>

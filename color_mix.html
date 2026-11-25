@@ -601,6 +601,7 @@ stage.start((dt, time) => {
 // test hooks
 window.__mix = { pick, stir, setMode, mixOf, hexOf, get target() { return target; }, get stars() { return stars; }, get busy() { return busy; }, jars };
 window.__worldReady = true;
+document.getElementById('fallback').classList.remove('show');   // a slow connection may have shown it already
 </script>
 </body>
 </html>

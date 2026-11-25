@@ -2044,6 +2044,7 @@ renderer.setAnimationLoop(() => {
 });
 addEventListener('pagehide', persist);
 window.__worldReady = true;
+document.getElementById('fallback').classList.remove('show');   // a slow connection may have shown it already
 // Test hook (Playwright): change the sky instantly and read the state
 window.__island = {
   setTime: h => { setTime(h); sky.hour = h; }, setWeather, setFestival, walkTo,

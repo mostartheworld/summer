@@ -423,6 +423,7 @@ stage.start((dt, time) => {
 // test hooks
 window.__rew = { give: (n, why = 'ทดสอบ') => addStars(n, why), get state() { return JSON.parse(JSON.stringify(R)); }, openPanel, askGate: () => askGate(openPanel), get gateAnswer() { return gateAnswer; }, reset: () => { R = { stars: 0, log: [], claimed: [] }; save(); fillJar(); refresh(); } };
 window.__worldReady = true;
+document.getElementById('fallback').classList.remove('show');   // a slow connection may have shown it already
 </script>
 </body>
 </html>

@@ -1068,6 +1068,7 @@ stage.start((dt, time) => {
 // test hooks
 window.__space = { setMode, showConstellation, setNight, goStop, setTour, SKY, SOL, shootingStar };
 window.__worldReady = true;
+document.getElementById('fallback').classList.remove('show');   // a slow connection may have shown it already
 </script>
 </body>
 </html>

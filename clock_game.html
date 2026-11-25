@@ -299,6 +299,7 @@ stage.start((dt, time) => {
   fx.update(dt);
 });
 window.__worldReady = true;
+document.getElementById('fallback').classList.remove('show');   // a slow connection may have shown it already
 </script>
 </body>
 </html>
