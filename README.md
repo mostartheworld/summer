@@ -33,6 +33,10 @@
 | `chinese.html` | ✨3D ถนนโคมไฟ — แตะโคมฟังเสียงจีน (Traditional Chinese), ตัวเลขมีจุดให้นับ, ทดสอบ 10 ข้อ | ✅ Ready |
 | `homework.html` | ✨3D homework room (prep for Grade 1) — first item: English speech practice on a stage: 👂 listen (karaoke), 🗣️ repeat, 🎭 perform + record. Homework list lives in `homework-data.js` | ✅ Ready |
 | `rewards.html` | ✨3D treasure room — parents give stars (behind a sum gate) with a reason, stars fill the jar, chests open at goals | ✅ Ready |
+| `lift.html` | ✨3D lift — first screen of a new visit: What's New popup, walk into the lift, pick a floor (1 houses · 2 maze · 3 runner · 4 space). Every floor has a lift door and a 🛗 exit button back here | ✅ Ready |
+| `maze.html` | ✨3D floor 2 — Grade-1 sum → dress a robot → random maze that grows each time | ✅ Ready |
+| `runner.html` | ✨3D floor 3 — Grade-1 sum → choose an outfit → jump over block monsters | ✅ Ready |
+| `space.html` | ✨3D floor 4 — Grade-1 sum → build a spaceship → dodge and shoot meteors | ✅ Ready |
 | `mrbeast_lab.html` | Beast Lab Scanner — แคตตาล็อก MrBeast Lab Swarms 486 ตัว (ข้อมูล `mrbeast/catalog.json` + ภาพ `mrbeast/img/`), ค้นหา/กรอง, เดาจากสีรูปถ่าย, ติ๊กตัวที่มีแล้ว — 🏝️ ธีมเกาะ | ✅ Ready |
 
 ## For parents

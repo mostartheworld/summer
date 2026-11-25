@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🛗 ลิฟต์ — Summer's World</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="world-theme.css">
+<link rel="stylesheet" href="floor-theme.css">
+<style>
+  .w-dock { display: none; }
+  .w-dock.show { display: flex; }
+
+  /* ── Lift button panel on the right wall ── */
+  .panel {
+    position: fixed; right: 14px; top: 54%; transform: translate(130%, -50%); z-index: 5;
+    background: linear-gradient(100deg, #cfd6df, #f4f7fa 45%, #bcc5d0); border: 4px solid #98a2b0; border-radius: 26px;
+    padding: 14px 14px 16px; display: flex; flex-direction: column; gap: 12px;
+    box-shadow: 0 10px 0 rgba(0,0,0,.18); transition: transform .5s cubic-bezier(.2,1.2,.4,1);
+  }
+  .panel.show { transform: translate(0, -50%); }
+  .screen { background: #1c2233; color: #ffb84d; border-radius: 12px; text-align: center; font: 700 34px Fredoka, sans-serif; min-height: 52px; line-height: 52px; }
+  .fbtn { display: flex; align-items: center; gap: 10px; border: none; background: none; cursor: pointer; font: 700 17px 'Noto Sans Thai', sans-serif; color: #2c3442; text-align: left; padding: 0; min-height: 72px; }
+  .fbtn .num {
+    width: 72px; height: 72px; flex: none; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font: 700 32px Fredoka, sans-serif; color: #3b4454; background: radial-gradient(circle at 35% 30%, #fff, #dfe5ec 60%, #b8c1cc);
+    border: 4px solid #98a2b0; box-shadow: 0 4px 0 #87909c;
+  }
+  .fbtn .name { width: 108px; line-height: 1.25; }
+  .fbtn .em { display: block; font-size: 24px; }
+  .fbtn:active .num { transform: translateY(3px); box-shadow: 0 1px 0 #87909c; }
+  .fbtn.here .num { border-color: #f59e0b; } .fbtn.here .name::after { content: 'อยู่ชั้นนี้'; display: block; font-size: 13px; color: #b45309; }
+  .fbtn.lit .num { background: radial-gradient(circle, #fffbe6, #ffd23f 60%, #f59e0b); border-color: #fff; box-shadow: 0 0 26px 8px rgba(255,210,63,.85); color: #7a4a00; }
+  .panel.busy .fbtn { pointer-events: none; }
+  @media (max-width: 480px) { .fbtn .name { width: 84px; font-size: 15px; } .panel { padding: 10px; } }
+  @media (max-height: 620px) {
+    .panel { gap: 4px; padding: 8px 10px; top: 56%; }
+    .fbtn { min-height: 58px; } .fbtn .num { width: 56px; height: 56px; font-size: 26px; }
+    .screen { min-height: 40px; line-height: 40px; font-size: 26px; }
+  }
+  @media (max-height: 460px) {           /* phones held sideways: two columns of buttons under the icons */
+    .panel { display: grid; grid-template-columns: 1fr 1fr; top: auto; bottom: 12px; transform: translateX(130%); gap: 8px; }
+    .panel.show { transform: none; }
+    .screen { grid-column: 1 / -1; }
+  }
+
+  /* ── What's New ── */
+  .news .w-card { text-align: left; position: relative; padding-top: 18px; }
+  .news .head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .news h2 { margin: 0; flex: 1; font-size: 25px; }
+  .news .ver { font: 700 14px Fredoka, sans-serif; background: #fff3d6; color: var(--orange-dark); border-radius: 999px; padding: 4px 12px; }
+  .news .x { width: 56px; height: 56px; border: none; border-radius: 50%; background: #f3eee4; font-size: 22px; cursor: pointer; flex: none; color: var(--ink); }
+  .news .item { display: flex; gap: 12px; align-items: center; border-radius: 18px; padding: 9px 10px; border: 3px solid transparent; }
+  .news .item.now { background: #fff8e6; border-color: #ffd23f; }
+  .news .item .em { font-size: 34px; }
+  .news .item b { font-size: 18px; }
+  .news .item div { font-size: 15px; line-height: 1.4; }
+  .news .btns { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 12px; }
+  .news .btns .w-btn { margin: 0; }
+</style>
+</head>
+<body>
+<div class="w-fade-in"></div>
+<canvas class="w-canvas" id="world"></canvas>
+
+<div class="w-top">
+  <a class="w-pill w-back" href="index.html?floor=1" data-fade title="ไปเกาะเลย Go to the island">🏝️ <span>ไปเกาะ</span></a>
+  <div class="w-pill w-title">🛗 ลิฟต์ <span class="en">· LIFT</span></div>
+  <div class="w-icons">
+    <button class="w-pill w-icon" id="newsBtn" title="มีอะไรใหม่ What's New">🎉</button>
+    <button class="w-pill w-icon" id="soundBtn" title="เปิด/ปิดเสียง Sound">🔊</button>
+  </div>
+</div>
+<div class="w-caption" id="caption"></div>
+
+<div class="w-dock" id="dock"><div class="w-controls"><button class="w-btn big" id="goBtn">🚶 เดินเข้าลิฟต์</button></div></div>
+
+<div class="panel" id="panel"><div class="screen" id="screen">—</div></div>
+
+<div class="w-modal-bg news" id="news">
+  <div class="w-card">
+    <div class="head"><h2>🎉 มีอะไรใหม่!</h2><span class="ver">v1.0</span><button class="x" id="newsX" aria-label="ปิด Close">✕</button></div>
+    <div id="newsList"></div>
+    <div class="btns">
+      <button class="w-btn white" id="newsMute">🔇 หยุดเสียง</button>
+      <button class="w-btn" id="newsGo">ไปเลย! ▶</button>
+    </div>
+  </div>
+</div>
+
+<div class="w-fallback" id="fallback">
+  <div class="big">🛗</div>
+  <h2>โหลดลิฟต์ 3D ไม่ได้</h2>
+  <div>ต้องต่ออินเทอร์เน็ตนะ / The 3D lift needs internet</div>
+  <a class="w-btn" href="menu.html">ไปหน้าเมนู ▶</a>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script src="world-kit.js"></script>
+<script src="floor-kit.js"></script>
+<script>
+  setTimeout(function () { if (!window.__worldReady) document.getElementById('fallback').classList.add('show'); }, 10000);
+</script>
+
+<script type="module">
+/* =========================================================
+   ลิฟต์ (Lift) — the first thing Summer sees when the app opens
+   What's New (once per version) → Summer walks into the lift → floor buttons on the right
+   → doors close, the lift moves, bright warp light → the chosen floor
+   Floors come from FLOORS in floor-kit.js
+   ========================================================= */
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const VERSION = '1.0';                 // change this when there is something new → What's New pops up again
+const kit = WorldKit(THREE, OrbitControls);
+const fk = FloorKit(kit);
+const { box, mat } = kit;
+kit.bindSoundButton(document.getElementById('soundBtn'));
+kit.bindFadeLinks();
+// This browser session has met the lift, so "back to the island" goes straight to the island from now on
+try { sessionStorage.setItem('summerWorld.inside', '1'); sessionStorage.setItem('summerWorld.started', '1'); } catch (e) {}
+
+const stage = kit.createStage({ canvas: document.getElementById('world'), shadowSize: 14 });
+const { scene, camera, controls } = stage;
+stage.sun.position.set(7, 16, -18);      // the lobby wall faces −z, so the sun shines on it from there
+controls.enabled = false; controls.enableDamping = false;
+const portrait = () => innerWidth < innerHeight;
+function setFov() { camera.fov = portrait() ? 72 : 55; camera.updateProjectionMatrix(); }
+addEventListener('resize', setFov); setFov();
+
+// ── The cabin: x −2…2, z −2…2, doors on the z = −2 side. The lobby is outside the doors (z < −2). ──
+const steel = new THREE.MeshLambertMaterial({ color: '#c9d1db' });
+const glow = new THREE.MeshBasicMaterial({ color: '#fff6d8' });
+function part(parent, w, h, d, m, x, y, z) {
+  const o = new THREE.Mesh(kit.UNIT, typeof m === 'string' ? mat(m) : m);
+  o.scale.set(w, h, d); o.position.set(x, y, z); o.receiveShadow = true; parent.add(o);
+  return o;
+}
+const cabin = new THREE.Group(); scene.add(cabin);
+for (let x = 0; x < 4; x++) for (let z = 0; z < 4; z++) part(cabin, 1, .1, 1, (x + z) % 2 ? '#8d6b4a' : '#a17b55', x - 1.5, -.05, z - 1.5);
+part(cabin, 4.2, .1, 4.2, '#eef2f6', 0, 3.45, 0);
+part(cabin, .1, 3.5, 4.1, steel, -2.05, 1.7, 0);
+part(cabin, .1, 3.5, 4.1, steel, 2.05, 1.7, 0);
+part(cabin, 4.2, 3.5, .1, '#dfe6ee', 0, 1.7, 2.05);
+for (let i = 0; i < 4; i++) [-1.98, 1.98].forEach(x => part(cabin, .03, 3.2, .03, '#98a2b0', x, 1.7, -1.5 + i));   // panel seams
+[-1.9, 1.9].forEach(x => part(cabin, .07, .09, 3.2, '#ffd23f', x, 1.05, 0));                                          // handrails
+part(cabin, 3.2, .09, .07, '#ffd23f', 0, 1.05, 1.92);
+const lampMat = new THREE.MeshBasicMaterial({ color: '#fffbe6' });
+[-.9, .9].forEach(x => part(cabin, .9, .06, 2.6, lampMat, x, 3.38, 0));
+const cabinLight = new THREE.PointLight('#fff3d0', 9, 9, 1.4); cabinLight.position.set(0, 2.9, .3); cabin.add(cabinLight);
+// front wall with the doorway, and a floor display above the doors (both sides)
+[-1.65, 1.65].forEach(x => part(scene, .8, 3.5, .14, '#b7c0cc', x, 1.7, -2.05));
+part(scene, 2.6, .75, .14, '#b7c0cc', 0, 3.1, -2.05);
+const disp = document.createElement('canvas'); disp.width = 256; disp.height = 80;
+const dispTex = new THREE.CanvasTexture(disp); dispTex.colorSpace = THREE.SRGBColorSpace;
+function display(text) {
+  const g = disp.getContext('2d');
+  g.fillStyle = '#1c2233'; g.fillRect(0, 0, 256, 80);
+  g.fillStyle = '#ffb84d'; g.font = '700 56px Fredoka, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(text, 128, 44);
+  dispTex.needsUpdate = true;
+  document.getElementById('screen').textContent = text;
+}
+const dispMat = new THREE.MeshBasicMaterial({ map: dispTex });
+[[-1.96, 0], [-2.14, Math.PI]].forEach(([z, ry]) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(1.2, .38), dispMat); m.position.set(0, 3.12, z); m.rotation.y = ry; scene.add(m); });
+// sliding doors with a glass window each
+const glass = new THREE.MeshLambertMaterial({ color: '#bfe7ff', transparent: true, opacity: .35 });
+const doors = [-1, 1].map(s => {
+  const g = new THREE.Group(); scene.add(g);
+  [[-.46], [.46]].forEach(([x]) => part(g, .24, 2.7, .08, '#e4eaf1', x * .94, 1.36, 0));
+  part(g, 1.12, .75, .08, '#e4eaf1', 0, .38, 0); part(g, 1.12, .45, .08, '#e4eaf1', 0, 2.5, 0);
+  part(g, .66, 1.55, .04, glass, 0, 1.5, 0);
+  part(g, .05, 2.7, .1, '#ffd23f', -s * .58, 1.36, 0);
+  g.position.set(s * .62, 0, -2.05);
+  return { g, s };
+});
+let doorOpen = 0, doorGoal = 0;
+
+// ── Lobby: checked floor, wall around the lift, plants, sky ──
+const lobby = new THREE.Group(); scene.add(lobby);
+for (let x = -7; x < 7; x++) for (let z = -13; z < -2; z++) part(lobby, 1, .1, 1, (x + z) % 2 ? '#fff3d6' : '#ffe2a3', x + .5, -.05, z + .4);
+[[-4.7, 5.3], [4.7, 5.3]].forEach(([x, w]) => part(lobby, w, 6, .4, '#ffd98a', x, 3, -1.85));
+part(lobby, 4.2, 2.5, .4, '#ffd98a', 0, 4.75, -1.85);
+[-2.15, 2.15].forEach(x => part(lobby, .22, 3.6, .3, '#f59e0b', x, 1.8, -2.1));
+part(lobby, 4.6, .22, .3, '#f59e0b', 0, 3.6, -2.1);
+const sign = kit.labelSprite("🛗 SUMMER'S LIFT", .8); sign.position.set(0, 4.5, -2.4); lobby.add(sign);
+[-3.6, 3.6].forEach(x => {
+  part(lobby, .9, .8, .9, '#c9743c', x, .4, -2.9);
+  [[.9, 1.2], [.65, 1.75], [.35, 2.2]].forEach(([w, y], i) => part(lobby, w, .6, w, i % 2 ? '#86c962' : '#5fae58', x, y, -2.9));
+});
+part(lobby, 1.5, .02, 5.5, '#e0457a', 0, .015, -5);   // red carpet
+const call = part(lobby, .3, .45, .08, '#e4eaf1', 1.75 + .75, 1.45, -2.1);
+const callLamp = part(lobby, .14, .14, .06, new THREE.MeshBasicMaterial({ color: '#ffd23f' }), 2.5, 1.45, -2.17);
+const floaters = kit.createFloaters(scene, { count: 24, radius: 15, spread: 10, y0: -2 });
+// The lift shaft seen through the door windows while riding: light strips that slide past
+const strips = [];
+for (let i = 0; i < 7; i++) { const m = part(scene, 3, .18, .05, glow, 0, i * 1.1 - 2, -2.9); m.visible = false; strips.push(m); }
+const shaft = part(scene, 4.2, 9, .1, '#2c3850', 0, 1.5, -3.1); shaft.visible = false;
+// Warp rings that fly up around Summer just before the flash
+const rings = [];
+for (let i = 0; i < 6; i++) {
+  const m = new THREE.Mesh(new THREE.TorusGeometry(.95, .05, 8, 40), new THREE.MeshBasicMaterial({ color: i % 2 ? '#ffffff' : '#ffd23f', transparent: true, opacity: .9 }));
+  m.rotation.x = Math.PI / 2; m.visible = false; scene.add(m); rings.push(m);
+}
+
+// ── Summer ──
+const summer = kit.makeSummer(); scene.add(summer.g);
+summer.g.position.set(0, 0, -7.5);
+let yaw = 0, yawGoal = 0;
+
+// ── Cameras ──
+const V = (x, y, z) => new THREE.Vector3(x, y, z);
+const CAM = {
+  lobby: () => portrait() ? [V(0, 2.7, -12.8), V(0, 2.1, -2)] : [V(1.6, 2.4, -11), V(0, 1.9, -2)],
+  inside: () => portrait() ? [V(.9, 2.1, 1.9), V(.75, 1.5, -2)] : [V(.9, 1.95, 1.9), V(.75, 1.5, -2)],
+};
+function cut(name) { const [p, t] = CAM[name](); camera.position.copy(p); controls.target.copy(t); camera.lookAt(t); }
+cut('lobby');
+
+// ── State: lobby → walking → inside → riding ──
+let state = 'lobby', riding = null, warp = 0;
+const wait = ms => new Promise(r => setTimeout(r, ms));
+const dock = document.getElementById('dock'), panel = document.getElementById('panel');
+display('▲');
+
+async function enterLift() {
+  if (state !== 'lobby') return;
+  state = 'walking'; dock.classList.remove('show');
+  callLamp.material.color.set('#ff8a1c'); kit.tones([784, 1047], .12);
+  doorGoal = 1;
+  await wait(750);
+  // Walk in, camera behind him
+  const t0 = performance.now(), z0 = summer.g.position.z, z1 = -.5, ms = (z1 - z0) / 2.9 * 1000, c0 = camera.position.clone(), end = V(0, 2.3, -4.2);
+  await new Promise(done => { walkFn = () => {
+    const k = Math.min(1, (performance.now() - t0) / ms);
+    summer.g.position.z = z0 + (z1 - z0) * k;
+    camera.position.lerpVectors(c0, end, k * k); controls.target.lerp(V(0, 1.5, -.3), .06);
+    if (k >= 1) { walkFn = null; done(); }
+  }; });
+  // Cut to the view from inside the cabin, looking at the doors; Summer turns to face them
+  yawGoal = Math.PI;
+  spot();
+  cut('inside');
+  await wait(450);
+  doorGoal = 0; kit.tones([523, 392], .16);
+  await wait(800);
+  lobby.visible = false; shaft.visible = true; state = 'inside';
+  display('▲'); panel.classList.add('show');
+  fk.caption('กดปุ่มเลือกชั้นเลย! 👉'); kit.speak('กดปุ่มเลือกชั้นเลย');
+}
+let walkFn = null;
+// Coming back from a floor (?from=2): already inside the cabin, the panel is ready
+const cameFrom = +(new URLSearchParams(location.search).get('from') || 0);
+let floorNow = FLOORS.some(f => f.n === cameFrom) ? cameFrom : 0;
+function comeBack() {
+  history.replaceState(null, '', location.pathname);
+  document.querySelector('.w-fade-in').remove(); fk.doorsIn('fade');
+  spot(); yaw = yawGoal = Math.PI; cut('inside');
+  lobby.visible = false; shaft.visible = true; state = 'inside';
+  display(String(floorNow)); panel.classList.add('show');
+  panel.querySelector(`[data-n="${floorNow}"]`).classList.add('here');
+  fk.caption('ไปชั้นไหนต่อดี? 👉'); kit.speak('ไปชั้นไหนต่อดี');
+}
+// Where Summer stands in the cabin: left of the button panel on every screen shape
+function spot() { summer.g.position.set(portrait() ? .28 : -.75, 0, portrait() ? -1 : -.5); }
+
+async function ride(f, btn) {
+  if (state !== 'inside') return;
+  state = 'riding'; panel.classList.add('busy'); btn.classList.add('lit');
+  kit.tones([880], .1); kit.speak(`ไปชั้น ${f.n} ${f.th}`);
+  riding = { speed: 0, dir: 1 };
+  strips.forEach(s => { s.visible = true; });
+  // Count the floors on the way, up or down
+  const start = floorNow || 1, dir = f.n < start ? -1 : 1;
+  riding.dir = dir;
+  for (let n = start; ; n += dir) {
+    await wait(n === start ? 800 : 650);
+    display((dir > 0 ? '▲ ' : '▼ ') + n); kit.tones([600 + n * 70], .1, 'sine', .16);
+    if (n === f.n) break;
+  }
+  await wait(350);
+  kit.tones([1047, 1319], .12);
+  warp = .001;                              // rings + brighter and brighter cabin light
+  await wait(700);
+  fk.markRide(); fk.warpTo(f.href);
+}
+
+FLOORS.slice().reverse().forEach(f => {
+  const b = document.createElement('button');
+  b.className = 'fbtn'; b.dataset.n = f.n; b.title = `ชั้น ${f.n} ${f.en}`;
+  b.innerHTML = `<span class="num">${f.n}</span><span class="name"><span class="em">${f.emoji}</span>${f.th}</span>`;
+  b.onclick = () => ride(f, b);
+  panel.appendChild(b);
+});
+document.getElementById('goBtn').onclick = enterLift;
+// Tapping the lift, Space/Enter/Up also walk in; number keys press a floor button
+let press = null;
+const canvas = document.getElementById('world');
+canvas.addEventListener('pointerdown', e => { press = [e.clientX, e.clientY]; });
+canvas.addEventListener('pointerup', e => { if (press && Math.hypot(e.clientX - press[0], e.clientY - press[1]) < 12 && state === 'lobby' && dock.classList.contains('show')) enterLift(); press = null; });
+addEventListener('keydown', e => {
+  if (news.classList.contains('show')) { if (e.key === 'Escape') closeNews(); return; }
+  if (e.target.closest && e.target.closest('button, a') && (e.key === 'Enter' || e.key === ' ')) return;
+  if (['Enter', ' ', 'ArrowUp'].includes(e.key)) { enterLift(); e.preventDefault(); }
+  const b = panel.querySelector(`.fbtn[data-n="${e.key}"]`);
+  if (b && state === 'inside') b.click();
+});
+
+// ── What's New: spoken summary, 🔇 stop button, ✕ close ──
+const news = document.getElementById('news'), newsList = document.getElementById('newsList'), muteBtn = document.getElementById('newsMute');
+const LINES = [{ say: 'สวัสดี Summer! โลกของเรามีชั้นใหม่แล้ว ขึ้นลิฟต์ไปเล่นกัน' }]
+  .concat(FLOORS.map(f => ({ say: `ชั้น ${f.n} ${f.th} ${f.news}`, f })))
+  .concat([{ say: 'ก่อนเข้าเกม ต้องตอบเลขบวกลบให้ถูกก่อนนะ', gate: true }]);
+LINES.forEach(l => {
+  const d = document.createElement('div'); d.className = 'item'; l.el = d;
+  if (l.f) d.innerHTML = `<span class="em">${l.f.emoji}</span><div><b>ชั้น ${l.f.n} · ${l.f.th}</b><br>${l.f.news}</div>`;
+  else if (l.gate) d.innerHTML = '<span class="em">🔢</span><div><b>ด่านตอบเลข</b><br>ตอบบวกลบให้ถูก แล้วประตูเกมจะเปิด</div>';
+  else d.innerHTML = '<div>ขึ้นลิฟต์ไปเล่นชั้นใหม่กัน!</div>';
+  newsList.appendChild(d);
+});
+let talking = false, talkId = 0;
+const canTalk = 'speechSynthesis' in window;
+function showTalk(on) { talking = on; muteBtn.textContent = on ? '🔇 หยุดเสียง' : '🔊 ฟังเสียง'; if (!on) LINES.forEach(l => l.el.classList.remove('now')); }
+function stopTalk() { talkId++; if (canTalk) speechSynthesis.cancel(); showTalk(false); }
+function startTalk() {
+  if (!canTalk || !kit.soundOn()) { showTalk(false); return; }
+  stopTalk(); showTalk(true);
+  const id = talkId;
+  const next = i => {
+    if (id !== talkId) return;
+    LINES.forEach((l, k) => l.el.classList.toggle('now', k === i));
+    if (i >= LINES.length) { showTalk(false); return; }
+    LINES[i].el.scrollIntoView({ block: 'nearest' });
+    const u = new SpeechSynthesisUtterance(LINES[i].say);
+    u.lang = 'th-TH'; u.rate = .95; u.pitch = 1.15;
+    u.onstart = () => { heard = true; };
+    u.onend = () => next(i + 1);
+    u.onerror = e => { if (id === talkId && e.error !== 'canceled' && e.error !== 'interrupted') showTalk(false); };
+    speechSynthesis.speak(u);
+  };
+  next(0);
+}
+let heard = false;
+function openNews() {
+  news.classList.add('show'); heard = false;
+  startTalk();
+  // Most browsers stay silent until the first touch: then start on that touch (unless it's the mute / close button)
+  const first = e => { news.removeEventListener('pointerdown', first); if (!heard && !e.target.closest('button')) startTalk(); };
+  news.addEventListener('pointerdown', first);
+}
+function closeNews() {
+  stopTalk(); news.classList.remove('show');
+  fk.write({ whatsNew: VERSION });
+  if (state === 'lobby') { dock.classList.add('show'); fk.caption('แตะปุ่ม แล้วเดินเข้าลิฟต์กัน!'); }
+}
+muteBtn.onclick = () => { if (talking && heard) stopTalk(); else if (talking && !heard) { stopTalk(); } else startTalk(); };
+document.getElementById('newsX').onclick = document.getElementById('newsGo').onclick = closeNews;
+document.getElementById('newsBtn').onclick = openNews;
+addEventListener('pagehide', () => { if (canTalk) speechSynthesis.cancel(); });
+// Back button from a floor may restore this page mid-warp → start again in the cabin
+addEventListener('pageshow', e => { if (e.persisted) location.reload(); });
+if (floorNow) comeBack();
+else if (fk.load().whatsNew !== VERSION) openNews(); else dock.classList.add('show');
+
+// ── Frame loop ──
+addEventListener('resize', () => { if (state === 'lobby') cut('lobby'); else if (state !== 'walking') { spot(); cut('inside'); } });
+stage.start((dt, time) => {
+  doorOpen += Math.sign(doorGoal - doorOpen) * Math.min(Math.abs(doorGoal - doorOpen), dt * 1.5);
+  const e = doorOpen * doorOpen * (3 - 2 * doorOpen);
+  doors.forEach(d => { d.g.position.x = d.s * (.62 + e * 1.12); d.g.position.z = -2.05 + e * .12; });
+  if (walkFn) walkFn();
+  yaw += (yawGoal - yaw) * Math.min(1, dt * 6); summer.g.rotation.y = yaw;
+  kit.poseSummer(summer, time, walkFn ? 'walk' : warp ? 'cheer' : 'idle');
+  callLamp.scale.setScalar(.14 + Math.sin(time * 5) * .02);
+  floaters.update(dt, time);
+  if (riding) {
+    riding.speed = Math.min(7, riding.speed + dt * 5);
+    strips.forEach(s => { s.position.y -= riding.dir * riding.speed * dt; if (s.position.y < -2) s.position.y += 7.7; if (s.position.y > 5.7) s.position.y -= 7.7; });
+    if (!warp) camera.position.y = CAM.inside()[0].y + Math.sin(time * 34) * .008;   // gentle lift rumble
+  }
+  if (warp) {
+    warp += dt;
+    cabinLight.intensity = 9 + warp * 60;
+    rings.forEach((m, i) => { const t = (warp * 1.3 + i / 6) % 1; m.visible = true; m.position.set(summer.g.position.x, t * 3.2, summer.g.position.z); m.scale.setScalar(1.25 - t * .5); m.material.opacity = 1 - t; });
+  }
+});
+window.__worldReady = true;
+document.getElementById('fallback').classList.remove('show');   // a slow connection may have shown it already
+window.__lift = { enter: enterLift, ride: n => panel.querySelector(`.fbtn[data-n="${n}"]`).click(), state: () => state, closeNews, openNews };
+</script>
+</body>
+</html>

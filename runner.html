@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🏃 วิ่งกระโดด — Summer's World</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="world-theme.css">
+<link rel="stylesheet" href="floor-theme.css">
+<style>
+  .f-pads { justify-content: flex-end; }
+  #jumpBtn { min-width: 150px; height: 92px; font-size: 22px; }
+</style>
+</head>
+<body>
+<div class="w-fade-in" style="background:#fff"></div>
+<canvas class="w-canvas" id="world"></canvas>
+
+<div class="w-top">
+  <div class="w-pill w-title">🏃 วิ่งกระโดด <span class="en">· RUNNER</span></div>
+  <div class="w-icons"><button class="w-pill w-icon" id="soundBtn" title="เปิด/ปิดเสียง Sound">🔊</button></div>
+</div>
+<div class="w-caption" id="caption"></div>
+<div class="w-banner" id="banner"></div>
+<div class="f-pads" id="pads"><button class="f-pad go" id="jumpBtn">⬆️ กระโดด!</button></div>
+
+<div class="w-fallback" id="fallback">
+  <div class="big">🏃</div>
+  <h2>โหลดฉาก 3D ไม่ได้</h2>
+  <div>ต้องต่ออินเทอร์เน็ตนะ / This page needs internet</div>
+  <a class="w-btn" href="menu.html">ไปหน้าเมนู ▶</a>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script src="world-kit.js"></script>
+<script src="floor-kit.js"></script>
+<script>
+  setTimeout(function () { if (!window.__worldReady) document.getElementById('fallback').classList.add('show'); }, 10000);
+</script>
+
+<script type="module">
+/* =========================================================
+   ชั้น 3 — วิ่งกระโดด (Runner)
+   maths gate → choose an outfit → Start → jump over block monsters (tap anywhere / Space)
+   Gets faster and faster up to a limit; 3 hearts, so one mistake never ends the run
+   Every gap between monsters leaves time to land and jump again (see GAP)
+   ========================================================= */
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const kit = WorldKit(THREE, OrbitControls);
+const fk = FloorKit(kit);
+fk.exit(3);                                             // 🛗 ออก button and the pause card
+const { box, mat, shade } = kit;
+const $ = id => document.getElementById(id);
+kit.bindSoundButton($('soundBtn')); kit.bindFadeLinks();
+const stage = kit.createStage({ canvas: $('world'), shadowSize: 14 });
+const { scene, camera, controls, sun, hemi } = stage;
+controls.enabled = false; controls.enableDamping = false;
+const fx = kit.createConfetti(scene);
+
+// ── Game numbers (easy to tune) ──
+const SPEED0 = 5.2, SPEED_UP = .13, SPEED_MAX = 11.5;   // blocks per second, + per monster jumped, limit
+const JUMP = 9.2, GRAVITY = 24;                         // one jump lasts about 0.77 s
+const GAP = [1.35, 2.15];                               // seconds between monsters
+const HEARTS = 3, SAFE = 1.7;                           // hearts, seconds of safety after a bump
+
+// ── Summer and his outfit ──
+const OUTFIT = [
+  { id: 'suit', th: 'ชุด', emoji: '🏎️', options: [{ id: 'yellow', th: 'เหลือง', color: '#ffd23f' }, { id: 'red', th: 'แดง', color: '#e4574f' }, { id: 'blue', th: 'ฟ้า', color: '#4aa8e8' }, { id: 'green', th: 'เขียว', color: '#4fb86a' }, { id: 'purple', th: 'ม่วง', color: '#9a6fd0' }] },
+  { id: 'top', th: 'บนหมวก', emoji: '👑', options: [{ id: 'crown', th: 'มงกุฎ', emoji: '👑' }, { id: 'ears', th: 'หูแมว', emoji: '🐱' }, { id: 'prop', th: 'ใบพัด', emoji: '🚁' }, { id: 'horn', th: 'เขามังกร', emoji: '🐲' }] },
+  { id: 'back', th: 'หลัง', emoji: '🦸', options: [{ id: 'cape', th: 'ผ้าคลุม', emoji: '🦸' }, { id: 'jet', th: 'เจ็ตแพ็ก', emoji: '🚀' }, { id: 'wings', th: 'ปีก', emoji: '🪽' }, { id: 'bag', th: 'กระเป๋า', emoji: '🎒' }] },
+  { id: 'shoes', th: 'รองเท้า', emoji: '👟', options: [{ id: 'red', th: 'แดง', color: '#e4574f' }, { id: 'white', th: 'ขาว', color: '#ffffff' }, { id: 'lime', th: 'เขียวสด', color: '#9be24a' }, { id: 'rainbow', th: 'สายรุ้ง', emoji: '🌈' }] },
+];
+const s = kit.makeSummer(); scene.add(s.g);
+const suitParts = [], shoeParts = [];
+s.g.traverse(o => {
+  if (!o.isMesh) return;
+  if (o.material === mat('#ffd23f')) suitParts.push([o, 1]);
+  if (o.material === mat('#e8b417')) suitParts.push([o, .86]);
+});
+[s.legL, s.legR].forEach(l => shoeParts.push(l.children[1]));
+const topG = new THREE.Group(), backG = new THREE.Group();
+s.head.add(topG); s.body.add(backG);
+let prop = null, cape = null;
+function dress(v) {
+  const suit = v.suit ? OUTFIT[0].options.find(o => o.id === v.suit).color : '#ffd23f';
+  suitParts.forEach(([m, f]) => { m.material = mat(f === 1 ? suit : shade(suit, f)); });
+  topG.clear(); backG.clear(); prop = cape = null;
+  if (v.top === 'crown') { box(topG, .44, .1, .44, '#f2b71f', 0, .34, 0); [-.17, 0, .17].forEach(x => { box(topG, .1, .16, .1, '#f2b71f', x, .44, .17); box(topG, .1, .16, .1, '#f2b71f', x, .44, -.17); }); box(topG, .08, .08, .03, '#e4574f', 0, .34, .23, false); }
+  if (v.top === 'ears') [-.19, .19].forEach(x => { box(topG, .18, .18, .12, shade(suit, .86), x, .34, 0); box(topG, .1, .12, .1, '#ffb3c8', x, .42, .02); });
+  if (v.top === 'prop') { box(topG, .06, .18, .06, '#2b2118', 0, .36, 0); prop = new THREE.Group(); prop.position.y = .46; topG.add(prop); box(prop, .7, .04, .12, '#e4574f', 0, 0, 0); box(prop, .12, .04, .7, '#4aa8e8', 0, 0, 0); }
+  if (v.top === 'horn') [-.2, .2].forEach(x => { box(topG, .13, .2, .13, '#fff3d6', x, .36, 0); box(topG, .08, .15, .08, '#fff3d6', x * 1.2, .5, 0); });
+  if (v.back === 'cape') { cape = new THREE.Group(); cape.position.set(0, .84, -.18); backG.add(cape); box(cape, .5, .62, .04, '#e4574f', 0, -.3, 0); box(cape, .5, .08, .05, '#f2b71f', 0, 0, 0); }
+  if (v.back === 'jet') [-.12, .12].forEach(x => { box(backG, .18, .42, .18, '#aeb8c4', x, .66, -.26); box(backG, .12, .1, .12, '#e4574f', x, .9, -.26); box(backG, .12, .14, .12, '#ff9a2e', x, .4, -.26, false); });
+  if (v.back === 'wings') [-1, 1].forEach(k => [0, 1, 2].forEach(i => box(backG, .3, .12, .05, i % 2 ? '#dff3ff' : '#ffffff', k * (.3 + i * .08), .84 - i * .12, -.2)));
+  if (v.back === 'bag') { box(backG, .38, .42, .2, '#8d6b4a', 0, .64, -.26); box(backG, .26, .16, .06, '#c9743c', 0, .56, -.38); }
+  const rainbow = ['#e4574f', '#4aa8e8'];
+  shoeParts.forEach((m, i) => { m.material = mat(!v.shoes ? '#2b2118' : v.shoes === 'rainbow' ? rainbow[i] : OUTFIT[3].options.find(o => o.id === v.shoes).color); });
+}
+
+// ── World: the ground and scenery slide past, Summer stays at x = 0 ──
+const THEMES = [
+  { sky: '#bfe8ff', g1: '#8fd16a', g2: '#82c65e', leaf: '#5fae58', hill: '#a8dc8c', light: 1.25 },
+  { sky: '#ffd2a1', g1: '#f0c877', g2: '#e7bb66', leaf: '#4f9a6a', hill: '#f3b98a', light: 1.15 },
+  { sky: '#7d86c9', g1: '#6b8f86', g2: '#618379', leaf: '#4b6f8a', hill: '#6f74b5', light: .95 },
+  { sky: '#dff2ff', g1: '#f4fbff', g2: '#e4f2fa', leaf: '#8fc4dc', hill: '#cfe6f3', light: 1.3 },
+  { sky: '#ffd9ec', g1: '#ffc3d8', g2: '#ffb4cd', leaf: '#ff8fb5', hill: '#ffe3ef', light: 1.2 },
+];
+const own = c => new THREE.MeshLambertMaterial({ color: c });
+const M = { g1: own(THEMES[0].g1), g2: own(THEMES[0].g2), leaf: own(THEMES[0].leaf), hill: own(THEMES[0].hill) };
+scene.background = new THREE.Color(THEMES[0].sky); scene.fog = new THREE.Fog(THEMES[0].sky, 26, 62);
+const part = (parent, w, h, d, m, x, y, z, sh = true) => { const o = new THREE.Mesh(kit.UNIT, m); o.scale.set(w, h, d); o.position.set(x, y, z); o.castShadow = sh; o.receiveShadow = true; parent.add(o); return o; };
+const ground = new THREE.Group(); scene.add(ground);
+for (let i = -8; i < 32; i++) {
+  part(ground, 2, .5, 4, i % 2 ? M.g1 : M.g2, i * 2, -.25, 0, false);
+  part(ground, 2, .5, 14, i % 2 ? M.g2 : M.g1, i * 2, -.4, -9, false);
+  part(ground, 2, .5, 6, i % 2 ? M.g2 : M.g1, i * 2, -.4, 5, false);
+}
+part(scene, 80, 3, 4, mat('#8d6b4a'), 20, -2.02, 0, false);
+const scenery = [];
+for (let i = 0; i < 26; i++) {
+  const g = new THREE.Group(), k = .8 + Math.random() * .7;
+  const front = i % 5 === 0;                             // only low flowers in front, so nothing hides the track
+  if (front) [[0, '#ff8fb5'], [.5, '#ffd23f'], [-.45, '#ffffff']].forEach(([x, c]) => { part(g, .06, .3, .06, M.leaf, x, .1, x * .6, false); part(g, .22, .16, .22, mat(c), x, .3, x * .6, false); });
+  else if (i % 3) { part(g, .35, 1.1, .35, mat('#8d6b4a'), 0, .4, 0); part(g, 1.3, 1, 1.3, M.leaf, 0, 1.3, 0); part(g, .8, .6, .8, M.leaf, 0, 2, 0); }
+  else { part(g, .9, .5, .7, mat('#a9a39a'), 0, 0, 0); part(g, .5, .4, .5, mat('#bbb5ab'), .3, .35, 0); }
+  g.scale.setScalar(k); g.position.set(-14 + i * 2.6, -.15, front ? 3 + Math.random() * 1.5 : -3.4 - Math.random() * 9);
+  scene.add(g); scenery.push({ g, f: 1 });
+}
+for (let i = 0; i < 12; i++) { const g = new THREE.Group(); const h = 3 + Math.random() * 5; part(g, 7, h, 4, M.hill, 0, h / 2 - .4, 0, false); part(g, 4, h * .4, 3, M.hill, 1, h, 0, false); g.position.set(-14 + i * 6, 0, -22 - Math.random() * 6); scene.add(g); scenery.push({ g, f: .35 }); }
+const cloudMat = new THREE.MeshLambertMaterial({ color: '#ffffff', emissive: '#ffffff', emissiveIntensity: .25 });
+for (let i = 0; i < 10; i++) { const g = new THREE.Group(); part(g, 3, .8, 1.6, cloudMat, 0, 0, 0, false); part(g, 1.6, .8, 1.2, cloudMat, .4, .6, 0, false); g.position.set(-14 + i * 6.8, 7 + Math.random() * 4, -14 - Math.random() * 8); scene.add(g); scenery.push({ g, f: .2 }); }
+const WRAP = 68;
+let themeI = 0;
+const skyNow = new THREE.Color(THEMES[0].sky), tmpC = new THREE.Color();
+function blendTheme(dt) {
+  const t = THEMES[themeI], k = Math.min(1, dt * 1.2);
+  skyNow.lerp(tmpC.set(t.sky), k); scene.background.copy(skyNow); scene.fog.color.copy(skyNow);
+  ['g1', 'g2', 'leaf', 'hill'].forEach(n => M[n].color.lerp(tmpC.set(t[n]), k));
+  hemi.intensity += (t.light - hemi.intensity) * k;
+}
+
+const door = fk.liftDoor(1.15); scene.add(door);   // shown while dressing up
+fk.tapDoor($('world'), camera, door, () => state === 'dress');
+
+// ── Block monsters (our own): w/h = the part that bumps Summer, a little smaller than it looks ──
+const face = (g, x, y, z, big = 1) => { [-.13, .13].forEach(d => { box(g, .05, .16 * big, .14 * big, '#ffffff', x, y, z + d * big * 1.3, false); box(g, .03, .08 * big, .07 * big, '#2b2118', x - .03, y, z + d * big * 1.3, false); }); };
+const MONSTERS = [
+  { th: 'เยลลี่', w: .62, h: .5, make(g) { box(g, .8, .6, .8, '#ff8fb5', 0, .3, 0); box(g, .56, .16, .56, '#ffb3cf', 0, .66, 0); face(g, -.41, .38, 0); box(g, .03, .05, .2, '#8a2f52', -.41, .18, 0, false); }, move(g, t) { const k = Math.sin(t * 7); g.scale.set(1 + k * .07, 1 - k * .1, 1 + k * .07); } },
+  { th: 'หินง่วง', w: .74, h: .62, make(g) { box(g, .9, .5, .9, '#8f8a99', 0, .25, 0); box(g, .7, .3, .7, '#a39eac', 0, .6, 0); box(g, .3, .14, .3, '#7fae6a', .1, .8, .1); face(g, -.46, .34, 0); [-.16, .16].forEach(z => box(g, .04, .07, .2, '#5d5966', -.48, .42, z, false)); }, move(g, t) { g.rotation.z = Math.sin(t * 2.5) * .06; } },
+  { th: 'เห็ดเดิน', w: .5, h: .72, make(g) { box(g, .36, .44, .36, '#fff3d6', 0, .28, 0); box(g, .9, .28, .9, '#e08a2e', 0, .62, 0); box(g, .6, .16, .6, '#f0a24a', 0, .82, 0); [[-.25, .25], [.2, -.28], [.28, .24]].forEach(([x, z]) => box(g, .16, .05, .16, '#fff8e6', x, .78, z, false)); face(g, -.19, .32, 0, .8); [-.1, .1].forEach(z => box(g, .2, .1, .14, '#8d6b4a', -.04, .05, z)); }, move(g, t) { g.position.y = Math.abs(Math.sin(t * 8)) * .06; } },
+  { th: 'หนอนบล็อก', w: 1.15, h: .4, make(g) { [['#6bc7c0', -.5, .36], ['#f2cf63', -.1, .28], ['#6bc7c0', .28, .34], ['#f2cf63', .62, .26]].forEach(([c, x, h]) => box(g, .38, h, .5, c, x, h / 2, 0)); face(g, -.7, .26, 0, .8); [-.12, .12].forEach(z => box(g, .04, .2, .04, '#2b2118', -.5, .46, z)); }, move(g, t) { g.children.slice(0, 4).forEach((m, i) => { m.position.y = m.scale.y / 2 + Math.max(0, Math.sin(t * 8 - i)) * .08; }); } },
+  { th: 'กล่องซน', w: .58, h: .66, make(g) { box(g, .74, .6, .74, '#7a5fc0', 0, .3, 0); box(g, .8, .18, .8, '#9a82d8', -.04, .72, 0).rotation.z = -.2; face(g, -.38, .36, 0); [-.2, 0, .2].forEach(z => box(g, .06, .1, .1, '#fff', -.36, .6, z, false)); }, move(g, t) { g.rotation.y = Math.sin(t * 5) * .2; } },
+];
+const list = [], stars = [];
+function addMonster(x, kind) {
+  const K = MONSTERS[kind], g = new THREE.Group(), inner = new THREE.Group();
+  g.add(inner); K.make(inner); g.position.x = x; scene.add(g);
+  list.push({ K, g, inner, passed: false, hit: false, vy: 0, spin: 0 });
+}
+function addStar(x, y) {
+  const m = new THREE.Mesh(new THREE.OctahedronGeometry(.24), new THREE.MeshLambertMaterial({ color: '#ffd23f', emissive: '#a86b00', emissiveIntensity: .5 }));
+  m.position.set(x, y, 0); m.castShadow = true; scene.add(m); stars.push(m);
+}
+
+// ── Game ──
+let state = 'gate', speed = 0, dist = 0, jumped = 0, score = 0, hearts = HEARTS, y = 0, vy = 0, safe = 0, spawnIn = 0, buffer = 0, best0 = 0, clockT = 0, chooser = null, startTimer = null;
+const hud = fk.hud('ตัวที่ข้าม');
+function clearAll() { list.splice(0).forEach(m => scene.remove(m.g)); stars.splice(0).forEach(m => scene.remove(m)); }
+function newRun() {
+  clearAll(); clearInterval(startTimer);
+  speed = SPEED0; dist = jumped = score = 0; hearts = HEARTS; y = vy = safe = buffer = 0; themeI = 0; best0 = fk.best('runner');
+  spawnIn = .2; state = 'ready'; hud.show(true); showHud(); camReady = false;
+  $('pads').classList.add('show');
+  let n = 3;
+  const tick = () => {
+    if (fk.paused) return;
+    if (n > 0) { fk.banner(n, 750); kit.tones([440], .1); n--; }
+    else { clearInterval(startTimer); state = 'run'; fk.banner('ไปเลย! 🏃', 800); kit.tones([660, 880], .1); fk.caption('แตะจอเพื่อกระโดด!'); }
+  };
+  tick(); startTimer = setInterval(tick, 850);
+}
+function showHud() { hud.set('❤️'.repeat(hearts) + '🤍'.repeat(HEARTS - hearts), jumped, '⭐ ' + Math.floor(score)); }
+function jump() {
+  if (state !== 'run' || fk.paused) return;
+  if (y <= 0) { vy = JUMP; y = .001; buffer = 0; kit.tones([392, 587], .05, 'sine', .14); }
+  else buffer = .16;                                      // pressed just before landing → jump on landing
+}
+function bump(m) {
+  m.hit = true; m.vy = 7; m.spin = 8; hearts--; safe = SAFE; speed = Math.max(SPEED0, speed * .85);
+  fx.burst(.3, .8, 0, ['#ffffff', '#ffd23f'], 12); kit.tones([240, 180], .1, 'square', .1);
+  if (hearts > 0) fk.caption(hearts === 1 ? 'ระวังนะ เหลือ 1 หัวใจ ❤️' : 'ไม่เป็นไร วิ่งต่อเลย! 💪', 1500);
+  else over();
+}
+function over() {
+  state = 'over'; hud.show(false); $('pads').classList.remove('show');
+  const total = Math.floor(score), record = fk.saveBest('runner', total);
+  kit.speak(record ? 'สถิติใหม่ เก่งมาก' : 'วิ่งเก่งมาก');
+  if (record) { kit.cheer(); fx.burst(0, 1.6, 0, undefined, 36); }
+  setTimeout(() => fk.result({
+    emoji: record ? '🏆' : '🏃', title: record ? 'สถิติใหม่!' : 'วิ่งเก่งมาก!',
+    lines: [`👾 กระโดดข้าม ${jumped} ตัว`, `⭐ คะแนน ${total}`, `🏆 สูงสุด ${fk.best('runner')}`],
+    buttons: [{ text: '🔄 เล่นอีก', fn: newRun }, { text: '👕 เปลี่ยนชุด', white: true, fn: toDress }, { text: '🛗 กลับลิฟต์', white: true, fn: fk.toLift }],
+  }), 1100);
+}
+function toDress() { clearAll(); state = 'dress'; y = 0; themeI = 0; camReady = false; chooser.show(true); }
+fk.mathGate(() => {
+  state = 'dress'; fk.caption('👕 เลือกชุดให้ Summer'); kit.speak('เลือกชุดวิ่งเลย');
+  chooser = fk.chooser({
+    cats: OUTFIT, doneText: '▶ Start!',
+    onPick: (c, id, v) => dress(v),
+    onComplete: () => { fx.burst(0, 1.6, 0); kit.cheer(); fk.banner('✨ เท่มาก!'); cheerT = 2; },
+    onDone: newRun,
+  });
+});
+let cheerT = 0;
+addEventListener('pageshow', e => { if (e.persisted) location.reload(); });
+// Tap anywhere or Space / ArrowUp
+$('world').addEventListener('pointerdown', e => { e.preventDefault(); jump(); });
+fk.hold($('jumpBtn'), jump);
+addEventListener('keydown', e => { if ([' ', 'ArrowUp', 'w'].includes(e.key) && state === 'run') { e.preventDefault(); if (!e.repeat) jump(); } });
+
+// ── Camera ──
+let camReady = false;
+const want = new THREE.Vector3(), tgt = new THREE.Vector3();
+const portrait = () => innerWidth < innerHeight;
+function setCam(dt) {
+  const inGame = ['ready', 'run', 'over'].includes(state);
+  if (!inGame) {
+    door.position.set(portrait() ? -1.05 : -1.5, 0, portrait() ? -2.2 : -1.5); door.scale.setScalar(portrait() ? .95 : 1.05);
+    if (fk.sideTray()) { want.set(1.2, 1.5, 5.4); tgt.set(1.2, .95, 0); }
+    else { want.set(.7, 1.7, portrait() ? 6.4 : 7); tgt.set(0, portrait() ? .1 : .3, 0); }
+  } else if (portrait()) { want.set(-4.2, 4.2, 7.2); tgt.set(2, .6, 0); }    // tall screens look along the track to see further ahead
+  else { want.set(2.2, 3, 11.5); tgt.set(3.6, 1.5, 0); }
+  if (!camReady) { camera.position.copy(want); controls.target.copy(tgt); camReady = true; }
+  else { const k = 1 - Math.exp(-dt * 5); camera.position.lerp(want, k); controls.target.lerp(tgt, k); }
+  const fov = inGame ? (portrait() ? 62 : 38) : (portrait() ? 45 : 35);
+  if (camera.fov !== fov) { camera.fov = fov; camera.updateProjectionMatrix(); }
+}
+
+function game(dt) {
+  const v = state === 'run' ? speed : 0;
+  if (state === 'run') {
+    dist += v * dt; score += v * dt * .5;
+    // Summer
+    if (y > 0 || vy > 0) { y += vy * dt - GRAVITY * dt * dt / 2; vy -= GRAVITY * dt; if (y <= 0) { y = 0; vy = 0; if (buffer > 0) jump(); } }
+    buffer = Math.max(0, buffer - dt); safe = Math.max(0, safe - dt);
+    // New monsters, with a fair gap; a pair close together appears later on
+    spawnIn -= dt;
+    if (spawnIn <= 0) {
+      const x = dist < 8 ? 15 : 24;                        // the first one comes sooner
+      const kinds = Math.min(MONSTERS.length, 2 + Math.floor(jumped / 5));
+      addMonster(x, Math.floor(Math.random() * kinds));
+      if (Math.random() < .5) addStar(x, 2.1);
+      spawnIn = GAP[0] + Math.random() * (GAP[1] - GAP[0]);
+    }
+  }
+  list.forEach(m => {
+    m.g.position.x -= v * dt;
+    if (m.hit) { m.vy -= 20 * dt; m.g.position.y += m.vy * dt; m.g.position.z -= 3 * dt; m.g.rotation.x -= m.spin * dt; m.g.position.x += v * dt * 1.4; return; }
+    m.K.move(m.inner, clockT);
+    const dx = Math.abs(m.g.position.x);
+    if (state === 'run' && !safe && dx < m.K.w / 2 + .2 && y < m.K.h) bump(m);
+    else if (!m.passed && m.g.position.x < -m.K.w / 2 - .25 && state === 'run') {
+      m.passed = true; jumped++; score += 10; speed = Math.min(SPEED_MAX, speed + SPEED_UP);
+      if (jumped % 10 === 0) { themeI = (themeI + 1) % THEMES.length; fk.banner(`👾 ${jumped} ตัวแล้ว!`, 1100); kit.cheer(); }
+    }
+  });
+  for (let i = list.length - 1; i >= 0; i--) if (list[i].g.position.x < -14 || list[i].g.position.y < -9) scene.remove(list.splice(i, 1)[0].g);
+  for (let i = stars.length - 1; i >= 0; i--) {
+    const m = stars[i]; m.position.x -= v * dt; m.rotation.y = clockT * 3;
+    if (state === 'run' && Math.abs(m.position.x) < .6 && Math.abs(m.position.y - y - .8) < .9) { score += 5; fx.burst(m.position.x, m.position.y, 0, ['#ffd23f', '#fff3b0'], 8); kit.tones([988, 1319], .06); scene.remove(m); stars.splice(i, 1); }
+    else if (m.position.x < -14) { scene.remove(m); stars.splice(i, 1); }
+  }
+  ground.position.x = -(dist % 4);
+  scenery.forEach(o => { o.g.position.x -= v * dt * o.f; if (o.g.position.x < -18) o.g.position.x += WRAP; });
+  if (state === 'run') showHud();
+}
+function update(dt, time) {
+  clockT = time;
+  if (!fk.paused) game(dt);
+  blendTheme(dt);
+  door.visible = state === 'gate' || state === 'dress';
+  const running = state === 'run' && !fk.paused, g = s.g;
+  kit.poseSummer(s, time, running && y === 0 ? 'walk' : state === 'dress' && cheerT > 0 ? 'cheer' : 'idle');
+  cheerT = Math.max(0, cheerT - dt);
+  if (running && y > 0) { s.legL.rotation.x = -.7; s.legR.rotation.x = .5; s.armL.rotation.x = -2.4; s.armR.rotation.x = -2.4; }
+  g.position.y = y;
+  g.rotation.y = state === 'gate' || state === 'dress' ? Math.sin(time * .8) * .5 : Math.PI / 2;
+  g.rotation.x = 0; g.visible = !(safe > 0 && Math.sin(time * 26) > .35);
+  if (prop) prop.rotation.y = time * (running ? 18 : 4);
+  if (cape) cape.rotation.x = running ? .7 + Math.sin(time * 14) * .15 : .12 + Math.sin(time * 2) * .05;
+  sun.position.set(6, 16, 9); sun.target.position.set(4, 0, 0);
+  fx.update(dt); setCam(dt);
+}
+dress({});
+stage.start(update);
+window.__worldReady = true;
+document.getElementById('fallback').classList.remove('show');   // a slow connection may have shown it already
+// For tests: run(sec, dt) plays without drawing; auto = jump by itself at the right moment
+window.__runner = { fk, state: () => state, chooser: () => chooser, jump, list,
+  info: () => ({ jumped, score: Math.floor(score), hearts, speed: +speed.toFixed(2) }),
+  run(sec, auto, dt = 1 / 60) { for (let t = 0; t < sec && state === 'run'; t += dt) { if (auto) { const m = list.find(m => !m.hit && !m.passed); if (m && y <= 0 && m.g.position.x - m.K.w / 2 - .2 < speed * .13 + .1) jump(); } clockT += dt; game(dt); } return this.info(); } };
+</script>
+</body>
+</html>

@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🌀 เขาวงกต — Summer's World</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="world-theme.css">
+<link rel="stylesheet" href="floor-theme.css">
+<style>
+  #map { position: fixed; right: 14px; top: 150px; z-index: 4; width: 148px; height: 148px; border-radius: 20px; background: #fff; border: 5px solid #fff; box-shadow: 0 6px 0 rgba(0,0,0,.12); display: none; }
+  #map.show { display: block; }
+  .side { display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
+  .cross { display: grid; grid-template-columns: repeat(3, 76px); gap: 6px; }
+  .cross .f-pad { width: 76px; height: 76px; }
+  .cross [data-k="f"] { grid-column: 2; } .cross [data-k="l"] { grid-column: 1; grid-row: 2; } .cross [data-k="b"] { grid-column: 2; grid-row: 2; } .cross [data-k="r"] { grid-column: 3; grid-row: 2; }
+  @media (max-width: 480px) { #map { width: 112px; height: 112px; } .f-playing .w-caption { top: 276px; } .cross { grid-template-columns: repeat(3, 66px); } .cross .f-pad { width: 66px; height: 70px; } }
+  @media (max-height: 460px) { #map { top: 80px; width: 104px; height: 104px; right: 150px; } .f-hud { right: 280px; } .cross { grid-template-columns: repeat(3, 60px); } .cross .f-pad { width: 60px; height: 60px; } }
+</style>
+</head>
+<body>
+<div class="w-fade-in" style="background:#fff"></div>
+<canvas class="w-canvas" id="world"></canvas>
+
+<div class="w-top">
+  <div class="w-pill w-title">🌀 เขาวงกต <span class="en">· MAZE</span></div>
+  <div class="w-icons"><button class="w-pill w-icon" id="soundBtn" title="เปิด/ปิดเสียง Sound">🔊</button></div>
+</div>
+<div class="w-caption" id="caption"></div>
+<div class="w-banner" id="banner"></div>
+<canvas id="map" width="296" height="296" aria-label="แผนที่ Map"></canvas>
+
+<div class="f-pads" id="pads">
+  <div class="cross">
+    <button class="f-pad" data-k="f" aria-label="เดินหน้า Forward">▲</button>
+    <button class="f-pad" data-k="l" aria-label="ซ้าย Left">◀</button>
+    <button class="f-pad" data-k="b" aria-label="หันหลัง Turn back">▼</button>
+    <button class="f-pad" data-k="r" aria-label="ขวา Right">▶</button>
+  </div>
+  <div class="side">
+    <button class="f-pad" id="viewBtn" title="เปลี่ยนมุมมอง Change view">👀</button>
+    <button class="f-pad go" id="hintBtn">💡 ใบ้ทาง</button>
+  </div>
+</div>
+
+<div class="w-fallback" id="fallback">
+  <div class="big">🌀</div>
+  <h2>โหลดฉาก 3D ไม่ได้</h2>
+  <div>ต้องต่ออินเทอร์เน็ตนะ / This page needs internet</div>
+  <a class="w-btn" href="menu.html">ไปหน้าเมนู ▶</a>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script src="world-kit.js"></script>
+<script src="floor-kit.js"></script>
+<script>
+  setTimeout(function () { if (!window.__worldReady) document.getElementById('fallback').classList.add('show'); }, 10000);
+</script>
+
+<script type="module">
+/* =========================================================
+   ชั้น 2 — เขาวงกต (Maze)
+   maths gate → dress a robot (all parts chosen = it comes alive) → walk a big maze, newly random every time
+   No timer and nothing dangerous: the map, the 💡 hint and the two camera views help a child who is lost
+   Each maze solved makes the next one bigger (up to 37×37 blocks)
+   ========================================================= */
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const kit = WorldKit(THREE, OrbitControls);
+const fk = FloorKit(kit);
+fk.exit(2);                                             // 🛗 ออก button and the pause card
+const { box, mat, shade } = kit;
+const $ = id => document.getElementById(id);
+kit.bindSoundButton($('soundBtn')); kit.bindFadeLinks();
+const stage = kit.createStage({ canvas: $('world'), shadowSize: 12 });
+const { scene, camera, controls, sun } = stage;
+controls.enabled = false; controls.enableDamping = false;
+const fx = kit.createConfetti(scene);
+
+// ── Robot parts ──
+const PARTS = [
+  { id: 'head', th: 'หัว', emoji: '🤖', options: [{ id: 'tv', th: 'จอทีวี', emoji: '📺' }, { id: 'round', th: 'โดม', emoji: '🔮' }, { id: 'cat', th: 'หูแมว', emoji: '🐱' }, { id: 'horn', th: 'มีเขา', emoji: '🐲' }] },
+  { id: 'body', th: 'ตัว', emoji: '🧰', options: [{ id: 'heart', th: 'หัวใจ', emoji: '💛' }, { id: 'star', th: 'ดาว', emoji: '⭐' }, { id: 'gear', th: 'เฟือง', emoji: '⚙️' }, { id: 'screen', th: 'จอไฟ', emoji: '🔋' }] },
+  { id: 'arms', th: 'แขน', emoji: '💪', options: [{ id: 'claw', th: 'ก้ามปู', emoji: '🦀' }, { id: 'fist', th: 'กำปั้น', emoji: '👊' }, { id: 'drill', th: 'สว่าน', emoji: '🔩' }, { id: 'wing', th: 'ปีก', emoji: '🪽' }] },
+  { id: 'legs', th: 'ขา', emoji: '🦿', options: [{ id: 'boots', th: 'บูต', emoji: '🥾' }, { id: 'wheel', th: 'ล้อ', emoji: '🛞' }, { id: 'spring', th: 'สปริง', emoji: '🌀' }, { id: 'jet', th: 'ไอพ่น', emoji: '🔥' }] },
+  { id: 'color', th: 'สี', emoji: '🎨', options: [{ id: 'blue', th: 'ฟ้า', color: '#4aa8e8' }, { id: 'red', th: 'แดง', color: '#e4574f' }, { id: 'green', th: 'เขียว', color: '#4fb86a' }, { id: 'purple', th: 'ม่วง', color: '#9a6fd0' }, { id: 'yellow', th: 'เหลือง', color: '#f2b71f' }] },
+];
+const robot = { g: new THREE.Group(), bodyG: new THREE.Group(), legL: null, legR: null, armL: null, armR: null, flame: [], spin: [], alive: false };
+robot.g.add(robot.bodyG); scene.add(robot.g);
+// Missing parts are drawn as pale grey "not chosen yet" shapes
+function buildRobot(v) {
+  const b = robot.bodyG;
+  b.clear(); robot.flame = []; robot.spin = [];
+  const C = (PARTS[4].options.find(o => o.id === v.color) || { color: '#c9ced6' }).color, D = shade(C, .72), G = '#8e98a6', K = '#2b2f3a', LIT = '#ffd23f', NO = '#d9dde3';
+  const eye = robot.alive ? '#7dffce' : '#5b6472';
+  const group = (x, y) => { const p = new THREE.Group(); p.position.set(x, y, 0); b.add(p); return p; };
+  // legs
+  robot.legL = group(-.15, .42); robot.legR = group(.15, .42);
+  [robot.legL, robot.legR].forEach(l => {
+    if (!v.legs) { box(l, .18, .4, .2, NO, 0, -.2, 0); return; }
+    box(l, .12, .22, .14, G, 0, -.1, 0);
+    if (v.legs === 'boots') { box(l, .2, .14, .24, D, 0, -.27, .02); box(l, .22, .1, .32, K, 0, -.37, .05); }
+    if (v.legs === 'wheel') { const w = new THREE.Mesh(new THREE.CylinderGeometry(.19, .19, .13, 16), mat(K)); w.rotation.z = Math.PI / 2; w.position.y = -.24; w.castShadow = true; l.add(w); box(w, .07, .15, .28, LIT, 0, 0, 0, false); robot.spin.push(w); }
+    if (v.legs === 'spring') { [0, 1, 2].forEach(i => box(l, .2 - i % 2 * .07, .05, .2 - i % 2 * .07, i % 2 ? K : G, 0, -.2 - i * .06, 0)); box(l, .24, .07, .26, D, 0, -.38, 0); }
+    if (v.legs === 'jet') { box(l, .2, .16, .2, D, 0, -.24, 0); const f = new THREE.Mesh(new THREE.ConeGeometry(.09, .22, 8), new THREE.MeshBasicMaterial({ color: '#ff9a2e' })); f.rotation.x = Math.PI; f.position.y = -.4; l.add(f); robot.flame.push(f); }
+  });
+  // body
+  box(b, .64, .56, .44, v.body ? C : NO, 0, .7, 0);
+  if (v.body) {
+    box(b, .66, .08, .46, D, 0, .46, 0);
+    const bx = (x, y, w, h, c) => box(b, w, h, .03, c, x, y, .235, false);
+    if (v.body === 'heart') { bx(-.07, .78, .12, .1, '#ff6b8f'); bx(.07, .78, .12, .1, '#ff6b8f'); bx(0, .72, .24, .08, '#ff6b8f'); bx(0, .65, .12, .08, '#ff6b8f'); }
+    if (v.body === 'star') { bx(0, .72, .3, .09, LIT); bx(0, .72, .09, .3, LIT); bx(0, .72, .19, .19, LIT); }
+    if (v.body === 'gear') { const w = new THREE.Mesh(new THREE.CylinderGeometry(.16, .16, .05, 8), mat('#cfd6df')); w.rotation.x = Math.PI / 2; w.position.set(0, .72, .235); b.add(w); bx(0, .72, .1, .1, K); robot.spin.push(w); }
+    if (v.body === 'screen') { bx(0, .72, .42, .28, K); [-.12, 0, .12].forEach((x, i) => bx(x, .68 + i * .03, .07, .1 + i * .06, '#7dffce')); }
+  }
+  // arms
+  robot.armL = group(-.4, .88); robot.armR = group(.4, .88);
+  [robot.armL, robot.armR].forEach((a, i) => {
+    const s = i ? 1 : -1;
+    if (!v.arms) { box(a, .16, .46, .18, NO, 0, -.2, 0); return; }
+    box(a, .2, .16, .22, D, 0, 0, 0);
+    if (v.arms !== 'wing') box(a, .12, .26, .14, G, 0, -.2, 0);
+    if (v.arms === 'claw') { [-.07, .07].forEach(x => box(a, .06, .16, .12, '#e4574f', x, -.4, 0)); box(a, .2, .07, .14, '#e4574f', 0, -.32, 0); }
+    if (v.arms === 'fist') box(a, .24, .22, .26, C, 0, -.4, 0);
+    if (v.arms === 'drill') { const c = new THREE.Mesh(new THREE.ConeGeometry(.12, .3, 8), mat('#cfd6df')); c.rotation.x = Math.PI; c.position.y = -.46; c.castShadow = true; a.add(c); robot.spin.push(c); }
+    if (v.arms === 'wing') [0, 1, 2].forEach(k => box(a, .34 - k * .07, .1, .07, k % 2 ? '#fff' : '#dff3ff', s * (.16 - k * .02), -.05 - k * .12, -.06));
+  });
+  // head
+  const h = new THREE.Group(); h.position.y = 1.28; b.add(h);
+  if (!v.head) box(h, .54, .46, .48, NO, 0, 0, 0);
+  else {
+    if (v.head === 'round') { const d = new THREE.Mesh(new THREE.SphereGeometry(.34, 18, 12), mat(C)); d.castShadow = true; h.add(d); }
+    else box(h, .62, .5, .5, C, 0, 0, 0);
+    box(h, .48, .28, .06, K, 0, 0, v.head === 'round' ? .3 : .24, false);
+    if (v.head === 'tv') { box(h, .05, .26, .05, G, 0, .36, 0); const bulb = new THREE.Mesh(new THREE.SphereGeometry(.08, 12, 8), new THREE.MeshBasicMaterial({ color: robot.alive ? '#ff5f6d' : '#8e98a6' })); bulb.position.y = .52; h.add(bulb); }
+    if (v.head === 'cat') [-.2, .2].forEach(x => { box(h, .18, .16, .12, D, x, .32, 0); box(h, .1, .12, .12, '#ffb3c8', x, .4, .01); });
+    if (v.head === 'horn') [-.26, .26].forEach(x => { box(h, .12, .2, .12, '#fff3d6', x, .33, 0); box(h, .08, .14, .08, '#fff3d6', x * 1.1, .47, 0); });
+    if (v.head === 'round') box(h, .3, .05, .3, LIT, 0, .34, 0);
+  }
+  const z = v.head === 'round' ? .345 : v.head ? .285 : .25;
+  [-.12, .12].forEach(x => { const e = new THREE.Mesh(kit.UNIT, new THREE.MeshBasicMaterial({ color: eye })); e.scale.set(.1, robot.alive ? .12 : .03, .02); e.position.set(x, .02, z); h.add(e); });
+  if (robot.alive) { const m = new THREE.Mesh(kit.UNIT, new THREE.MeshBasicMaterial({ color: eye })); m.scale.set(.18, .035, .02); m.position.set(0, -.09, z); h.add(m); }
+  robot.head = h;
+}
+function poseRobot(time, mode) {
+  const walk = mode === 'walk', sw = walk ? Math.sin(time * 11) * .6 : 0, b = robot.bodyG;
+  b.position.y = walk ? Math.abs(Math.sin(time * 11)) * .06 : mode === 'cheer' ? Math.abs(Math.sin(time * 7)) * .3 : robot.alive ? Math.sin(time * 2.4) * .02 : 0;
+  robot.legL.rotation.x = sw; robot.legR.rotation.x = -sw;
+  robot.armL.rotation.x = -sw; robot.armR.rotation.x = sw;
+  robot.armL.rotation.z = mode === 'cheer' ? -2.3 : robot.alive ? -.08 : 0; robot.armR.rotation.z = mode === 'cheer' ? 2.3 + Math.sin(time * 12) * .3 : robot.alive ? .08 : 0;
+  robot.head.rotation.z = robot.alive && !walk ? Math.sin(time * 1.7) * .06 : 0;
+  if (robot.alive) { robot.spin.forEach(w => { w.rotateY(walk ? .18 : .03); }); robot.flame.forEach((f, i) => f.scale.setScalar(.8 + Math.sin(time * 30 + i) * .25)); }
+}
+
+// ── Workshop (dress-up place), far away from the maze ──
+const SHOP = new THREE.Vector3(-200, 0, 0);
+const shop = new THREE.Group(); shop.position.copy(SHOP); scene.add(shop);
+for (let x = -7; x < 7; x++) for (let z = -5; z < 5; z++) box(shop, 1, .1, 1, (x + z) % 2 ? '#e7dcf5' : '#d8c9ee', x + .5, -.25, z + .5, false);
+box(shop, 14, 6, .3, '#b9a3de', 0, 2.8, -5, false);
+[['#8a5cc9', 2.2, -.1], ['#ffd23f', 1.9, 0]].forEach(([c, r, y]) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, .16, 40), mat(c)); m.position.y = y - .08; m.receiveShadow = true; shop.add(m); });
+[-4, 4].forEach(x => { box(shop, 2.4, .2, 1.2, '#8d6b4a', x, 1, -3.6); [-1, 1].forEach(k => box(shop, .15, 1.1, 1, '#6f5238', x + k, .4, -3.6)); box(shop, .5, .5, .5, '#e4574f', x - .6, 1.35, -3.6); box(shop, .4, .7, .4, '#4aa8e8', x + .3, 1.45, -3.6); });
+[-5, -2.5, 0, 2.5, 5].forEach((x, i) => box(shop, 1.1, 1.1, .1, ['#ffd23f', '#9fe8da', '#ff9fb8', '#9fe8da', '#ffd23f'][i], x, 3.7, -4.8, false));
+
+const shopDoor = fk.liftDoor(1.9); shop.add(shopDoor);
+fk.tapDoor($('world'), camera, shopDoor, () => state === 'dress');
+
+// ── Maze: odd cells are rooms, depth-first carving, then some walls opened so there is more than one way ──
+const THEMES = [
+  { th: 'ป่าบล็อก',   wall: ['#5fae58', '#6dbd62', '#54a04e'], base: '#8d6b4a', top: '#86c962', floor: ['#cbe9a0', '#bfe092'], sky: '#bfe8ff' },
+  { th: 'ทะเลทราย', wall: ['#e3b866', '#d9ab57', '#ecc579'], base: '#c08f43', top: '#f2d594', floor: ['#fff0c9', '#f9e6b4'], sky: '#ffe2b0' },
+  { th: 'เมืองน้ำแข็ง', wall: ['#9fd4ee', '#b3e0f5', '#8cc7e6'], base: '#6fa9cc', top: '#e9f8ff', floor: ['#f3fbff', '#e2f3fb'], sky: '#cfeaff' },
+  { th: 'ถ้ำคริสตัล', wall: ['#7a6bb0', '#8979c0', '#6c5da1'], base: '#4c4178', top: '#b59cf0', floor: ['#d9cdf5', '#cbbdec'], sky: '#b8a8e8' },
+  { th: 'เมืองขนม',   wall: ['#ff9fb8', '#ffb3c8', '#f58aa8'], base: '#8a5a44', top: '#fff3f6', floor: ['#fff5e0', '#ffe9cf'], sky: '#ffdcec' },
+];
+const DIRS = [[0, -1], [1, 0], [0, 1], [-1, 0]];          // 0 up(−z) 1 right 2 down 3 left
+let N, grid, theme, goal, gems, exitDir = 0, seen, level = 1, mazeG = null, exitG = null, startDoor = null;
+const H = 1.25;                                           // low enough that a wall behind the robot never hides it
+const open = (x, y) => x >= 0 && y >= 0 && x < N && y < N && grid[y][x] === 0;
+function bfs(sx, sy) {
+  const dist = new Map([[sy * N + sx, 0]]), prev = new Map(), q = [[sx, sy]];
+  for (let i = 0; i < q.length; i++) {
+    const [x, y] = q[i];
+    for (const [dx, dy] of DIRS) {
+      const k = (y + dy) * N + x + dx;
+      if (open(x + dx, y + dy) && !dist.has(k)) { dist.set(k, dist.get(y * N + x) + 1); prev.set(k, y * N + x); q.push([x + dx, y + dy]); }
+    }
+  }
+  return { dist, prev };
+}
+function pathTo(sx, sy, tx, ty) {
+  const { prev } = bfs(sx, sy), out = [];
+  for (let k = ty * N + tx; k !== sy * N + sx; k = prev.get(k)) { if (k === undefined) return []; out.unshift([k % N, Math.floor(k / N)]); }
+  return out;
+}
+function makeMaze() {
+  N = Math.min(37, 21 + (level - 1) * 4);
+  grid = Array.from({ length: N }, () => Array(N).fill(1));
+  const stack = [[1, 1]]; grid[1][1] = 0;
+  while (stack.length) {
+    const [x, y] = stack[stack.length - 1];
+    const next = DIRS.map(([dx, dy]) => [x + dx * 2, y + dy * 2, x + dx, y + dy]).filter(([a, b]) => a > 0 && b > 0 && a < N - 1 && b < N - 1 && grid[b][a]);
+    if (!next.length) { stack.pop(); continue; }
+    const [a, b, mx, my] = fk.pick(next);
+    grid[my][mx] = 0; grid[b][a] = 0; stack.push([a, b]);
+  }
+  for (let y = 1; y < N - 1; y++) for (let x = 1; x < N - 1; x++)
+    if (grid[y][x] && Math.random() < .07 && ((open(x - 1, y) && open(x + 1, y) && !open(x, y - 1) && !open(x, y + 1)) || (open(x, y - 1) && open(x, y + 1) && !open(x - 1, y) && !open(x + 1, y)))) grid[y][x] = 0;
+  // Goal = the room farthest from the start
+  const { dist } = bfs(1, 1);
+  let far = 0;
+  dist.forEach((d, k) => { if (d > far) { far = d; goal = { x: k % N, y: Math.floor(k / N) }; } });
+  seen = new Set();
+}
+function drawMaze() {
+  if (mazeG) { scene.remove(mazeG); mazeG.traverse(o => { if (o.isInstancedMesh) { o.dispose(); o.material.dispose(); } }); }
+  mazeG = new THREE.Group(); scene.add(mazeG);
+  const walls = [], floors = [];
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) (grid[y][x] ? walls : floors).push([x, y]);
+  const dummy = new THREE.Object3D(), col = new THREE.Color();
+  const inst = (list, w, h, d, yy, color, shadow) => {
+    const m = new THREE.InstancedMesh(kit.UNIT, new THREE.MeshLambertMaterial(), list.length);
+    list.forEach(([x, y], i) => { dummy.position.set(x, yy, y); dummy.scale.set(w, h, d); dummy.updateMatrix(); m.setMatrixAt(i, dummy.matrix); m.setColorAt(i, col.set(color(x, y))); });
+    m.castShadow = shadow; m.receiveShadow = true; m.frustumCulled = false; mazeG.add(m);
+  };
+  const shadeOf = (x, y) => theme.wall[(x * 7 + y * 13) % theme.wall.length];
+  inst(floors, 1, .2, 1, -.1, (x, y) => theme.floor[(x + y) % 2], false);
+  inst(walls, 1, .4, 1, .2, () => theme.base, true);
+  inst(walls, 1, H - .55, 1, .4 + (H - .55) / 2, shadeOf, true);
+  inst(walls, 1, .15, 1, H - .075, (x, y) => shade(theme.top, (x + y) % 2 ? 1 : .95), true);
+  // gems on rooms, away from start and goal
+  const rooms = floors.filter(([x, y]) => x % 2 && y % 2 && x + y > 4 && !(x === goal.x && y === goal.y)).sort(() => Math.random() - .5);
+  gems = rooms.slice(0, 6 + level * 2).map(([x, y], i) => {
+    const m = new THREE.Mesh(new THREE.OctahedronGeometry(.2), new THREE.MeshLambertMaterial({ color: ['#ff5f8f', '#38c6f4', '#ffd23f', '#7ddc6f'][i % 4], emissive: '#553300', emissiveIntensity: .3 }));
+    m.position.set(x, .55, y); m.castShadow = true; mazeG.add(m);
+    return { x, y, m, got: false };
+  });
+  // 🛗 the lift door at the start, on a side wall: walk into it (or tap it) to leave
+  exitDir = open(2, 1) ? 0 : 3;
+  startDoor = fk.liftDoor(.8, '🛗 ลิฟต์'); startDoor.position.set(exitDir ? .53 : 1, 0, exitDir ? 1 : .53); startDoor.rotation.y = exitDir ? Math.PI / 2 : 0; mazeG.add(startDoor);
+  // exit: a glowing gate with a light beam that can be seen over the walls
+  exitG = new THREE.Group(); exitG.position.set(goal.x, 0, goal.y); mazeG.add(exitG);
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(.42, .08, 10, 32), new THREE.MeshBasicMaterial({ color: '#ffd23f' })); ring.position.y = .62; exitG.add(ring);
+  const beam = new THREE.Mesh(new THREE.CylinderGeometry(.3, .3, 14, 20, 1, true), new THREE.MeshBasicMaterial({ color: '#fff3b0', transparent: true, opacity: .4, side: THREE.DoubleSide, depthWrite: false })); beam.position.y = 7; exitG.add(beam);
+  exitG.userData = { ring, beam };
+  const flag = kit.emojiSprite('🏁', '#f59e0b', .9); flag.position.y = 2.6; exitG.add(flag);
+  scene.background = new THREE.Color(theme.sky); scene.fog = new THREE.Fog(theme.sky, 16, 46);
+}
+
+// ── Walking: one block at a time; ▲ goes forward, ◀ ▶ turn, ▼ turns around (close view). Map view: arrows are plain directions ──
+const me = { x: 1, y: 1, px: 1, py: 1, t: 1, dir: 2, yaw: 0, route: [] };
+let state = 'gate', view = 'close', held = null, camYaw = 0, mapDirty = true, gemCount = 0, won = false;
+const DIRYAW = [Math.PI, Math.PI / 2, 0, -Math.PI / 2];   // model faces +z
+function turnTo(d) { me.dir = d; }
+function step(d) {
+  const [dx, dy] = DIRS[d];
+  me.dir = d;
+  if (me.x === 1 && me.y === 1 && d === exitDir) { held = null; me.route = []; fk.askExit(); return false; }
+  if (!open(me.x + dx, me.y + dy)) return false;
+  me.px = me.x; me.py = me.y; me.x += dx; me.y += dy; me.t = 0;
+  return true;
+}
+function pressKey(k) {
+  if (state !== 'play') return;
+  me.route = []; me.leave = false; clearHint();
+  if (view === 'map') { held = { f: 0, r: 1, b: 2, l: 3 }[k]; return; }
+  if (k === 'f') { held = 'f'; return; }
+  turnTo((me.dir + { r: 1, b: 2, l: 3 }[k]) % 4); kit.tones([520], .05, 'triangle', .08);
+}
+const release = k => { if (held === 'f' && k === 'f') held = null; else if (typeof held === 'number' && { f: 0, r: 1, b: 2, l: 3 }[k] === held) held = null; };
+document.querySelectorAll('.cross .f-pad').forEach(b => fk.hold(b, () => pressKey(b.dataset.k), () => release(b.dataset.k)));
+const KEYS = { ArrowUp: 'f', w: 'f', ArrowLeft: 'l', a: 'l', ArrowRight: 'r', d: 'r', ArrowDown: 'b', s: 'b' };
+addEventListener('keydown', e => { const k = KEYS[e.key]; if (!k || state !== 'play') return; e.preventDefault(); if (!e.repeat) pressKey(k); });
+addEventListener('keyup', e => { const k = KEYS[e.key]; if (k) release(k); });
+addEventListener('blur', () => { held = null; });
+
+// Tap the floor to walk there (only nearby, so the maze still has to be solved)
+const ray = new THREE.Raycaster(), plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), hitP = new THREE.Vector3();
+let press = null;
+$('world').addEventListener('pointerdown', e => { press = [e.clientX, e.clientY, performance.now()]; });
+$('world').addEventListener('pointerup', e => {
+  if (!press || state !== 'play' || fk.paused || Math.hypot(e.clientX - press[0], e.clientY - press[1]) > 12 || performance.now() - press[2] > 500) return;
+  ray.setFromCamera(new THREE.Vector2(e.clientX / innerWidth * 2 - 1, 1 - e.clientY / innerHeight * 2), camera);
+  if (!ray.ray.intersectPlane(plane, hitP)) return;
+  if (ray.intersectObject(startDoor, true).length) { const p = pathTo(me.x, me.y, 1, 1); if (p.length > 8) fk.caption('ไกลไปนิด กดปุ่ม 🛗 ออก ก็ได้นะ'); else { me.route = p; held = null; clearHint(); if (!p.length) fk.askExit(); else me.leave = true; } return; }
+  const x = Math.round(hitP.x), y = Math.round(hitP.z);
+  if (!open(x, y)) return;
+  const p = pathTo(me.x, me.y, x, y);
+  if (p.length && p.length <= 8) { me.route = p; me.leave = false; held = null; clearHint(); }
+  else if (p.length) fk.caption('ไกลไปนิด แตะใกล้ๆ นะ');
+});
+
+// 💡 Hint: glowing footprints for the next few blocks
+const hintDots = [];
+function clearHint() { hintDots.forEach(m => scene.remove(m)); hintDots.length = 0; }
+const hintMat = new THREE.MeshBasicMaterial({ color: '#ff8a1c' });
+$('hintBtn').onclick = () => {
+  if (state !== 'play') return;
+  clearHint();
+  pathTo(me.x, me.y, goal.x, goal.y).slice(0, 8).forEach(([x, y], i) => {
+    const m = new THREE.Mesh(new THREE.CylinderGeometry(.2 - i * .012, .2 - i * .012, .05, 16), hintMat);
+    m.position.set(x, .05, y); scene.add(m); hintDots.push(m);
+  });
+  kit.tones([660, 880, 1047], .09); kit.speak('ตามจุดสีส้มไปเลย');
+};
+$('viewBtn').onclick = () => { view = view === 'close' ? 'map' : 'close'; held = null; $('viewBtn').textContent = view === 'close' ? '👀' : '🦅'; fk.caption(view === 'close' ? '👀 มุมมองใกล้' : '🦅 มุมมองจากข้างบน'); };
+
+// ── Small map: shows only the places already walked + the flag ──
+const mctx = $('map').getContext('2d');
+function drawMap() {
+  mapDirty = false;
+  const s = 296 / N;
+  mctx.fillStyle = '#eadfcb'; mctx.fillRect(0, 0, 296, 296);
+  seen.forEach(k => { const x = k % N, y = Math.floor(k / N); mctx.fillStyle = grid[y][x] ? theme.wall[0] : '#fffaf0'; mctx.fillRect(x * s, y * s, s + .5, s + .5); });
+  mctx.font = `${Math.max(20, s * 2)}px serif`; mctx.textAlign = 'center'; mctx.textBaseline = 'middle';
+  mctx.fillText('🏁', (goal.x + .5) * s, (goal.y + .5) * s);
+  mctx.fillText('🛗', 1.5 * s, 1.5 * s);
+  mctx.save(); mctx.translate((me.x + .5) * s, (me.y + .5) * s); mctx.rotate(me.dir * Math.PI / 2);
+  mctx.fillStyle = '#e4574f'; mctx.beginPath(); mctx.moveTo(0, -11); mctx.lineTo(9, 9); mctx.lineTo(-9, 9); mctx.fill(); mctx.restore();
+}
+function look() { for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) { const x = me.x + dx, y = me.y + dy; if (x >= 0 && y >= 0 && x < N && y < N) seen.add(y * N + x); } mapDirty = true; }
+
+// ── Flow ──
+const hud = fk.hud('เพชร');
+function startMaze() {
+  theme = fk.pick(THEMES); makeMaze(); drawMaze(); clearHint();
+  Object.assign(me, { x: 1, y: 1, px: 1, py: 1, t: 1, route: [], leave: false });
+  me.dir = open(2, 1) ? 1 : 2;
+  me.yaw = DIRYAW[me.dir]; camYaw = me.yaw; gemCount = 0; won = false; held = null;
+  shop.visible = false; state = 'play'; camReady = false;
+  $('pads').classList.add('show'); $('map').classList.add('show'); hud.show(true); look();
+  fk.caption(`🗺️ ${theme.th} — หาประตูแสง 🏁`, 3500); kit.speak('หาประตูแสงให้เจอนะ');
+}
+function win() {
+  won = true; state = 'won'; held = null;
+  $('pads').classList.remove('show'); $('map').classList.remove('show'); hud.show(false);
+  fx.burst(me.x, 1.4, me.y, undefined, 40); kit.cheer(); kit.speak('ถึงแล้ว เก่งมาก');
+  const record = fk.saveBest('maze', level);
+  setTimeout(() => fk.result({
+    emoji: '🏁', title: 'ออกจากเขาวงกตได้แล้ว!',
+    lines: [`🌀 ด่านที่ ${level} (${N}×${N})`, `💎 เก็บเพชร ${gemCount} / ${gems.length}`, record ? '🏆 สถิติใหม่!' : `🏆 ไปไกลสุด ด่าน ${fk.best('maze')}`],
+    buttons: [{ text: '▶ เขาวงกตใหม่', fn: () => { level++; startMaze(); } }, { text: '🛗 กลับลิฟต์', white: true, fn: fk.toLift }],
+  }), 1700);
+}
+buildRobot({}); robot.g.position.copy(SHOP);
+let chooser = null, cheerUntil = 0;
+fk.mathGate(() => {
+  state = 'dress'; fk.caption('🤖 ช่วยแต่งหุ่นยนต์ให้ครบนะ'); kit.speak('ช่วยแต่งหุ่นยนต์ให้ครบนะ');
+  chooser = fk.chooser({
+    cats: PARTS, doneText: '🌀 เข้าเขาวงกต!',
+    onPick: (c, id, v) => buildRobot(v),
+    onComplete: v => {                                    // every part chosen → it comes alive
+      robot.alive = true; buildRobot(v); cheerUntil = performance.now() + 2600;
+      fx.burst(SHOP.x, 1.8, 0, undefined, 36); fk.banner('⚡ หุ่นยนต์มีชีวิตแล้ว!'); kit.tones([262, 330, 392, 523, 659, 784], .09); kit.speak('หุ่นยนต์มีชีวิตแล้ว');
+    },
+    onDone: startMaze,
+  });
+});
+// The browser Back button can restore a finished page; start fresh so the maths gate comes first again
+addEventListener('pageshow', e => { if (e.persisted) location.reload(); });
+
+// ── Camera ──
+let camReady = false;
+const want = new THREE.Vector3(), tgt = new THREE.Vector3();
+const portrait = () => innerWidth < innerHeight;
+function setCam(dt) {
+  if (state === 'gate' || state === 'dress') {
+    shopDoor.position.set(portrait() ? -1.15 : -2, -.2, -4.75); shopDoor.scale.setScalar(portrait() ? 1.45 : 1.7);
+    // leave room for the tray: below the robot, or beside it on phones held sideways
+    if (fk.sideTray()) { want.set(SHOP.x + 1.6, 1.8, 6.2); tgt.set(SHOP.x + 1.6, 1.15, 0); }
+    else { want.set(SHOP.x + 1.2, 2, portrait() ? 8 : 8.6); tgt.set(SHOP.x, portrait() ? .1 : .35, 0); }
+  } else if (view === 'map') {
+    const h = portrait() ? 13 : 11;
+    want.set(robot.g.position.x, h, robot.g.position.z + 3.2); tgt.set(robot.g.position.x, 0, robot.g.position.z + (portrait() ? .6 : .3));
+  } else {
+    // just above and behind the robot, over the top of the walls, looking forward
+    const bx = -Math.sin(camYaw), bz = -Math.cos(camYaw);
+    want.set(robot.g.position.x + bx * 1.9, 3.3, robot.g.position.z + bz * 1.9); tgt.set(robot.g.position.x - bx * 1.5, .5, robot.g.position.z - bz * 1.5);
+  }
+  if (!camReady) { camera.position.copy(want); controls.target.copy(tgt); camReady = true; }
+  else { const k = 1 - Math.exp(-dt * 7); camera.position.lerp(want, k); controls.target.lerp(tgt, k); }
+  const fov = state === 'play' || state === 'won' ? (portrait() ? 66 : 52) : (portrait() ? 46 : 36);
+  if (camera.fov !== fov) { camera.fov = fov; camera.updateProjectionMatrix(); }
+}
+const turn = (a, b, k) => { let d = (b - a) % (Math.PI * 2); if (d > Math.PI) d -= Math.PI * 2; if (d < -Math.PI) d += Math.PI * 2; return a + d * k; };
+
+function update(dt, time) {
+  let mode = 'idle';
+  if (state === 'play' && !fk.paused) {
+    if (me.t < 1) {
+      me.t = Math.min(1, me.t + dt * 3.6);
+      if (me.t === 1) {                                  // arrived on a block
+        look(); clearPassed();
+        const g = gems.find(g => !g.got && g.x === me.x && g.y === me.y);
+        if (g) { g.got = true; gemCount++; mazeG.remove(g.m); fx.burst(g.x, .7, g.y, undefined, 10); kit.tones([880, 1175], .07); }
+        if (me.x === goal.x && me.y === goal.y) win();
+        else if (me.leave && me.x === 1 && me.y === 1) { me.leave = false; me.dir = exitDir; fk.askExit(); }
+      }
+    }
+    if (me.t === 1 && state === 'play') {
+      if (me.route.length) { const [x, y] = me.route.shift(); step(DIRS.findIndex(([dx, dy]) => dx === x - me.x && dy === y - me.y)); }
+      else if (held === 'f') step(me.dir);
+      else if (typeof held === 'number') step(held);
+      if (me.t < 1) mode = 'walk';
+    } else mode = 'walk';
+    hud.set('🌀 ด่าน ' + level, `💎 ${gemCount}/${gems.length}`, '');
+  }
+  if (state === 'play' || state === 'won') {
+    robot.g.position.set(me.px + (me.x - me.px) * me.t, 0, me.py + (me.y - me.py) * me.t);
+    const k = 1 - Math.exp(-dt * 9);
+    me.yaw = turn(me.yaw, DIRYAW[me.dir], k); camYaw = turn(camYaw, DIRYAW[me.dir], 1 - Math.exp(-dt * 6));
+    robot.g.rotation.y = state === 'won' ? time * 3 : me.yaw; robot.g.scale.setScalar(.62);
+    gems.forEach(g => { g.m.rotation.y = time * 2; g.m.position.y = .55 + Math.sin(time * 3 + g.x) * .08; });
+    exitG.userData.ring.rotation.y = time * 1.5; exitG.userData.beam.material.opacity = .32 + Math.sin(time * 3) * .1;
+    hintDots.forEach((m, i) => { m.position.y = .06 + Math.max(0, Math.sin(time * 6 - i * .7)) * .12; });
+    sun.position.set(robot.g.position.x + 6, 18, robot.g.position.z + 5); sun.target.position.copy(robot.g.position);
+    if (mapDirty) drawMap();
+    poseRobot(time, state === 'won' ? 'cheer' : mode);
+  } else {
+    const r = robot.g; r.scale.setScalar(1.25);
+    r.rotation.y = .18 + Math.sin(time * .7) * .35;
+    sun.position.set(SHOP.x + 5, 14, 9); sun.target.position.copy(SHOP);
+    poseRobot(time, performance.now() < cheerUntil ? 'cheer' : 'idle');
+  }
+  fx.update(dt); setCam(dt);
+}
+function clearPassed() { if (hintDots.length && hintDots[0].position.x === me.x && hintDots[0].position.z === me.y) scene.remove(hintDots.shift()); }
+stage.start(update);
+window.__worldReady = true;
+document.getElementById('fallback').classList.remove('show');   // a slow connection may have shown it already
+window.__maze = { fk, me, state: () => state, chooser: () => chooser, info: () => ({ N, goal, theme: theme.th, grid: grid.map(r => r.join('')).join('/') }), path: () => pathTo(me.x, me.y, goal.x, goal.y), goTo: p => { me.route = p; }, jump: (x, y) => { Object.assign(me, { x, y, px: x, py: y, t: 1 }); look(); }, view: () => $('viewBtn').click() };
+</script>
+</body>
+</html>

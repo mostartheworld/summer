@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🚀 ตะลุยอวกาศ — Summer's World</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="world-theme.css">
+<link rel="stylesheet" href="floor-theme.css">
+<style>
+  .f-hud .box { white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="w-fade-in" style="background:#fff"></div>
+<canvas class="w-canvas" id="world"></canvas>
+
+<div class="w-top">
+  <div class="w-pill w-title">🚀 ตะลุยอวกาศ <span class="en">· SPACE</span></div>
+  <div class="w-icons"><button class="w-pill w-icon" id="soundBtn" title="เปิด/ปิดเสียง Sound">🔊</button></div>
+</div>
+<div class="w-caption" id="caption"></div>
+<div class="w-banner" id="banner"></div>
+<div class="f-pads" id="pads">
+  <div class="f-pair">
+    <button class="f-pad" id="leftBtn" aria-label="ซ้าย Left">◀</button>
+    <button class="f-pad" id="rightBtn" aria-label="ขวา Right">▶</button>
+  </div>
+  <button class="f-pad go" id="fireBtn">🔥 ยิง</button>
+</div>
+
+<div class="w-fallback" id="fallback">
+  <div class="big">🚀</div>
+  <h2>โหลดฉาก 3D ไม่ได้</h2>
+  <div>ต้องต่ออินเทอร์เน็ตนะ / This page needs internet</div>
+  <a class="w-btn" href="menu.html">ไปหน้าเมนู ▶</a>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script src="world-kit.js"></script>
+<script src="floor-kit.js"></script>
+<script>
+  setTimeout(function () { if (!window.__worldReady) document.getElementById('fallback').classList.add('show'); }, 10000);
+</script>
+
+<script type="module">
+/* =========================================================
+   ชั้น 4 — ตะลุยอวกาศ (Space)
+   maths gate → build a spaceship (parts + colour) → Start → fly forward, ◀ ▶ dodge meteors
+   Every 3 meteors dodged = 1 more bullet; 🔥 shoots the meteor ahead
+   Gets faster and faster up to a limit; 3 shields, and there is always an open lane
+   ========================================================= */
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const kit = WorldKit(THREE, OrbitControls);
+const fk = FloorKit(kit);
+fk.exit(4);                                             // 🛗 ออก button and the pause card
+const { box, mat, shade } = kit;
+const $ = id => document.getElementById(id);
+kit.bindSoundButton($('soundBtn')); kit.bindFadeLinks();
+const stage = kit.createStage({ canvas: $('world'), shadowSize: 10 });
+const { scene, camera, controls, sun, hemi } = stage;
+controls.enabled = false; controls.enableDamping = false;
+const fx = kit.createConfetti(scene);
+
+// ── Game numbers (easy to tune) ──
+const SPEED0 = 13, SPEED_UP = .15, SPEED_MAX = 30;      // units per second, + per meteor dodged, limit
+const LANES = 5, LANE_W = 2.1;                          // five lanes, the ship moves smoothly between them
+const ROW_TIME = [1.35, .8];                            // seconds between meteor rows: start → fastest
+const HEARTS = 3, SAFE = 1.8, AMMO0 = 3, AMMO_MAX = 12, DODGES_PER_BULLET = 3;
+const laneX = l => (l - (LANES - 1) / 2) * LANE_W;
+
+// ── Spaceship parts ──
+const PARTS = [
+  { id: 'nose', th: 'หัวยาน', emoji: '🔺', options: [{ id: 'cone', th: 'แหลม', emoji: '🔺' }, { id: 'round', th: 'กลม', emoji: '🔵' }, { id: 'shark', th: 'ฉลาม', emoji: '🦈' }, { id: 'drill', th: 'สว่าน', emoji: '🔩' }] },
+  { id: 'wing', th: 'ปีก', emoji: '🪽', options: [{ id: 'delta', th: 'สามเหลี่ยม', emoji: '📐' }, { id: 'double', th: 'สองชั้น', emoji: '✈️' }, { id: 'star', th: 'ดาว', emoji: '⭐' }, { id: 'ring', th: 'วงแหวน', emoji: '🪐' }] },
+  { id: 'engine', th: 'เครื่องยนต์', emoji: '🔥', options: [{ id: 'one', th: '1 ท่อ', emoji: '1️⃣' }, { id: 'two', th: '2 ท่อ', emoji: '2️⃣' }, { id: 'three', th: '3 ท่อ', emoji: '3️⃣' }] },
+  { id: 'color', th: 'สี', emoji: '🎨', options: [{ id: 'red', th: 'แดง', color: '#e4574f' }, { id: 'blue', th: 'ฟ้า', color: '#4aa8e8' }, { id: 'green', th: 'เขียว', color: '#4fb86a' }, { id: 'purple', th: 'ม่วง', color: '#9a6fd0' }, { id: 'orange', th: 'ส้ม', color: '#f28c38' }] },
+];
+const ship = { g: new THREE.Group(), flames: [], spin: [] };
+scene.add(ship.g);
+// The ship points to −z; parts not chosen yet are pale grey
+function buildShip(v) {
+  const b = ship.g; b.clear(); ship.flames = []; ship.spin = [];
+  const picked = PARTS[3].options.find(o => o.id === v.color), C = picked ? picked.color : '#d5dae2', D = shade(C, .7), W = '#f4f7fa', NO = '#aeb6c2';
+  const add = (geo, m, x, y, z, rx = 0, ry = 0, rz = 0) => { const o = new THREE.Mesh(geo, typeof m === 'string' ? mat(m) : m); o.position.set(x, y, z); o.rotation.set(rx, ry, rz); o.castShadow = true; b.add(o); return o; };
+  box(b, .8, .6, 1.7, C, 0, 0, 0); box(b, .86, .16, 1.5, W, 0, -.1, 0); box(b, .6, .1, 1.2, D, 0, .34, .1);
+  add(new THREE.SphereGeometry(.34, 18, 12), new THREE.MeshLambertMaterial({ color: '#bfe7ff', transparent: true, opacity: .75 }), 0, .36, -.25);
+  box(b, .3, .26, .28, '#ffd23f', 0, .4, -.22); box(b, .2, .12, .04, '#ffd9bf', 0, .4, -.375, false);   // Summer's yellow helmet inside
+  if (!v.nose) box(b, .5, .4, .4, NO, 0, 0, -1.02);
+  if (v.nose === 'cone') { box(b, .62, .46, .3, C, 0, 0, -1); add(new THREE.ConeGeometry(.3, .7, 4), W, 0, 0, -1.48, -Math.PI / 2, Math.PI / 4); }
+  if (v.nose === 'round') add(new THREE.SphereGeometry(.42, 18, 12), W, 0, 0, -.9);
+  if (v.nose === 'shark') { box(b, .66, .44, .6, D, 0, .02, -1.1); box(b, .6, .1, .5, '#fff', 0, -.24, -1.1); [-.2, 0, .2].forEach(x => box(b, .1, .12, .06, '#fff', x, -.16, -1.42, false)); [-.34, .34].forEach(x => box(b, .03, .14, .14, '#fff', x, .1, -1.2, false)); }
+  if (v.nose === 'drill') { const c = add(new THREE.ConeGeometry(.36, .9, 8), '#cfd6df', 0, 0, -1.3, -Math.PI / 2); ship.spin.push(c); }
+  if (!v.wing) [-.7, .7].forEach(x => box(b, .6, .1, .6, NO, x, -.1, .3));
+  if (v.wing === 'delta') [-1, 1].forEach(k => { box(b, .6, .1, 1, D, k * .7, -.1, .3); box(b, .5, .1, .6, C, k * 1.2, -.1, .5); box(b, .08, .4, .5, W, k * 1.45, .05, .55); });
+  if (v.wing === 'double') [-.22, .28].forEach(y => { box(b, 2.7, .08, .5, y > 0 ? C : D, 0, y, .2); }), [-1.2, 1.2].forEach(x => box(b, .08, .5, .3, W, x, .03, .2));
+  if (v.wing === 'star') [-1, 1].forEach(k => { box(b, .9, .1, .22, '#ffd23f', k * .85, -.05, .2); box(b, .22, .1, .9, '#ffd23f', k * .95, -.05, .2); const o = box(b, .5, .1, .5, '#ffe58a', k * .95, -.04, .2); o.rotation.y = Math.PI / 4; });
+  if (v.wing === 'ring') add(new THREE.TorusGeometry(1.15, .1, 8, 36), '#ffd9a0', 0, 0, .25, Math.PI / 2 - .12);
+  const xs = { one: [0], two: [-.24, .24], three: [-.32, 0, .32] }[v.engine];
+  if (!xs) box(b, .5, .3, .3, NO, 0, 0, .95);
+  else xs.forEach(x => {
+    add(new THREE.CylinderGeometry(.15, .2, .4, 12), '#5b6472', x, 0, 1, Math.PI / 2);
+    const f = add(new THREE.ConeGeometry(.15, .9, 10), new THREE.MeshBasicMaterial({ color: '#ffb13d', transparent: true, opacity: .9 }), x, 0, 1.6, Math.PI / 2); f.castShadow = false;
+    ship.flames.push(f);
+  });
+}
+
+// ── Space ──
+scene.background = new THREE.Color('#141433'); scene.fog = new THREE.Fog('#141433', 60, 135);
+hemi.color.set('#c9c6ff'); hemi.groundColor.set('#4a3f86'); hemi.intensity = 1.5;
+const STARS = 700, starPos = new Float32Array(STARS * 3);
+for (let i = 0; i < STARS; i++) {
+  const a = Math.random() * Math.PI * 2, r = 9 + Math.random() * 45;
+  starPos.set([Math.cos(a) * r, Math.sin(a) * r * .8 + 4, -Math.random() * 150 + 15], i * 3);
+}
+const starGeo = new THREE.BufferGeometry(); starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+const starPts = new THREE.Points(starGeo, new THREE.PointsMaterial({ color: '#ffffff', size: .42, fog: false })); starPts.frustumCulled = false; scene.add(starPts);
+const planets = [['#ff9f7a', 9, -34, 14, -110], ['#7ad0c9', 6, 30, 20, -125], ['#c79bff', 12, 46, -6, -130], ['#ffd98a', 4, -20, 26, -90]].map(([c, r, x, y, z], i) => {
+  const g = new THREE.Group(); g.position.set(x, y, z); scene.add(g);
+  const m = new THREE.Mesh(new THREE.SphereGeometry(r, 24, 16), new THREE.MeshLambertMaterial({ color: c, fog: false })); g.add(m);
+  if (i % 2 === 0) { const t = new THREE.Mesh(new THREE.TorusGeometry(r * 1.6, r * .12, 6, 48), new THREE.MeshLambertMaterial({ color: shade(c, 1.15), fog: false })); t.rotation.x = 1.25; g.add(t); }
+  return g;
+});
+const THEME = ['#141433', '#2a1540', '#0f2c40', '#3a1a2e', '#1a2f25'];
+let themeI = 0; const tmpC = new THREE.Color();
+// Build platform, shown while building the ship
+const pad = new THREE.Group(); scene.add(pad);
+[['#5a50a0', 2.8, -1.05], ['#ffd23f', 2.5, -.97], ['#453c82', 2.3, -.9]].forEach(([c, r, y]) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, .14, 40), mat(c)); m.position.y = y; m.receiveShadow = true; pad.add(m); });
+
+const door = fk.liftDoor(1.35); pad.add(door);
+fk.tapDoor($('world'), camera, door, () => state === 'dress');
+
+// ── Meteors: lumpy blocks ──
+const meteors = [], shots = [];
+const ROCK = ['#a98f7c', '#98806e', '#b79c86', '#8f86a8'];
+function addMeteor(lane, z) {
+  const g = new THREE.Group(), c = fk.pick(ROCK);
+  box(g, 1.2, 1.1, 1.2, c, 0, 0, 0, false);
+  [[.5, .3, .1], [-.4, -.35, .3], [.1, .5, -.4], [-.45, .25, -.3], [.3, -.45, .35]].forEach(([x, y, z2]) => box(g, .55, .55, .55, shade(c, .85 + Math.random() * .3), x, y, z2, false));
+  box(g, .3, .3, .12, shade(c, .6), .1, 0, .6, false);
+  g.position.set(laneX(lane), 0, z); scene.add(g);
+  meteors.push({ g, lane, spin: new THREE.Vector3(Math.random() * 2 - 1, Math.random() * 2 - 1, Math.random()), gone: false });
+}
+// Each row always leaves free lanes, and one of them is at most one lane away from the last safe lane
+let safeLane = 2;
+function addRow(z) {
+  safeLane = Math.max(0, Math.min(LANES - 1, safeLane + fk.pick([-1, 0, 1])));
+  const count = Math.min(LANES - 2, 1 + Math.floor(Math.random() * (1.6 + dodged / 14)));
+  const lanes = [0, 1, 2, 3, 4].filter(l => l !== safeLane).sort(() => Math.random() - .5);
+  if (Math.random() < .55) { const l = ship.lane; if (l !== safeLane) { lanes.splice(lanes.indexOf(l), 1); lanes.unshift(l); } }   // often one right ahead, so he has to move
+  lanes.slice(0, count).forEach(l => addMeteor(l, z));
+}
+
+// ── Game ──
+let state = 'gate', speed = 0, dodged = 0, shot = 0, score = 0, ammo = AMMO0, toBullet = 0, hearts = HEARTS, safe = 0, rowIn = 0, time0 = 0, chooser = null, startTimer = null, cool = 0;
+ship.lane = 2; let shipX = 0, held = 0, repeat = 0;
+const hud = fk.hud('ลูกที่หลบได้');
+const total = () => Math.floor(score);
+function showHud() {
+  hud.set('🛡️'.repeat(Math.max(0, hearts)) + '▫️'.repeat(HEARTS - Math.max(0, hearts)), dodged, '⭐ ' + total());
+  const t = `🔥 ยิง ×${ammo}`; if ($('fireBtn').textContent !== t) { $('fireBtn').textContent = t; $('fireBtn').disabled = !ammo; }
+}
+function clearAll() { meteors.splice(0).forEach(m => scene.remove(m.g)); shots.splice(0).forEach(m => scene.remove(m)); }
+function newRun() {
+  clearAll(); clearInterval(startTimer);
+  speed = SPEED0; dodged = shot = score = toBullet = 0; ammo = AMMO0; hearts = HEARTS; safe = 0; rowIn = .2; ship.lane = 2; safeLane = 2; shipX = 0; themeI = 0; held = 0; cool = 0;
+  state = 'ready'; pad.visible = false; hud.show(true); $('pads').classList.add('show'); showHud(); camReady = false;
+  let n = 3;
+  const tick = () => {
+    if (fk.paused) return;
+    if (n > 0) { fk.banner(n, 750); kit.tones([330], .1); n--; }
+    else { clearInterval(startTimer); state = 'run'; fk.banner('ออกบิน! 🚀', 800); kit.tones([262, 392, 523, 784], .08); fk.caption('◀ ▶ หลบอุกกาบาต  🔥 ยิง'); }
+  };
+  tick(); startTimer = setInterval(tick, 850);
+}
+function move(d) { if (state !== 'run' || fk.paused) return; const l = Math.max(0, Math.min(LANES - 1, ship.lane + d)); if (l !== ship.lane) { ship.lane = l; kit.tones([440 + l * 40], .04, 'sine', .08); } }
+function fire() {
+  if (state !== 'run' || fk.paused || !ammo || cool > 0) return;
+  ammo--; cool = .18;
+  const m = new THREE.Mesh(new THREE.SphereGeometry(.22, 10, 8), new THREE.MeshBasicMaterial({ color: '#7dffce' }));
+  m.scale.z = 2.4; m.position.set(laneX(ship.lane), 0, -1.6); scene.add(m); shots.push(m);
+  kit.tones([988, 660], .05, 'square', .08); showHud();
+}
+function boom(m, colors) { fx.burst(m.g.position.x, .2, m.g.position.z, colors, 16); scene.remove(m.g); m.gone = true; }
+function bump(m) {
+  boom(m, ['#ff9a2e', '#ffd23f', '#a98f7c']); hearts--; safe = SAFE; speed = Math.max(SPEED0, speed * .85); kit.tones([200, 150], .12, 'square', .1);
+  if (hearts > 0) fk.caption(hearts === 1 ? 'ระวังนะ เหลือเกราะ 1 อัน 🛡️' : 'ไม่เป็นไร บินต่อเลย! 💪', 1500);
+  else over();
+}
+function over() {
+  state = 'over'; hud.show(false); $('pads').classList.remove('show');
+  const record = fk.saveBest('space', total());
+  kit.speak(record ? 'สถิติใหม่ เก่งมาก' : 'บินเก่งมาก');
+  if (record) { kit.cheer(); fx.burst(shipX, 1, 0, undefined, 36); }
+  setTimeout(() => fk.result({
+    emoji: record ? '🏆' : '🚀', title: record ? 'สถิติใหม่!' : 'บินเก่งมาก!',
+    lines: [`☄️ หลบได้ ${dodged} ลูก · ยิงโดน ${shot} ลูก`, `⭐ คะแนน ${total()}`, `🏆 สูงสุด ${fk.best('space')}`],
+    buttons: [{ text: '🔄 เล่นอีก', fn: newRun }, { text: '🛠️ แต่งยาน', white: true, fn: toBuild }, { text: '🛗 กลับลิฟต์', white: true, fn: fk.toLift }],
+  }), 1100);
+}
+function toBuild() { clearAll(); state = 'dress'; ship.lane = 2; shipX = 0; themeI = 0; pad.visible = true; camReady = false; chooser.show(true); }
+fk.mathGate(() => {
+  state = 'dress'; fk.caption('🛠️ สร้างยานอวกาศของเราเอง'); kit.speak('สร้างยานอวกาศเลย');
+  chooser = fk.chooser({
+    cats: PARTS, doneText: '🚀 Start!',
+    onPick: (c, id, v) => buildShip(v),
+    onComplete: () => { fx.burst(0, .8, 0); kit.cheer(); fk.banner('🚀 ยานพร้อมบิน!'); },
+    onDone: newRun,
+  });
+});
+addEventListener('pageshow', e => { if (e.persisted) location.reload(); });
+// Buttons, keys, and tapping the left / right half of the screen
+const press = d => { move(d); held = d; repeat = .28; }, free = d => { if (held === d) held = 0; };
+fk.hold($('leftBtn'), () => press(-1), () => free(-1));
+fk.hold($('rightBtn'), () => press(1), () => free(1));
+fk.hold($('fireBtn'), fire);
+$('world').addEventListener('pointerdown', e => { e.preventDefault(); move(e.clientX < innerWidth / 2 ? -1 : 1); });
+addEventListener('keydown', e => {
+  if (state !== 'run') return;
+  const d = { ArrowLeft: -1, a: -1, ArrowRight: 1, d: 1 }[e.key];
+  if (d) { e.preventDefault(); if (!e.repeat) press(d); }
+  if (e.key === ' ' || e.key === 'ArrowUp') { e.preventDefault(); if (!e.repeat) fire(); }
+});
+addEventListener('keyup', e => { const d = { ArrowLeft: -1, a: -1, ArrowRight: 1, d: 1 }[e.key]; if (d) free(d); });
+addEventListener('blur', () => { held = 0; });
+
+// ── Camera: behind the ship, looking forward ──
+let camReady = false;
+const want = new THREE.Vector3(), tgt = new THREE.Vector3();
+const portrait = () => innerWidth < innerHeight;
+function setCam(dt) {
+  const inGame = ['ready', 'run', 'over'].includes(state);
+  if (!inGame) {
+    door.position.set(portrait() ? -1 : -1.7, -.9, portrait() ? -2 : -1.4); door.scale.setScalar(portrait() ? .95 : 1);
+    if (fk.sideTray()) { want.set(1.9, 3, 6.4); tgt.set(1.9, 0, 0); }
+    else { want.set(0, 3.2, portrait() ? 9.5 : 8); tgt.set(0, portrait() ? -1.6 : -1.1, 0); }
+  } else if (portrait()) { want.set(shipX * .55, 4.6, 8.4); tgt.set(shipX * .4, .2, -8); }
+  else { want.set(shipX * .55, 3.1, 6.6); tgt.set(shipX * .4, .5, -8); }
+  if (!camReady) { camera.position.copy(want); controls.target.copy(tgt); camReady = true; }
+  else { const k = 1 - Math.exp(-dt * 6); camera.position.lerp(want, k); controls.target.lerp(tgt, k); }
+  const fov = inGame ? (portrait() ? 70 : 58) : (portrait() ? 46 : 36);
+  if (camera.fov !== fov) { camera.fov = fov; camera.updateProjectionMatrix(); }
+}
+
+function game(dt) {
+  const run = state === 'run', v = run ? speed : state === 'ready' ? 6 : 1.5;
+  if (run) {
+    score += dt * speed * .25; safe = Math.max(0, safe - dt); cool = Math.max(0, cool - dt);
+    if (held) { repeat -= dt; if (repeat <= 0) { move(held); repeat = .2; } }
+    rowIn -= dt;
+    if (rowIn <= 0) { addRow(dodged || meteors.length ? -72 : -44); const k = (speed - SPEED0) / (SPEED_MAX - SPEED0); rowIn = ROW_TIME[0] + (ROW_TIME[1] - ROW_TIME[0]) * k; }
+  }
+  shipX += (laneX(ship.lane) - shipX) * (1 - Math.exp(-dt * 13));
+  shots.forEach(m => { m.position.z -= 55 * dt; });
+  meteors.forEach(m => {
+    if (run) m.g.position.z += v * dt;
+    m.g.rotation.x += m.spin.x * dt; m.g.rotation.y += m.spin.y * dt;
+    const { x, z } = m.g.position;
+    for (const b of shots) if (!m.gone && !b.used && Math.abs(b.position.x - x) < .9 && Math.abs(b.position.z - z) < 1.6) { b.used = true; boom(m, ['#7dffce', '#ffd23f', '#ffffff']); shot++; score += 15; kit.tones([660, 990], .06); }
+    if (m.gone || !run) return;
+    if (!safe && Math.abs(z) < 1.2 && Math.abs(x - shipX) < 1.05) bump(m);
+    else if (z > 2.4 && !m.done) {
+      m.done = true; dodged++; score += 10; speed = Math.min(SPEED_MAX, speed + SPEED_UP);
+      if (++toBullet >= DODGES_PER_BULLET) { toBullet = 0; if (ammo < AMMO_MAX) { ammo++; fk.caption('🔥 ได้กระสุนเพิ่ม!', 900); kit.tones([784, 1175], .06); } }
+      if (dodged % 20 === 0) { themeI = (themeI + 1) % THEME.length; fk.banner(`☄️ ${dodged} ลูกแล้ว!`, 1100); kit.cheer(); }
+    }
+  });
+  for (let i = meteors.length - 1; i >= 0; i--) if (meteors[i].gone || meteors[i].g.position.z > 14) scene.remove(meteors.splice(i, 1)[0].g);
+  for (let i = shots.length - 1; i >= 0; i--) if (shots[i].used || shots[i].position.z < -80) scene.remove(shots.splice(i, 1)[0]);
+  for (let i = 2; i < starPos.length; i += 3) { starPos[i] += v * dt; if (starPos[i] > 15) starPos[i] -= 150; }
+  starGeo.attributes.position.needsUpdate = true;
+  planets.forEach((g, i) => { g.rotation.y += dt * .1; g.position.z += v * dt * .04; if (g.position.z > -55) g.position.z = -135 - i * 4; });
+  if (run) showHud();
+}
+function update(dt, time) {
+  if (!fk.paused) game(dt);
+  scene.background.lerp(tmpC.set(THEME[themeI]), Math.min(1, dt)); scene.fog.color.copy(scene.background);
+  const inGame = ['ready', 'run', 'over'].includes(state), g = ship.g;
+  g.position.set(shipX, Math.sin(time * 2) * .08, 0);
+  g.rotation.set(0, inGame ? 0 : time * .6, inGame ? -(laneX(ship.lane) - shipX) * .28 : 0);
+  g.visible = !(safe > 0 && Math.sin(time * 26) > .35);
+  ship.flames.forEach((f, i) => f.scale.set(1, (inGame ? 1 : .5) + Math.sin(time * 34 + i) * .22, 1));
+  ship.spin.forEach(m => m.rotateY(dt * 8));
+  sun.position.set(6, 14, 10); sun.target.position.set(0, 0, 0);
+  fx.update(dt); setCam(dt);
+}
+buildShip({});
+stage.start(update);
+window.__worldReady = true;
+document.getElementById('fallback').classList.remove('show');   // a slow connection may have shown it already
+// For tests: run(sec, auto) plays without drawing; auto = always steer to the safest lane
+window.__space = { fk, state: () => state, chooser: () => chooser, move, fire, meteors,
+  info: () => ({ dodged, shot, score: total(), hearts, ammo, speed: +speed.toFixed(1), lane: ship.lane }),
+  run(sec, auto, dt = 1 / 60) {
+    let think = 0;
+    for (let t = 0; t < sec && state === 'run'; t += dt) {
+      think -= dt;
+      if (auto && think <= 0) {
+        think = .25;                                       // like a child: one press at a time, four a second at most
+        const near = meteors.filter(m => !m.gone && m.g.position.z < 2.6).sort((a, b) => b.g.position.z - a.g.position.z);
+        if (near.length) { const z = near[0].g.position.z, row = near.filter(m => m.g.position.z > z - 3).map(m => m.lane); const free = [0, 1, 2, 3, 4].filter(l => !row.includes(l)).sort((a, b) => Math.abs(a - ship.lane) - Math.abs(b - ship.lane))[0]; if (free !== ship.lane) move(Math.sign(free - ship.lane)); }
+      }
+      game(dt);
+    }
+    return this.info();
+  } };
+</script>
+</body>
+</html>
