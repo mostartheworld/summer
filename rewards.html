@@ -2,6 +2,8 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>🏆 รางวัลเด็กดี — Summer's World</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -358,10 +360,11 @@ $('resetBtn').onclick = () => {
 
 // history (anyone can look)
 $('histBtn').onclick = () => {
+  const esc = v => String(v ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
   const fmt = t => new Date(t).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' });
   const reasonEmoji = why => (REASONS.find(r => r.th === why) || { e: '⭐' }).e;
   $('log').innerHTML = R.log.length
-    ? R.log.slice(0, 40).map(l => `<li><span>${reasonEmoji(l.why)} ${l.why} <b>+${l.n}⭐</b></span><span class="when">${fmt(l.t)}</span></li>`).join('')
+    ? R.log.slice(0, 40).map(l => `<li><span>${reasonEmoji(l.why)} ${esc(l.why)} <b>+${esc(l.n)}⭐</b></span><span class="when">${esc(fmt(l.t))}</span></li>`).join('')
     : '<li>ยังไม่มีดาว — ทำดีแล้วป๊าม๊าจะให้ดาวนะ ⭐</li>';
   $('hist').classList.add('show');
 };
